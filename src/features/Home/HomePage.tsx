@@ -20,7 +20,7 @@ export default function HomePage(){
     if (error) return <p>Error al conectar con el backend</p>;
 
     return (
-        <div className="p-4 bg-amber-500">
+        <div className="p-4 bg-amber-400">
             <h1 className="text-xl font-bold">Test API</h1>
             <p>Status: {data?.status}</p>
             <p>Message: {data?.message}</p>
