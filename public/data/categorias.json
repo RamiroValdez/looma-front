@@ -1,0 +1,17 @@
+[
+ {"id": 1, "nombre": "Romance"},
+  {"id": 2, "nombre": "Terror"},
+  {"id": 3, "nombre": "Ciencia Ficción"},
+  {"id": 4, "nombre": "Historia"},
+  {"id": 5, "nombre": "Fantasía"},
+  {"id": 6, "nombre": "Paranormal"},
+  {"id": 7, "nombre": "Misterio"},
+  {"id": 8, "nombre": "Aventura"},
+  {"id": 9, "nombre": "Humor"},
+  {"id": 10, "nombre": "Drama"},
+  {"id": 11, "nombre": "Suspenso"},
+  {"id": 12, "nombre": "Filosofía"},
+  {"id": 13, "nombre": "Juvenil"},
+  {"id": 14, "nombre": "LGBTQ+"},
+  {"id": 15, "nombre": "Otros"}
+]
