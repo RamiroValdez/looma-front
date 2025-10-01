@@ -1,6 +1,5 @@
 import {Routes, Route, BrowserRouter } from "react-router-dom";
 import './App.css'
-import HomePage from "./features/Home/HomePage.tsx";
 import ExplorePage from "./features/Explore/ExplorePage.tsx";
 import Home from "./features/Home/Home.tsx";
 
@@ -9,7 +8,7 @@ function App() {
   return (
       <BrowserRouter>
           <Routes>
-              <Route path="/" element={<HomePage />} />
+              <Route path="/" element={<Home />} />
               <Route path="/Explore" element={<ExplorePage />} />    
               <Route path="/home" element={<Home />} />
           </Routes>
