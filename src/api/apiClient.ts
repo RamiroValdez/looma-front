@@ -9,13 +9,25 @@ export const  apiClient = axios.create({
     },
 });
 
-export const  apiRequest = async <T>(config: AxiosRequestConfig): Promise<T> => {
+export const apiRequest = async <T>(
+    config: AxiosRequestConfig & {
+        customHeaders?: Record<string, string>
+    }
+): Promise<T> => {
     try {
-        const response = await apiClient.request<T>(config);
+        const { customHeaders, ...axiosConfig } = config;
+
+        const response = await apiClient.request<T>({
+            ...axiosConfig,
+            headers: {
+                ...apiClient.defaults.headers.common,
+                ...customHeaders,
+            }
+        });
+
         return response.data;
     } catch (error) {
-        // Handle error appropriately
         console.error('API request error:', error);
         throw error;
     }
-}
+};
