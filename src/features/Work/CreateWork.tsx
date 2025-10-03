@@ -2,7 +2,7 @@ import Button from "../../components/Button";
 import { useNavigate } from 'react-router-dom'; 
 import { useState, useEffect } from 'react';
 import { WorkItem } from '../../components/WorkItem'; 
-import type { Work } from '../../types/MyWorks.types'; // DTO
+import type { Work } from '../../types.ts/MyWorks.types'; // DTO
 import { fetchMyWorks } from '../../services/MyWorks.service'; // SERVICE
 
 const PURPLE_BG_CLASS = "bg-[#5C17A6]"; 

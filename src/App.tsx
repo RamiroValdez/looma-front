@@ -1,9 +1,10 @@
 import {Routes, Route, BrowserRouter } from "react-router-dom";
 import './App.css'
 import ExplorePage from "./features/Explore/ExplorePage.tsx";
-
+import CreatePiece from "./features/Work/CreateWork.tsx";
+import Create from "./features/Work/Create.tsx";
 import Home from "./features/Home/Home.tsx";
-import CreatePiece from "./features/Piece/CreateWork.tsx";
+
 
 
 function App() {
@@ -15,7 +16,9 @@ function App() {
               <Route path="/" element={<Home />} />
               <Route path="/home" element={<Home />} />
               <Route path="/Explore" element={<ExplorePage />} />
-                <Route path="/MyWorks" element={<CreatePiece />} />
+              <Route path="/MyWorks" element={<CreatePiece />} />
+              <Route path="/Create" element={<Create /> } />
+
           </Routes>
       </BrowserRouter>
   )
