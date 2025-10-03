@@ -1,4 +1,4 @@
-import type { BookDTO } from "../types/BookDTO";
+import type { BookDTO } from "../dto/BookDTO";
 import { Link } from "react-router-dom";
 
 interface Props {
