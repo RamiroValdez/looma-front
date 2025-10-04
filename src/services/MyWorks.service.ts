@@ -1,6 +1,6 @@
 // src/services/workService.ts
 
-import type { Work } from '../types.ts/MyWorks.types'; 
+import type { Work } from '../dto/MyWorksDTO';
 
 const WORKS_JSON_URL = '/works.json'; 
 

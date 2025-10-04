@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect } from "react";
-import type { BookDTO } from "../types/BookDTO";
+import type { BookDTO } from "../dto/BookDTO";
 import BookCard from "./BookCard";
 import ScrollArrow from "./ScrollArrow"; 
 

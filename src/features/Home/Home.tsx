@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { getUserData } from "../../services/userService";
-import type { BookDTO } from "../../types/BookDTO";
+import type { BookDTO } from "../../dto/BookDTO";
 import Section from "../../components/Section";
 
 const Home = () => {

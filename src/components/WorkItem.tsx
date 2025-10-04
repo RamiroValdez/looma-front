@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import type { Work } from '../types/MyWorks.types';
+import type { Work } from '../dto/MyWorksDTO';
 
 export const WorkItem = ({ work }: { work: Work }) => {
     

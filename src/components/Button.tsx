@@ -5,7 +5,7 @@ export default function Button({
   colorClass,
   children,
   disabled = false,
-}: 
+}:
 
 {
   type?: "button" | "submit";
@@ -14,7 +14,7 @@ export default function Button({
   colorClass: string;
   children?: React.ReactNode;
   disabled?: boolean;
-}) 
+})
 
 {
   const baseClasses =
@@ -24,7 +24,7 @@ export default function Button({
     <button
       type={type}
       onClick={onClick}
-      disabled={disabled}  
+      disabled={disabled}
       className={`${baseClasses} ${colorClass}`}
     >
       {children ? children : text}
