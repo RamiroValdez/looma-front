@@ -3,17 +3,38 @@ import type { WorkDTO } from '../../dto/WorkDTO';
 import { WorkService } from '../../services/work.service';
 import { ChapterItem } from '../../components/ChapterItem';
 import Button from '../../components/Button';
+import Tag from '../../components/Tag';
+import { MORE_CATEGORIES, SUGGESTED_TAGS} from "../../types.ts/CreateWork.types";
+import { handleAddCategory, handleAddTag } from "../../services/CreateWork.service";
 
 interface ManageWorkPageProps {
   workId?: number;
 }
 
 export const ManageWorkPage: React.FC<ManageWorkPageProps> = ({ workId }) => {
+
   const [work, setWork] = useState<WorkDTO | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const defaultWorkId = 1; // por defecto que coincide con nuestro JSON
   const currentWorkId = workId || defaultWorkId;
+
+  // Estados para categorías
+  const [isCategoryMenuOpen, setIsCategoryMenuOpen] = useState(false);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+
+  // Estados para etiquetas
+  const [currentTags, setCurrentTags] = useState<string[]>([]);
+  const [isAddingTag, setIsAddingTag] = useState(false);
+  const [newTagText, setNewTagText] = useState('');
+  const [isSuggestionMenuOpen, setIsSuggestionMenuOpen] = useState(false);
+  const [showIATooltip, setShowIATooltip] = useState(false);
+  const [showBannerTooltip, setShowBannerTooltip] = useState(false);
+
+  // Estados para el panel de administración
+  const [allowSubscription, setAllowSubscription] = useState(false);
+  const [price, setPrice] = useState('');
+  const [workStatus, setWorkStatus] = useState('');
 
   useEffect(() => {
     const fetchWork = async () => {
@@ -21,6 +42,10 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = ({ workId }) => {
         setLoading(true);
         const workData = await WorkService.getWorkById(currentWorkId);
         setWork(workData);
+        
+        // Inicializar estados con datos de la obra 
+        setSelectedCategories(workData.categories.map(cat => cat.name));
+        setCurrentTags(workData.tags || []);
       } catch (err) {
         setError('Error loading work');
         console.error('Error:', err);
@@ -31,6 +56,22 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = ({ workId }) => {
 
     fetchWork();
   }, [currentWorkId]);
+
+  // Input de Tags 
+  const handleTagSubmit = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleAddTag(newTagText, currentTags, setCurrentTags, setIsAddingTag, setNewTagText, setIsSuggestionMenuOpen);
+    }
+  };
+
+  // Función para limpiar todos los campos del panel de administración
+  const handleClearAdminPanel = () => {
+    setAllowSubscription(false);
+    setPrice('');
+    setWorkStatus('');
+    console.log('Campos de administración limpiados');
+  };
 
   if (loading) {
     return (
@@ -57,11 +98,25 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = ({ workId }) => {
       >
         <div className="absolute inset-0 bg-opacity-40"></div>
         <div className="absolute top-4 right-4">
-          <Button 
-            text="Editar Banner"
-            onClick={() => console.log('Editar Banner')}
-            colorClass="bg-[#5C17A6] hover:bg-[#4A1285] focus:ring-[#5C17A6]"
-          />
+          <div 
+            className="relative"
+            onMouseEnter={() => setShowBannerTooltip(true)}
+            onMouseLeave={() => setShowBannerTooltip(false)}
+          >
+            <Button 
+              text="Editar Banner"
+              onClick={() => console.log('Editar Banner')}
+              colorClass="bg-[#5C17A6] hover:bg-[#4A1285] focus:ring-[#5C17A6] text-white"
+            />
+            
+            {showBannerTooltip && (
+              <div 
+                className="absolute z-20 top-0 mt-1 mr-4 w-max max-w-sm right-full bg-gray-800 text-white px-3 py-2 rounded-md text-sm"
+              >
+                *Se admiten PNG, JPG, JPEG, WEBP de máximo 20mb. (Max 1345x256px).
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -81,10 +136,10 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = ({ workId }) => {
                 <Button 
                   text="Editar Portada"
                   onClick={() => console.log('Editar Portada')}
-                  colorClass="bg-[#3C2A50] hover:bg-[#2A1C3A] focus:ring-[#3C2A50] text-sm mb-2 w-48"
+                  colorClass="bg-[#3C2A50] hover:bg-[#2A1C3A] focus:ring-[#3C2A50] text-sm mb-2 w-48 text-white"
                 />
-                <p className="text-xs text-gray-500">
-                  Formatos: JPG, PNG, WEBP (máx. 5MB)
+                <p className="text-xs text-gray-500 w-48 text-center">
+                  *Se admiten PNG, JPG, JPEG, WEBP de máximo 20mb.
                 </p>
               </div>
             </div>
@@ -103,20 +158,40 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = ({ workId }) => {
             <div className="mb-6">
               <div className="flex items-center gap-2">
                 <span className="text-black font-semibold text-lg">Categorías:</span>
-                <div className="flex flex-wrap gap-2">
-                  {work.categories.map((category) => (
-                    <span 
-                      key={category.id}
-                      className="px-3 py-1 bg-[#F0EEF6] text-[#172FA6] border border-[#172FA6] rounded-full text-sm"
-                    >
-                      {category.name}
-                    </span>
+                <div className="flex flex-wrap gap-2 relative">
+                  {selectedCategories.map((category) => (
+                    <Tag
+                      key={category}
+                      text={category}
+                      onRemove={() =>
+                        setSelectedCategories(selectedCategories.filter(c => c !== category))
+                      }
+                      colorClass="bg-transparent text-[#172FA6] border-[#172FA6]"
+                    />
                   ))}
                   <Button 
-                    text="+"
-                    onClick={() => console.log('Agregar categoría')}
-                    colorClass="bg-[#F0EEF6] hover:bg-[#A0ADED] focus:ring-[#172FA6] !text-[#172FA6] hover:!text-white border border-[#172FA6] h-8 w-8 rounded-full flex items-center justify-center text-2xl p-0 leading-none font-light"
+                    text={'+'}
+                    onClick={() => setIsCategoryMenuOpen(!isCategoryMenuOpen)}
+                    colorClass={`w-8 h-8 pt-0 flex justify-center rounded-full border-2 border-[#172FA6] text-[#172FA6] text-2xl font-medium leading-none hover:bg-[#172FA6] hover:text-white z-10`}
                   />
+
+                  {/* MENU FLOTANTE DE CATEGORÍAS */}
+                  {isCategoryMenuOpen && (
+                    <div className="absolute z-20 top-10 mt-1 mr-[-10%] w-max max-w-sm lg:max-w-md">
+                      <div className="bg-white p-4 border border-gray-300 rounded-md shadow-lg flex flex-wrap gap-2">
+                        {MORE_CATEGORIES.filter((c) => !selectedCategories.includes(c)).map((category) => (
+                          <Tag
+                            key={category}
+                            text={category}
+                            colorClass="border border-gray-300 text-gray-600 bg-transparent hover:bg-gray-100"
+                            onClick={() =>
+                              handleAddCategory(category, selectedCategories, setSelectedCategories, setIsCategoryMenuOpen)
+                            }
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -133,27 +208,86 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = ({ workId }) => {
             <div className="mb-6">
               <div className="flex items-center gap-2">
                 <span className="text-black font-semibold text-lg">Etiquetas:</span>
-                <div className="flex flex-wrap gap-2">
-                  <span className="px-3 py-1 bg-[#F0EEF6] text-[#5C17A6] border border-[#5C17A6] rounded-full text-sm">
-                    aventura
-                  </span>
-                  <span className="px-3 py-1 bg-[#F0EEF6] text-[#5C17A6] border border-[#5C17A6] rounded-full text-sm">
-                    distopía
-                  </span>
-                  <span className="px-3 py-1 bg-[#F0EEF6] text-[#5C17A6] border border-[#5C17A6] rounded-full text-sm">
-                    supervivencia
-                  </span>
-                  <Button 
-                    text="+"
-                    onClick={() => console.log('Agregar etiqueta')}
-                    colorClass="bg-[#F0EEF6] hover:bg-[#C9A4F2] focus:ring-[#5C17A6] !text-[#5C17A6] hover:!text-white border border-[#5C17A6] h-8 w-8 rounded-full flex items-center justify-center text-2xl p-0 leading-none font-light"
-                  />
-                  <button
-                    onClick={() => console.log('Generar etiquetas automáticamente')}
-                    className="bg-[#F0EEF6] hover:bg-[#C9A4F2] focus:ring-[#5C17A6] text-[#5C17A6] hover:text-white border border-[#5C17A6] h-8 w-8 rounded-full flex items-center justify-center text-sm p-0 transition focus:outline-none focus:ring-2 focus:ring-offset-2"
+                <div className="flex flex-wrap gap-2 relative">
+                  {currentTags.map((tag) => (
+                    <Tag
+                      key={tag}
+                      text={tag}
+                      colorClass={`border-[#5C17A6] text-[#5C17A6] bg-transparent`}
+                      onRemove={() =>
+                        setCurrentTags(currentTags.filter(t => t !== tag))
+                      }
+                    />
+                  ))}
+
+                  {isAddingTag ? (
+                    <input
+                      type="text"
+                      value={newTagText}
+                      onChange={(e) => setNewTagText(e.target.value)}
+                      onKeyDown={handleTagSubmit}
+                      onBlur={() => setIsAddingTag(false)}
+                      autoFocus
+                      placeholder="Añadir nueva etiqueta"
+                      className="p-1 border border-gray-400 rounded-md text-sm w-[150px] focus:outline-none focus:ring-2 focus:ring-opacity-50"
+                    />
+                  ) : (
+                    <Button
+                      type="button"
+                      text="+"
+                      onClick={() => setIsAddingTag(true)}
+                      colorClass={`w-8 h-8 pt-0 flex justify-center rounded-full border-2 border-[#5C17A6] text-[#5C17A6] text-2xl font-medium leading-none hover:bg-[#5C17A6] hover:text-white`}
+                    />
+                  )}
+
+                  {/* BOTON IA Y TOOLTIP */}
+                  <div 
+                    className="relative"
+                    onMouseEnter={() => setShowIATooltip(true)}
+                    onMouseLeave={() => setShowIATooltip(false)}
                   >
-                    <span className="material-symbols-outlined text-xs">wand_stars</span>
-                  </button>
+                    <Button
+                    type="button"
+                    onClick={() => setIsSuggestionMenuOpen(!isSuggestionMenuOpen)}
+                    colorClass="w-8 h-8 !px-0 !py-0 flex items-center justify-center rounded-full border-2 border-[#5C17A6] text-white hover:bg-opacity-90 z-10"
+                  >
+                  <img 
+                    src="/img/magic.png" 
+                    className="w-6 h-6 hover:cursor-pointer"  
+                    alt="Sugerencias IA" 
+                  />
+                  </Button>
+                  
+                  {showIATooltip && (
+                    <div 
+                      className="absolute z-20 top-0 mt-1 ml-4 w-max max-w-xs left-full bg-gray-800 text-white px-2 py-1 rounded-md whitespace-nowrap"
+                    >
+                      Sugerencias de la IA
+                      </div>
+                    )}
+                  </div>
+
+                  {/* MENU FLOTANTE DE SUGERENCIAS */}
+                  {isSuggestionMenuOpen && (
+                    <div className="absolute z-20 top-10 mt-1 mr-[-30%] w-max max-w-xs">
+                      <div className="bg-white p-4 border border-gray-300 rounded-md shadow-lg flex flex-wrap gap-2">
+                        {SUGGESTED_TAGS
+                          .filter(tag => !currentTags.includes(tag))
+                          .map((tag) => (
+                            <Tag
+                              key={tag}
+                              text={tag}
+                              colorClass="border border-gray-300 text-gray-600 bg-transparent hover:bg-gray-100" 
+                              onClick={() => handleAddTag(tag, currentTags, setCurrentTags, setIsAddingTag, setNewTagText, setIsSuggestionMenuOpen)}
+                            />
+                          ))}
+                        
+                        {SUGGESTED_TAGS.filter(tag => !currentTags.includes(tag)).length === 0 && (
+                          <p className="text-gray-500 text-sm italic">No hay más sugerencias disponibles.</p>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -178,7 +312,7 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = ({ workId }) => {
                     <Button 
                       text="Agregar Capítulo"
                       onClick={() => console.log('Agregar Capítulo')}
-                      colorClass="bg-[#5C17A6] hover:bg-[#4A1285] focus:ring-[#5C17A6]"
+                      colorClass="bg-[#5C17A6] hover:bg-[#4A1285] focus:ring-[#5C17A6] text-white"
                     />
                   </div>
                 </div>
@@ -197,7 +331,12 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = ({ workId }) => {
                 <div className="space-y-4">
                   <div>
                     <label className="flex items-center text-base text-black">
-                      <input type="checkbox" className="mr-2" />
+                      <input 
+                        type="checkbox" 
+                        className="mr-2" 
+                        checked={allowSubscription}
+                        onChange={(e) => setAllowSubscription(e.target.checked)}
+                      />
                       <span>Permitir suscripción a obra</span>
                     </label>
                   </div>
@@ -212,6 +351,8 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = ({ workId }) => {
                         <input 
                           type="number" 
                           placeholder="0.00"
+                          value={price}
+                          onChange={(e) => setPrice(e.target.value)}
                           className="px-2 py-2 text-base text-black rounded-r focus:outline-none focus:ring-2 focus:ring-[#5C17A6] w-24"
                           min="0"
                           step="0.01"
@@ -225,14 +366,28 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = ({ workId }) => {
                   <div className="space-y-2">
                     <div>
                       <label className="flex items-center text-base text-black">
-                        <input type="radio" name="estado" className="mr-2" />
+                        <input 
+                          type="radio" 
+                          name="estado" 
+                          value="paused"
+                          checked={workStatus === 'paused'}
+                          onChange={(e) => setWorkStatus(e.target.value)}
+                          className="mr-2" 
+                        />
                         <span>Marcar como pausado</span>
                       </label>
                     </div>
                     
                     <div>
                       <label className="flex items-center text-base text-black">
-                        <input type="radio" name="estado" className="mr-2" />
+                        <input 
+                          type="radio" 
+                          name="estado" 
+                          value="finished"
+                          checked={workStatus === 'finished'}
+                          onChange={(e) => setWorkStatus(e.target.value)}
+                          className="mr-2" 
+                        />
                         <span>Marcar como finalizado</span>
                       </label>
                     </div>
@@ -242,8 +397,8 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = ({ workId }) => {
                   
                   <div className="flex gap-3 pt-2">
                     <button 
-                      onClick={() => console.log('Eliminar')}
-                      className="text-red-600 hover:text-red-800 text-sm font-medium transition-colors duration-200 flex-1"
+                      onClick={handleClearAdminPanel}
+                      className="text-red-600 hover:text-red-800 text-sm font-medium transition-colors duration-200 flex-1 cursor-pointer"
                     >
                       Eliminar
                     </button>

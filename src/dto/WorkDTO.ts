@@ -7,6 +7,7 @@ export interface WorkDTO {
   bannerUrl: string;
   status: 'paused' | 'finished' | 'in_progress';
   categories: CategoryDTO[];
+  tags: string[];
   chapters: ChapterDTO[];
   createdAt: string;
   updatedAt: string;

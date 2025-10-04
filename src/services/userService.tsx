@@ -1,4 +1,4 @@
-import userData from "../data/userData.json";
+import userData from "../../public/data/userData.json";
 import type { BookDTO } from "../dto/BookDTO";
 
 interface UserData {
