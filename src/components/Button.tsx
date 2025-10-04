@@ -1,16 +1,33 @@
-export default function Button({text, onClick, colorClass}: {
-    text: string, 
-    onClick: () => void,
-    colorClass: string
-}) {
+export default function Button({
+  type = "button",
+  text,
+  onClick,
+  colorClass,
+  children,
+  disabled = false,
+}:
 
-        const baseClasses = "text-white rounded transition px-4 py-2 focus:outline-none focus:ring-2 focus:ring-offset-2";
+{
+  type?: "button" | "submit";
+  text?: string;
+  onClick: () => void;
+  colorClass: string;
+  children?: React.ReactNode;
+  disabled?: boolean;
+})
 
-    return (
-        <button
-            onClick={onClick}
-            className={`${baseClasses} ${colorClass}`}>
-            {text}
-        </button>
-    );
+{
+  const baseClasses =
+    "rounded transition px-4 py-2 focus:outline-none focus:ring-2 focus:ring-offset-2";
+
+  return (
+    <button
+      type={type}
+      onClick={onClick}
+      disabled={disabled}
+      className={`${baseClasses} ${colorClass}`}
+    >
+      {children ? children : text}
+    </button>
+  );
 }
