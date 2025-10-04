@@ -1,7 +1,7 @@
 import {Routes, Route, BrowserRouter } from "react-router-dom";
 import './App.css'
 import ExplorePage from "./features/Explore/ExplorePage.tsx";
-import CreatePiece from "./features/Work/CreateWork.tsx";
+import CreatePiece from "./features/Work/MyWorks.tsx";
 import Create from "./features/Work/Create.tsx";
 import Home from "./features/Home/Home.tsx";
 
