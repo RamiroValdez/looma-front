@@ -19,15 +19,28 @@ export default function Create() {
   const [newTagText, setNewTagText] = useState('');
   const [isSuggestionMenuOpen, setIsSuggestionMenuOpen] = useState(false);
   const [showIATooltip, setShowIATooltip] = useState(false);
-  const [format, setFormat] = useState('');
 
+  // Form inputs
+  const [format, setFormat] = useState('');
   const [nameWork, setNameWork] = useState('');
   const [description, setDescription] = useState('');
   const [language, setLanguage] = useState('');
+
   const [bannerFile, setBannerFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [showCoverPopup, setShowCoverPopup] = useState(false);
  
+  const [error, setError] = useState<string | null>(null);
+
+    // validación del Formulario 
+    const isSubmitEnabled = 
+        nameWork.trim() !== '' && 
+        description.trim() !== '' &&
+        format !== '' && 
+        language !== '' && 
+        selectedCategories.length > 0 && 
+        currentTags.length > 0;
+
   // input de Tags (Enter)
   const handleTagSubmit = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
@@ -35,9 +48,6 @@ export default function Create() {
       handleAddTag(newTagText, currentTags, setCurrentTags, setIsAddingTag, setNewTagText, setIsSuggestionMenuOpen);
     }
   };
-
-            const [error, setError] = useState<string | null>(null);
-
            
                 const handleClick = () => {
                 fileInputRef.current?.click();
@@ -65,8 +75,13 @@ export default function Create() {
 
            
 
-                const handleSubmitForm = (e: { preventDefault: () => void; }) => {
+                const handleSubmitForm = async (e: { preventDefault: () => void; }) => {
                 e.preventDefault();
+
+                if (!isSubmitEnabled) {
+                console.error("Error: Intento de envío de formulario incompleto.");
+                return; 
+        }
                 const formData = new FormData();
                 formData.append('nombre', nameWork);
                 formData.append('descripcion', description);
@@ -76,16 +91,34 @@ export default function Create() {
                 formData.append('etiquetas', JSON.stringify(currentTags));
                 if (bannerFile) formData.append('banner', bannerFile);
 
-                    console.log("=== FormData a enviar ===");
-                    console.log({
-                    nombre: nameWork,
-                    descripcion: description,
-                    formato: format,
-                    idioma: language,
-                    categorias: selectedCategories,
-                    etiquetas: currentTags,
-                    banner: bannerFile,
-                    });
+                try {
+        
+        await new Promise(resolve => setTimeout(resolve, 1500)); 
+        const success = true; 
+        if (success) {
+            console.log("¡Obra creada con éxito!");
+            
+            // si la respuesta es buena.
+            navigate("/ManageWork"); 
+            console.log("=== FormData a enviar ===");
+            console.log({
+            nombre: nameWork,
+            descripcion: description,
+            formato: format,
+            idioma: language,
+            categorias: selectedCategories,
+            etiquetas: currentTags,
+            banner: bannerFile,
+             });
+        } else {
+            alert("Error al guardar la obra. Intente nuevamente.");
+        }
+        
+    } catch (error) {
+        console.error("Error en la conexión o en el envío:", error);
+        alert("Ocurrió un error inesperado al enviar los datos.");
+        }
+                
 
                     for (let pair of formData.entries()) {
                     console.log(pair[0]+ ':', pair[1]);
@@ -103,10 +136,8 @@ export default function Create() {
 
 
             return (
-
                 <main>
                 <form onSubmit={handleSubmitForm}>
-
                 <section>
             {/* BANNER DE SUBIDA */}
             <div
@@ -173,19 +204,25 @@ export default function Create() {
         {/* Contenedor Derecho: Formulario */}
         <div className="w-3/4 pl-8 border-l border-gray-300">
           {/* Nombre de la obra */}
-          <div className="flex items-center mb-6">
-            <label className="w-1/4 text-lg font-medium text-gray-700">Nombre de la obra</label>
-            <input
-              type="text"
-              value={nameWork}
-                onChange={e => setNameWork(e.target.value)}
-              className="w-3/4 p-2 border border-gray-300 rounded-md focus:ring-2 focus:border-transparent"
-            />
+          <div className="flex flex-col mb-6">
+              <div className="flex items-center">
+                    <label className="w-1/4 text-lg font-medium text-gray-700">Nombre de la obra *</label>
+                    <input
+                      type="text"
+                      value={nameWork}
+                      onChange={e => setNameWork(e.target.value)}
+                      className={`w-3/4 p-2 border ${nameWork.trim() === '' ? 'border-red-500' : 'border-gray-300'} rounded-md focus:ring-2 focus:border-transparent`}
+                                />
+              </div>
+                      {nameWork.trim() === '' && (
+                      <p className="text-red-500 text-sm mt-1 ml-1/4 pt-1 pl-[25%]">El nombre es obligatorio.</p>
+                            )}
           </div>
 
           {/* Categorias */}
-          <div className="flex mb-6">
-            <label className="w-1/4 text-lg font-medium text-gray-700">Categorías</label>
+          <div className="flex flex-col mb-6">
+            <div className="flex items-start">
+            <label className="w-1/4 text-lg font-medium text-gray-700 pt-1">Categorías *</label>
             <div className="flex gap-2 w-3/4 relative items-center flex-wrap">
               {selectedCategories.map((category) => (
                 <Tag
@@ -225,12 +262,18 @@ export default function Create() {
             </div>
           </div>
 
+          {selectedCategories.length === 0 && (
+                                <p className="text-red-500 text-sm mt-1 ml-1/4 pt-1 pl-[25%]">Selecciona al menos una categoría.</p>
+                            )}
+            </div>
+
 
           
           {/* Format */}
-          <div className="flex items-center mb-6">
+          <div className="flex flex-col mb-6">
+            <div className="flex items-center">
             <label className="w-1/4 text-lg font-medium text-gray-700">Formato</label>
-            <div className="w-[120px] p-2 bg-[#3B2252] text-white rounded-md flex justify-center items-center cursor-pointer">
+              <div className="w-[120px] p-2 bg-[#3B2252] text-white rounded-md flex justify-center items-center cursor-pointer">
                     <select
                         className="bg-[#3B2252] font-medium cursor-pointer none"
                         value={format}
@@ -241,14 +284,20 @@ export default function Create() {
                 <option value="com">Comic</option>
                 <option value="man">Manga</option>
               </select>
-            </div>
+              </div>
+          </div>
+          {format === '' && (
+                      <p className="text-red-500 text-sm mt-1 ml-1/4 pt-1 pl-[25%]">El formato es obligatorio.</p>
+                            )}
           </div>
 
 
+
           {/* Language */}
-          <div className="flex items-center mb-6">
+          <div className="flex flex-col mb-6">
+            <div className="flex items-center">
             <label className="w-1/4 text-lg font-medium text-gray-700">Idioma Original</label>
-            <div className="w-[120px] p-2 bg-[#3B2252] text-white rounded-md flex justify-center items-center cursor-pointer">
+              <div className="w-[120px] p-2 bg-[#3B2252] text-white rounded-md flex justify-center items-center cursor-pointer">
                     <select
                         className="bg-[#3B2252] font-medium cursor-pointer none"
                         value={language}
@@ -259,14 +308,19 @@ export default function Create() {
                 <option value="en">Inglés</option>
                 <option value="pt">Portugués</option>
                 <option value="jp">Japonés</option>
-              </select>
-            </div>
+                    </select>
+              </div>
+          </div>
+          {language === '' && (
+                      <p className="text-red-500 text-sm mt-1 ml-1/4 pt-1 pl-[25%]">El idioma es obligatorio.</p>
+                            )}
           </div>
 
           {/* Tags */}
-          <div className="flex mb-6">
+          <div className="flex flex-col mb-6">
+            <div className="flex items-start">
             <label className="w-1/4 text-lg font-medium text-gray-700">Etiquetas</label>
-            <div className="w-3/4 flex flex-wrap gap-2 relative items-center">
+              <div className="w-3/4 flex flex-wrap gap-2 relative items-center">
               {currentTags.map((tag) => (
                 <Tag
                   key={tag}
@@ -343,33 +397,50 @@ export default function Create() {
                     {SUGGESTED_TAGS.filter(tag => !currentTags.includes(tag)).length === 0 && (
                       <p className="text-gray-500 text-sm italic">No hay más sugerencias disponibles.</p>
                     )}
+                    </div>
+                    </div>
+                    )}
                   </div>
                 </div>
-              )}
+              
+              {currentTags.length === 0 && (
+                                <p className="text-red-500 text-sm mt-1 ml-1/4 pt-1 pl-[25%]">Debes agregar al menos una etiqueta.</p>
+                            )}
             </div>
-          </div>
 
           {/* Descripción */}
-          <div className="flex mb-6">
+          <div className="flex flex-col mb-6">
+            <div className="flex items-start">
             <label className="w-1/4 text-lg font-medium text-gray-700">Descripción</label>
-            <div className="w-3/4 relative">
-              <textarea className="w-full h-40 p-2 border border-gray-300 rounded-md focus:ring-2 focus:border-transparent resize-none"
+              <div className="w-3/4 relative">
+                <textarea className={`w-full h-40 p-2 border ${description.trim() === '' ? 'border-red-500' : 'border-gray-300'} rounded-md focus:ring-2 focus:border-transparent resize-none`}
                 value={description}
                 onChange={e => setDescription(e.target.value)}>
                 </textarea>
 
               <p className="absolute bottom-2 right-2 text-xs text-gray-500">max 400 caracteres</p>
-            </div>
+              </div>
+          </div>
+          {description.trim() === '' && (
+                      <p className="text-red-500 text-sm mt-1 ml-1/4 pt-1 pl-[25%]">La descripción es obligatoria.</p>
+                            )}
           </div>
 
           {/* Botón Guardar */}
           <div className="flex justify-end mt-4">
+            {!isSubmitEnabled && (
+                      <p className="text-sm text-yellow-600 mr-4 self-center">
+                  * Completa todos los campos obligatorios antes de guardar.
+                      </p>
+                            )}
             <Button
               type="submit"
               text="Guardar"
-              onClick={() => navigate("/")}
-              colorClass={`bg-[#5C17A6] text-white cursor-pointer text-lg font-medium rounded-md hover:scale-102`}
-            />
+              onClick={() => {}} 
+              disabled={!isSubmitEnabled}
+              colorClass={`${isSubmitEnabled ? 'bg-[#5C17A6] cursor-pointer hover:scale-102' : 'bg-gray-500 cursor-not-allowed'} 
+                                                text-white text-lg font-medium rounded-md transition duration-150`}            
+                                                />
           </div>
         </div>
       </section>
@@ -377,4 +448,3 @@ export default function Create() {
     </main>
   );
 }
-
