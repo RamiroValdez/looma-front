@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useAuthStore } from "../../store/AuthStore";
+import { useUserStore } from "../../store/UserStorage.ts";
 import { useNavigate } from "react-router-dom";
 import { useLogin } from "../../services/AuthService";
 
@@ -10,6 +11,7 @@ export const LoginPage = () => {
     const [error, setError] = useState('');
 
     const { setToken, isAuthenticated } = useAuthStore();
+    const { setUser } = useUserStore();
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -28,8 +30,15 @@ export const LoginPage = () => {
         setError('');
 
         try {
-            const token = await useLogin(email, password);
-            setToken(token);
+            const response = await useLogin(email, password);
+            setToken(response.token);
+            setUser({
+                userId: response.userId,
+                email: response.email,
+                name: response.name,
+                surname: response.surname,
+                username: response.username
+            });
             navigate('/home');
         } catch (err) {
             setError('Credenciales inválidas');
@@ -80,7 +89,7 @@ export const LoginPage = () => {
                     <button
                         type="submit"
                         disabled={loading}
-                        className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-gray-400 disabled:cursor-not-allowed transition duration-150 ease-in-out"
+                        className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#5C17A6] hover:bg-[#521594] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#761ED4] disabled:bg-gray-400 disabled:cursor-not-allowed transition duration-150 ease-in-out"
                     >
                         {loading ? 'Cargando...' : 'Login'}
                     </button>

@@ -8,9 +8,14 @@ export interface LoginRequest {
 
 export interface LoginResponse {
     token: string;
+    userId: number;
+    email: string;
+    name: string;
+    surname: string;
+    username: string;
 }
 
-export const useLogin = async (email: string, password: string): Promise<string> => {
+export const useLogin = async (email: string, password: string): Promise<LoginResponse> => {
 
     const loginData: LoginRequest = {
         email: email,
@@ -23,5 +28,5 @@ export const useLogin = async (email: string, password: string): Promise<string>
         data: loginData
     });
 
-    return response.token;
+    return response;
 };
