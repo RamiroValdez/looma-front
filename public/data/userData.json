@@ -1,0 +1,20 @@
+[
+  {
+    "username": "usuario123",
+    "email": "usuario123@example.com",
+    "image": "/imagenes/fotoPerfil.jpg",
+    "surname": "Pérez",
+    "name": "Juana",
+    "password": "hashed_password_example",
+    "id": "user_001"
+  },
+  {
+    "username": "otroUser",
+    "email": "otro@example.com",
+    "image": "/imagenes/fotoPerfil2.jpg",
+    "surname": "Gómez",
+    "name": "Pedro",
+    "password": "hashed_password_example2",
+    "id": "user_002"
+  }
+]
