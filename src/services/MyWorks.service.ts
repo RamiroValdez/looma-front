@@ -13,7 +13,7 @@ export function useMyWorks(creatorId: number) {
     const { token } = useAuthStore();
     console.log('Token:', token);
     return useApiQuery<WorkDTO[]>(
-        ["get-my-works", creatorId],
+        ["get-my-works", creatorId.toString()],
         {
             url: buildEndpoint(import.meta.env.VITE_API_GET_MY_WORKS_URL, {creatorId}),
             method: 'GET',

@@ -3,15 +3,18 @@ import { useNavigate } from 'react-router-dom';
 import { WorkItem } from '../../components/WorkItem';
 import type { WorkDTO } from '../../dto/WorkDTO';
 import { useMyWorks } from '../../services/MyWorks.service';
+import { useUserStore } from "../../store/UserStorage.ts";
 
 const PURPLE_BG_CLASS = "bg-[#5C17A6]";
 const CREATE_PATH = '/Create';
 const INSTRUCTIONS_PATH = '/Terms';
 
+
 export default function CreateWork() {
     const navigate = useNavigate();
+    const USER_ID = useUserStore().user?.userId;
 
-    const { data: myWorks = [], isLoading, error } = useMyWorks(1);
+    const { data: myWorks = [], isLoading, error } = useMyWorks(USER_ID || 0);
 
     const hasWorks = myWorks.length > 0;
 
