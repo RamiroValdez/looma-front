@@ -10,6 +10,9 @@ export default function EditorToolbar() {
         <button className="underline hover:text-gray-200">U</button>
         <button className="hover:text-gray-200">A</button>
       </div>
+      <button className="ml-auto bg-white text-black font-bold px-3 py-1 rounded-md hover:bg-[#5C17A6] hover:text-white">
+        Subir PDF/Word
+      </button>
     </div>
   );
 }

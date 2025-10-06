@@ -1,14 +1,13 @@
 export default function AdvancedTools() {
   return (
     <div className="w-full max-w-full rounded-t-2xl overflow-hidden border border-gray-300 bg-[#E8E4EF]">
-      {/* Encabezado */}
+  
       <div className="bg-[#3B2C56] text-white text-center font-semibold py-2 rounded-t-2xl">
         Versiones
       </div>
 
-      {/* Filas */}
       <div className="divide-y divide-gray-300 bg-[#F0EEF6]">
-        {/* Español */}
+       
         <div className="flex justify-between items-center px-5 py-3">
           <span className="text-base font-medium">Español</span>
           <span className="bg-[#172FA6] text-white text-xs px-3 py-1 rounded-full font-semibold">
@@ -16,7 +15,6 @@ export default function AdvancedTools() {
           </span>
         </div>
 
-        {/* Inglés */}
         <div className="flex justify-between items-center px-5 py-3">
           <span className="text-base font-medium">Inglés</span>
           <span className="bg-[#7E7FA5] text-white text-xs px-3 py-1 rounded-full font-semibold">
@@ -24,7 +22,6 @@ export default function AdvancedTools() {
           </span>
         </div>
 
-        {/* Francés */}
         <div className="flex justify-between items-center px-5 py-3">
           <span className="text-base font-medium">Francés</span>
           <span className="border border-[#172FA6] text-[#172FA6] text-xs px-3 py-1 rounded-full font-semibold">
@@ -32,7 +29,6 @@ export default function AdvancedTools() {
           </span>
         </div>
 
-        {/* Portugués */}
         <div className="flex justify-between items-center px-5 py-3">
           <span className="text-base font-medium">Portugués</span>
           <span className="border border-[#172FA6] text-[#172FA6] text-xs px-3 py-1 rounded-full font-semibold">
@@ -40,7 +36,6 @@ export default function AdvancedTools() {
           </span>
         </div>
 
-        {/* Botón */}
         <div className="flex justify-center py-3 bg-white">
           <button className="bg-[#172FA6] hover:bg-[#0e1c80] text-white font-semibold text-sm px-4 py-1.5 rounded-md">
             Agregar versión

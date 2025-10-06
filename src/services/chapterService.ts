@@ -1,4 +1,4 @@
-import works from "../../public/data/work-1.json";
+import works from "../../public/data/work-2.json";
 import { handleError } from "../utils/errorHandler";
 
 export async function getWorkById(id: number) {
