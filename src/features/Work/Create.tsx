@@ -188,14 +188,42 @@ export default function Create() {
           <Button text="Subir portada" onClick={() => setShowCoverPopup(true)}
             colorClass={`w-[192px] py-2 bg-[#3B2252] text-white text-sm rounded-md mb-2 font-bold cursor-pointer hover:scale-102`}
           />
-              {showCoverPopup && (
-      <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
-        <div className="bg-white p-6 rounded shadow-lg flex flex-col items-center">
-          <p className="text-lg font-semibold mb-4">En construcción</p>
-          <Button text="Cerrar" onClick={() => setShowCoverPopup(false)} colorClass="bg-[#5C17A6] text-white px-4 py-2 rounded" />
-        </div>
-      </div>
-    )}
+  {showCoverPopup && (
+      <div className="fixed inset-0 flex items-center text-center justify-center z-50 bg-black/50">
+        <div className="bg-white p-6 shadow-lg flex flex-col items-center w-full max-w-xl md:max-w-3xl rounded-xl relative"> 
+          <p className="text-5xl font-bold mb-4">Cargar Portada</p>
+           <Button 
+            text="" 
+            onClick={() => setShowCoverPopup(false)} 
+            colorClass="absolute top-4 right-4 cursor-pointer" 
+        >
+            <img src="/img/PopUpCierre.png" className="w-10 h-10 hover:opacity-60" alt="Cerrar"
+            />
+                  </Button>
+
+          <p className="text-2xl font-semibold mb-4">Seleccione una opción</p>
+<div className="flex flex-col md:flex-row gap-4 mb-4">
+    {/* Primer recuadro */}
+    <div className="flex flex-col items-center text-center gap-4 mb-4 border-dashed border-1 rounded-xl border-[#172FA6] py-10 px-8 w-1/2">
+      <p className="text-lg font-bold mb-4">Subir una imagen</p>
+      <p className="text-s font-medium mb-4 text-[#3F3E3E]">Seleccione un archivo para la imagen de su portada</p>
+      <img src="/img/SubidaPortada.png" className="w-[110px] h-[90px] mt-2" alt="Subida Portada" />
+      <Button text="Subir" onClick={() => setShowCoverPopup(false)} colorClass="bg-[#172FA6] text-white px-4 py-2 font-semibold rounded cursor-pointer hover:scale-102 w-60" />
+    </div>
+
+    {/* Segundo recuadro*/}
+    <div className="flex flex-col items-center text-center gap-4 mb-4 border-dashed border-1 rounded-xl border-[#172FA6] py-10 px-8 w-1/2">
+      <p className="text-lg font-bold mb-4">Generar una imagen</p>
+      <p className="text-s font-medium mb-4 text-[#3F3E3E]">Genera tu portada al instante con nuestra inteligencia artificial.</p>
+      <img src="/img/IAPortada.png" className="w-[110px] h-[90px] mb-2" alt="IA Portada" />
+      <Button text="Generar" onClick={() => setShowCoverPopup(false)} colorClass="bg-[#172FA6] text-white px-4 py-2 font-semibold rounded cursor-pointer hover:scale-102 w-60" />
+    </div>
+
+          </div>
+        </div>
+      </div> 
+)}
+
           <p className="text-xs text-gray-500 text-center w-[192px]">
             *Se admiten PNG, JPG, JPEG, WEBP de máximo 20mb.
           </p>
@@ -206,7 +234,7 @@ export default function Create() {
           {/* Nombre de la obra */}
           <div className="flex flex-col mb-6">
               <div className="flex items-center">
-                    <label className="w-1/4 text-lg font-medium text-gray-700">Nombre de la obra *</label>
+                    <label className="w-1/4 text-lg font-medium text-gray-700">Nombre de la obra</label>
                     <input
                       type="text"
                       value={nameWork}
@@ -222,7 +250,7 @@ export default function Create() {
           {/* Categorias */}
           <div className="flex flex-col mb-6">
             <div className="flex items-start">
-            <label className="w-1/4 text-lg font-medium text-gray-700 pt-1">Categorías *</label>
+            <label className="w-1/4 text-lg font-medium text-gray-700 pt-1">Categorías</label>
             <div className="flex gap-2 w-3/4 relative items-center flex-wrap">
               {selectedCategories.map((category) => (
                 <Tag
@@ -235,7 +263,7 @@ export default function Create() {
                 />
               ))}
 
-              {/* + CATS */}
+              {/* (+) CATS */}
               <Button
                 type="button"
                 onClick={() => setIsCategoryMenuOpen(!isCategoryMenuOpen)}
@@ -267,8 +295,6 @@ export default function Create() {
                             )}
             </div>
 
-
-          
           {/* Format */}
           <div className="flex flex-col mb-6">
             <div className="flex items-center">
@@ -290,8 +316,6 @@ export default function Create() {
                       <p className="text-red-500 text-sm mt-1 ml-1/4 pt-1 pl-[25%]">El formato es obligatorio.</p>
                             )}
           </div>
-
-
 
           {/* Language */}
           <div className="flex flex-col mb-6">

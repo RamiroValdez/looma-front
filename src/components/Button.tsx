@@ -18,7 +18,7 @@ export default function Button({
 
 {
   const baseClasses =
-    "rounded transition px-4 py-2 focus:outline-none focus:ring-2 focus:ring-offset-2";
+    "rounded transition px-4 py-2";
 
   return (
     <button
