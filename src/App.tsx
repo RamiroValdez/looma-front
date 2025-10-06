@@ -7,6 +7,7 @@ import Create from "./features/Work/Create.tsx";
 import Home from "./features/Home/Home.tsx";
 import {LoginPage} from "./features/Login/LoginPage.tsx";
 import {ProtectedRoute} from "./components/ProtectedRoute.tsx";
+import AddChapter from "./features/Chapter/AddChapter.tsx";
 
 
 
@@ -44,6 +45,13 @@ function App() {
                         <ManageWorkPage />
                     </ProtectedRoute>
                 } />
+
+                <Route path="/works/:id/add-chapter" element={
+                    <ProtectedRoute>
+                        <AddChapter />
+                    </ProtectedRoute>
+                } />
+
             </Routes>
         </BrowserRouter>
     )

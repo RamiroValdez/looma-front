@@ -1,4 +1,4 @@
-{
+[{
   "id": 1,
   "title": "Los Juegos del Hambre",
   "description": "La historia se desarrolla en la distopía de Panem, donde el Capitolio obliga a los niños de 12 distritos a participar en una batalla real televisada hasta que solo uno sobreviva. La protagonista, Katniss Everdeen, se enfrenta a estos brutales juegos para salvar a su hermana.",
@@ -97,4 +97,95 @@
       "status": "draft"
     }
   ]
+},
+{
+  "id": 2,
+  "title": "Harry Potter y la piedra filosofal",
+  "description": "Harry Potter descubre el mundo mágico al recibir una carta para asistir al Colegio Hogwarts de Magia y Hechicería. Allí hace nuevos amigos, aprende hechizos y enfrenta a un oscuro enemigo que busca la inmortalidad.",
+  "coverUrl": "data:image/jpeg;",
+  "categories": [
+    {
+      "id": 1,
+      "name": "Fantasía"
+    },
+    {
+      "id": 2,
+      "name": "Aventura"
+    },
+    {
+      "id": 3,
+      "name": "Magia"
+    },
+    {
+      "id": 4,
+      "name": "Juvenil"
+    }
+  ],
+  "tags": ["magia", "amistad", "misterio"],
+  "creator": {
+    "id": 2,
+    "name": "J.K.",
+    "surname": "Rowling",
+    "username": "jk_rowling",
+    "photo": "https://example.com/photos/rowling.jpg",
+    "email": "jk.rowling@example.com"
+  },
+  "format": {
+    "id": 1,
+    "name": "Novela"
+  },
+  "originalLanguage": "Inglés",
+  "status": "completed",
+  "price": 34.99,
+  "likes": 2450,
+  "createdAt": "2025-07-10T10:00:00Z",
+  "updatedAt": "2025-09-29T18:15:20Z",
+  "chapters": [
+    {
+      "id": 1,
+      "title": "Capítulo 1: El niño que vivió",
+      "price": 3.49,
+      "likes": 320,
+      "lastModified": "2025-09-29T18:15:20Z",
+      "publishedAt": "2025-07-10T10:00:00Z",
+      "status": "published"
+    },
+    {
+      "id": 2,
+      "title": "Capítulo 2: El vidrio que desapareció",
+      "price": 3.49,
+      "likes": 280,
+      "lastModified": "2025-09-29T18:15:20Z",
+      "publishedAt": "2025-07-10T10:00:00Z",
+      "status": "published"
+    },
+    {
+      "id": 3,
+      "title": "Capítulo 3: Las cartas de nadie",
+      "price": 3.49,
+      "likes": 260,
+      "lastModified": "2025-09-29T18:15:20Z",
+      "publishedAt": "2025-07-10T10:00:00Z",
+      "status": "published"
+    },
+    {
+      "id": 4,
+      "title": "Capítulo 4: El guardián de las llaves",
+      "price": 3.49,
+      "likes": 240,
+      "lastModified": "2025-09-29T18:15:20Z",
+      "publishedAt": "2025-09-29T18:15:20Z",
+      "status": "published"
+    },
+    {
+      "id": 5,
+      "title": "Capítulo 5: El Callejón Diagon",
+      "price": 3.49,
+      "likes": 210,
+      "lastModified": "2025-09-29T18:15:20Z",
+      "publishedAt": "2025-09-29T18:15:20Z",
+      "status": "published"
+    }
+  ]
 }
+]
