@@ -25,13 +25,13 @@ export default function CreateWork() {
                     <h1 className="text-black text-3xl font-bold">
                         {isLoading ? 'Cargando...' : 'Mis Obras'}
                     </h1>
-                    <p className="text-gray-400">Organiza y gestiona tu contenido literario.</p>
+                    <p className="text-gray-400">Gestiona y organiza tu contenido literario.</p>
                 </div>
 
                 <Button
                     text="Instrucciones"
                     onClick={() => navigate(INSTRUCTIONS_PATH)}
-                    colorClass={`${PURPLE_BG_CLASS} cursor-pointer hover:scale-105`}
+                    colorClass={`${PURPLE_BG_CLASS} font-semibold mr-4 cursor-pointer hover:scale-105`}
                 />
             </header>
 
@@ -41,30 +41,42 @@ export default function CreateWork() {
                     <div className="text-black text-center mt-20">Cargando obras...</div>
                 ) : error ? (
                     <div className="text-red-600 text-center mt-20">
-                        Error al cargar las obras: {error.message || 'Error desconocido'}
-                    </div>
+                        Error al cargar las obras: {(error as Error).message || 'Error desconocido'}</div>
                 ) : hasWorks ? (
-                    <div className="w-full flex flex-col items-center">
-                        {myWorks.map(work => (
-                            <WorkItem key={work.id} work={work} />
-                        ))}
-                    </div>
+                    /* SI TIENE OBRAS: */
+                    <> 
+                        <div className="w-full flex justify-end mb-4">
+                            <Button
+                                text="Crear +"
+                                onClick={() => navigate(CREATE_PATH)}
+                                colorClass={`${PURPLE_BG_CLASS} font-semibold px-8 cursor-pointer hover:scale-105`}
+                            />
+                        </div>
+                        <div className="w-full flex flex-col items-center">
+                            {/* Aquí puedes agrupar por tipo (Comics, Novelas) como en tu imagen */}
+                            {myWorks.map(work => (
+                                <WorkItem key={work.id} work={work} />
+                            ))}
+                        </div>
+                    </>
                 ) : (
-                    <div className="flex flex-col items-center justify-center min-h-[50vh] text-center">
-                        <img src="/img/Carita.png" alt="no works" className="w-40 h-40 mb-8" />
-                        <p className="text-gray-400 mb-8 w-full text-xl text-center">
-                            Aún no tienes ninguna obra publicada
-                        </p>
-                    </div>
+                    /* CASO SIN OBRAS:*/
+                    <>
+                        <div className="flex flex-col items-center justify-center min-h-[50vh] text-center">
+                            <img src="/img/Carita.png" alt="no works" className="w-40 h-40 mb-8" />
+                            <p className="text-gray-400 mb-8 w-full text-xl text-center">
+                                Aún no tienes ninguna obra publicada.
+                            </p>
+                        </div>
+                        <div className="mt-8">
+                            <Button
+                                text="Crear +"
+                                onClick={() => navigate(CREATE_PATH)}
+                                colorClass={`${PURPLE_BG_CLASS} font-semibold px-35 cursor-pointer hover:scale-105`}
+                            />
+                        </div>
+                    </>
                 )}
-
-                <div className="mt-8">
-                    <Button
-                        text="Crear +"
-                        onClick={() => navigate(CREATE_PATH)}
-                        colorClass={`${PURPLE_BG_CLASS} font-bold px-35 cursor-pointer hover:scale-105`}
-                    />
-                </div>
             </main>
         </div>
     );
