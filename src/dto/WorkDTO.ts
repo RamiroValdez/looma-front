@@ -12,6 +12,7 @@ export interface WorkDTO {
   createdAt: string;
   updatedAt: string;
   creator: CreatorDTO;
+  publicationDate: string;
   format: WorkFormatDTO;
   originalLanguage: string;
   price: number;

@@ -9,7 +9,7 @@ export default function Tag({
   onRemove?: (text: string) => void;
   colorClass: string;
 }) {
-  const baseClasses = "px-4 py-1 inline-flex items-center gap-2 rounded-full text-sm border";
+  const baseClasses = "w-24 px-4 py-1 flex items-center justify-center gap-2 rounded-full text-sm border";
 
   return (
     <div className={`${baseClasses} ${colorClass}`} onClick={onClick}>
