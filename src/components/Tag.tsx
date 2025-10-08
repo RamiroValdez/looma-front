@@ -19,7 +19,7 @@ export default function Tag({
         <button
           type="button"
           onClick={(e) => {
-            e.stopPropagation(); // evita que se dispare el onClick del tag
+            e.stopPropagation();
             onRemove(text);
           }}
           className="text-gray-500 hover:text-red-600 font-bold"

@@ -14,14 +14,20 @@ export interface WorkDTO {
   creator: CreatorDTO;
   publicationDate: string;
   format: WorkFormatDTO;
-  originalLanguage: string;
+  originalLanguage: OriginalLanguageDTO;
   price: number;
   likes: number;
+}
+
+export interface OriginalLanguageDTO {
+  id: number;
+  name: string;
 }
 
 export interface ChapterDTO {
   id: number;
   title: string;
+  description: string;
   price: number;
   likes: number;
   lastModified: string;

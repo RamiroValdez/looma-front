@@ -98,8 +98,7 @@ export default function Create() {
         if (success) {
             console.log("¡Obra creada con éxito!");
             
-            // si la respuesta es buena.
-            navigate("/ManageWork"); 
+            navigate("/manage-work"); 
             console.log("=== FormData a enviar ===");
             console.log({
             nombre: nameWork,

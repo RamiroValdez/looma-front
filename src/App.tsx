@@ -9,6 +9,7 @@ import {LoginPage} from "./features/Login/LoginPage.tsx";
 import {ProtectedRoute} from "./components/ProtectedRoute.tsx";
 import Header from "./components/Header/Header.tsx";
 
+import AddChapter from "./features/Chapter/AddChapter.tsx";
 
 
 function App() {
@@ -41,11 +42,18 @@ function App() {
                     </ProtectedRoute>
                 } />
 
-                <Route path="/ManageWork/:id?" element={
+                <Route path="/manage-work/:id" element={
                     <ProtectedRoute>
                         <ManageWorkPage />
                     </ProtectedRoute>
                 } />
+
+                 <Route path="/chapter/work/:id/edit/:chapterId" element={
+                    <ProtectedRoute>
+                        <AddChapter />
+                    </ProtectedRoute>
+                } />
+
             </Routes>
         </BrowserRouter>
     )
