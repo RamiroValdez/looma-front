@@ -1,3 +1,5 @@
+import React from 'react';
+
 export default function Button({
   type = "button",
   text,
@@ -6,7 +8,6 @@ export default function Button({
   children,
   disabled = false,
 }:
-
 {
   type?: "button" | "submit";
   text?: string;
@@ -17,15 +18,16 @@ export default function Button({
 })
 
 {
+
   const baseClasses =
-    "rounded transition px-4 py-2";
+    "rounded transition flex justify-center items-center text-center w-40 px-4 py-2"; 
 
   return (
     <button
       type={type}
       onClick={onClick}
       disabled={disabled}
-      className={`${baseClasses} ${colorClass}`}
+      className={`${baseClasses} ${colorClass} ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
     >
       {children ? children : text}
     </button>
