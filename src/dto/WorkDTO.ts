@@ -9,19 +9,26 @@ export interface WorkDTO {
   createdAt: string;
   updatedAt: string;
   publicationDate: string;
+  format: WorkFormatDTO;
+  originalLanguage: OriginalLanguageDTO;
   price: number;
   likes: number;
   creator: CreatorDTO;
-  format: WorkFormatDTO;
   originalLanguage: string;
   chapters: ChapterDTO[];
   categories: CategoryDTO[];
   tags: TagDTO[];
 }
 
+export interface OriginalLanguageDTO {
+  id: number;
+  name: string;
+}
+
 export interface ChapterDTO {
   id: number;
   title: string;
+  description: string;
   price: number;
   likes: number;
   lastModified: string;
