@@ -1,62 +1,125 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import AdvancedTools from "../../components/addChapter/AdvancedTools";
-import { addChapter, getWorkById } from "../../services/chapterService";
 import ChapterEditor from "../../components/addChapter/ChapterEditor";
-import { handleError } from "../../utils/errorHandler";
 import ChapterActions from "../../components/addChapter/ChapterActions";
 import PublishOptions from "../../components/addChapter/PublishOptions";
 import InspirationBubble from "../../components/addChapter/InspirationBubble";
+import { addChapter, getWorkById, updateChapter } from "../../services/chapterService";
+import { handleError } from "../../utils/errorHandler";
+import { type ChapterDTO } from "../../dto/ChapterDTO";
 
 export default function AddChapter() {
-  const [chapterTitle, setChapterTitle] = useState("");
-  const [chapterContent, setChapterContent] = useState("");
-  const [error, setError] = useState("");
-  const [work, setWork] = useState<any>(null); // estado para la obra
-  const [loading, setLoading] = useState(true); // estado de carga
-  const [publishAt, setPublishAt] = useState<string | null>(null); // Estado para la fecha y hora de publicación
-
   const navigate = useNavigate();
-  const { id } = useParams(); // id de la URL → /works/:id/add-chapter
+  const { id, chapterId } = useParams<{ id: string; chapterId?: string }>();
+
+  const isEditing = Boolean(chapterId);
+
+  // 🔹 Estados principales
+  const [work, setWork] = useState<any>(null);
+  const [chapter, setChapter] = useState<ChapterDTO | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  // =========================================================
+  // 🔸 Cargar la obra (y capítulo si aplica)
+  // =========================================================
+  const fetchWorkAndChapter = useCallback(async () => {
+    try {
+      setLoading(true);
+      const found = await getWorkById(Number(id));
+      if (!found) {
+        throw new Error("Obra no encontrada.");
+      }
+      setWork(found);
+
+      if (isEditing && chapterId) {
+        const existingChapter = found.chapters.find(
+          (c: any) => c.id === Number(chapterId)
+        );
+        if (!existingChapter) {
+          throw new Error("Capítulo no encontrado.");
+        }
+
+        setChapter({
+          id: existingChapter.id,
+          title: existingChapter.title,
+          description: existingChapter.content,
+          price: 0,
+          likes: 0,
+          lastModified: existingChapter.lastModified || new Date().toISOString(),
+          publishedAt: existingChapter.publishedAt || "",
+          status: existingChapter.status || "draft",
+        });
+      } else {
+        // Modo creación
+        setChapter({
+          id: found.chapters?.length ? found.chapters.length + 1 : 1,
+          title: "",
+          description: "",
+          price: 0,
+          likes: 0,
+          lastModified: new Date().toISOString(),
+          publishedAt: "",
+          status: "draft",
+        });
+      }
+    } catch (err) {
+      console.error(err);
+      setError(handleError(err) || "Error al cargar los datos.");
+    } finally {
+      setLoading(false);
+    }
+  }, [id, chapterId, isEditing]);
 
   useEffect(() => {
-    const fetchWork = async () => {
-      try {
-        setLoading(true);
-        const found = await getWorkById(Number(id));
-        if (!found) {
-          setError("Obra no encontrada.");
-          setLoading(false);
-          return;
-        }
-        setWork(found);
-      } catch (err) {
-        console.error(err);
-        setError("Error al cargar la obra. Por favor, inténtalo de nuevo más tarde.");
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchWork();
-  }, [id, navigate]);
+    fetchWorkAndChapter();
+  }, [fetchWorkAndChapter]);
 
-  const handlePublish = async () => {
+  // =========================================================
+  // 🔸 Handlers
+  // =========================================================
+  const handleFieldChange = (field: keyof ChapterDTO, value: any) => {
+    if (!chapter) return;
+    setChapter({ ...chapter, [field]: value });
+  };
+
+  const handleSave = async (status: "draft" | "published") => {
+    if (!chapter || !work) return;
     setError("");
+
     try {
-      if (!chapterTitle.trim() || !chapterContent.trim()) {
+      if (!chapter.title.trim() || !chapter.description.trim()) {
         setError("El título y el contenido son obligatorios.");
         return;
       }
 
-      console.log("Datos enviados para publicar:", {
-        workId: Number(id),
-        chapterTitle,
-        chapterContent,
-        publishAt,
-        isDraft: false,
-      });
+      const chapterData: ChapterDTO = {
+        ...chapter,
+        lastModified: new Date().toISOString(),
+        status,
+      };
 
-      await addChapter(Number(id), chapterTitle, chapterContent, publishAt || undefined, false); // isDraft: false
+      if (isEditing) {
+        await updateChapter(
+          Number(id),
+          chapterData.id,
+          chapterData.title,
+          chapterData.description,
+          chapterData.publishedAt
+        );
+        console.log("Capítulo actualizado:", chapterData);
+      } else {
+        await addChapter(
+          Number(id),
+          chapterData.title,
+          chapterData.description,
+          chapterData.publishedAt,
+          status === "draft"
+        );
+        console.log("Nuevo capítulo agregado:", chapterData);
+      }
+
       navigate(`/ManageWork/${id}`);
     } catch (err) {
       console.error(err);
@@ -64,30 +127,9 @@ export default function AddChapter() {
     }
   };
 
-  const handleSaveDraft = async (titulo: string, contenido: string) => {
-    setError("");
-    try {
-      if (!titulo.trim() || !contenido.trim()) {
-        setError("El título y el contenido son obligatorios.");
-        return;
-      }
-
-      console.log("Datos enviados para guardar borrador:", {
-        workId: Number(id),
-        titulo,
-        contenido,
-        publishAt: undefined,
-        isDraft: true,
-      });
-
-      await addChapter(Number(id), titulo, contenido, undefined, true); // isDraft: true
-      setError("Borrador guardado con éxito.");
-    } catch (err) {
-      console.error(err);
-      setError(handleError(err));
-    }
-  };
-
+  // =========================================================
+  // 🔸 Render
+  // =========================================================
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#F4F0F7]">
@@ -96,16 +138,18 @@ export default function AddChapter() {
     );
   }
 
-  if (!work) {
-    return null;
+  if (!work || !chapter) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#F4F0F7]">
+        <p className="text-gray-600 text-lg">No se pudo cargar la obra o el capítulo.</p>
+      </div>
+    );
   }
-
-  const chapterNumber = work?.chapters?.length ? work.chapters.length + 1 : 1; // Calculamos el número del capítulo
 
   return (
     <div className="min-h-screen bg-[#F4F0F7] px-4 sm:px-8 md:px-16 py-8">
+      {/* 🔹 Header de consejos */}
       <div className="w-screen relative left-1/2 right-1/2 -mx-[50vw] bg-white mb-8">
-
         <div className="bg-white border-b border-[#e4e2eb] h-14 flex items-center ">
           <div className="px-4 sm:px-8 md:px-16 mx-auto flex justify-between items-center w-full">
             <div className="flex items-center gap-3 p-6">
@@ -113,7 +157,7 @@ export default function AddChapter() {
                 <span className="text-white text-lg font-bold">?</span>
               </div>
               <h2 className="text-gray-900 font-semibold text-base">
-                ¿Tenés dudas? <span className="font-normal">Dejanos darte algunos consejos</span>
+                ¿Tenés dudas? Dejanos darte algunos consejos
               </h2>
             </div>
 
@@ -122,63 +166,63 @@ export default function AddChapter() {
             </a>
           </div>
         </div>
-
-
-
       </div>
+
+      {/* 🔹 Contenido principal */}
       <div className="flex flex-col lg:flex-row gap-8">
-        <div className="flex-[3] rounded-2xl  p-6">
+        {/* Editor */}
+        <div className="flex-[3] rounded-2xl p-6">
           <h2 className="text-lg font-medium text-gray-700 mb-9">
-            Título de la serie: <span className="font-semibold">{work?.title || "Obra no encontrada"}</span>
+            Título de la serie:{" "}
+            <span className="font-semibold">{work?.title || "Obra no encontrada"}</span>
           </h2>
 
           <div className="border-2 border-[#4C3B63] rounded-xl overflow-hidden mb-6">
             <ChapterEditor
-              chapterTitle={chapterTitle}
-              setChapterTitle={setChapterTitle}
-              chapterContent={chapterContent}
-              setChapterContent={setChapterContent}
-              chapterNumber={chapterNumber} // Pasamos chapterNumber como prop
+              chapterTitle={chapter.title}
+              setChapterTitle={(value) => handleFieldChange("title", value)}
+              chapterContent={chapter.description}
+              setChapterContent={(value) => handleFieldChange("description", value)}
+              chapterNumber={chapter.id}
             />
           </div>
 
           <ChapterActions
-            onSaveDraft={({ titulo, contenido }) => handleSaveDraft(titulo, contenido)}
+            onSaveDraft={({ titulo, contenido }) =>
+              handleSave("draft")
+            }
             onPreview={() => console.log("Vista previa activada")}
-            formData={{ titulo: chapterTitle, contenido: chapterContent }} // Pasamos los datos dinámicos
+            formData={{ titulo: chapter.title, contenido: chapter.description }}
           />
 
-          <PublishOptions onScheduleChange={(isoDate) => {
-            setPublishAt(isoDate);
-            console.log("Fecha y hora programadas:", isoDate);
-          }} />
-
+          <PublishOptions
+            onScheduleChange={(isoDate) => handleFieldChange("publishedAt", isoDate)}
+          />
 
           <button
-            onClick={() => handlePublish()}
-            className=" px-6 py-2 bg-[#172FA6] text-white rounded-lg shadow hover:bg-blue-800"
+            onClick={() => handleSave("published")}
+            className="px-6 py-2 bg-[#172FA6] text-white rounded-lg shadow hover:bg-blue-800"
           >
-            Publicar
+            {isEditing ? "Guardar cambios" : "Publicar"}
           </button>
 
           {error && <p className="mt-4 text-red-600 text-sm">{error}</p>}
         </div>
 
+        {/* Herramientas */}
         <div className="flex-[2] lg:max-w-[400px]">
-          <h3 className="text-center font-semibold mb-4 text-xl">Herramientas avanzadas</h3>
+          <h3 className="text-center font-semibold mb-4 text-xl">
+            Herramientas avanzadas
+          </h3>
           <label className="flex items-center space-x-2 mb-6">
             <span>Permitir traducción con IA</span>
             <input type="checkbox" defaultChecked />
           </label>
 
-          <div className="w-full">
-            <AdvancedTools />
-          </div>
-
+          <AdvancedTools />
         </div>
-
-
       </div>
+
       <InspirationBubble />
     </div>
   );

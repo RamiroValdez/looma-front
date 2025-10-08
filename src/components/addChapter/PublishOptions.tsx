@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 interface Props {
-  onScheduleChange?: (isoDate: string | null) => void; // Callback para pasar la fecha y hora al flujo de publicación
+  onScheduleChange?: (isoDate: string | null) => void; //para pasar la fecha y hora al flujo de publicación
 }
 
 export default function PublishOptions({ onScheduleChange }: Props) {
@@ -51,7 +51,6 @@ export default function PublishOptions({ onScheduleChange }: Props) {
         </label>
       </div>
 
-      {/* fecha y hora */}
       {isScheduled && (
         <div className="flex space-x-4">
           <input

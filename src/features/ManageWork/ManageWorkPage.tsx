@@ -6,6 +6,8 @@ import Button from '../../components/Button';
 import Tag from '../../components/Tag';
 import { MORE_CATEGORIES, SUGGESTED_TAGS} from "../../types.ts/CreateWork.types";
 import { handleAddCategory, handleAddTag } from "../../services/CreateWork.service";
+import { useNavigate } from 'react-router-dom';
+
 
 interface ManageWorkPageProps {
   workId?: number;
@@ -35,6 +37,12 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = ({ workId }) => {
   const [allowSubscription, setAllowSubscription] = useState(false);
   const [price, setPrice] = useState('');
   const [workStatus, setWorkStatus] = useState('');
+
+   const navigate = useNavigate();
+
+    const handleCreateChapter = (id: number) => {
+      navigate(`/chapter/work/${id}/create`);
+    };
 
   useEffect(() => {
     const fetchWork = async () => {
@@ -303,6 +311,7 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = ({ workId }) => {
                     {work.chapters.map((chapter) => (
                       <ChapterItem 
                         key={chapter.id}
+                        workId={currentWorkId}
                         chapter={chapter}
                       />
                     ))}
@@ -311,7 +320,7 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = ({ workId }) => {
                   <div className="flex justify-center mt-4">
                     <Button 
                       text="Agregar Capítulo"
-                      onClick={() => console.log('Agregar Capítulo')}
+                      onClick={() => handleCreateChapter(currentWorkId)}
                       colorClass="bg-[#5C17A6] hover:bg-[#4A1285] focus:ring-[#5C17A6] text-white"
                     />
                   </div>

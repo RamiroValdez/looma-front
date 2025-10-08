@@ -10,7 +10,6 @@ import {ProtectedRoute} from "./components/ProtectedRoute.tsx";
 import AddChapter from "./features/Chapter/AddChapter.tsx";
 
 
-
 function App() {
 
     return (
@@ -46,7 +45,13 @@ function App() {
                     </ProtectedRoute>
                 } />
 
-                <Route path="/works/:id/add-chapter" element={
+                <Route path="/chapter/work/:id/create" element={
+                    <ProtectedRoute>
+                        <AddChapter />
+                    </ProtectedRoute>
+                } />
+
+                 <Route path="/chapter/work/:id/edit/:chapterId" element={
                     <ProtectedRoute>
                         <AddChapter />
                     </ProtectedRoute>

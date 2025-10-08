@@ -17,23 +17,14 @@ export default function AdvancedTools() {
 
         <div className="flex justify-between items-center px-5 py-3">
           <span className="text-base font-medium">Inglés</span>
-          <span className="bg-[#7E7FA5] text-white text-xs px-3 py-1 rounded-full font-semibold">
-            Autor
-          </span>
         </div>
 
         <div className="flex justify-between items-center px-5 py-3">
           <span className="text-base font-medium">Francés</span>
-          <span className="border border-[#172FA6] text-[#172FA6] text-xs px-3 py-1 rounded-full font-semibold">
-            IA
-          </span>
         </div>
 
         <div className="flex justify-between items-center px-5 py-3">
           <span className="text-base font-medium">Portugués</span>
-          <span className="border border-[#172FA6] text-[#172FA6] text-xs px-3 py-1 rounded-full font-semibold">
-            IA
-          </span>
         </div>
 
         <div className="flex justify-center py-3 bg-white">

@@ -5,13 +5,14 @@ import Button from './Button';
 
 interface ChapterItemProps {
   chapter: ChapterDTO;
+  workId: number;
 }
 
-export const ChapterItem: React.FC<ChapterItemProps> = ({ chapter }) => {
+export const ChapterItem: React.FC<ChapterItemProps> = ({ chapter, workId }) => {
   const navigate = useNavigate();
 
   const handleEdit = () => {
-    navigate(`/chapter/${chapter.id}/edit`);
+    navigate(`/chapter/work/${chapter.id}/edit/${workId}`);
   };
 
   const handleConfigure = () => {
