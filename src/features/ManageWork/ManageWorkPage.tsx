@@ -59,11 +59,13 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
       try {
         setLoading(true);
         const workData = await getWorkById(currentWorkId);
+
+        console.log(workData);
         setWork(workData);
         
         // Inicializar estados con datos de la obra 
         setSelectedCategories(workData.categories.map(cat => cat.name));
-        setCurrentTags(workData.tags || []);
+        setCurrentTags(workData.tags.map(tag => tag.name));
       } catch (err) {
         setError('Error loading work');
         console.error('Error:', err);
