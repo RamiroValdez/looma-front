@@ -9,6 +9,7 @@ const BookCard: React.FC<Props> = ({ book }) => {
   return (
     <div className="w-40 flex-shrink-0">
       <div className="relative rounded-4xl overflow-hidden shadow-md h-56">
+        
 
         {/*acordarme de cambiar aca x la ruta que va a la vista del libro*/}
         <Link to={`/book/${book.id}`}>
@@ -21,7 +22,6 @@ const BookCard: React.FC<Props> = ({ book }) => {
 
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>
 
-        {/* Contenido encima de la imagen */}
         <div className="absolute bottom-2 left-2 right-2 text-white">
           <h3 className="text-sm font-semibold leading-tight line-clamp-2">
             {book.name}

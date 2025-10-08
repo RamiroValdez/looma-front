@@ -43,7 +43,7 @@ function Header() {
                   <h4 className="col-span-2 font-semibold text-gray-600 mb-2">CATEGORÍAS</h4>
                   {categorias.map((cat) => (
                     <a key={cat.id} href="#" className="text-sm text-gray-700 hover:text-purple-600">
-                      {cat.nombre}
+                      {cat.name}
                     </a>
                   ))}
                 </div>

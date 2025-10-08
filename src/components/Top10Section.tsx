@@ -1,14 +1,19 @@
 import { useRef, useState, useEffect } from "react";
-import type { BookDTO } from "../dto/BookDTO";
-import BookCard from "./BookCard";
-import ScrollArrow from "./ScrollArrow"; 
+import TopBookCard from "./TopBookCard";
+import ScrollArrow from "./ScrollArrow";
 
-interface Props {
+interface TopBook {
+  id: number;
   title: string;
-  books: BookDTO[];
+  cover: string;
+  position: number;
 }
 
-  const Section: React.FC<Props> = ({ title, books }) => {
+interface Props {
+  books: TopBook[];
+}
+
+const Top10Section: React.FC<Props> = ({ books }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [showLeft, setShowLeft] = useState(false);
   const [showRight, setShowRight] = useState(false);
@@ -41,27 +46,29 @@ interface Props {
   }, []);
 
   return (
-    <section className="relative">
-      <h2 className="font-bold text-xl mb-4 px-6">{title}</h2>
+    <section className="my-10 relative px-6">
+      <h2 className="text-2xl font-bold mb-8">TOP 10 EN ARGENTINA</h2>
 
-      {/* Flecha izquierda */}
+
       <ScrollArrow direction="left" onClick={() => scroll("left")} isVisible={showLeft} />
 
-      {/* Contenedor scroll */}
       <div
         ref={scrollRef}
-        className="flex gap-4 overflow-x-auto scroll-smooth px-6 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']"
+        className="flex gap-10 overflow-x-auto scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']"
       >
         {books.map((book) => (
-          <BookCard key={book.id} book={book} />
+          <TopBookCard
+            key={book.id}
+            position={book.position}
+            imageUrl={book.cover}
+            title={book.title}
+          />
         ))}
       </div>
 
-      {/* Flecha derecha */}
       <ScrollArrow direction="right" onClick={() => scroll("right")} isVisible={showRight} />
     </section>
   );
 };
 
-export default Section;
-
+export default Top10Section;

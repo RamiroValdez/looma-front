@@ -1,0 +1,54 @@
+[
+  {
+    "userId": 1,
+    "books": [
+      {
+        "id": 1,
+        "title": "Libro 1",
+        "coverUrl": "/images/foto12.jpg",
+        "likes": 1200,
+        "categories": ["Ficción", "Aventura"]
+      },
+      {
+        "id": 2,
+        "title": "Libro 2",
+        "coverUrl": "/images/foto2.jpg",
+        "likes": 800,
+        "categories": ["Romance", "Drama"]
+      },
+      {
+        "id": 4,
+        "title": "Libro 4",
+        "coverUrl": "/images/foto4.jpg",
+        "likes": 950,
+        "categories": ["Suspenso", "Misterio"]
+      },
+      {
+        "id": 5,
+        "title": "Libro 5",
+        "coverUrl": "/images/foto5.jpg",
+        "likes": 1100,
+        "categories": ["Fantasía", "Aventura"]
+      }
+    ]
+  },
+  {
+    "userId": 2,
+    "books": [
+      {
+        "id": 3,
+        "title": "Libro 3",
+        "coverUrl": "/images/foto3.jpg",
+        "likes": 500,
+        "categories": ["Ciencia Ficción"]
+      },
+      {
+        "id": 6,
+        "title": "Libro 6",
+        "coverUrl": "/images/foto6.jpg",
+        "likes": 700,
+        "categories": ["Historia", "Biografía"]
+      }
+    ]
+  }
+]
