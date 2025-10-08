@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { useState, useRef} from "react";
+import { useCallback, useState, useRef} from "react";
 
 import Button from "../../components/Button";
 import Tag from "../../components/Tag";
@@ -26,11 +26,16 @@ export default function Create() {
   const [description, setDescription] = useState('');
   const [language, setLanguage] = useState('');
 
+  // Files
+  const bannerInputRef = useRef<HTMLInputElement>(null);
+  const coverInputRef = useRef<HTMLInputElement>(null);
+
   const [bannerFile, setBannerFile] = useState<File | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [coverFile, setCoverFile] = useState<File | null>(null);
+  const [errorBanner, setErrorBanner] = useState<string | null>(null);
+  const [errorCover, setErrorCover] = useState<string | null>(null);
   const [showCoverPopup, setShowCoverPopup] = useState(false);
  
-  const [error, setError] = useState<string | null>(null);
 
     // validación del Formulario 
     const isSubmitEnabled = 
@@ -49,30 +54,58 @@ export default function Create() {
     }
   };
            
-                const handleClick = () => {
-                fileInputRef.current?.click();
-                };
+               // 1. Click para Banner
+     const handleBannerClick = () => {
+        bannerInputRef.current?.click();
+    };
+    
+    // 2. Click para Portada
+    const handleCoverClick = () => {
+        coverInputRef.current?.click();
+        // setShowCoverPopup(false); // Opcional: si tienes un popup, ciérralo aquí
+    };
 
-                const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-                      const file = e.target.files?.[0];
-                      if (!file) return;
+            // === LÓGICA DE MANEJO DE ARCHIVOS UNIFICADA ===
+            const handleFileChange = useCallback(async (e: React.ChangeEvent<HTMLInputElement>, isCover: boolean = false) => {
+                const file = e.target.files?.[0];
+                if (!file) return;
 
-                      const result = await validateFile(file, { maxSizeMB: 20, maxWidth: 1345, maxHeight: 256 });
-                      
-                      //La imagen NO se carga correctamente
-                      if (!result.valid) {
-                      setBannerFile(null);
-                      setError(result.error || "Error desconocido");
-                      return;
-                      }
+                // 🛑 Configuramos las opciones de validación según el tipo de archivo 🛑
+                const options = isCover
+                    ? { maxSizeMB: 20, maxWidth: 500, maxHeight: 800 } // Especificaciones de Portada
+                    : { maxSizeMB: 20, maxWidth: 1345, maxHeight: 256 }; // Especificaciones de Banner
 
-                      //La imagen se carga correctamente
-                      setError(null);
-                      setBannerFile(file);
-                      console.log("Archivo válido:", file);
-                      alert("Archivo válido y listo para subir.");           
-            };
+                const result = await validateFile(file, options);
+                
+                // 🛑 Lógica de error 🛑
+               if (!result.valid) {
+                    // 1. Manejo de Error: Setea el error y limpia el archivo
+                    const errorMessage = result.error || "Error de archivo desconocido.";
+                    
+                    if (isCover) {
+                        setErrorCover(errorMessage); // Setea error de Portada
+                        setCoverFile(null);          // Limpia archivo de Portada
+                    } else {
+                        setErrorBanner(errorMessage); // Setea error de Banner
+                        setBannerFile(null);          // Limpia archivo de Banner
+                    }
+                    return; // Salir de la función si hay error
+                }
 
+
+                if (isCover) {
+                    setErrorCover(null); // Limpia error de Portada
+                    setCoverFile(file);  // Guarda archivo de Portada
+                    console.log("Archivo Portada válido:", file.name);
+                    alert("Archivo de portada cargado correctamente.");
+                } else {
+                    setErrorBanner(null); // Limpia error de Banner
+                    setBannerFile(file);  // Guarda archivo de Banner
+                    console.log("Archivo Banner válido:", file.name);
+                    alert("Archivo de banner cargado correctamente.");
+                }
+
+            }, []); 
            
 
                 const handleSubmitForm = async (e: { preventDefault: () => void; }) => {
@@ -90,6 +123,8 @@ export default function Create() {
                 formData.append('categorias', JSON.stringify(selectedCategories));
                 formData.append('etiquetas', JSON.stringify(currentTags));
                 if (bannerFile) formData.append('banner', bannerFile);
+                if (coverFile) formData.append('banner', coverFile);
+
 
                 try {
         
@@ -108,6 +143,7 @@ export default function Create() {
             categorias: selectedCategories,
             etiquetas: currentTags,
             banner: bannerFile,
+            portada: coverFile
              });
         } else {
             alert("Error al guardar la obra. Intente nuevamente.");
@@ -139,10 +175,12 @@ export default function Create() {
                 <form onSubmit={handleSubmitForm}>
                 <section>
             {/* BANNER DE SUBIDA */}
-            <div
-                onClick={handleClick}
-                className="w-full max-w-[1345px] h-[256px] bg-[#E8E5E5] flex justify-center items-center mx-auto border border-[rgba(0,0,0,0.5)] hover:bg-[#D7D7D7] cursor-pointer"
-            >
+                        <div
+                  onClick={handleBannerClick}
+                  className="w-full max-w-[1345px] h-[256px] bg-[#E8E5E5] flex justify-center items-center mx-auto 
+                            border-b border-l border-r border-[rgba(0,0,0,0.5)] 
+                            hover:bg-[#D7D7D7] cursor-pointer"
+              >
                 <div className="text-center text-gray-400 flex flex-col items-center">
                 <img src="/img/Group.png" className="w-[70px] h-[55px]" alt="Subir banner" />
                 <p className="text-lg text-gray-500">Subir banner</p>
@@ -159,16 +197,16 @@ export default function Create() {
             {/* Input oculto */}
             <input
                 type="file"
-                ref={fileInputRef}
+                ref={bannerInputRef}
                 className="hidden"
                 accept="image/png,image/jpeg,image/jpg,image/webp"
                 onChange={handleFileChange}
             />
 
             {/* Mensaje de error */}
-            {error && (
+            {errorBanner && (
                 <p className="text-red-500 text-sm mt-2 text-center">
-                {error}
+                {errorBanner}
                 </p>
             )}
             </section>
@@ -207,7 +245,23 @@ export default function Create() {
       <p className="text-lg font-bold mb-4">Subir una imagen</p>
       <p className="text-s font-medium mb-4 text-[#3F3E3E]">Seleccione un archivo para la imagen de su portada</p>
       <img src="/img/SubidaPortada.png" className="w-[110px] h-[90px] mt-2" alt="Subida Portada" />
-      <Button text="Subir" onClick={() => setShowCoverPopup(false)} colorClass="bg-[#172FA6] text-white px-4 py-2 font-semibold rounded cursor-pointer hover:scale-102 w-60" />
+      <Button text="Subir" onClick={handleCoverClick} colorClass="bg-[#172FA6] text-white px-4 py-2 font-semibold rounded cursor-pointer hover:scale-102 w-60" />
+    
+                        {/* Input oculto Cover */}
+                        <input
+                            type="file"
+                            ref={coverInputRef}
+                            className="hidden"
+                            accept="image/png,image/jpeg,image/jpg,image/webp"
+                            onChange={e => handleFileChange(e, true)}
+                        />
+
+                        {/* Mensaje de error */}
+            {errorCover && (
+                <p className="text-red-500 text-sm mt-2 text-center">
+                {errorCover}
+                </p>
+            )}
     </div>
 
     {/* Segundo recuadro*/}
@@ -371,7 +425,7 @@ export default function Create() {
                   type="button"
                   text="+"
                   onClick={() => setIsAddingTag(true)}
-                  colorClass={`w-8 h-8 pt-0 flex justify-center rounded-full border-2 border-[#5C17A6] text-[#5C17A6] text-2xl font-medium leading-none hover:bg-[#5C17A6] hover:text-white`}
+                  colorClass={`w-8 h-8 pt-0 flex justify-center rounded-full border-2 border-[#5C17A6] text-[#5C17A6] text-2xl font-medium leading-none hover:bg-[#5C17A6] hover:text-white`}
                 />
               )}
 
@@ -384,7 +438,7 @@ export default function Create() {
               <Button
                   type="button"
                   onClick={() => setIsSuggestionMenuOpen(!isSuggestionMenuOpen)}
-                  colorClass="w-8 h-8 !px-0 !py-0 flex items-center justify-center rounded-full border-2 border-[#5C17A6] text-white hover:bg-opacity-90 z-10"
+                colorClass="w-8 h-8 flex items-center justify-center rounded-full border-2 border-[#5C17A6] text-white hover:bg-opacity-90 z-10 !px-0 !py-0"
                 >
                   <img 
                     src="/img/magic.png" 

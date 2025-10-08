@@ -27,8 +27,5 @@ export const SUGGESTED_TAGS = [
   "emociones",
 ];
 
-export type FileValidationError =
-  | "El archivo supera el tamaño máximo permitido (20MB)."
-  | "Las dimensiones del archivo exceden el tamaño permitido (1345x256)."
-  | "El archivo no es una imagen válida."
-  | "Error desconocido";
+export type FileValidationError = string;
+

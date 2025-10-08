@@ -39,25 +39,30 @@ interface ValidationOptions {
   maxHeight: number;
 }
 
-export function validateFile(file: File, options: ValidationOptions): { valid: boolean; error?: FileValidationError } {
-  const { maxSizeMB, maxWidth, maxHeight } = options;
+export function validateFile(file: File, options: ValidationOptions): Promise<{ valid: boolean; error?: FileValidationError }> {
+    const { maxSizeMB, maxWidth, maxHeight } = options;
 
-  // Validar peso
-  if (file.size > maxSizeMB * 1024 * 1024) {
-    return { valid: false, error: "El archivo supera el tamaño máximo permitido (20MB)." };
-  }
+    // Validar peso 
+    if (file.size > maxSizeMB * 1024 * 1024) {
+        return Promise.resolve({ valid: false, error: `El archivo supera el tamaño máximo permitido (${maxSizeMB}MB).` });
+    }
 
-  // Validar dimensiones de la imagen
-  return new Promise<{ valid: boolean; error?: FileValidationError }>((resolve) => {
-    const img = new Image();
-    img.onload = () => {
-      if (img.width > maxWidth || img.height > maxHeight) {
-        resolve({ valid: false, error: "Las dimensiones del archivo exceden el tamaño permitido (1345x256)." });
-      } else {
-        resolve({ valid: true });
-      }
-    };
-    img.onerror = () => resolve({ valid: false, error: "El archivo no es una imagen válida." });
-    img.src = URL.createObjectURL(file);
-  }) as unknown as { valid: boolean; error?: FileValidationError }; 
+    return new Promise<{ valid: boolean; error?: FileValidationError }>((resolve) => {
+        const img = new Image();
+        
+        img.onload = () => {
+            if (img.width > maxWidth || img.height > maxHeight) {
+                resolve({ 
+                    valid: false, 
+                    error: `Las dimensiones del archivo exceden el tamaño permitido (Máximo ${maxWidth}x${maxHeight}px).` 
+                });
+            } else {
+                resolve({ valid: true });
+            }
+        };
+
+        img.onerror = () => resolve({ valid: false, error: "El archivo no es una imagen válida." });
+        
+        img.src = URL.createObjectURL(file);
+    }); 
 }
