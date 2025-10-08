@@ -111,7 +111,7 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
       {/* Main Banner */}
       <div 
         className="relative h-64 bg-cover bg-center"
-        style={{ backgroundImage: `url(${work.bannerUrl})` }}
+        style={{ backgroundImage: `url(${work.banner})` }}
       >
         <div className="absolute inset-0 bg-opacity-40"></div>
         <div className="absolute top-4 right-4">
@@ -146,7 +146,7 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
             <div className="sticky top-8">
               <div className="flex flex-col items-start">
                 <img 
-                  src={work.coverUrl} 
+                  src={work.cover}
                   alt={work.title}
                   className="w-48 h-64 object-cover rounded-lg shadow-md mb-3"
                 />
