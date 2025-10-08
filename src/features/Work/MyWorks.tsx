@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { WorkItem } from '../../components/WorkItem';
 import { useMyWorks } from '../../services/MyWorks.service';
 import { useUserStore } from "../../store/UserStorage.ts";
+import type {WorkDTO} from "../../dto/WorkDTO.ts";
 
 const PURPLE_BG_CLASS = "bg-[#5C17A6]";
 const CREATE_PATH = '/Create';
@@ -17,15 +18,19 @@ export default function CreateWork() {
 
     const hasWorks = myWorks.length > 0;
 
-    const novelas = myWorks.filter(work => work.format?.name === 'Novela');
-    const comics = myWorks.filter(work => work.format?.name === 'Cómic');
-    const cuentos = myWorks.filter(work => work.format?.name === 'Cuento');
-    
-    const allGroups = [
-        { name: 'Novelas', works: novelas },
-        { name: 'Cómics', works: comics },
-        { name: 'Cuentos', works: cuentos },
-    ];
+    const groupsMap = myWorks.reduce<Record<string, WorkDTO[]>>((acc, work) => {
+        const formatName = work.format?.name || 'Desconocido';
+        if (!acc[formatName]) {
+            acc[formatName] = [];
+        }
+        acc[formatName].push(work);
+        return acc;
+    }, {});
+
+    const allGroups = Object.entries(groupsMap).map(([name, works]) => ({
+        name: name.endsWith('s') ? name : `${name}s`,
+        works,
+    }));
     
     const firstGroup = allGroups.find(group => group.works.length > 0);
 
@@ -61,7 +66,6 @@ export default function CreateWork() {
                 ) : hasWorks ? (
                     /* SI TIENE OBRAS: */
                     <div className="w-full flex flex-col items-center">
-                        {/* Renderizado de grupos */}
                         {allGroups.map(group => (
                             group.works.length > 0 && (
                                 <section 

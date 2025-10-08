@@ -7,7 +7,7 @@ export const WorkItem = ({ work }: { work: WorkDTO}) => {
     const navigate = useNavigate(); 
     
     const handleClick = () => {
-        navigate(`/Work=${work.id}`);
+        navigate(`/manage-work/${work.id}`);
     };
     return (
          <div 
@@ -15,7 +15,7 @@ export const WorkItem = ({ work }: { work: WorkDTO}) => {
         onClick={handleClick}
     >
             <img 
-                src={work.coverUrl} 
+                src={work.cover}
                 alt={`Portada de ${work.title}`} 
                 className="w-24 h-32 object-cover mr-4 rounded" 
             />

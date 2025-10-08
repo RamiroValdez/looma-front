@@ -23,25 +23,25 @@ function App() {
 
                 <Route path="/home" element={<Home />} />
 
-                <Route path="/Explore" element={
+                <Route path="/explore" element={
                     <ProtectedRoute>
                         <ExplorePage />
                     </ProtectedRoute>
                 } />
 
-                <Route path="/MyWorks" element={
+                <Route path="/my-works" element={
                     <ProtectedRoute>
                         <CreatePiece />
                     </ProtectedRoute>
                 } />
 
-                <Route path="/Create" element={
+                <Route path="/create" element={
                     <ProtectedRoute>
                         <Create />
                     </ProtectedRoute>
                 } />
 
-                <Route path="/ManageWork/:id?" element={
+                <Route path="/manage-work/:id?" element={
                     <ProtectedRoute>
                         <ManageWorkPage />
                     </ProtectedRoute>
