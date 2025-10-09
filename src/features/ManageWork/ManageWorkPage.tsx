@@ -1,23 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import type { WorkDTO } from '../../dto/WorkDTO';
-import { WorkService } from '../../services/work.service';
 import { ChapterItem } from '../../components/ChapterItem';
 import Button from '../../components/Button';
 import Tag from '../../components/Tag';
 import { MORE_CATEGORIES, SUGGESTED_TAGS} from "../../types.ts/CreateWork.types";
 import { handleAddCategory, handleAddTag } from "../../services/CreateWork.service";
+import { useNavigate, useParams } from 'react-router-dom';
+import { addChapter, getWorkById } from '../../services/chapterService';
+
 
 interface ManageWorkPageProps {
   workId?: number;
 }
 
-export const ManageWorkPage: React.FC<ManageWorkPageProps> = ({ workId }) => {
+export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
 
+  // el workId tiene que tomarlo por parametros
+  const { id: workId } = useParams<{ id: string }>();
   const [work, setWork] = useState<WorkDTO | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const defaultWorkId = 1; // por defecto que coincide con nuestro JSON
-  const currentWorkId = workId || defaultWorkId;
+  const currentWorkId = Number(workId) || defaultWorkId;
 
   // Estados para categorías
   const [isCategoryMenuOpen, setIsCategoryMenuOpen] = useState(false);
@@ -36,16 +40,30 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = ({ workId }) => {
   const [price, setPrice] = useState('');
   const [workStatus, setWorkStatus] = useState('');
 
+   const navigate = useNavigate();
+
+  const handleCreateChapter = async (workId: number, languageId: number) => {
+    const chapter = await addChapter(workId, languageId, 'TEXT');
+    if (chapter?.fetchStatus === 200) {
+      navigate(`/chapter/work/${workId}/edit/${chapter.chapterId}`);
+      return; // prevent the fallback navigation below from overriding this route
+    }
+
+    navigate(`/manage-work/${workId}`);
+  };
+
   useEffect(() => {
     const fetchWork = async () => {
       try {
         setLoading(true);
-        const workData = await WorkService.getWorkById(currentWorkId);
+        const workData = await getWorkById(currentWorkId);
+
+        console.log(workData);
         setWork(workData);
         
         // Inicializar estados con datos de la obra 
         setSelectedCategories(workData.categories.map(cat => cat.name));
-        setCurrentTags(workData.tags || []);
+        setCurrentTags(workData.tags.map(tag => tag.name));
       } catch (err) {
         setError('Error loading work');
         console.error('Error:', err);
@@ -70,7 +88,6 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = ({ workId }) => {
     setAllowSubscription(false);
     setPrice('');
     setWorkStatus('');
-    console.log('Campos de administración limpiados');
   };
 
   if (loading) {
@@ -94,7 +111,7 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = ({ workId }) => {
       {/* Main Banner */}
       <div 
         className="relative h-64 bg-cover bg-center"
-        style={{ backgroundImage: `url(${work.bannerUrl})` }}
+        style={{ backgroundImage: `url(${work.banner})` }}
       >
         <div className="absolute inset-0 bg-opacity-40"></div>
         <div className="absolute top-4 right-4">
@@ -129,7 +146,7 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = ({ workId }) => {
             <div className="sticky top-8">
               <div className="flex flex-col items-start">
                 <img 
-                  src={work.coverUrl} 
+                  src={work.cover}
                   alt={work.title}
                   className="w-48 h-64 object-cover rounded-lg shadow-md mb-3"
                 />
@@ -200,7 +217,7 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = ({ workId }) => {
             <div className="mb-6">
               <div className="space-y-6 text-lg text-black">
                 <div><span className="font-semibold">Formato:</span> <span className="font-normal">{work.format.name}</span></div>
-                <div><span className="font-semibold">Idioma Original:</span> <span className="font-normal">{work.originalLanguage}</span></div>
+                <div><span className="font-semibold">Idioma Original:</span> <span className="font-normal">{work.originalLanguage.name}</span></div>
               </div>
             </div>
 
@@ -300,9 +317,10 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = ({ workId }) => {
                 </div>
                 <div className="p-6">
                   <div className="space-y-2">
-                    {work.chapters.map((chapter) => (
+                    {work?.chapters?.map((chapter) => (
                       <ChapterItem 
                         key={chapter.id}
+                        workId={currentWorkId}
                         chapter={chapter}
                       />
                     ))}
@@ -311,7 +329,7 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = ({ workId }) => {
                   <div className="flex justify-center mt-4">
                     <Button 
                       text="Agregar Capítulo"
-                      onClick={() => console.log('Agregar Capítulo')}
+                      onClick={() => handleCreateChapter(currentWorkId, work.originalLanguage.id)}
                       colorClass="bg-[#5C17A6] hover:bg-[#4A1285] focus:ring-[#5C17A6] text-white"
                     />
                   </div>

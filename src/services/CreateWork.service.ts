@@ -1,6 +1,16 @@
-// serviceCreateWork.ts
-
 import type { FileValidationError } from "../types.ts/CreateWork.types";
+import {useApiMutation} from "../api/useApiMutation.ts";
+import {useAuthStore} from "../store/AuthStore.ts";
+import React from "react";
+
+export interface CreateWorkDTO {
+    title: string;
+    description: string;
+    formatId?: number;
+    originalLanguageId?: number;
+    categoryIds: number[];
+    tagIds: string[];
+}
 
 // Manejo de Categorías
 export const handleAddCategory = (
@@ -39,25 +49,60 @@ interface ValidationOptions {
   maxHeight: number;
 }
 
-export function validateFile(file: File, options: ValidationOptions): { valid: boolean; error?: FileValidationError } {
-  const { maxSizeMB, maxWidth, maxHeight } = options;
+export function validateFile(file: File, options: ValidationOptions): Promise<{ valid: boolean; error?: FileValidationError }> {
+    const { maxSizeMB, maxWidth, maxHeight } = options;
 
-  // Validar peso
-  if (file.size > maxSizeMB * 1024 * 1024) {
-    return { valid: false, error: "El archivo supera el tamaño máximo permitido (20MB)." };
-  }
+    // Validar peso 
+    if (file.size > maxSizeMB * 1024 * 1024) {
+        return Promise.resolve({ valid: false, error: `El archivo supera el tamaño máximo permitido (${maxSizeMB}MB).` });
+    }
 
-  // Validar dimensiones de la imagen
-  return new Promise<{ valid: boolean; error?: FileValidationError }>((resolve) => {
-    const img = new Image();
-    img.onload = () => {
-      if (img.width > maxWidth || img.height > maxHeight) {
-        resolve({ valid: false, error: "Las dimensiones del archivo exceden el tamaño permitido (1345x256)." });
-      } else {
-        resolve({ valid: true });
-      }
-    };
-    img.onerror = () => resolve({ valid: false, error: "El archivo no es una imagen válida." });
-    img.src = URL.createObjectURL(file);
-  }) as unknown as { valid: boolean; error?: FileValidationError }; 
+    return new Promise<{ valid: boolean; error?: FileValidationError }>((resolve) => {
+        const img = new Image();
+        
+        img.onload = () => {
+            if (img.width > maxWidth || img.height > maxHeight) {
+                resolve({ 
+                    valid: false, 
+                    error: `Las dimensiones del archivo exceden el tamaño permitido (Máximo ${maxWidth}x${maxHeight}px).` 
+                });
+            } else {
+                resolve({ valid: true });
+            }
+        };
+
+        img.onerror = () => resolve({ valid: false, error: "El archivo no es una imagen válida." });
+        
+        img.src = URL.createObjectURL(file);
+    }); 
 }
+
+export const useCreateWork = () => {
+    const { token } = useAuthStore();
+
+    return useApiMutation({
+        url: import.meta.env.VITE_API_POST_CREATE_WORK_URL,
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    });
+};
+
+export const createFormDataForWork = (
+    workDTO: CreateWorkDTO,
+    bannerFile?: File | null,
+    coverFile?: File | null
+): FormData => {
+    const formData = new FormData();
+
+    formData.append(
+        'work',
+        new Blob([JSON.stringify(workDTO)], { type: 'application/json' })
+    );
+
+    if (bannerFile) formData.append('banner', bannerFile);
+    if (coverFile) formData.append('cover', coverFile);
+
+    return formData;
+};

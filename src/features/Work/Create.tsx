@@ -1,149 +1,185 @@
 import { useNavigate } from "react-router-dom";
-import { useState, useRef} from "react";
+import { useCallback, useState, useRef} from "react";
 
 import Button from "../../components/Button";
 import Tag from "../../components/Tag";
 
-import { MORE_CATEGORIES, SUGGESTED_TAGS} from "../../types.ts/CreateWork.types";
-import { handleAddCategory, handleAddTag, validateFile} from "../../services/CreateWork.service";
+import {SUGGESTED_TAGS} from "../../types.ts/CreateWork.types";
+import { createFormDataForWork, useCreateWork, handleAddTag, validateFile, type CreateWorkDTO } from "../../services/CreateWork.service";
+import {useCategories} from "../../services/categoryService.ts";
+import { useCategoryStore } from "../../store/CategoryStore.ts";
+import type { CategoryDTO } from "../../dtos/category.dto.ts";
+import { useFormatStore } from "../../store/FormatStore.ts";
+import { useFormats } from "../../services/formatService.ts";
+import { useLanguages } from '../../services/languageService';
+import { useLanguageStore } from '../../store/LanguageStore';
+
+
 
 export default function Create() {
   const navigate = useNavigate();
 
   // === Estados ===
   const [isCategoryMenuOpen, setIsCategoryMenuOpen] = useState(false);
-  const [selectedCategories, setSelectedCategories] = useState(['Ciencia Ficción', 'Drama', 'Romance']);
 
-  const [currentTags, setCurrentTags] = useState(['perros', 'juventud', 'amor']);
+
+    const { categories, isLoading: isLoadingCategory, error: errorCategory } = useCategories();
+    const { selectedCategories, selectCategory, unselectCategory } = useCategoryStore();
+
+    const { formats, isLoading: isLoadingFormat, error: errorFormat } = useFormats();
+    const { selectedFormat, selectFormat } = useFormatStore();
+
+    const { languages, isLoading: isLoadingLanguage, error: errorLanguage } = useLanguages();
+    const { selectedLanguage, selectLanguage } = useLanguageStore();
+
+    const handleAddCategory = (category: CategoryDTO) => {
+        selectCategory(category);
+        setIsCategoryMenuOpen(false);
+    };
+
+    // este tiene que ser id
+    // traer id de formato
+    // traer id de idioma
+
+  const [currentTags, setCurrentTags] = useState<string[]>([]);
   const [isAddingTag, setIsAddingTag] = useState(false);
   const [newTagText, setNewTagText] = useState('');
   const [isSuggestionMenuOpen, setIsSuggestionMenuOpen] = useState(false);
   const [showIATooltip, setShowIATooltip] = useState(false);
 
-  // Form inputs
-  const [format, setFormat] = useState('');
   const [nameWork, setNameWork] = useState('');
-  const [description, setDescription] = useState('');
-  const [language, setLanguage] = useState('');
+  const [descriptionF, setDescriptionF] = useState('');
+
+  // Files
+  const bannerInputRef = useRef<HTMLInputElement>(null);
+  const coverInputRef = useRef<HTMLInputElement>(null);
 
   const [bannerFile, setBannerFile] = useState<File | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [coverFile, setCoverFile] = useState<File | null>(null);
+  const [errorBanner, setErrorBanner] = useState<string | null>(null);
+  const [errorCover, setErrorCover] = useState<string | null>(null);
   const [showCoverPopup, setShowCoverPopup] = useState(false);
  
-  const [error, setError] = useState<string | null>(null);
 
     // validación del Formulario 
-    const isSubmitEnabled = 
-        nameWork.trim() !== '' && 
-        description.trim() !== '' &&
-        format !== '' && 
-        language !== '' && 
-        selectedCategories.length > 0 && 
-        currentTags.length > 0;
+    const isSubmitEnabled =
+        nameWork.trim() !== '' &&
+        descriptionF.trim() !== '' &&
+        selectedFormat !== null &&
+        selectedLanguage !== null &&
+        selectedCategories.length > 0 &&
+        currentTags.length > 0 &&
+        bannerFile !== null &&
+        coverFile !== null;
+
 
   // input de Tags (Enter)
   const handleTagSubmit = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       e.preventDefault();
-      handleAddTag(newTagText, currentTags, setCurrentTags, setIsAddingTag, setNewTagText, setIsSuggestionMenuOpen);
+        const formattedText = newTagText.toLowerCase().replace(/\s+/g, '-');
+        handleAddTag(formattedText, currentTags, setCurrentTags, setIsAddingTag, setNewTagText, setIsSuggestionMenuOpen);
     }
   };
            
-                const handleClick = () => {
-                fileInputRef.current?.click();
-                };
+               // 1. Click para Banner
+     const handleBannerClick = () => {
+        bannerInputRef.current?.click();
+    };
+    
+    // 2. Click para Portada
+    const handleCoverClick = () => {
+        coverInputRef.current?.click();
+        // setShowCoverPopup(false); // Opcional: si tienes un popup, ciérralo aquí
+    };
 
-                const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-                      const file = e.target.files?.[0];
-                      if (!file) return;
+            // === LÓGICA DE MANEJO DE ARCHIVOS UNIFICADA ===
+        const handleFileChange = useCallback(async (e: React.ChangeEvent<HTMLInputElement>, isCover: boolean = false) => {
+            const file = e.target.files?.[0];
+            if (!file) return;
 
-                      const result = await validateFile(file, { maxSizeMB: 20, maxWidth: 1345, maxHeight: 256 });
-                      
-                      //La imagen NO se carga correctamente
-                      if (!result.valid) {
-                      setBannerFile(null);
-                      setError(result.error || "Error desconocido");
-                      return;
-                      }
+            // 🛑 Configuramos las opciones de validación según el tipo de archivo 🛑
+            const options = isCover
+                ? { maxSizeMB: 20, maxWidth: 500, maxHeight: 800 } // Especificaciones de Portada
+                : { maxSizeMB: 20, maxWidth: 1345, maxHeight: 256 }; // Especificaciones de Banner
 
-                      //La imagen se carga correctamente
-                      setError(null);
-                      setBannerFile(file);
-                      console.log("Archivo válido:", file);
-                      alert("Archivo válido y listo para subir.");           
-            };
+            const result = await validateFile(file, options);
 
-           
+            // 🛑 Lógica de error 🛑
+           if (!result.valid) {
+                // 1. Manejo de Error: Setea el error y limpia el archivo
+                const errorMessage = result.error || "Error de archivo desconocido.";
 
-                const handleSubmitForm = async (e: { preventDefault: () => void; }) => {
-                e.preventDefault();
+                if (isCover) {
+                    setErrorCover(errorMessage); // Setea error de Portada
+                    setCoverFile(null);          // Limpia archivo de Portada
+                } else {
+                    setErrorBanner(errorMessage); // Setea error de Banner
+                    setBannerFile(null);          // Limpia archivo de Banner
+                }
+                return; // Salir de la función si hay error
+            }
 
-                if (!isSubmitEnabled) {
-                console.error("Error: Intento de envío de formulario incompleto.");
-                return; 
+
+            if (isCover) {
+                setErrorCover(null); // Limpia error de Portada
+                setCoverFile(file);  // Guarda archivo de Portada
+                console.log("Archivo Portada válido:", file.name);
+                alert("Archivo de portada cargado correctamente.");
+            } else {
+                setErrorBanner(null); // Limpia error de Banner
+                setBannerFile(file);  // Guarda archivo de Banner
+                console.log("Archivo Banner válido:", file.name);
+                alert("Archivo de banner cargado correctamente.");
+            }
+
+        }, []);
+
+    const createWorkMutation = useCreateWork();
+
+    const handleSubmitForm = async (e: { preventDefault: () => void; }) => {
+        e.preventDefault();
+
+        if (!isSubmitEnabled) {
+            console.error("Error: Intento de envío de formulario incompleto.");
+            return;
         }
-                const formData = new FormData();
-                formData.append('nombre', nameWork);
-                formData.append('descripcion', description);
-                formData.append('formato', format);
-                formData.append('idioma', language);
-                formData.append('categorias', JSON.stringify(selectedCategories));
-                formData.append('etiquetas', JSON.stringify(currentTags));
-                if (bannerFile) formData.append('banner', bannerFile);
 
-                try {
-        
-        await new Promise(resolve => setTimeout(resolve, 1500)); 
-        const success = true; 
-        if (success) {
-            console.log("¡Obra creada con éxito!");
-            
-            // si la respuesta es buena.
-            navigate("/ManageWork"); 
-            console.log("=== FormData a enviar ===");
-            console.log({
-            nombre: nameWork,
-            descripcion: description,
-            formato: format,
-            idioma: language,
-            categorias: selectedCategories,
-            etiquetas: currentTags,
-            banner: bannerFile,
-             });
-        } else {
+        const workDTO: CreateWorkDTO = {
+            title: nameWork,
+            description: descriptionF,
+            formatId: selectedFormat?.id,
+            originalLanguageId: selectedLanguage?.id,
+            categoryIds: selectedCategories.map(cat => cat.id),
+            tagIds: currentTags
+        };
+
+        const formData = createFormDataForWork(workDTO, bannerFile, coverFile);
+
+        console.log(formData);
+
+        try {
+            const workId = await createWorkMutation.mutateAsync(formData);
+
+            console.log("¡Obra creada con éxito!" + workId);
+            navigate("/manage-work/" + (workId));
+        } catch (error) {
+            console.error("Error al crear la obra:", error);
             alert("Error al guardar la obra. Intente nuevamente.");
         }
-        
-    } catch (error) {
-        console.error("Error en la conexión o en el envío:", error);
-        alert("Ocurrió un error inesperado al enviar los datos.");
-        }
-                
 
-                    for (let pair of formData.entries()) {
-                    console.log(pair[0]+ ':', pair[1]);
-                    }
-                }
-                /*fetch('/api/obras', {
-                    method: 'POST',
-                    body: formData,
-                })
-                    .then(res => res.json())
-                    .then(data => {
-                    // manejar respuesta
-                    });
-                };*/
-
-
+    }
             return (
                 <main>
                 <form onSubmit={handleSubmitForm}>
                 <section>
             {/* BANNER DE SUBIDA */}
-            <div
-                onClick={handleClick}
-                className="w-full max-w-[1345px] h-[256px] bg-[#E8E5E5] flex justify-center items-center mx-auto border border-[rgba(0,0,0,0.5)] hover:bg-[#D7D7D7] cursor-pointer"
-            >
+                        <div
+                  onClick={handleBannerClick}
+                  className="w-full max-w-[1345px] h-[256px] bg-[#E8E5E5] flex justify-center items-center mx-auto 
+                            border-b border-l border-r border-[rgba(0,0,0,0.5)] 
+                            hover:bg-[#D7D7D7] cursor-pointer"
+              >
                 <div className="text-center text-gray-400 flex flex-col items-center">
                 <img src="/img/Group.png" className="w-[70px] h-[55px]" alt="Subir banner" />
                 <p className="text-lg text-gray-500">Subir banner</p>
@@ -160,16 +196,16 @@ export default function Create() {
             {/* Input oculto */}
             <input
                 type="file"
-                ref={fileInputRef}
+                ref={bannerInputRef}
                 className="hidden"
                 accept="image/png,image/jpeg,image/jpg,image/webp"
                 onChange={handleFileChange}
             />
 
             {/* Mensaje de error */}
-            {error && (
+            {errorBanner && (
                 <p className="text-red-500 text-sm mt-2 text-center">
-                {error}
+                {errorBanner}
                 </p>
             )}
             </section>
@@ -208,7 +244,23 @@ export default function Create() {
       <p className="text-lg font-bold mb-4">Subir una imagen</p>
       <p className="text-s font-medium mb-4 text-[#3F3E3E]">Seleccione un archivo para la imagen de su portada</p>
       <img src="/img/SubidaPortada.png" className="w-[110px] h-[90px] mt-2" alt="Subida Portada" />
-      <Button text="Subir" onClick={() => setShowCoverPopup(false)} colorClass="bg-[#172FA6] text-white px-4 py-2 font-semibold rounded cursor-pointer hover:scale-102 w-60" />
+      <Button text="Subir" onClick={handleCoverClick} colorClass="bg-[#172FA6] text-white px-4 py-2 font-semibold rounded cursor-pointer hover:scale-102 w-60" />
+    
+                        {/* Input oculto Cover */}
+                        <input
+                            type="file"
+                            ref={coverInputRef}
+                            className="hidden"
+                            accept="image/png,image/jpeg,image/jpg,image/webp"
+                            onChange={e => handleFileChange(e, true)}
+                        />
+
+                        {/* Mensaje de error */}
+            {errorCover && (
+                <p className="text-red-500 text-sm mt-2 text-center">
+                {errorCover}
+                </p>
+            )}
     </div>
 
     {/* Segundo recuadro*/}
@@ -252,16 +304,14 @@ export default function Create() {
             <div className="flex items-start">
             <label className="w-1/4 text-lg font-medium text-gray-700 pt-1">Categorías</label>
             <div className="flex gap-2 w-3/4 relative items-center flex-wrap">
-              {selectedCategories.map((category) => (
-                <Tag
-                  key={category}
-                  text={category}
-                  colorClass={`border-[#172FA6] text-[#172FA6] bg-transparent`}
-                  onRemove={() =>
-                    setSelectedCategories(selectedCategories.filter(c => c !== category))
-                  }
-                />
-              ))}
+                {selectedCategories.map((category) => (
+                    <Tag
+                        key={category.id}
+                        text={category.name}
+                        colorClass={`border-[#172FA6] text-[#172FA6] bg-transparent`}
+                        onRemove={() => unselectCategory(category.id)}
+                    />
+                ))}
 
               {/* (+) CATS */}
               <Button
@@ -271,22 +321,28 @@ export default function Create() {
                 text={'+'}
               />
 
-              {isCategoryMenuOpen && (
-                <div className="absolute z-20 top-10 mt-1 mr-[-10%] w-max max-w-sm lg:max-w-md">
-                  <div className="bg-white p-4 border border-gray-300 rounded-md shadow-lg flex flex-wrap gap-2">
-                    {MORE_CATEGORIES.filter((c) => !selectedCategories.includes(c)).map((category) => (
-                      <Tag
-                        key={category}
-                        text={category}
-                        colorClass="border border-gray-300 text-gray-600 bg-transparent hover:bg-gray-100"
-                        onClick={() =>
-                          handleAddCategory(category, selectedCategories, setSelectedCategories, setIsCategoryMenuOpen)
-                        }
-                      />
-                    ))}
-                  </div>
-                </div>
-              )}
+                {isCategoryMenuOpen && (
+                    <div className="absolute z-20 top-10 mt-1 mr-[-10%] w-max max-w-sm lg:max-w-md">
+                        <div className="bg-white p-4 border border-gray-300 rounded-md shadow-lg flex flex-wrap gap-2">
+                            {isLoadingCategory ? (
+                                <p className="text-gray-500">Cargando categorías...</p>
+                            ) : errorCategory ? (
+                                <p className="text-red-500">Error al cargar categorías</p>
+                            ) : (
+                                categories
+                                    .filter((c) => !selectedCategories.some(sc => sc.id === c.id))
+                                    .map((category) => (
+                                        <Tag
+                                            key={category.id}
+                                            text={category.name}
+                                            colorClass="border border-gray-300 text-gray-600 bg-transparent hover:bg-gray-100"
+                                            onClick={() => handleAddCategory(category)}
+                                        />
+                                    ))
+                            )}
+                        </div>
+                    </div>
+                )}
             </div>
           </div>
 
@@ -299,20 +355,36 @@ export default function Create() {
           <div className="flex flex-col mb-6">
             <div className="flex items-center">
             <label className="w-1/4 text-lg font-medium text-gray-700">Formato</label>
-              <div className="w-[120px] p-2 bg-[#3B2252] text-white rounded-md flex justify-center items-center cursor-pointer">
-                    <select
-                        className="bg-[#3B2252] font-medium cursor-pointer none"
-                        value={format}
-                        onChange={e => setFormat(e.target.value)}
-                    >
-                <option value="" disabled>Seleccionar</option>
-                <option value="nov">Novela</option>
-                <option value="com">Comic</option>
-                <option value="man">Manga</option>
-              </select>
-              </div>
+                {isLoadingFormat ? (
+                    <div className="w-[120px] p-2 bg-gray-400 text-white rounded-md flex justify-center items-center">
+                        <span className="text-sm">Cargando...</span>
+                    </div>
+                ) : errorFormat ? (
+                    <div className="w-[120px] p-2 bg-red-500 text-white rounded-md flex justify-center items-center">
+                        <span className="text-sm">Error</span>
+                    </div>
+                ) : (
+                    <div className="w-[120px] p-2 bg-[#3B2252] text-white rounded-md flex justify-center items-center cursor-pointer">
+                        <select
+                            className="bg-[#3B2252] font-medium cursor-pointer"
+                            value={selectedFormat?.id || ''}
+                            onChange={e => {
+                                const formatId = parseInt(e.target.value);
+                                const format = formats.find(f => f.id === formatId);
+                                if (format) selectFormat(format);
+                            }}
+                        >
+                            <option value="" disabled>Seleccionar</option>
+                            {formats.map((format) => (
+                                <option key={format.id} value={format.id}>
+                                    {format.name}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                )}
           </div>
-          {format === '' && (
+          {selectedFormat === null && (
                       <p className="text-red-500 text-sm mt-1 ml-1/4 pt-1 pl-[25%]">El formato es obligatorio.</p>
                             )}
           </div>
@@ -321,21 +393,35 @@ export default function Create() {
           <div className="flex flex-col mb-6">
             <div className="flex items-center">
             <label className="w-1/4 text-lg font-medium text-gray-700">Idioma Original</label>
-              <div className="w-[120px] p-2 bg-[#3B2252] text-white rounded-md flex justify-center items-center cursor-pointer">
-                    <select
-                        className="bg-[#3B2252] font-medium cursor-pointer none"
-                        value={language}
-                        onChange={e => setLanguage(e.target.value)}
-                    >
-                <option value="" disabled>Seleccionar</option>
-                <option value="es">Español</option>
-                <option value="en">Inglés</option>
-                <option value="pt">Portugués</option>
-                <option value="jp">Japonés</option>
-                    </select>
-              </div>
+                {isLoadingLanguage ? (
+                    <div className="w-[120px] p-2 bg-gray-400 text-white rounded-md flex justify-center items-center">
+                        <span className="text-sm">Cargando...</span>
+                    </div>
+                ) : errorLanguage ? (
+                    <div className="w-[120px] p-2 bg-red-500 text-white rounded-md flex justify-center items-center">
+                        <span className="text-sm">Error</span>
+                    </div>
+                ) : (
+                    <div className="w-[120px] p-2 bg-[#3B2252] text-white rounded-md flex justify-center items-center cursor-pointer">
+                      <select
+                          value={selectedLanguage?.id || ''}
+                          onChange={(e) => {
+                              const languageId = parseInt(e.target.value);
+                              const language = languages.find(l => l.id === languageId);
+                              if (language) selectLanguage(language);
+                          }}
+                      >
+                          <option value="" disabled>Seleccionar</option>
+                          {languages.map((language) => (
+                              <option key={language.id} value={language.id}>
+                                  {language.name}
+                              </option>
+                          ))}
+                      </select>
+                    </div>
+                  )}
           </div>
-          {language === '' && (
+          {selectedLanguage === null && (
                       <p className="text-red-500 text-sm mt-1 ml-1/4 pt-1 pl-[25%]">El idioma es obligatorio.</p>
                             )}
           </div>
@@ -372,7 +458,7 @@ export default function Create() {
                   type="button"
                   text="+"
                   onClick={() => setIsAddingTag(true)}
-                  colorClass={`w-8 h-8 pt-0 flex justify-center rounded-full border-2 border-[#5C17A6] text-[#5C17A6] text-2xl font-medium leading-none hover:bg-[#5C17A6] hover:text-white`}
+                 colorClass={`w-8 h-8 pt-0 flex justify-center rounded-full border-2 border-[#5C17A6] text-[#5C17A6] text-2xl font-medium leading-none hover:bg-[#5C17A6] hover:text-white`}
                 />
               )}
 
@@ -385,7 +471,7 @@ export default function Create() {
               <Button
                   type="button"
                   onClick={() => setIsSuggestionMenuOpen(!isSuggestionMenuOpen)}
-                  colorClass="w-8 h-8 !px-0 !py-0 flex items-center justify-center rounded-full border-2 border-[#5C17A6] text-white hover:bg-opacity-90 z-10"
+                colorClass="w-8 h-8 flex items-center justify-center rounded-full border-2 border-[#5C17A6] text-white hover:bg-opacity-90 z-10 !px-0 !py-0"
                 >
                   <img 
                     src="/img/magic.png" 
@@ -437,15 +523,15 @@ export default function Create() {
             <div className="flex items-start">
             <label className="w-1/4 text-lg font-medium text-gray-700">Descripción</label>
               <div className="w-3/4 relative">
-                <textarea className={`w-full h-40 p-2 border ${description.trim() === '' ? 'border-red-500' : 'border-gray-300'} rounded-md focus:ring-2 focus:border-transparent resize-none`}
-                value={description}
-                onChange={e => setDescription(e.target.value)}>
+                <textarea className={`w-full h-40 p-2 border ${descriptionF.trim() === '' ? 'border-red-500' : 'border-gray-300'} rounded-md focus:ring-2 focus:border-transparent resize-none`}
+                value={descriptionF}
+                onChange={e => setDescriptionF(e.target.value)}>
                 </textarea>
 
               <p className="absolute bottom-2 right-2 text-xs text-gray-500">max 400 caracteres</p>
               </div>
           </div>
-          {description.trim() === '' && (
+          {descriptionF.trim() === '' && (
                       <p className="text-red-500 text-sm mt-1 ml-1/4 pt-1 pl-[25%]">La descripción es obligatoria.</p>
                             )}
           </div>

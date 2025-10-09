@@ -3,25 +3,31 @@ export interface WorkDTO {
   id: number;
   title: string;
   description?: string;
-  coverUrl: string;
-  bannerUrl: string;
-  status: 'paused' | 'finished' | 'in_progress';
-  categories: CategoryDTO[];
-  tags: string[];
-  chapters: ChapterDTO[];
+  cover: string;
+  banner: string;
+  state: 'paused' | 'finished' | 'InProgress';
   createdAt: string;
   updatedAt: string;
-  creator: CreatorDTO;
   publicationDate: string;
   format: WorkFormatDTO;
-  originalLanguage: string;
+  originalLanguage: OriginalLanguageDTO;
   price: number;
   likes: number;
+  creator: CreatorDTO;
+  chapters: ChapterDTO[];
+  categories: CategoryDTO[];
+  tags: TagDTO[];
+}
+
+export interface OriginalLanguageDTO {
+  id: number;
+  name: string;
 }
 
 export interface ChapterDTO {
   id: number;
   title: string;
+  description: string;
   price: number;
   likes: number;
   lastModified: string;
@@ -46,4 +52,9 @@ export interface CreatorDTO {
   username: string;
   photo?: string;
   email?: string;
+}
+
+export interface TagDTO {
+    id: number;
+    name: string;
 }
