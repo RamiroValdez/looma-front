@@ -17,7 +17,6 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
 
   // el workId tiene que tomarlo por parametros
   const { id: workId } = useParams<{ id: string }>();
-  console.log(workId, 'workId :v');
   const [work, setWork] = useState<WorkDTO | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -45,7 +44,6 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
 
   const handleCreateChapter = async (workId: number, languageId: number) => {
     const chapter = await addChapter(workId, languageId, 'TEXT');
-    console.log(chapter, 'chapter :v');
     if (chapter?.fetchStatus === 200) {
       navigate(`/chapter/work/${workId}/edit/${chapter.chapterId}`);
       return; // prevent the fallback navigation below from overriding this route
