@@ -1,21 +1,19 @@
 import { useState, useEffect } from 'react';
-import { getCategorias } from '../../services/categoryService';
+import { useCategories } from '../../services/categoryService';
 import { getCurrentUser } from '../../services/dataUserService';
 import { Link } from "react-router-dom";
 import { type UserDTO } from "../../dtos/user.dto";
-import { type CategoryDTO } from "../../dtos/category.dto";
 
 function Header() {
-  const [categorias, setCategorias] = useState<CategoryDTO[]>([]);
   const [openMenu, setOpenMenu] = useState(false);
   const [user, setUser] = useState<UserDTO | null>(null);
   const secciones = ["Libros", "Comics", "Mangas"];
 
+  const { categories, isLoading, error } = useCategories();
+
  useEffect(() => {
   const fetchData = async () => {
     try {
-      const cats = await getCategorias();
-      setCategorias(cats);
       const usr = await getCurrentUser();
       setUser(usr);
     } catch (error) {
@@ -41,11 +39,17 @@ function Header() {
                 </button>
                 <div className="absolute left-0 mt-2 w-56 bg-white border shadow-lg rounded-md p-4 grid grid-cols-2 gap-2 opacity-0 group-hover:opacity-100 group-hover:pointer-events-auto transition">
                   <h4 className="col-span-2 font-semibold text-gray-600 mb-2">CATEGORÍAS</h4>
-                  {categorias.map((cat) => (
-                    <a key={cat.id} href="#" className="text-sm text-gray-700 hover:text-purple-600">
-                      {cat.nombre}
-                    </a>
-                  ))}
+                    {isLoading ? (
+                        <p className="col-span-2 text-sm text-gray-500">Cargando...</p>
+                    ) : error ? (
+                        <p className="col-span-2 text-sm text-red-500">Error al cargar</p>
+                    ) : (
+                        categories.map((cat) => (
+                            <a key={cat.id} href="#" className="text-sm text-gray-700 hover:text-purple-600">
+                                {cat.name}
+                            </a>
+                        ))
+                    )}
                 </div>
               </div>
             ))}
