@@ -5,7 +5,7 @@ import ChapterEditor from "../../components/addChapter/ChapterEditor";
 import ChapterActions from "../../components/addChapter/ChapterActions";
 import PublishOptions from "../../components/addChapter/PublishOptions";
 import InspirationBubble from "../../components/addChapter/InspirationBubble";
-import { getWorkById, updateChapter } from "../../services/chapterService";
+import { getWorkById, updateChapter, deleteChapter } from "../../services/chapterService";
 import { handleError } from "../../utils/errorHandler";
 import { type ChapterDTO } from "../../dto/ChapterDTO";
 
@@ -17,6 +17,10 @@ export default function AddChapter() {
   const [chapter, setChapter] = useState<ChapterDTO | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteInput, setDeleteInput] = useState("");
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
 
   const fetchWorkAndChapter = useCallback(async () => {
     try {
@@ -98,6 +102,39 @@ export default function AddChapter() {
     }
   };
 
+  const openDeleteModal = () => {
+    setDeleteError("");
+    setDeleteInput("");
+    setShowDeleteModal(true);
+  };
+  
+  const closeDeleteModal = () => {
+    if (deleting) return;
+    setShowDeleteModal(false);
+  };
+  
+  const handleConfirmDelete = async () => {
+    if (!chapter || !chapterId) return;
+    if (deleteInput !== "Eliminar Capitulo") {
+      setDeleteError("Debes escribir exactamente: Eliminar Capitulo");
+      return;
+    }
+    try {
+      setDeleting(true);
+      setDeleteError("");
+      const resp = await deleteChapter(Number(chapterId), Number(id));
+      if (resp.fetchStatus === 200 || resp.fetchStatus === 204 || resp.fetchStatus === 201) {
+        navigate(`/manage-work/${id}`);
+      } else {
+        setDeleteError("No se pudo eliminar el capítulo.");
+      }
+    } catch (err) {
+      setDeleteError(handleError(err));
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#F4F0F7]">
@@ -161,6 +198,23 @@ export default function AddChapter() {
             formData={{ titulo: chapter.title, contenido: chapter.description }}
           />
 
+          <div className="mt-6">
+            <div className="border border-red-300 bg-red-50 text-red-700 rounded-lg p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="font-semibold">Eliminar capítulo</h4>
+                  <p className="text-sm">Esta acción no se puede deshacer.</p>
+                </div>
+                <button
+                  onClick={openDeleteModal}
+                  className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+                >
+                  Eliminar capítulo
+                </button>
+              </div>
+            </div>
+          </div>
+
           <PublishOptions
             onScheduleChange={(isoDate) => handleFieldChange("publishedAt", isoDate)}
           />
@@ -190,6 +244,44 @@ export default function AddChapter() {
       </div>
 
       <InspirationBubble />
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/40" onClick={closeDeleteModal} />
+          <div className="relative z-10 w-full max-w-md bg-white rounded-xl shadow-lg p-6">
+            <h3 className="text-lg font-semibold mb-2">
+              ¿Estás seguro que quieres eliminar el capítulo?
+            </h3>
+            <p className="text-sm text-gray-600 mb-4">
+              Para confirmar, escribe exactamente:{" "}
+              <span className="font-semibold">Eliminar Capitulo</span>
+            </p>
+            <input
+              type="text"
+              value={deleteInput}
+              onChange={(e) => setDeleteInput(e.target.value)}
+              placeholder="Eliminar Capitulo"
+              className="w-full border rounded-md px-3 py-2 mb-3 focus:outline-none focus:ring-2 focus:ring-red-300"
+            />
+            {deleteError && <p className="text-sm text-red-600 mb-2">{deleteError}</p>}
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={closeDeleteModal}
+                disabled={deleting}
+                className="px-4 py-2 rounded-md border border-gray-300 text-gray-700 hover:bg-gray-100 disabled:opacity-50"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleConfirmDelete}
+                disabled={deleteInput !== "Eliminar Capitulo" || deleting}
+                className="px-4 py-2 rounded-md bg-red-600 text-white hover:bg-red-700 disabled:opacity-50"
+              >
+                {deleting ? "Eliminando..." : "Confirmar eliminación"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

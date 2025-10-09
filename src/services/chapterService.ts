@@ -84,8 +84,6 @@ export async function getWorkById(id: number): Promise<WorkDTO> {
     const token = useAuthStore.getState().token;
 
     // const url = buildEndpoint(import.meta.env.VITE_API_GET_WORK_BY_ID_URL, { id });
-
-    console.log(token, 'token :v');
     
     const headers = {
       "Content-Type": "application/json",
@@ -96,13 +94,36 @@ export async function getWorkById(id: number): Promise<WorkDTO> {
       headers,
     });
 
-    console.log(response, 'response :v');
 
     if (!response.ok) {
       const errorData = await response.json();
       throw new Error(errorData.message || "Error al obtener la obra.");
     }
     return (await response.json()) as WorkDTO;
+  } catch (error) {
+    throw new Error(handleError(error));
+  }
+}
+
+export async function deleteChapter(
+  chapterId: number,
+  workId: number
+): Promise<{ fetchStatus: number }> {
+  try {
+    const token = useAuthStore.getState().token;
+
+    const response = await fetch(`http://localhost:8080/api/work/${workId}/chapter/${chapterId}/delete`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error ${response.status}: ${response.statusText}`);
+    }
+    return { fetchStatus: response.status };
   } catch (error) {
     throw new Error(handleError(error));
   }
