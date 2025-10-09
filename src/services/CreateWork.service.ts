@@ -1,6 +1,16 @@
-// serviceCreateWork.ts
-
 import type { FileValidationError } from "../types.ts/CreateWork.types";
+import {useApiMutation} from "../api/useApiMutation.ts";
+import {useAuthStore} from "../store/AuthStore.ts";
+import React from "react";
+
+export interface CreateWorkDTO {
+    title: string;
+    description: string;
+    formatId?: number;
+    originalLanguageId?: number;
+    categoryIds: number[];
+    tagIds: string[];
+}
 
 // Manejo de Categorías
 export const handleAddCategory = (
@@ -66,3 +76,33 @@ export function validateFile(file: File, options: ValidationOptions): Promise<{ 
         img.src = URL.createObjectURL(file);
     }); 
 }
+
+export const useCreateWork = () => {
+    const { token } = useAuthStore();
+
+    return useApiMutation({
+        url: import.meta.env.VITE_API_POST_CREATE_WORK_URL,
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    });
+};
+
+export const createFormDataForWork = (
+    workDTO: CreateWorkDTO,
+    bannerFile?: File | null,
+    coverFile?: File | null
+): FormData => {
+    const formData = new FormData();
+
+    formData.append(
+        'work',
+        new Blob([JSON.stringify(workDTO)], { type: 'application/json' })
+    );
+
+    if (bannerFile) formData.append('banner', bannerFile);
+    if (coverFile) formData.append('cover', coverFile);
+
+    return formData;
+};

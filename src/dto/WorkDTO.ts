@@ -14,7 +14,6 @@ export interface WorkDTO {
   price: number;
   likes: number;
   creator: CreatorDTO;
-  originalLanguage: string;
   chapters: ChapterDTO[];
   categories: CategoryDTO[];
   tags: TagDTO[];

@@ -1,5 +1,5 @@
 import { useQuery, type UseQueryOptions } from "@tanstack/react-query";
-import { apiRequest} from "./apiClient.ts";
+import { apiRequest } from "./apiClient.ts";
 
 export const useApiQuery = <TData, TError = unknown>(
     key: string[],
