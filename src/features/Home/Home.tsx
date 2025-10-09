@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { getTop10Works} from "../../services/workService";
-import { getAllCategories, getCategorias } from "../../services/categoryService";
+import { useCategories } from "../../services/categoryService";
 import { getUserReadingList } from "../../services/userService";
 import type { WorkDTO } from "../../dto/WorkDTO";
 import type { BookDTO } from "../../dto/BookDTO";
@@ -16,8 +16,9 @@ interface TopBook {
 }
 
 const Home = () => {
+  const { categories, isLoading, error } = useCategories();
+
   const [top10, setTop10] = useState<TopBook[]>([]);
-  const [categorias, setCategorias] = useState<string[]>([]);
   const [seguirLeyendo, setSeguirLeyendo] = useState<BookDTO[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -33,13 +34,10 @@ const Home = () => {
           top10Data.map((work: WorkDTO, index: number) => ({
             id: work.id,
             title: work.title,
-            cover: work.coverUrl, 
+            cover: work.cover, 
             position: index + 1,
           }))
         );
-
-        const categoriesData = await getCategorias(); //cambiar despues por getAllCategories (vienen del back)
-        setCategorias(categoriesData.map((category) => category.name));
 
         const readingList = await getUserReadingList(userId);
         setSeguirLeyendo(readingList);
@@ -59,7 +57,6 @@ const Home = () => {
 
   return (
     <div className="flex flex-col min-h-screen bg-[#f4f0f7]">
-
       <Top10Section books={top10} />
 
       <div className="px-6 mb-12 grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
@@ -70,16 +67,21 @@ const Home = () => {
         <div className="w-full">
           <h2 className="text-2xl font-bold mb-4">CATEGORIAS</h2>
           <div className="flex flex-wrap gap-3">
-            {categorias.map((cat) => (
-              <button
-                key={cat}
-                className="bg-white border border-gray-200 px-4 py-2 rounded-full shadow-sm hover:bg-gray-100 transition text-sm font-medium"
-              >
-                {cat}
-              </button>
-            ))}
+            {isLoading ? (
+              <p className="text-gray-500">Cargando categorías...</p>
+            ) : error ? (
+              <p className="text-red-500">Error al cargar categorías</p>
+            ) : (
+              categories.map((category) => (
+                <button
+                  key={category.id}
+                  className="bg-white border border-gray-200 px-4 py-2 rounded-full shadow-sm hover:bg-gray-100 transition text-sm font-medium"
+                >
+                  {category.name}
+                </button>
+              ))
+            )}
           </div>
-
         </div>
       </div>
     </div>

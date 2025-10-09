@@ -3,7 +3,7 @@
     "id": 1,
     "title": "Obra 1",
     "description": "Descripción de la obra 1",
-    "coverUrl": "/images/foto.jpg",
+    "cover": "/images/foto.jpg",
     "bannerUrl": "/images/banner1.jpg",
     "status": "finished",
     "categories": [
@@ -31,7 +31,7 @@
     "id": 2,
     "title": "Obra 2",
     "description": "Descripción de la obra 2",
-    "coverUrl": "/images/foto2.jpg",
+    "cover": "/images/foto2.jpg",
     "bannerUrl": "/images/banner2.jpg",
     "status": "in_progress",
     "categories": [
@@ -59,7 +59,7 @@
     "id": 3,
     "title": "Obra 3",
     "description": "Descripción de la obra 3",
-    "coverUrl": "/images/foto3.jpg",
+    "cover": "/images/foto3.jpg",
     "bannerUrl": "/images/banner3.jpg",
     "status": "finished",
     "categories": [
@@ -87,7 +87,7 @@
     "id": 4,
     "title": "Obra 4",
     "description": "Descripción de la obra 4",
-    "coverUrl": "/images/foto4.jpg",
+    "cover": "/images/foto4.jpg",
     "bannerUrl": "/images/banner4.jpg",
     "status": "in_progress",
     "categories": [
@@ -115,7 +115,7 @@
     "id": 5,
     "title": "Obra 5",
     "description": "Descripción de la obra 5",
-    "coverUrl": "/images/foto5.jpg",
+    "cover": "/images/foto5.jpg",
     "bannerUrl": "/images/banner5.jpg",
     "status": "finished",
     "categories": [
@@ -143,7 +143,7 @@
     "id": 6,
     "title": "Obra 6",
     "description": "Descripción de la obra 6",
-    "coverUrl": "/images/foto6.jpg",
+    "cover": "/images/foto6.jpg",
     "bannerUrl": "/images/banner6.jpg",
     "status": "in_progress",
     "categories": [
@@ -171,7 +171,7 @@
     "id": 7,
     "title": "Obra 7",
     "description": "Descripción de la obra 7",
-    "coverUrl": "/images/foto7.jpg",
+    "cover": "/images/foto7.jpg",
     "bannerUrl": "/images/banner7.jpg",
     "status": "finished",
     "categories": [
@@ -199,7 +199,7 @@
     "id": 8,
     "title": "Obra 8",
     "description": "Descripción de la obra 8",
-    "coverUrl": "/images/foto8.jpg",
+    "cover": "/images/foto8.jpg",
     "bannerUrl": "/images/banner8.jpg",
     "status": "in_progress",
     "categories": [
@@ -227,7 +227,7 @@
     "id": 9,
     "title": "Obra 9",
     "description": "Descripción de la obra 9",
-    "coverUrl": "/images/foto9.jpg",
+    "cover": "/images/foto9.jpg",
     "bannerUrl": "/images/banner9.jpg",
     "status": "finished",
     "categories": [
@@ -255,7 +255,7 @@
     "id": 10,
     "title": "Obra 10",
     "description": "Descripción de la obra 10",
-    "coverUrl": "/images/foto10.jpg",
+    "cover": "/images/foto10.jpg",
     "bannerUrl": "/images/banner10.jpg",
     "status": "in_progress",
     "categories": [

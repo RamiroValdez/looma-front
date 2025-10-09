@@ -53,14 +53,15 @@ const Top10Section: React.FC<Props> = ({ books }) => {
       <ScrollArrow direction="left" onClick={() => scroll("left")} isVisible={showLeft} />
 
       <div
-        ref={scrollRef}
-        className="flex gap-10 overflow-x-auto scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']"
-      >
+  ref={scrollRef}
+  className="flex gap-10  overflow-x-auto scroll-smooth pl-12 pr-12 overflow-visible [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']"
+>
+
         {books.map((book) => (
           <TopBookCard
             key={book.id}
             position={book.position}
-            imageUrl={book.cover}
+            cover={book.cover}
             title={book.title}
           />
         ))}

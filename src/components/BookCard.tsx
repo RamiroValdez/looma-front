@@ -14,7 +14,7 @@ const BookCard: React.FC<Props> = ({ book }) => {
         {/*acordarme de cambiar aca x la ruta que va a la vista del libro*/}
         <Link to={`/book/${book.id}`}>
           <img
-            src={book.coverUrl}
+            src={book.cover}
             alt={book.name}
             className="w-full h-full object-cover cursor-pointer"
           />
