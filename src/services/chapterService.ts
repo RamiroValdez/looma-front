@@ -18,7 +18,7 @@ export async function addChapter(
 
     const token = useAuthStore.getState().token;
 
-    const response = await fetch(`http://localhost:8080/api/manage-work/create-chapter`, {
+    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_API_MANAGE_WORK_URL}/create-chapter`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -91,7 +91,8 @@ export async function getWorkById(id: number): Promise<WorkDTO> {
       "Content-Type": "application/json",
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     };
-    const response = await fetch(`http://localhost:8080/api/manage-work/${id}`, {
+    
+    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_API_MANAGE_WORK_URL}/${id}`, {
       method: "GET",
       headers,
     });
@@ -136,7 +137,7 @@ export async function deleteChapter(
   try {
     const token = useAuthStore.getState().token;
 
-    const response = await fetch(`http://localhost:8080/api/work/${workId}/chapter/${chapterId}/delete`, {
+    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_API_WORK_URL}/${workId}/chapter/${chapterId}/delete`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
