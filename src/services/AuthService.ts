@@ -23,7 +23,8 @@ export const useLogin = async (email: string, password: string): Promise<LoginRe
     };
 
     const response = await apiRequest<LoginResponse>({
-        url: import.meta.env.VITE_API_AUTH_URL,
+        // agregar el login en string
+        url: import.meta.env.VITE_API_AUTH_URL + '/login',
         method: 'POST',
         data: loginData
     });

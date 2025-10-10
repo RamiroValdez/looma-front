@@ -96,30 +96,29 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
       setBannerPreview(prev => { if (prev) URL.revokeObjectURL(prev); return URL.createObjectURL(file); });
       if (bannerInputRef.current) bannerInputRef.current.value = '';
     }
-
-    try {
-      setSavingBanner(true);  
-      await uploadBanner(currentWorkId, file);
-    } catch (err) {
-      console.error('Error al subir el banner:', err);
-      setErrorBanner('No se pudo subir el banner. Intenta nuevamente.');
-    } finally {
-      setSavingBanner(false);
+    if (!isCover) {
+      try {
+        setSavingBanner(true);
+        await uploadBanner(currentWorkId, file);
+      } catch (err) {
+        console.error('Error al subir el banner:', err);
+        setErrorBanner('No se pudo subir el banner. Intenta nuevamente.');
+      } finally {
+        setSavingBanner(false);
+      }
     }
-  }, []);
+  }, [currentWorkId]);
 
   useEffect(() => {
     const fetchWork = async () => {
       try {
         setLoading(true);
         const workData = await getWorkById(currentWorkId);
-
         console.log(workData);
         setWork(workData);
-        
         // Inicializar estados con datos de la obra 
-        setSelectedCategories(workData.categories.map(cat => cat.name));
-        setCurrentTags(workData.tags.map(tag => tag.name));
+        setSelectedCategories(workData.categories.map((cat) => cat.name));
+        setCurrentTags(workData.tags.map((tag) => tag.name));
       } catch (err) {
         setError('Error loading work');
         console.error('Error:', err);

@@ -6,7 +6,7 @@ export async function getCurrentUser(tokenParam?: string): Promise<UserDTO | nul
     const token = tokenParam || useAuthStore.getState().token;
     if (!token) return null;
 
-    const response = await fetch("http://localhost:8080/api/auth/me", {
+    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_API_AUTH_URL}/me`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
