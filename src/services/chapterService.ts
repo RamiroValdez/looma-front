@@ -3,6 +3,8 @@ import works from "../../public/data/work-2.json";
 import { useAuthStore } from "../store/AuthStore";
 import { handleError } from "../utils/errorHandler";
 import type { WorkDTO } from "../dto/WorkDTO";
+import {useApiQuery} from "../api/useApiQuery.ts";
+import type {ChapterWithContentDTO} from "../dto/ChapterWithContentDTO.ts";
 
 export async function addChapter(
   workId: number,
@@ -16,7 +18,7 @@ export async function addChapter(
 
     const token = useAuthStore.getState().token;
 
-    const response = await fetch(`http://localhost:8080/api/manage-work/create-chapter`, {
+    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_API_MANAGE_WORK_URL}/create-chapter`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -84,25 +86,69 @@ export async function getWorkById(id: number): Promise<WorkDTO> {
     const token = useAuthStore.getState().token;
 
     // const url = buildEndpoint(import.meta.env.VITE_API_GET_WORK_BY_ID_URL, { id });
-
-    console.log(token, 'token :v');
     
     const headers = {
       "Content-Type": "application/json",
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     };
-    const response = await fetch(`http://localhost:8080/api/manage-work/${id}`, {
+    
+    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_API_MANAGE_WORK_URL}/${id}`, {
       method: "GET",
       headers,
     });
 
-    console.log(response, 'response :v');
 
     if (!response.ok) {
       const errorData = await response.json();
       throw new Error(errorData.message || "Error al obtener la obra.");
     }
     return (await response.json()) as WorkDTO;
+  } catch (error) {
+    throw new Error(handleError(error));
+  }
+}
+
+export function getChapterById(chapterId: number, languageCode: string) {
+    const { token } = useAuthStore();
+    let url = "http://localhost:8080/api/edit-chapter/" + chapterId ;
+    if (languageCode) {
+        url += `?language=${encodeURIComponent(languageCode)}`;
+    }
+
+
+    return useApiQuery<ChapterWithContentDTO>(
+        ["get-chapter-content " + chapterId + (languageCode ? `-${languageCode}` : "")],
+        {
+            url: url,
+            method: "GET",
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        }
+    );
+}
+
+
+export async function deleteChapter(
+  chapterId: number,
+  workId: number
+): Promise<{ fetchStatus: number }> {
+  try {
+    const token = useAuthStore.getState().token;
+
+    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_API_WORK_URL}/${workId}/chapter/${chapterId}/delete`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error ${response.status}: ${response.statusText}`);
+    }
+    return { fetchStatus: response.status };
   } catch (error) {
     throw new Error(handleError(error));
   }

@@ -3,7 +3,7 @@ export interface BookDTO {
   id: number;
   name: string;
   author: string;
-  coverUrl: string;
+  cover: string;
   categories: string[];
   likes: number;
 }

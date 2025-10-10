@@ -3,6 +3,7 @@ import { useAuthStore } from "../../store/AuthStore";
 import { useUserStore } from "../../store/UserStorage.ts";
 import { useNavigate } from "react-router-dom";
 import { useLogin } from "../../services/AuthService";
+import { getCurrentUser } from "../../services/dataUserService.ts";
 
 export const LoginPage = () => {
     const [email, setEmail] = useState('');
@@ -31,13 +32,15 @@ export const LoginPage = () => {
 
         try {
             const response = await useLogin(email, password);
+            const user = await getCurrentUser(response.token);
+            console.log(user);
             setToken(response.token);
             setUser({
-                userId: response.userId,
-                email: response.email,
-                name: response.name,
-                surname: response.surname,
-                username: response.username
+                userId: Number(user?.id),
+                email: String(user?.email),
+                name: String(user?.name),
+                surname: String(user?.surname),
+                username: String(user?.username)
             });
             navigate('/home');
         } catch (err) {
