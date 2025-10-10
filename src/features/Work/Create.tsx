@@ -5,7 +5,8 @@ import Button from "../../components/Button";
 import Tag from "../../components/Tag";
 
 import {SUGGESTED_TAGS} from "../../types.ts/CreateWork.types";
-import { createFormDataForWork, useCreateWork, handleAddTag, validateFile, type CreateWorkDTO } from "../../services/CreateWork.service";
+import type { GenerateCoverResponse } from "../../services/CreateWork.service";
+import { useGenerateCover,  urlToFile, createFormDataForWork, useCreateWork, handleAddTag, validateFile, type CreateWorkDTO } from "../../services/CreateWork.service";
 import {useCategories} from "../../services/categoryService.ts";
 import { useCategoryStore } from "../../store/CategoryStore.ts";
 import type { CategoryDTO } from "../../dtos/category.dto.ts";
@@ -13,6 +14,16 @@ import { useFormatStore } from "../../store/FormatStore.ts";
 import { useFormats } from "../../services/formatService.ts";
 import { useLanguages } from '../../services/languageService';
 import { useLanguageStore } from '../../store/LanguageStore';
+import type { CoverIaFormDTO } from "../../dto/FormCoverIaDTO.ts";
+import {useArtisticStyles} from '../../services/ArtisticStylesService';
+import { useArtisticStyleStore } from '../../store/ArtisticStyleStore';
+import {useColorPalettes} from '../../services/ColorPaletteService';
+import { useColorPaletteStore } from '../../store/ColorPaletteStore';
+import {useCompositions} from '../../services/CompositionService';
+import { useCompositionStore } from '../../store/CompositionStore';
+import type { ArtisticStyleDTO } from '../../dto/ArtisticStyleDTO'; // Asegúrate que la ruta sea correcta
+import type { ColorPaletteDTO } from '../../dto/ColorPaletteDTO'; // Asegúrate que la ruta sea correcta
+import type { CompositionDTO } from '../../dto/CompositionDTO'; // Asegúrate que la ruta sea correcta
 
 
 
@@ -22,6 +33,22 @@ export default function Create() {
   // === Estados ===
   const [isCategoryMenuOpen, setIsCategoryMenuOpen] = useState(false);
 
+    // Stores IA
+
+      const { isLoading: isLoadingStyles, error: errorStyles } = useArtisticStyles();
+      // 2. Leemos los datos y las acciones del "almacén".
+      const { artisticStyles, selectedArtisticStyle, selectArtisticStyle } = useArtisticStyleStore();
+
+
+      // --- Para Paletas de Colores ---
+      const { isLoading: isLoadingPalettes, error: errorPalettes } = useColorPalettes();
+      const { colorPalettes, selectedColorPalette, selectColorPalette } = useColorPaletteStore();
+
+
+      // --- Para Composiciones ---
+      const { isLoading: isLoadingCompositions, error: errorCompositions } = useCompositions();
+      const { compositions, selectedComposition, selectComposition } = useCompositionStore();
+        
 
     const { categories, isLoading: isLoadingCategory, error: errorCategory } = useCategories();
     const { selectedCategories, selectCategory, unselectCategory } = useCategoryStore();
@@ -36,10 +63,6 @@ export default function Create() {
         selectCategory(category);
         setIsCategoryMenuOpen(false);
     };
-
-    // este tiene que ser id
-    // traer id de formato
-    // traer id de idioma
 
   const [currentTags, setCurrentTags] = useState<string[]>([]);
   const [isAddingTag, setIsAddingTag] = useState(false);
@@ -59,6 +82,10 @@ export default function Create() {
   const [errorBanner, setErrorBanner] = useState<string | null>(null);
   const [errorCover, setErrorCover] = useState<string | null>(null);
   const [showCoverPopup, setShowCoverPopup] = useState(false);
+  const [showCoverIaPopup , setShowCoverIaPopup] = useState(false);
+
+ 
+  const [descriptionForm, setDescriptionForm] = useState('');
  
 
     // validación del Formulario 
@@ -98,14 +125,12 @@ export default function Create() {
             const file = e.target.files?.[0];
             if (!file) return;
 
-            // 🛑 Configuramos las opciones de validación según el tipo de archivo 🛑
             const options = isCover
                 ? { maxSizeMB: 20, maxWidth: 500, maxHeight: 800 } // Especificaciones de Portada
                 : { maxSizeMB: 20, maxWidth: 1345, maxHeight: 256 }; // Especificaciones de Banner
 
             const result = await validateFile(file, options);
 
-            // 🛑 Lógica de error 🛑
            if (!result.valid) {
                 // 1. Manejo de Error: Setea el error y limpia el archivo
                 const errorMessage = result.error || "Error de archivo desconocido.";
@@ -167,8 +192,50 @@ export default function Create() {
             console.error("Error al crear la obra:", error);
             alert("Error al guardar la obra. Intente nuevamente.");
         }
+      }
 
-    }
+    const generateCoverMutation = useGenerateCover();
+
+    const handleGenerateCover = async (e: { preventDefault: () => void; }) => {
+        e.preventDefault();
+
+        // Validamos que los campos del popup de IA estén llenos
+        if (!selectedArtisticStyle || !selectedColorPalette || !selectedComposition || !descriptionForm.trim()) {
+            alert("Por favor, completa todos los campos para generar la portada.");
+            return;
+        }
+
+        // Construimos el DTO con los datos del formulario del popup
+        const formCoverDTO: CoverIaFormDTO = {
+            artisticStyleId: selectedArtisticStyle.id,
+            colorPaletteId: selectedColorPalette.id,
+            compositionId: selectedComposition.id,
+            description: descriptionForm
+        };
+
+        // Usamos un bloque try/catch para manejar el éxito y el error
+        try {
+            console.log("Enviando DTO al backend:", formCoverDTO);
+            // 'mutateAsync' ejecuta la llamada POST y 'await' espera la respuesta.
+            // y le pasamos el DTO directamente.
+            const response: GenerateCoverResponse = await generateCoverMutation.mutateAsync(formCoverDTO);
+            
+            console.log("URL recibida del backend:", response.imageUrl);
+
+            // Convertimos la URL recibida en un objeto File
+            const imageFile = await urlToFile(response.imageUrl, 'cover-ia-generated.jpg', 'image/jpeg');
+
+            // Guardamos el File en el estado principal del formulario
+            setCoverFile(imageFile);
+            alert("¡Portada generada y cargada con éxito!");
+            setShowCoverIaPopup(false);
+
+        } catch (error) {
+            console.error("Error al generar la portada con IA:", error);
+            alert("Hubo un error al generar la portada. Por favor, intenta de nuevo.");
+        }
+    };
+
             return (
                 <main>
                 <form onSubmit={handleSubmitForm}>
@@ -210,71 +277,235 @@ export default function Create() {
             )}
             </section>
 
-      <section className="w-[1345px] mx-auto flex py-8">
-        {/* Contenedor Izquierdo: Portada */}
-        <div className="w-1/4 pr-8 flex flex-col items-center">
-          <div className="w-[192px] h-[256px] bg-[#E8E5E5] border border-[rgba(0,0,0,0.5)] hover:bg-[#D7D7D7] rounded-md flex justify-center items-center mb-3"
-                onClick={() => setShowCoverPopup(true)}>
+    <section className="w-[1345px] mx-auto flex py-8">
+    {/* Contenedor Izquierdo: Portada */}
+    <div className="w-1/4 pr-8 flex flex-col items-center">
+        <div className="w-[192px] h-[256px] bg-[#E8E5E5] border border-[rgba(0,0,0,0.5)] hover:bg-[#D7D7D7] rounded-md flex justify-center items-center mb-3"
+            onClick={() => setShowCoverPopup(true)}>
 
             <div className="text-center text-gray-500 cursor-pointer">
-              <img src="/img/Group.png" className="w-[50px] h-[40px]" alt="Portada" />
-              <p className="text-sm">Portada</p>
+                <img src="/img/Group.png" className="w-[50px] h-[40px]" alt="Portada" />
+                <p className="text-sm">Portada</p>
             </div>
-          </div>
-          <Button text="Subir portada" onClick={() => setShowCoverPopup(true)}
+        </div>
+        <Button text="Subir portada" onClick={() => setShowCoverPopup(true)}
             colorClass={`w-[192px] py-2 bg-[#3B2252] text-white text-sm rounded-md mb-2 font-bold cursor-pointer hover:scale-102`}
-          />
-  {showCoverPopup && (
-      <div className="fixed inset-0 flex items-center text-center justify-center z-50 bg-black/50">
-        <div className="bg-white p-6 shadow-lg flex flex-col items-center w-full max-w-xl md:max-w-3xl rounded-xl relative"> 
-          <p className="text-5xl font-bold mb-4">Cargar Portada</p>
-           <Button 
-            text="" 
-            onClick={() => setShowCoverPopup(false)} 
-            colorClass="absolute top-4 right-4 cursor-pointer" 
-        >
-            <img src="/img/PopUpCierre.png" className="w-10 h-10 hover:opacity-60" alt="Cerrar"
-            />
-                  </Button>
+        />
 
-          <p className="text-2xl font-semibold mb-4">Seleccione una opción</p>
-<div className="flex flex-col md:flex-row gap-4 mb-4">
-    {/* Primer recuadro */}
-    <div className="flex flex-col items-center text-center gap-4 mb-4 border-dashed border-1 rounded-xl border-[#172FA6] py-10 px-8 w-1/2">
-      <p className="text-lg font-bold mb-4">Subir una imagen</p>
-      <p className="text-s font-medium mb-4 text-[#3F3E3E]">Seleccione un archivo para la imagen de su portada</p>
-      <img src="/img/SubidaPortada.png" className="w-[110px] h-[90px] mt-2" alt="Subida Portada" />
-      <Button text="Subir" onClick={handleCoverClick} colorClass="bg-[#172FA6] text-white px-4 py-2 font-semibold rounded cursor-pointer hover:scale-102 w-60" />
-    
-                        {/* Input oculto Cover */}
-                        <input
-                            type="file"
-                            ref={coverInputRef}
-                            className="hidden"
-                            accept="image/png,image/jpeg,image/jpg,image/webp"
-                            onChange={e => handleFileChange(e, true)}
-                        />
+        {showCoverPopup && (
+            <div className="fixed inset-0 flex items-center text-center justify-center z-50 bg-black/50">
+                <div className="bg-white p-6 shadow-lg flex flex-col items-center w-full max-w-xl md:max-w-3xl rounded-xl relative">
+                    <p className="text-5xl font-bold mb-4">Cargar Portada</p>
+                    <Button
+                        text=""
+                        onClick={() => setShowCoverPopup(false)}
+                        colorClass="absolute top-4 right-4 cursor-pointer"
+                    >
+                        <img src="/img/PopUpCierre.png" className="w-10 h-10 hover:opacity-60" alt="Cerrar" />
+                    </Button>
 
-                        {/* Mensaje de error */}
-            {errorCover && (
-                <p className="text-red-500 text-sm mt-2 text-center">
-                {errorCover}
-                </p>
+                    <p className="text-2xl font-semibold mb-4">Seleccione una opción</p>
+                    <div className="flex flex-col md:flex-row gap-4 mb-4">
+                        {/* Primer recuadro */}
+                        <div className="flex flex-col items-center text-center gap-4 mb-4 border-dashed border-1 rounded-xl border-[#172FA6] py-10 px-8 w-1/2">
+                            <p className="text-lg font-bold mb-4">Subir una imagen</p>
+                            <p className="text-s font-medium mb-4 text-[#3F3E3E]">Seleccione un archivo para la imagen de su portada</p>
+                            <img src="/img/SubidaPortada.png" className="w-[110px] h-[90px] mt-2" alt="Subida Portada" />
+                            <Button text="Subir" onClick={handleCoverClick} colorClass="bg-[#172FA6] text-white px-4 py-2 font-semibold rounded cursor-pointer hover:scale-102 w-60" />
+
+                            {/* Input oculto Cover */}
+                            <input
+                                type="file"
+                                ref={coverInputRef}
+                                className="hidden"
+                                accept="image/png,image/jpeg,image/jpg,image/webp"
+                                onChange={e => handleFileChange(e, true)}
+                            />
+
+                            {/* Mensaje de error */}
+                            {errorCover && (
+                                <p className="text-red-500 text-sm mt-2 text-center">
+                                    {errorCover}
+                                </p>
+                            )}
+                        </div>
+
+                        {/* Segundo recuadro IA*/}
+                        <div className="flex flex-col items-center text-center gap-4 mb-4 border-dashed border-1 rounded-xl border-[#172FA6] py-10 px-8 w-1/2">
+                            <p className="text-lg font-bold mb-4">Generar una imagen</p>
+                            <p className="text-s font-medium mb-4 text-[#3F3E3E]">Genera tu portada al instante con nuestra inteligencia artificial.</p>
+                            <img src="/img/IAPortada.png" className="w-[110px] h-[90px] mb-2" alt="IA Portada" />
+                            <Button text="Generar" onClick={() => setShowCoverIaPopup(true)} colorClass="bg-[#172FA6] text-white px-4 py-2 font-semibold rounded cursor-pointer hover:scale-102 w-60" />
+
+
+                            {/* Popup IA */}
+                            {showCoverIaPopup && (
+                                <div className="fixed inset-0 flex items-center text-center justify-center z-50 bg-black/50">
+                                    <div className="bg-white p-6 shadow-lg flex flex-col items-center w-full max-w-xl md:max-w-5xl rounded-xl relative">
+                                        <p className="text-4xl font-bold text-[#3B2252] mb-4">Genera tu portada con IA</p>
+                                         <Button
+                                              text=""
+                                              onClick={() => setShowCoverIaPopup(false)}
+                                              colorClass="absolute top-0 right-0 cursor-pointer"
+                                          >
+                                              <img src="/img/PopUpCierre.png" className="w-10 h-10 hover:opacity-60" alt="Cerrar" />
+                                          </Button>
+            <div className="flex flex-col md:flex-row gap-6 mb-4 w-full">
+
+
+    {/* Formulario IA */}
+    <div className="flex flex-col items-start text-left gap-6 rounded-xl py-8 px-8 w-full md:w-1/2"> 
+
+        {/* --- Estilo Artístico --- */}
+        <div className="w-full flex flex-col">
+            <label className="text-left text-lg font-medium text-gray-700 mb-2">Estilo artístico</label>
+            {isLoadingStyles ? (
+                <div className="w-full p-2 bg-gray-400 text-white rounded-md flex justify-center items-center">
+                    <span className="text-sm">Cargando...</span>
+                </div>
+            ) : errorStyles ? (
+                <div className="w-full p-2 bg-red-500 text-white rounded-md flex justify-center items-center">
+                    <span className="text-sm">Error al cargar</span>
+                </div>
+            ) : (
+                <div className="w-full p-2 bg-[#3B2252] text-white rounded-md flex justify-center items-center cursor-pointer">
+                    <select
+                        className="w-full bg-[#3B2252] font-medium cursor-pointer focus:outline-none"
+                        value={selectedArtisticStyle?.id || ''}
+                        onChange={(e) => {
+                            const styleId = parseInt(e.target.value);
+                            const style = artisticStyles.find((s: ArtisticStyleDTO) => s.id === styleId);
+                            if (style) selectArtisticStyle(style);
+                        }}
+                    >
+                        <option value="" disabled>Seleccionar estilo</option>
+                        {artisticStyles.map((style: ArtisticStyleDTO) => (
+                            <option key={style.id} value={style.id}>
+                                {style.name}
+                            </option>
+                        ))}
+                    </select>
+                </div>
             )}
-    </div>
+            {selectedArtisticStyle === null && (
+                <p className="text-red-500 text-sm mt-1 ml-1/4 pt-1 pl-[25%]">El estilo artístico es obligatorio.</p>
+            )}
+        </div>
 
-    {/* Segundo recuadro*/}
-    <div className="flex flex-col items-center text-center gap-4 mb-4 border-dashed border-1 rounded-xl border-[#172FA6] py-10 px-8 w-1/2">
-      <p className="text-lg font-bold mb-4">Generar una imagen</p>
-      <p className="text-s font-medium mb-4 text-[#3F3E3E]">Genera tu portada al instante con nuestra inteligencia artificial.</p>
-      <img src="/img/IAPortada.png" className="w-[110px] h-[90px] mb-2" alt="IA Portada" />
-      <Button text="Generar" onClick={() => setShowCoverPopup(false)} colorClass="bg-[#172FA6] text-white px-4 py-2 font-semibold rounded cursor-pointer hover:scale-102 w-60" />
-    </div>
+        {/* --- Paleta de Colores --- */}
+        <div className="w-full flex flex-col">
+            <label className="text-left text-lg font-medium text-gray-700 mb-2">Paleta de colores</label>
+            {isLoadingPalettes ? (
+                <div className="w-full p-2 bg-gray-400 text-white rounded-md flex justify-center items-center">
+                    <span className="text-sm">Cargando...</span>
+                </div>
+            ) : errorPalettes ? (
+                <div className="w-full p-2 bg-red-500 text-white rounded-md flex justify-center items-center">
+                    <span className="text-sm">Error al cargar</span>
+                </div>
+            ) : (
+                <div className="w-full p-2 bg-[#3B2252] text-white rounded-md flex justify-center items-center cursor-pointer">
+                    <select
+                        className="w-full bg-[#3B2252] font-medium cursor-pointer focus:outline-none"
+                        value={selectedColorPalette?.id || ''}
+                        onChange={(e) => {
+                            const paletteId = parseInt(e.target.value);
+                            const palette = colorPalettes.find((p : ColorPaletteDTO) => p.id === paletteId);
+                            if (palette) selectColorPalette(palette);
+                        }}
+                    >
+                        <option value="" disabled>Seleccionar paleta</option>
+                        {colorPalettes.map((palette : ColorPaletteDTO) => (
+                            <option key={palette.id} value={palette.id}>
+                                {palette.name}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+            )}
+            {selectedColorPalette === null && (
+                <p className="text-red-500 text-sm mt-1 ml-1/4 pt-1 pl-[25%]">La paleta de colores es obligatoria.</p>
+            )}
+        </div>
 
-          </div>
-        </div>
-      </div> 
-)}
+        {/* --- Composición --- */}
+        <div className="w-full flex flex-col">
+            <label className="text-left text-lg font-medium text-gray-700 mb-2">Composición</label>
+            {isLoadingCompositions ? (
+                <div className="w-full p-2 bg-gray-400 text-white rounded-md flex justify-center items-center">
+                    <span className="text-sm">Cargando...</span>
+                </div>
+            ) : errorCompositions ? (
+                <div className="w-full p-2 bg-red-500 text-white rounded-md flex justify-center items-center">
+                    <span className="text-sm">Error al cargar</span>
+                </div>
+            ) : (
+                <div className="w-full p-2 bg-[#3B2252] text-white rounded-md flex justify-center items-center cursor-pointer">
+                    <select
+                        className="w-full bg-[#3B2252] font-medium cursor-pointer focus:outline-none"
+                        value={selectedComposition?.id || ''}
+                        onChange={(e) => {
+                            const compId = parseInt(e.target.value);
+                            const composition = compositions.find((c : CompositionDTO )=> c.id === compId);
+                            if (composition) selectComposition(composition);
+                        }}
+                    >
+                        <option value="" disabled>Seleccionar composición</option>
+                        {compositions.map((composition : CompositionDTO) => (
+                            <option key={composition.id} value={composition.id}>
+                                {composition.name}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+            )}
+            {selectedComposition === null && (
+                <p className="text-red-500 text-sm mt-1 ml-1/4 pt-1 pl-[25%]">La composición es obligatoria.</p>
+            )}
+        </div>
+
+        {/* --- Descripción --- */}
+        <div className="w-full flex flex-col">
+            <label className="text-left text-lg font-medium text-gray-700 mb-2">Descripción</label>
+            <div className="w-full relative">
+                <textarea 
+                    className="w-full h-24 p-2 border border-gray-300 rounded-md focus:ring-2 focus:border-transparent resize-none"
+                    value={descriptionForm}
+                    onChange={e => setDescriptionForm(e.target.value)}
+                    placeholder="Ej: 'Un cazador con traje verde'..."
+                >
+                </textarea>
+                <p className="absolute bottom-2 right-2 text-xs text-gray-400">max 200 caracteres</p>
+            </div>
+
+            <p className="text-s text-gray-500 w-[400px]">
+                        *Describe lo que debe ser visible. Sé específico sobre el sujeto, 
+                        el entorno y la acción.          </p>
+              </div>
+
+            <Button
+              type="submit"
+              text="Generar portada"
+              onClick={() => {handleGenerateCover}} 
+              disabled={!isSubmitEnabled}
+              colorClass={`${isSubmitEnabled ? 'bg-[#172FA6] cursor-pointer hover:scale-102 text-white' : 'bg-gray-500 cursor-not-allowed'} 
+                                                text-white text-lg font-medium rounded-md transition duration-150 w-full`}            
+                                                />
+        
+            </div>
+                                  {/* Botón Generar */}
+                <div className="flex flex-col justify-between items-center text-center border-dashed border-1 rounded-xl border-[#172FA6] p-8 w-full md:w-1/2"> 
+                                                       
+                          </div>
+                             </div>
+                           </div>
+                        </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        )}
 
           <p className="text-xs text-gray-500 text-center w-[192px]">
             *Se admiten PNG, JPG, JPEG, WEBP de máximo 20mb.
@@ -558,3 +789,4 @@ export default function Create() {
     </main>
   );
 }
+
