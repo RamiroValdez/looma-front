@@ -1,4 +1,12 @@
-export default function AdvancedTools() {
+import type {LanguageDTO} from "../../dto/LanguageDTO.ts";
+
+interface Props {
+    availableLanguages: LanguageDTO[];
+    defaultLanguageCode: LanguageDTO;
+    onLanguageSelect?: (languageCode: string) => void;
+}
+
+export default function AdvancedTools({ availableLanguages, defaultLanguageCode, onLanguageSelect }: Props) {
   return (
     <div className="w-full max-w-full rounded-t-2xl overflow-hidden border border-gray-300 bg-[#E8E4EF]">
   
@@ -7,31 +15,26 @@ export default function AdvancedTools() {
       </div>
 
       <div className="divide-y divide-gray-300 bg-[#F0EEF6]">
-       
-        <div className="flex justify-between items-center px-5 py-3">
-          <span className="text-base font-medium">Español</span>
-          <span className="bg-[#172FA6] text-white text-xs px-3 py-1 rounded-full font-semibold">
-            Original
-          </span>
-        </div>
 
-        <div className="flex justify-between items-center px-5 py-3">
-          <span className="text-base font-medium">Inglés</span>
-        </div>
-
-        <div className="flex justify-between items-center px-5 py-3">
-          <span className="text-base font-medium">Francés</span>
-        </div>
-
-        <div className="flex justify-between items-center px-5 py-3">
-          <span className="text-base font-medium">Portugués</span>
-        </div>
+          {availableLanguages.map(language => (
+              <div key={language.id} className="py-2 px-4 flex justify-between items-center hover:bg-[#E0DEE8] cursor-pointer" onClick={onLanguageSelect ? () => onLanguageSelect(language.code) : undefined}>
+                  {language.name}
+                  <div>
+                      {language.id === defaultLanguageCode.id && (
+                          <span className="bg-[#172FA6] text-white text-xs px-3 py-1 rounded-full font-semibold">
+                            Original
+                      </span>
+                      )}
+                  </div>
+              </div>
+          ))}
 
         <div className="flex justify-center py-3 bg-white">
           <button className="bg-[#172FA6] hover:bg-[#0e1c80] text-white font-semibold text-sm px-4 py-1.5 rounded-md">
             Agregar versión
           </button>
         </div>
+
       </div>
     </div>
   );
