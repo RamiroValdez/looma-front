@@ -23,7 +23,7 @@ export async function uploadCover(workId: number, coverFile: File): Promise<{ fe
   const formData = new FormData();
   formData.append("cover", coverFile);
 
-  const response = await fetch(`http://localhost:8080/api/works/${workId}/cover`, {
+  const response = await fetch(`http://localhost:8080/api/my-works/${workId}/cover`, {
     method: "PATCH",
     headers: {
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -46,7 +46,7 @@ export async function uploadBanner(workId: number, bannerFile: File, coverFile?:
   formData.append("banner", bannerFile);
   if (coverFile) formData.append("cover", coverFile);
 
-  const response = await fetch(`http://localhost:8080/api/works/${workId}/banner`, {
+  const response = await fetch(`http://localhost:8080/api/my-works/${workId}/banner`, {
     method: "PATCH",
     headers: {
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
