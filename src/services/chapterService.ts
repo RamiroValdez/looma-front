@@ -3,6 +3,8 @@ import works from "../../public/data/work-2.json";
 import { useAuthStore } from "../store/AuthStore";
 import { handleError } from "../utils/errorHandler";
 import type { WorkDTO } from "../dto/WorkDTO";
+import {useApiQuery} from "../api/useApiQuery.ts";
+import type {ChapterWithContentDTO} from "../dto/ChapterWithContentDTO.ts";
 
 export async function addChapter(
   workId: number,
@@ -104,6 +106,28 @@ export async function getWorkById(id: number): Promise<WorkDTO> {
     throw new Error(handleError(error));
   }
 }
+
+export function getChapterById(chapterId: number, languageCode: string) {
+    const { token } = useAuthStore();
+    let url = "http://localhost:8080/api/edit-chapter/" + chapterId ;
+    if (languageCode) {
+        url += `?language=${encodeURIComponent(languageCode)}`;
+    }
+
+
+    return useApiQuery<ChapterWithContentDTO>(
+        ["get-chapter-content " + chapterId + (languageCode ? `-${languageCode}` : "")],
+        {
+            url: url,
+            method: "GET",
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        }
+    );
+}
+
 
 export async function deleteChapter(
   chapterId: number,
