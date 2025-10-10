@@ -1,9 +1,9 @@
 import { type UserDTO } from "../dtos/user.dto";
 import { useAuthStore } from "../store/AuthStore";
 
-export async function getCurrentUser(): Promise<UserDTO | null> {
+export async function getCurrentUser(tokenParam?: string): Promise<UserDTO | null> {
   try {
-    const token = useAuthStore.getState().token;
+    const token = tokenParam || useAuthStore.getState().token;
     if (!token) return null;
 
     const response = await fetch("http://localhost:8080/api/auth/me", {
@@ -26,6 +26,7 @@ export async function getCurrentUser(): Promise<UserDTO | null> {
       id: String(data.id),
       name: data.name,
       surname: data.surname,
+      username: data.username,
       email: data.email,
       image: data.photo ?? "",
     };
