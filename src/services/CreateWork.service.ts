@@ -2,6 +2,7 @@ import type { FileValidationError } from "../types.ts/CreateWork.types";
 import {useApiMutation} from "../api/useApiMutation.ts";
 import {useAuthStore} from "../store/AuthStore.ts";
 import React from "react";
+import type { CoverIaFormDTO } from "../dto/FormCoverIaDTO.ts";
 
 export interface CreateWorkDTO {
     title: string;
@@ -10,6 +11,10 @@ export interface CreateWorkDTO {
     originalLanguageId?: number;
     categoryIds: number[];
     tagIds: string[];
+}
+
+export interface GenerateCoverResponse {
+    imageUrl: string;
 }
 
 // Manejo de Categorías
@@ -106,3 +111,40 @@ export const createFormDataForWork = (
 
     return formData;
 };
+
+export const createFormDataForIa = (
+    formCoverDTO: CoverIaFormDTO
+): FormData => {
+    const formData = new FormData();
+    formData.append(
+        'coverIa',
+        new Blob([JSON.stringify(formCoverDTO)], { type: 'application/json' })
+    );
+    return formData;
+}
+
+    export const useGenerateCover = () => {
+    const { token } = useAuthStore(); 
+    
+    // Le decimos que recibe un 'CoverIaFormDTO' y devolverá una 'GenerateCoverResponse'
+    return useApiMutation<GenerateCoverResponse, CoverIaFormDTO>({
+        url: import.meta.env.VITE_API_POST_CREATE_COVER_IA_URL,
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    });
+}
+
+/**
+ * Convierte una URL de una imagen en un objeto File.
+ * @param url La URL de la imagen a descargar.
+ * @param filename El nombre que tendrá el archivo.
+ * @param mimeType El tipo de archivo (ej: 'image/jpeg').
+ * @returns Una promesa que se resuelve con el objeto File.
+ */
+export async function urlToFile(url: string, filename: string, mimeType: string): Promise<File> {
+    const response = await fetch(url);
+    const blob = await response.blob();
+    return new File([blob], filename, { type: mimeType });
+}
