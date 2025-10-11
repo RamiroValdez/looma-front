@@ -64,43 +64,37 @@ export default function AddChapter() {
     setChapter({ ...chapter, [field]: value });
   };
 
-  const handleSave = async (status: "draft" | "published") => {
-    if (!chapter || !work) return;
-    setError("");
+  const handleSave = async (status: "draft" | "published", titulo?: string, contenido?: string) => {
+  if (!chapter || !work) return;
+  setError("");
 
-    try {
-      if (!chapter?.title?.trim() || !chapter?.description?.trim()) {
-        setError("El título y el contenido son obligatorios.");
-        return;
-      }
+  try {
+    const chapterData: ChapterDTO = {
+      ...chapter,
+      title: titulo || chapter.title,
+      description: contenido || chapter.description,
+      lastModified: new Date().toISOString(),
+      status,
+    };
 
-      const chapterData: ChapterDTO = {
-        ...chapter,
-        lastModified: new Date().toISOString(),
-        status,
-      };
-
-      const response = await updateChapter(
-        Number(id),
-        chapterData.id,
-        chapterData.title,
-        chapterData.description,
-        chapterData.publishedAt
-      );
-      console.log("Capítulo actualizado:", response);
-      if (response?.fetchStatus === 200) {
-        // alguna anotacion de que está todo OK y mandamos al managework con el nuevo capítulo
-        // tenemos que esperar a la confirmacion de ivone.
-        navigate(`/manage-work/${id}`);
-      }
-      else {
-        setError("Error al actualizar el capítulo.");
-      }
-    } catch (err) {
-      console.error(err);
-      setError(handleError(err));
+    const response = await updateChapter(
+      Number(id),
+      chapterData.id,
+      chapterData.title,
+      chapterData.description,
+      chapterData.publishedAt
+    );
+    console.log("Capítulo actualizado:", response);
+    if (response?.fetchStatus === 200) {
+      navigate(`/manage-work/${id}`);
+    } else {
+      setError("Error al actualizar el capítulo.");
     }
-  };
+  } catch (err) {
+    console.error(err);
+    setError(handleError(err));
+  }
+};
 
   const openDeleteModal = () => {
     setDeleteError("");
@@ -153,7 +147,6 @@ export default function AddChapter() {
 
   return (
     <div className="min-h-screen bg-[#F4F0F7] px-4 sm:px-8 md:px-16 py-8">
-      {/* 🔹 Header de consejos */}
       <div className="w-screen relative left-1/2 right-1/2 -mx-[50vw] bg-white mb-8">
         <div className="bg-white border-b border-[#e4e2eb] h-14 flex items-center ">
           <div className="px-4 sm:px-8 md:px-16 mx-auto flex justify-between items-center w-full">
@@ -192,7 +185,7 @@ export default function AddChapter() {
 
           <ChapterActions
             onSaveDraft={({ titulo, contenido }) =>
-              handleSave("draft")
+              handleSave("draft",titulo,contenido)
             }
             onPreview={() => console.log("Vista previa activada")}
             formData={{ titulo: chapter.title, contenido: chapter.description }}
@@ -229,7 +222,6 @@ export default function AddChapter() {
           {error && <p className="mt-4 text-red-600 text-sm">{error}</p>}
         </div>
 
-        {/* Herramientas */}
         <div className="flex-[2] lg:max-w-[400px]">
           <h3 className="text-center font-semibold mb-4 text-xl">
             Herramientas avanzadas
