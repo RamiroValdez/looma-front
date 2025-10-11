@@ -5,7 +5,7 @@ import ChapterEditor from "../../components/addChapter/ChapterEditor";
 import ChapterActions from "../../components/addChapter/ChapterActions";
 import PublishOptions from "../../components/addChapter/PublishOptions";
 import InspirationBubble from "../../components/addChapter/InspirationBubble";
-import {updateChapter, deleteChapter, getChapterById} from "../../services/chapterService";
+import {updateChapter, deleteChapter, getChapterById} from "../../services/ChapterService.ts";
 import { handleError } from "../../utils/errorHandler";
 import type {ChapterWithContentDTO} from "../../dto/ChapterWithContentDTO.ts";
 

@@ -4,7 +4,6 @@ import { useCompositionStore } from "../store/CompositionStore";
 import { useEffect } from "react";
 import {useAuthStore} from "../store/AuthStore.ts";
 
-// Custom hook que maneja la lógica de store + API para Composiciones
 export const useCompositions = () => {
     const {
         compositions,
@@ -20,7 +19,7 @@ export const useCompositions = () => {
         isLoading: apiLoading,
         error: apiError
     } = useApiQuery<CompositionDTO[]>(
-        ['compositions'], // Clave de caché para React Query
+        ['compositions'], 
         {
             url: import.meta.env.VITE_API_GET_COMPOSITIONS_URL,
             method: 'GET',
@@ -29,23 +28,20 @@ export const useCompositions = () => {
             }
         },
         {
-            staleTime: 5 * 60 * 1000, // Cache de 5 minutos
+            staleTime: 5 * 60 * 1000, 
             refetchOnWindowFocus: false,
             refetchOnReconnect: false,
             refetchOnMount: false,
-            // Solo hace la llamada si no hay composiciones en el store
             enabled: compositions.length === 0
         }
     );
 
-    // Sincronizar datos de la API con el store
     useEffect(() => {
         if (data && data.length > 0) {
             setCompositions(data);
         }
     }, [data, setCompositions]);
 
-    // Sincronizar estados de loading y error
     useEffect(() => {
         setLoading(apiLoading);
         setError(apiError ? String(apiError) : null);
@@ -58,7 +54,6 @@ export const useCompositions = () => {
     };
 };
 
-// Función helper para obtener composiciones desde el store (solo lectura)
 export const getCompositionsFromStore = () => {
     return useCompositionStore.getState().compositions;
 };

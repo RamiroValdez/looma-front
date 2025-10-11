@@ -1,7 +1,7 @@
 // createWorkTypes.ts
 
-export const BLUE_COLOR = "172FA6";   // Categorías
-export const PURPLE_COLOR = "5C17A6"; // Etiquetas y botones principales
+export const BLUE_COLOR = "172FA6";   
+export const PURPLE_COLOR = "5C17A6"; 
 
 export const MORE_CATEGORIES = [
   "Terror",

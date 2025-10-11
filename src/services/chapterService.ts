@@ -1,15 +1,15 @@
 import works from "../../public/data/work-2.json";
 
-import { useAuthStore } from "../store/AuthStore";
-import { handleError } from "../utils/errorHandler";
-import type { WorkDTO } from "../dto/WorkDTO";
+import { useAuthStore } from "../store/AuthStore.ts";
+import { handleError } from "../utils/errorHandler.ts";
+import type { WorkDTO } from "../dto/WorkDTO.ts";
 import {useApiQuery} from "../api/useApiQuery.ts";
 import type {ChapterWithContentDTO} from "../dto/ChapterWithContentDTO.ts";
 
 export async function addChapter(
   workId: number,
   languageId: number,
-  contentType: string // text or images
+  contentType: string 
 ): Promise<{ fetchStatus: number, chapterId: number }> {
   try {
     if (!languageId && !contentType && !workId) {
@@ -61,7 +61,7 @@ export async function updateChapter(
 
     const token = useAuthStore.getState().token;
 
-    const response = await fetch(`http://localhost:8080/api/update-chapter`, { // FALTA CONFIRMACION DE ENDPOINT DE IVONE.
+    const response = await fetch(`http://localhost:8080/api/update-chapter`, { 
       method: "POST",
       headers: {
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -84,8 +84,6 @@ export async function updateChapter(
 export async function getWorkById(id: number): Promise<WorkDTO> {
   try {
     const token = useAuthStore.getState().token;
-
-    // const url = buildEndpoint(import.meta.env.VITE_API_GET_WORK_BY_ID_URL, { id });
     
     const headers = {
       "Content-Type": "application/json",
@@ -153,13 +151,3 @@ export async function deleteChapter(
     throw new Error(handleError(error));
   }
 }
-
-/*
-
-export async function getWorkById(id: number) {
-  return new Promise((resolve) => {
-    const work = works.find((w) => w.id === id);
-    setTimeout(() => resolve(work), 200);
-  });
-}
-*/

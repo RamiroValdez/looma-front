@@ -1,9 +1,8 @@
-import { type WorkFormatDTO } from "../dto/WorkDTO";
+import { type WorkFormatDTO } from "../dto/WorkDTO.ts";
 import { useApiQuery } from "../api/useApiQuery.ts";
-import { useFormatStore } from "../store/FormatStore";
+import { useFormatStore } from "../store/FormatStore.ts";
 import { useEffect } from "react";
 
-// Custom hook que maneja la lógica de store + API
 export const useFormats = () => {
     const {
         formats,
@@ -24,18 +23,16 @@ export const useFormats = () => {
         },
         {
             staleTime: 5 * 60 * 1000,
-            enabled: formats.length === 0 // Solo hace la llamada si no hay formatos en el store
+            enabled: formats.length === 0 
         }
     );
 
-    // Sincronizar datos de la API con el store
     useEffect(() => {
         if (data && data.length > 0) {
             setFormats(data);
         }
     }, [data, setFormats]);
 
-    // Sincronizar estados de loading y error
     useEffect(() => {
         setLoading(apiLoading);
         setError(apiError ? String(apiError) : null);
@@ -48,7 +45,6 @@ export const useFormats = () => {
     };
 };
 
-// Función helper para obtener formatos desde el store (solo lectura)
 export const getFormatsFromStore = () => {
     return useFormatStore.getState().formats;
 };

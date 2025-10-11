@@ -1,6 +1,6 @@
-import { type CategoryDTO } from "../dtos/category.dto";
+import { type CategoryDTO } from "../dto/CategoryDTO.ts";
 import { useApiQuery } from "../api/useApiQuery.ts";
-import { useCategoryStore } from "../store/CategoryStore";
+import { useCategoryStore } from "../store/CategoryStore.ts";
 import { useEffect } from "react";
 
 export const useCategories = () => {
@@ -27,14 +27,12 @@ export const useCategories = () => {
         }
     );
 
-    // Sincronizar datos de la API con el store
     useEffect(() => {
         if (data && data.length > 0) {
             setCategories(data);
         }
     }, [data, setCategories]);
 
-    // Sincronizar estados de loading y error
     useEffect(() => {
         setLoading(apiLoading);
         setError(apiError ? String(apiError) : null);
@@ -47,7 +45,6 @@ export const useCategories = () => {
     };
 };
 
-// Función helper para obtener categorías desde el store (solo lectura)
 export const getCategoriesFromStore = () => {
     return useCategoryStore.getState().categories;
 };

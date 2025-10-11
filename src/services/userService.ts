@@ -30,24 +30,5 @@ export const getUserReadingList = async (userId: number) => {
 
   const data = await response.json();
   const userData = data.find((user: { userId: number }) => user.userId === userId);
-  return userData ? userData.books : []; // Devuelve los libros del usuario o un array vacío
+  return userData ? userData.books : []; 
 };
-
-
-// Servicio preparado para datos reales 
-/*
-export const getUserData = async (userId: number): Promise<UserData> => {
-  try {
-    const response = await fetch(`https://api.tuservidor.com/users/${userId}`);
-    if (!response.ok) {
-      throw new Error(`Error ${response.status}: ${response.statusText}`);
-    }
-
-    // Retornar los datos directamente desde la API
-    return await response.json();
-  } catch (error) {
-    console.error("Error al obtener los datos del usuario:", error);
-    throw error; // Relanzar el error para que el componente lo maneje
-  }
-};
-*/

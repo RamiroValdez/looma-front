@@ -20,7 +20,7 @@ export default function Button({
 {
 
   const baseClasses =
-    "rounded transition flex justify-center items-center text-center w-fit px-4 py-2"; 
+    "rounded transition flex justify-center items-center text-center px-4 py-2"; 
 
   return (
     <button
