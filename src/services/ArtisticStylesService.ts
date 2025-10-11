@@ -19,7 +19,7 @@ export const useArtisticStyles = () => {
         isLoading: apiLoading,
         error: apiError
     } = useApiQuery<ArtisticStyleDTO[]>(
-        ['artisticStyles'], // Clave de caché para React Query
+        ['artisticStyles'], 
         {
             url: import.meta.env.VITE_API_GET_ARTISTIC_STYLES_URL,
             method: 'GET',
@@ -28,22 +28,19 @@ export const useArtisticStyles = () => {
             }
         },
         {
-            staleTime: 5 * 60 * 1000, // Cache de 5 minutos
+            staleTime: 5 * 60 * 1000, 
             refetchOnWindowFocus: false,
             refetchOnReconnect: false,
             refetchOnMount: false,
-            // Solo hace la llamada si no hay composiciones en el store
             enabled: artisticStyles.length === 0 
         }
     );
-    // Sincronizar datos de la API con el store
     useEffect(() => {
         if (data && data.length > 0) {
             setArtisticStyles(data);
         }
     }, [data, setArtisticStyles]);
 
-    // Sincronizar estados de loading y error
     useEffect(() => {
         setLoading(apiLoading);
         setError(apiError ? String(apiError) : null);
@@ -56,7 +53,6 @@ export const useArtisticStyles = () => {
     };
 };
 
-// Función helper para obtener estilos desde el store (solo lectura)
 export const getArtisticStylesFromStore = () => {
     return useArtisticStyleStore.getState().artisticStyles;
 };

@@ -4,10 +4,10 @@ import { ChapterItem } from '../../components/ChapterItem';
 import Button from '../../components/Button';
 import Tag from '../../components/Tag';
 import { MORE_CATEGORIES, SUGGESTED_TAGS} from "../../types.ts/CreateWork.types";
-import { handleAddCategory, handleAddTag, validateFile } from "../../services/CreateWork.service";
+import { handleAddCategory, handleAddTag, validateFile } from "../../services/CreateWorkService";
 import { useNavigate, useParams } from 'react-router-dom';
-import { addChapter, getWorkById } from '../../services/chapterService';
-import { uploadCover, uploadBanner } from '../../services/workAssetsService';
+import { addChapter, getWorkById } from '../../services/ChapterService';
+import { uploadCover, uploadBanner } from '../../services/WorkAssetsService';
 import CoverImageModal from '../../components/CoverImageModal';
 interface ManageWorkPageProps {
   workId?: number;
@@ -15,20 +15,18 @@ interface ManageWorkPageProps {
 
 export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
 
-  // el workId tiene que tomarlo por parametros
   const { id: workId } = useParams<{ id: string }>();
   const [showCoverModal, setShowCoverModal] = useState(false);
   const [work, setWork] = useState<WorkDTO | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const defaultWorkId = 1; // por defecto que coincide con nuestro JSON
+  const defaultWorkId = 1; 
   const currentWorkId = Number(workId) || defaultWorkId;
   const [savingBanner, setSavingBanner] = useState(false);
-  // Estados para categorías
+  
   const [isCategoryMenuOpen, setIsCategoryMenuOpen] = useState(false);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
 
-  // Estados para etiquetas
   const [currentTags, setCurrentTags] = useState<string[]>([]);
   const [isAddingTag, setIsAddingTag] = useState(false);
   const [newTagText, setNewTagText] = useState('');
@@ -116,7 +114,6 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
         const workData = await getWorkById(currentWorkId);
         console.log(workData);
         setWork(workData);
-        // Inicializar estados con datos de la obra 
         setSelectedCategories(workData.categories.map((cat) => cat.name));
         setCurrentTags(workData.tags.map((tag) => tag.name));
       } catch (err) {
@@ -144,7 +141,6 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
     }
   };
 
-  // Función para limpiar todos los campos del panel de administración
   const handleClearAdminPanel = () => {
     setAllowSubscription(false);
     setPrice('');
@@ -169,7 +165,6 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#F0EEF6' }}>
-      {/* Main Banner */}
       <div 
         className="relative h-64 bg-cover bg-center"
         style={{ backgroundImage: `url(${bannerPreview || work.banner})` }}
@@ -210,11 +205,9 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
           </div>
         )}
 
-      {/* Contenido Principal */}
       <div className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-10 gap-6">
 
-          {/* Columna 1: Portada */}
           <div className="lg:col-span-2 lg:border-r lg:border-gray-300 lg:pr-6">
             <div className="sticky top-8">
               <div className="flex flex-col items-start">
@@ -274,16 +267,13 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
             </div>
           </div>
 
-          {/* Columna 2-3: Información Principal y Contenido */}
           <div className="lg:col-span-6 lg:border-r lg:border-gray-300 lg:pr-6 lg:pl-6">
-            {/* Información de la Obra */}
             <div className="mb-6">
               <h1 className="text-3xl font-bold text-black">
                 <span className="font-bold">Nombre de la obra:</span> <span className="font-normal">{work.title}</span>
               </h1>
             </div>
 
-            {/* Categorias */}
             <div className="mb-6">
               <div className="flex items-center gap-2">
                 <span className="text-black font-semibold text-lg">Categorías:</span>
@@ -304,7 +294,6 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
                     colorClass={`w-8 h-8 pt-0 flex justify-center rounded-full border-2 border-[#172FA6] text-[#172FA6] text-2xl font-medium leading-none hover:bg-[#172FA6] hover:text-white z-10`}
                   />
 
-                  {/* MENU FLOTANTE DE CATEGORÍAS */}
                   {isCategoryMenuOpen && (
                     <div className="absolute z-20 top-10 mt-1 mr-[-10%] w-max max-w-sm lg:max-w-md">
                       <div className="bg-white p-4 border border-gray-300 rounded-md shadow-lg flex flex-wrap gap-2">
@@ -325,7 +314,6 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
               </div>
             </div>
 
-            {/* Formato e Idioma Original */}
             <div className="mb-6">
               <div className="space-y-6 text-lg text-black">
                 <div><span className="font-semibold">Formato:</span> <span className="font-normal">{work.format.name}</span></div>
@@ -333,7 +321,6 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
               </div>
             </div>
 
-            {/* Etiquetas */}
             <div className="mb-6">
               <div className="flex items-center gap-2">
                 <span className="text-black font-semibold text-lg">Etiquetas:</span>
@@ -369,7 +356,6 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
                     />
                   )}
 
-                  {/* BOTON IA Y TOOLTIP */}
                   <div 
                     className="relative"
                     onMouseEnter={() => setShowIATooltip(true)}
@@ -396,7 +382,6 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
                     )}
                   </div>
 
-                  {/* MENU FLOTANTE DE SUGERENCIAS */}
                   {isSuggestionMenuOpen && (
                     <div className="absolute z-20 top-10 mt-1 mr-[-30%] w-max max-w-xs">
                       <div className="bg-white p-4 border border-gray-300 rounded-md shadow-lg flex flex-wrap gap-2">
@@ -421,7 +406,6 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
               </div>
             </div>
 
-            {/* Capítulos */}
             <div className="mb-8">
               <div className="bg-white rounded-lg shadow-lg overflow-hidden">
                 <div className="text-white font-semibold text-lg px-6 py-4" style={{ backgroundColor: '#3C2A50' }}>
@@ -450,13 +434,10 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
             </div>
           </div>
 
-          {/* Panel de Administración */}
           <div className="lg:col-span-2 lg:pl-4">
             <div className="sticky top-8">
-              {/* Título */}
               <h2 className="text-3xl font-bold text-black mb-4 text-center">Administrar</h2>
               
-              {/* Tarjeta de administración */}
               <div className="bg-white rounded-lg shadow-lg p-4">
                 <div className="space-y-4">
                   <div>

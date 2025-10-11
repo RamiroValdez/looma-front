@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
-import { useCategories } from '../../services/categoryService';
-import { getCurrentUser } from '../../services/dataUserService';
+import { useCategories } from '../services/CategoryService';
+import { getCurrentUser } from '../services/DataUserService';
 import { Link } from "react-router-dom";
-import { type UserDTO } from "../../dtos/user.dto";
-import { useAuthStore } from '../../store/AuthStore';
+import { type UserDTO } from "../dto/UserDTO";
+import { useAuthStore } from '../store/AuthStore';
 import { useNavigate } from 'react-router-dom';
 
 function Header() {

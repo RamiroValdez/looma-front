@@ -1,6 +1,6 @@
 import type { WorkDTO } from "../dto/WorkDTO";
-import type { CreateWorkDTO } from "./CreateWork.service";
-import { createFormDataForWork } from "./CreateWork.service";
+import type { CreateWorkDTO } from "./CreateWorkService";
+import { createFormDataForWork } from "./CreateWorkService";
 import { useAuthStore } from "../store/AuthStore";
 
 function mapWorkToCreateWorkDTO(work: WorkDTO, tagNames?: string[]): CreateWorkDTO {
@@ -14,8 +14,6 @@ function mapWorkToCreateWorkDTO(work: WorkDTO, tagNames?: string[]): CreateWorkD
   };
 }
 
-
-// New dedicated endpoints based on corrected spec
 export async function uploadCover(workId: number, coverFile: File): Promise<{ fetchStatus: number }> {
   const token = useAuthStore.getState().token;
   if (!token) throw new Error("No auth token available");

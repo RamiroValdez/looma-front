@@ -17,7 +17,6 @@ export interface GenerateCoverResponse {
     url: string;
 }
 
-// Manejo de Categorías
 export const handleAddCategory = (
   category: string,
   selectedCategories: string[],
@@ -30,7 +29,6 @@ export const handleAddCategory = (
   setIsCategoryMenuOpen(false);
 };
 
-// Manejo de Tags
 export const handleAddTag = (
   tagToAdd: string,
   currentTags: string[],
@@ -136,13 +134,6 @@ export const useGenerateCover = () => {
     });
 }
 
-/**
- * Convierte una URL de una imagen en un objeto File.
- * @param url La URL de la imagen a descargar.
- * @param filename El nombre que tendrá el archivo.
- * @param mimeType El tipo de archivo (ej: 'image/jpeg').
- * @returns Una promesa que se resuelve con el objeto File.
- */
 export async function urlToFile(url: string, filename: string, mimeType: string): Promise<File> {
     const response = await fetch(url);
     const blob = await response.blob();

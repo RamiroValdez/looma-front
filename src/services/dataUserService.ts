@@ -1,4 +1,4 @@
-import { type UserDTO } from "../dtos/user.dto";
+import { type UserDTO } from "../dto/UserDTO";
 import { useAuthStore } from "../store/AuthStore";
 
 export async function getCurrentUser(tokenParam?: string): Promise<UserDTO | null> {

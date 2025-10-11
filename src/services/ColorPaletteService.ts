@@ -4,7 +4,6 @@ import { useColorPaletteStore } from "../store/ColorPaletteStore";
 import { useEffect } from "react";
 import {useAuthStore} from "../store/AuthStore.ts";
 
-// Custom hook que maneja la lógica de store + API para Paletas de Colores
 export const useColorPalettes = () => {
     const {
         colorPalettes,
@@ -20,7 +19,7 @@ export const useColorPalettes = () => {
         isLoading: apiLoading,
         error: apiError
     } = useApiQuery<ColorPaletteDTO[]>(
-        ['colorPalettes'], // Clave de caché para React Query
+        ['colorPalettes'], 
         {
             url: import.meta.env.VITE_API_GET_COLOR_PALETTES_URL,
             method: 'GET',
@@ -29,23 +28,20 @@ export const useColorPalettes = () => {
             }
         },
         {
-            staleTime: 5 * 60 * 1000, // Cache de 5 minutos
+            staleTime: 5 * 60 * 1000,
             refetchOnWindowFocus: false,
             refetchOnReconnect: false,
             refetchOnMount: false,
-            // Solo hace la llamada si no hay composiciones en el store
             enabled: colorPalettes.length === 0
         }
     );
 
-    // Sincronizar datos de la API con el store
     useEffect(() => {
         if (data && data.length > 0) {
             setColorPalettes(data);
         }
     }, [data, setColorPalettes]);
 
-    // Sincronizar estados de loading y error
     useEffect(() => {
         setLoading(apiLoading);
         setError(apiError ? String(apiError) : null);
@@ -58,7 +54,6 @@ export const useColorPalettes = () => {
     };
 };
 
-// Función helper para obtener paletas desde el store (solo lectura)
 export const getColorPalettesFromStore = () => {
     return useColorPaletteStore.getState().colorPalettes;
 };

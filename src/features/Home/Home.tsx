@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { getTop10Works} from "../../services/workService";
-import { useCategories } from "../../services/categoryService";
-import { getUserReadingList } from "../../services/userService";
+import { getTop10Works} from "../../services/WorkService";
+import { useCategories } from "../../services/CategoryService";
+import { getUserReadingList } from "../../services/UserService";
 import type { WorkDTO } from "../../dto/WorkDTO";
 import type { BookDTO } from "../../dto/BookDTO";
 import Section from "../../components/Section";
@@ -23,7 +23,7 @@ const Home = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const userId = 1; // ID del usuario logueado
+    const userId = 1; 
 
     const fetchData = async () => {
       try {

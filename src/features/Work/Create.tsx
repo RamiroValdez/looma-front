@@ -6,13 +6,13 @@ import Tag from "../../components/Tag";
 import CoverImageModal from "../../components/CoverImageModal";
 
 import {SUGGESTED_TAGS} from "../../types.ts/CreateWork.types";
-import { useGenerateCover,  urlToFile, createFormDataForWork, useCreateWork, handleAddTag, validateFile, type CreateWorkDTO } from "../../services/CreateWork.service";
-import {useCategories} from "../../services/categoryService.ts";
+import { useGenerateCover,  urlToFile, createFormDataForWork, useCreateWork, handleAddTag, validateFile, type CreateWorkDTO } from "../../services/CreateWorkService.ts";
+import {useCategories} from "../../services/CategoryService.ts";
 import { useCategoryStore } from "../../store/CategoryStore.ts";
-import type { CategoryDTO } from "../../dtos/category.dto.ts";
+import type { CategoryDTO } from "../../dto/CategoryDTO.ts";
 import { useFormatStore } from "../../store/FormatStore.ts";
-import { useFormats } from "../../services/formatService.ts";
-import { useLanguages } from '../../services/languageService';
+import { useFormats } from "../../services/FormatService.ts";
+import { useLanguages } from '../../services/LanguageService.ts';
 import { useLanguageStore } from '../../store/LanguageStore';
 import type { CoverIaFormDTO } from "../../dto/FormCoverIaDTO.ts";
 import {useArtisticStyles} from '../../services/ArtisticStylesService';
@@ -28,10 +28,8 @@ import type { CompositionDTO } from '../../dto/CompositionDTO';
 export default function Create() {
     const navigate = useNavigate();
 
-    // === Estados ===
     const [isCategoryMenuOpen, setIsCategoryMenuOpen] = useState(false);
 
-    // Stores IA
     const { isLoading: isLoadingStyles, error: errorStyles } = useArtisticStyles();
     const { artisticStyles, selectedArtisticStyle, selectArtisticStyle } = useArtisticStyleStore();
 
@@ -64,7 +62,6 @@ export default function Create() {
     const [nameWork, setNameWork] = useState('');
     const [descriptionF, setDescriptionF] = useState('');
 
-    // Files
     const bannerInputRef = useRef<HTMLInputElement>(null);
     const coverInputRef = useRef<HTMLInputElement>(null);
 
@@ -79,7 +76,6 @@ export default function Create() {
     const [bannerPreview, setBannerPreview] = useState<string | null>(null);
     const [coverPreview, setCoverPreview] = useState<string | null>(null);
 
-    // validación del Formulario
     const isSubmitEnabled =
         nameWork.trim() !== '' &&
         descriptionF.trim() !== '' &&
@@ -90,7 +86,6 @@ export default function Create() {
         bannerFile !== null &&
         coverFile !== null;
 
-    // input de Tags (Enter)
     const handleTagSubmit = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === "Enter") {
             e.preventDefault();
@@ -99,17 +94,14 @@ export default function Create() {
         }
     };
 
-    // Click para Banner
     const handleBannerClick = () => {
         bannerInputRef.current?.click();
     };
 
-    // Click para Cover
     const handleCoverClick = () => {
         coverInputRef.current?.click();
     };
 
-    // === LÓGICA DE MANEJO DE ARCHIVOS UNIFICADA ===
     const handleFileChange = useCallback(async (e: React.ChangeEvent<HTMLInputElement>, isCover: boolean = false) => {
         const file = e.target.files?.[0];
         if (!file) return;
@@ -208,7 +200,6 @@ export default function Create() {
 
         try {
             const response = await generateCoverMutation.mutateAsync(formCoverDTO);
-            //const imageFile = await urlToFile(response.url, 'cover-ia-generated.jpg', 'image/jpeg');
             setIaCover(response.url);
             alert("¡Portada generada y cargada con éxito!");
             setShowCoverIaPopup(false);
@@ -222,7 +213,6 @@ export default function Create() {
         <main>
             <form onSubmit={handleSubmitForm}>
                 <section>
-                    {/* BANNER DE SUBIDA */}
                     <div
                         onClick={handleBannerClick}
                         className="w-full max-w-[1345px] h-[256px] bg-[#E8E5E5] flex justify-center items-center mx-auto border-b border-l border-r border-[rgba(0,0,0,0.5)] hover:bg-[#D7D7D7] cursor-pointer bg-cover bg-center"
@@ -242,7 +232,6 @@ export default function Create() {
                         </p>
                     </div>
 
-                    {/* Input oculto */}
                     <input
                         type="file"
                         ref={bannerInputRef}
@@ -251,7 +240,6 @@ export default function Create() {
                         onChange={handleFileChange}
                     />
 
-                    {/* Mensaje de error */}
                     {errorBanner && (
                         <p className="text-red-500 text-sm mt-2 text-center">
                             {errorBanner}
@@ -260,7 +248,6 @@ export default function Create() {
                 </section>
 
                 <section className="w-[1345px] mx-auto flex py-8">
-                    {/* Contenedor Izquierdo: Portada */}
                     <div className="w-1/4 pr-8 flex flex-col items-center">
                         <div className="w-[192px] h-[256px] bg-[#E8E5E5] border border-[rgba(0,0,0,0.5)] hover:bg-[#D7D7D7] rounded-md flex justify-center items-center mb-3 cursor-pointer"
                              onClick={() => setShowCoverPopup(true)}>
@@ -280,7 +267,6 @@ export default function Create() {
                             colorClass="w-[192px] py-2 bg-[#3B2252] text-white text-sm rounded-md mb-2 font-bold cursor-pointer hover:scale-102"
                         />
 
-                        {/* Hidden input Cover */}
                         <input
                             type="file"
                             ref={coverInputRef}
@@ -300,7 +286,6 @@ export default function Create() {
                             errorMessage={errorCover}
                         />
 
-                        {/* Popup IA */}
                         {showCoverIaPopup && (
                             <div className="fixed inset-0 flex items-center text-center justify-center z-50 bg-black/50">
                                 <div className="bg-white p-6 shadow-lg flex flex-col items-center w-full max-w-xl md:max-w-5xl rounded-xl relative">
@@ -314,9 +299,7 @@ export default function Create() {
                                     </Button>
 
                                     <div className="flex flex-col md:flex-row gap-6 mb-4 w-full">
-                                        {/* Formulario IA */}
                                         <div className="flex flex-col items-start text-left gap-6 rounded-xl py-8 px-8 w-full md:w-1/2">
-                                            {/* Estilo Artístico */}
                                             <div className="w-full flex flex-col">
                                                 <label className="text-left text-lg font-medium text-gray-700 mb-2">Estilo artístico</label>
                                                 {isLoadingStyles ? (
@@ -352,7 +335,6 @@ export default function Create() {
                                                 )}
                                             </div>
 
-                                            {/* Paleta de Colores */}
                                             <div className="w-full flex flex-col">
                                                 <label className="text-left text-lg font-medium text-gray-700 mb-2">Paleta de colores</label>
                                                 {isLoadingPalettes ? (
@@ -388,7 +370,6 @@ export default function Create() {
                                                 )}
                                             </div>
 
-                                            {/* Composición */}
                                             <div className="w-full flex flex-col">
                                                 <label className="text-left text-lg font-medium text-gray-700 mb-2">Composición</label>
                                                 {isLoadingCompositions ? (
@@ -424,7 +405,6 @@ export default function Create() {
                                                 )}
                                             </div>
 
-                                            {/* Descripción */}
                                             <div className="w-full flex flex-col">
                                                 <label className="text-left text-lg font-medium text-gray-700 mb-2">Descripción</label>
                                                 <div className="w-full relative">
@@ -449,7 +429,6 @@ export default function Create() {
                                             />
                                         </div>
 
-                                        {/* Área de vista previa */}
                                         <div className="flex flex-col justify-center items-center text-center border-dashed border-1 rounded-xl border-[#172FA6] p-8 w-full md:w-1/2">
                                             {iaCover !== null ? (
                                                 <img src={iaCover} className="w-full h-full" alt="iaCover"/>
@@ -466,7 +445,6 @@ export default function Create() {
                             *Se admiten PNG, JPG, JPEG, WEBP de máximo 20mb.
                         </p>
 
-                        {/* Mensaje de error */}
                         {errorCover && (
                             <p className="text-red-500 text-sm mt-2 text-center">
                                 {errorCover}
@@ -474,9 +452,7 @@ export default function Create() {
                         )}
                     </div>
 
-                    {/* Contenedor Derecho: Formulario */}
                     <div className="w-3/4 pl-8 border-l border-gray-300">
-                        {/* Nombre de la obra */}
                         <div className="flex flex-col mb-6">
                             <div className="flex items-center">
                                 <label className="w-1/4 text-lg font-medium text-gray-700">Nombre de la obra</label>
@@ -492,7 +468,6 @@ export default function Create() {
                             )}
                         </div>
 
-                        {/* Categorias */}
                         <div className="flex flex-col mb-6">
                             <div className="flex items-start">
                                 <label className="w-1/4 text-lg font-medium text-gray-700 pt-1">Categorías</label>
@@ -506,7 +481,6 @@ export default function Create() {
                                         />
                                     ))}
 
-                                    {/* (+) CATS */}
                                     <Button
                                         type="button"
                                         onClick={() => setIsCategoryMenuOpen(!isCategoryMenuOpen)}
@@ -544,7 +518,6 @@ export default function Create() {
                             )}
                         </div>
 
-                        {/* Format */}
                         <div className="flex flex-col mb-6">
                             <div className="flex items-center">
                                 <label className="w-1/4 text-lg font-medium text-gray-700">Formato</label>
@@ -582,7 +555,6 @@ export default function Create() {
                             )}
                         </div>
 
-                        {/* Language */}
                         <div className="flex flex-col mb-6">
                             <div className="flex items-center">
                                 <label className="w-1/4 text-lg font-medium text-gray-700">Idioma Original</label>
@@ -619,7 +591,6 @@ export default function Create() {
                             )}
                         </div>
 
-                        {/* Tags */}
                         <div className="flex flex-col mb-6">
                             <div className="flex items-start">
                                 <label className="w-1/4 text-lg font-medium text-gray-700">Etiquetas</label>
@@ -655,7 +626,6 @@ export default function Create() {
                                         />
                                     )}
 
-                                    {/* BOTON IA Y TOOLTIP */}
                                     <div
                                         className="relative"
                                         onMouseEnter={() => setShowIATooltip(true)}
@@ -680,7 +650,6 @@ export default function Create() {
                                         )}
                                     </div>
 
-                                    {/* MENU FLOTANTE DE SUGERENCIAS */}
                                     {isSuggestionMenuOpen && (
                                         <div className="absolute z-20 top-10 mt-1 mr-[-30%] w-max max-w-xs">
                                             <div className="bg-white p-4 border border-gray-300 rounded-md shadow-lg flex flex-wrap gap-2">
@@ -709,7 +678,6 @@ export default function Create() {
                             )}
                         </div>
 
-                        {/* Descripción */}
                         <div className="flex flex-col mb-6">
                             <div className="flex items-start">
                                 <label className="w-1/4 text-lg font-medium text-gray-700">Descripción</label>
@@ -727,7 +695,6 @@ export default function Create() {
                             )}
                         </div>
 
-                        {/* Botón Guardar */}
                         <div className="flex justify-end mt-4">
                             {!isSubmitEnabled && (
                                 <p className="text-sm text-yellow-600 mr-4 self-center">
