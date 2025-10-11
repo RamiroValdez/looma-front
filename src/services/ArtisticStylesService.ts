@@ -2,8 +2,8 @@ import { type ArtisticStyleDTO } from "../dto/ArtisticStyleDTO";
 import { useApiQuery } from "../api/useApiQuery.ts";
 import { useArtisticStyleStore } from "../store/ArtisticStyleStore";
 import { useEffect } from "react";
+import {useAuthStore} from "../store/AuthStore.ts";
 
-// Custom hook que maneja la lógica de store + API para Estilos Artísticos
 export const useArtisticStyles = () => {
     const {
         artisticStyles,
@@ -11,6 +11,8 @@ export const useArtisticStyles = () => {
         setLoading,
         setError
     } = useArtisticStyleStore();
+
+    const { token } = useAuthStore();
 
     const {
         data,
@@ -20,7 +22,10 @@ export const useArtisticStyles = () => {
         ['artisticStyles'], // Clave de caché para React Query
         {
             url: import.meta.env.VITE_API_GET_ARTISTIC_STYLES_URL,
-            method: 'GET'
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
         },
         {
             staleTime: 5 * 60 * 1000, // Cache de 5 minutos
@@ -31,7 +36,6 @@ export const useArtisticStyles = () => {
             enabled: artisticStyles.length === 0 
         }
     );
-
     // Sincronizar datos de la API con el store
     useEffect(() => {
         if (data && data.length > 0) {

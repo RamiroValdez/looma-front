@@ -2,6 +2,7 @@ import { type CompositionDTO } from "../dto/CompositionDTO";
 import { useApiQuery } from "../api/useApiQuery.ts";
 import { useCompositionStore } from "../store/CompositionStore";
 import { useEffect } from "react";
+import {useAuthStore} from "../store/AuthStore.ts";
 
 // Custom hook que maneja la lógica de store + API para Composiciones
 export const useCompositions = () => {
@@ -12,6 +13,8 @@ export const useCompositions = () => {
         setError
     } = useCompositionStore();
 
+    const { token } = useAuthStore();
+
     const {
         data,
         isLoading: apiLoading,
@@ -20,7 +23,10 @@ export const useCompositions = () => {
         ['compositions'], // Clave de caché para React Query
         {
             url: import.meta.env.VITE_API_GET_COMPOSITIONS_URL,
-            method: 'GET'
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
         },
         {
             staleTime: 5 * 60 * 1000, // Cache de 5 minutos

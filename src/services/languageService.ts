@@ -19,7 +19,7 @@ export const useLanguages = () => {
     } = useApiQuery<LanguageDTO[]>(
         ['languages'],
         {
-            url: import.meta.env.VITE_API_GET_FORMATS_URL,
+            url: import.meta.env.VITE_API_GET_LANGUAGES_URL,
             method: 'GET'
         },
         {

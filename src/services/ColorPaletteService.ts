@@ -2,6 +2,7 @@ import { type ColorPaletteDTO } from "../dto/ColorPaletteDTO";
 import { useApiQuery } from "../api/useApiQuery.ts";
 import { useColorPaletteStore } from "../store/ColorPaletteStore";
 import { useEffect } from "react";
+import {useAuthStore} from "../store/AuthStore.ts";
 
 // Custom hook que maneja la lógica de store + API para Paletas de Colores
 export const useColorPalettes = () => {
@@ -12,6 +13,8 @@ export const useColorPalettes = () => {
         setError
     } = useColorPaletteStore();
 
+    const { token } = useAuthStore();
+
     const {
         data,
         isLoading: apiLoading,
@@ -20,7 +23,10 @@ export const useColorPalettes = () => {
         ['colorPalettes'], // Clave de caché para React Query
         {
             url: import.meta.env.VITE_API_GET_COLOR_PALETTES_URL,
-            method: 'GET'
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
         },
         {
             staleTime: 5 * 60 * 1000, // Cache de 5 minutos
