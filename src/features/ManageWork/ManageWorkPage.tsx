@@ -6,8 +6,8 @@ import Tag from '../../components/Tag';
 import { MORE_CATEGORIES, SUGGESTED_TAGS} from "../../types.ts/CreateWork.types";
 import { handleAddCategory, handleAddTag, validateFile } from "../../services/CreateWorkService";
 import { useNavigate, useParams } from 'react-router-dom';
-import { addChapter, getWorkById } from '../../services/ChapterService';
-import { uploadCover, uploadBanner } from '../../services/WorkAssetsService';
+import { addChapter, getWorkById } from '../../services/chapterService';
+import { uploadCover, uploadBanner } from '../../services/workAssetsService';
 import CoverImageModal from '../../components/CoverImageModal';
 interface ManageWorkPageProps {
   workId?: number;

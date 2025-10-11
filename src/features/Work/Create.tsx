@@ -6,13 +6,13 @@ import Tag from "../../components/Tag";
 import CoverImageModal from "../../components/CoverImageModal";
 
 import {SUGGESTED_TAGS} from "../../types.ts/CreateWork.types";
-import { useGenerateCover,  urlToFile, createFormDataForWork, useCreateWork, handleAddTag, validateFile, type CreateWorkDTO } from "../../services/CreateWorkService.ts";
-import {useCategories} from "../../services/CategoryService.ts";
+import { useGenerateCover, createFormDataForWork, useCreateWork, handleAddTag, validateFile, type CreateWorkDTO } from "../../services/CreateWorkService.ts";
+import {useCategories} from "../../services/categoryService.ts";
 import { useCategoryStore } from "../../store/CategoryStore.ts";
 import type { CategoryDTO } from "../../dto/CategoryDTO.ts";
 import { useFormatStore } from "../../store/FormatStore.ts";
-import { useFormats } from "../../services/FormatService.ts";
-import { useLanguages } from '../../services/LanguageService.ts';
+import { useFormats } from "../../services/formatService.ts";
+import { useLanguages } from '../../services/languageService.ts';
 import { useLanguageStore } from '../../store/LanguageStore';
 import type { CoverIaFormDTO } from "../../dto/FormCoverIaDTO.ts";
 import {useArtisticStyles} from '../../services/ArtisticStylesService';

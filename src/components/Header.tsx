@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useCategories } from '../services/CategoryService';
-import { getCurrentUser } from '../services/DataUserService';
+import { useCategories } from '../services/categoryService';
+import { getCurrentUser } from '../services/dataUserService';
 import { Link } from "react-router-dom";
 import { type UserDTO } from "../dto/UserDTO";
 import { useAuthStore } from '../store/AuthStore';

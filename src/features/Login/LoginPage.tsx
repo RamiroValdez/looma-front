@@ -3,7 +3,7 @@ import { useAuthStore } from "../../store/AuthStore";
 import { useUserStore } from "../../store/UserStorage.ts";
 import { useNavigate } from "react-router-dom";
 import { useLogin } from "../../services/AuthService";
-import { getCurrentUser } from "../../services/DataUserService.ts";
+import { getCurrentUser } from "../../services/dataUserService.ts";
 
 export const LoginPage = () => {
     const [email, setEmail] = useState('');
