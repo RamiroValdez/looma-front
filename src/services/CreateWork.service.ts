@@ -14,7 +14,7 @@ export interface CreateWorkDTO {
 }
 
 export interface GenerateCoverResponse {
-    imageUrl: string;
+    url: string;
 }
 
 // Manejo de Categorías
@@ -123,16 +123,16 @@ export const createFormDataForIa = (
     return formData;
 }
 
-    export const useGenerateCover = () => {
-    const { token } = useAuthStore(); 
-    
-    // Le decimos que recibe un 'CoverIaFormDTO' y devolverá una 'GenerateCoverResponse'
-    return useApiMutation<GenerateCoverResponse, CoverIaFormDTO>({
+export const useGenerateCover = () => {
+
+    const { token } = useAuthStore();
+
+    return useApiMutation<GenerateCoverResponse,CoverIaFormDTO>({
         url: import.meta.env.VITE_API_POST_CREATE_COVER_IA_URL,
         method: 'POST',
         headers: {
             'Authorization': `Bearer ${token}`
-        }
+        },
     });
 }
 

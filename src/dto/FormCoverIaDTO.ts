@@ -1,6 +1,6 @@
 export interface CoverIaFormDTO {
-    artisticStyleId?: number;
-    colorPaletteId?: number;
-    compositionId?: number;
+    artisticStyleId: string;
+    colorPaletteId: string;
+    compositionId: string;
     description: string;
 }

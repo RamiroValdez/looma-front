@@ -25,16 +25,26 @@ const CoverImageModal: React.FC<CoverImageModalProps> = ({
   saving,
   title,
 }) => {
-  if (!isOpen) return null;
+    useEffect(() => {
+        if (isOpen) {
+            // Guardar el valor original del overflow
+            const originalOverflow = document.body.style.overflow;
+            document.body.style.overflow = 'hidden';
 
-  // Lock body scroll while modal is open
-  useEffect(() => {
-    const originalOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    return () => {
-      document.body.style.overflow = originalOverflow;
-    };
-  }, []);
+            // Cleanup function que se ejecuta cuando el modal se cierra
+            return () => {
+                document.body.style.overflow = originalOverflow || 'auto';
+            };
+        }
+    }, [isOpen]);
+
+    useEffect(() => {
+        return () => {
+            document.body.style.overflow = 'auto';
+        };
+    }, []);
+
+    if (!isOpen) return null;
 
   return createPortal(
     <div className="fixed inset-0 top-0 left-0 flex items-center text-center justify-center z-[9999] bg-black/50" role="dialog" aria-modal="true">
