@@ -7,6 +7,7 @@ interface Props {
 export default function ChapterActions({ onPreview, onSaveDraft, formData }: Props) {
   const handleSaveDraft = () => {
     if (onSaveDraft) {
+      console.log("Guardando borrador:", formData);
       onSaveDraft(formData); 
     } else {
       console.warn("Función onSaveDraft no proporcionada.");

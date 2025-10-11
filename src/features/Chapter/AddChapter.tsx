@@ -5,7 +5,7 @@ import ChapterEditor from "../../components/addChapter/ChapterEditor";
 import ChapterActions from "../../components/addChapter/ChapterActions";
 import PublishOptions from "../../components/addChapter/PublishOptions";
 import InspirationBubble from "../../components/addChapter/InspirationBubble";
-import {updateChapter, deleteChapter, getChapterById} from "../../services/chapterService.ts";
+import {updateChapter, deleteChapter, getChapterById, cancelScheduleChapter} from "../../services/chapterService.ts";
 import { handleError } from "../../utils/errorHandler";
 import type {ChapterWithContentDTO} from "../../dto/ChapterWithContentDTO.ts";
 
@@ -20,6 +20,10 @@ export default function AddChapter() {
     const [deleteInput, setDeleteInput] = useState("");
     const [deleting, setDeleting] = useState(false);
     const [deleteError, setDeleteError] = useState("");
+    const [cancelingSchedule, setCancelingSchedule] = useState(false);
+    const [cancelScheduleError, setCancelScheduleError] = useState("");
+    const [showCancelScheduleModal, setShowCancelScheduleModal] = useState(false);
+    const [cancelScheduleInput, setCancelScheduleInput] = useState("");
 
 
     useEffect(() => {
@@ -48,7 +52,7 @@ export default function AddChapter() {
         setChapter({ ...chapter, [field]: value });
     };
 
-    const handleSave = async (status: "draft" | "published") => {
+    const handleSave = async (publicationStatus: "DRAFT" | "PUBLISHED") => {
         if (!chapter) return;
         setError("");
 
@@ -122,6 +126,25 @@ export default function AddChapter() {
         }
     };
 
+    const handleCancelSchedule = async () => {
+        if (!id || !chapterId) return;
+        try {
+            setCancelScheduleError("");
+            setCancelingSchedule(true);
+            const resp = await cancelScheduleChapter(Number(id), Number(chapterId));
+            if (resp.fetchStatus >= 200 && resp.fetchStatus < 300) {
+                navigate(`/manage-work/${id}`);
+            } else {
+                setCancelScheduleError("No se pudo deshacer la programación.");
+            }
+        } catch (e) {
+            setCancelScheduleError("Error al deshacer la programación.");
+            console.error(e);
+        } finally {
+            setCancelingSchedule(false);
+        }
+    };
+
     const handleLanguageSelect = (languageCode: string) => {
         setSelectedLanguage(languageCode);
     };
@@ -163,6 +186,39 @@ export default function AddChapter() {
                                 <span className="font-semibold">{chapter.workName}</span>
                             </h2>
 
+                            {chapter.publicationStatus === 'SCHEDULED' && chapter.scheduledPublicationDate ? (
+                                <div className="mb-6">
+                                    <div className="border border-blue-300 bg-blue-50 text-blue-800 rounded-lg p-4">
+                                        <div className="flex items-center justify-between gap-4">
+                                            <div className="flex items-start gap-3">
+                                                <div className="w-6 h-6 flex items-center justify-center rounded-full bg-blue-600 text-white text-sm mt-0.5">i</div>
+                                                <div>
+                                                    <p className="font-semibold">Publicación programada</p>
+                                                    <p className="text-sm">
+                                                        Programado para: <span className="font-medium">{new Date(chapter.scheduledPublicationDate).toLocaleString()}</span>
+                                                    </p>
+                                                    {cancelScheduleError && (
+                                                        <p className="text-sm text-red-600 mt-1">{cancelScheduleError}</p>
+                                                    )}
+                                                </div>
+                                            </div>
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    setCancelScheduleError("");
+                                                    setCancelScheduleInput("");
+                                                    setShowCancelScheduleModal(true);
+                                                }}
+                                                disabled={cancelingSchedule}
+                                                className="px-4 py-2 rounded-md bg-red-600 text-white text-sm hover:bg-red-700 disabled:opacity-60"
+                                            >
+                                                {cancelingSchedule ? "Deshaciendo..." : "Deshacer programación"}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            ) : null}
+
                             <div className="border-2 border-[#4C3B63] rounded-xl overflow-hidden mb-6">
                                 <ChapterEditor
                                     chapterTitle={chapter.title}
@@ -179,6 +235,7 @@ export default function AddChapter() {
                                 formData={{ titulo: chapter.title, contenido: chapter.content }}
                             />
 
+                    { chapter.publicationStatus === 'DRAFT' ? (
                             <div className="mt-6">
                                 <div className="border border-red-300 bg-red-50 text-red-700 rounded-lg p-4">
                                     <div className="flex items-center justify-between">
@@ -194,18 +251,14 @@ export default function AddChapter() {
                                         </button>
                                     </div>
                                 </div>
-                            </div>
+                            </div> ) : null}
 
+                            { chapter.publicationStatus === 'DRAFT' ? (
                             <PublishOptions
+                                workId={Number(id)}
+                                chapterId={Number(chapterId)}
                                 onScheduleChange={(isoDate) => handleFieldChange("publishedAt", isoDate)}
-                            />
-
-                            <button
-                                onClick={() => handleSave("published")}
-                                className="px-6 py-2 bg-[#172FA6] text-white rounded-lg shadow hover:bg-blue-800"
-                            >
-                                {"Guardar cambios"}
-                            </button>
+                            /> ) : null}
 
                             {error && <p className="mt-4 text-red-600 text-sm">{error}</p>}
                         </div>
@@ -226,6 +279,7 @@ export default function AddChapter() {
                             />
                         </div>
                     </div>
+                    
 
                     <InspirationBubble />
                     {showDeleteModal && (
@@ -261,6 +315,45 @@ export default function AddChapter() {
                                         className="px-4 py-2 rounded-md bg-red-600 text-white hover:bg-red-700 disabled:opacity-50"
                                     >
                                         {deleting ? "Eliminando..." : "Confirmar eliminación"}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                    {showCancelScheduleModal && (
+                        <div className="fixed inset-0 z-50 flex items-center justify-center">
+                            <div className="absolute inset-0 bg-black/40" onClick={() => !cancelingSchedule && setShowCancelScheduleModal(false)} />
+                            <div className="relative z-10 w-full max-w-md bg-white rounded-xl shadow-lg p-6">
+                                <h3 className="text-lg font-semibold mb-2">¿Confirmar deshacer programación?</h3>
+                                <p className="text-sm text-gray-600 mb-4">
+                                    Para confirmar, escribe exactamente: <span className="font-semibold">Deshacer Programacion</span>
+                                </p>
+                                <input
+                                    type="text"
+                                    value={cancelScheduleInput}
+                                    onChange={(e) => setCancelScheduleInput(e.target.value)}
+                                    placeholder="Deshacer Programacion"
+                                    className="w-full border rounded-md px-3 py-2 mb-3 focus:outline-none focus:ring-2 focus:ring-red-300"
+                                />
+                                {cancelScheduleError && <p className="text-sm text-red-600 mb-2">{cancelScheduleError}</p>}
+                                <div className="flex justify-end gap-2">
+                                    <button
+                                        onClick={() => !cancelingSchedule && setShowCancelScheduleModal(false)}
+                                        disabled={cancelingSchedule}
+                                        className="px-4 py-2 rounded-md border border-gray-300 text-gray-700 hover:bg-gray-100 disabled:opacity-50"
+                                    >
+                                        Cancelar
+                                    </button>
+                                    <button
+                                        onClick={async () => {
+                                            if (cancelScheduleInput !== "Deshacer Programacion" || cancelingSchedule) return;
+                                            await handleCancelSchedule();
+                                            setShowCancelScheduleModal(false);
+                                        }}
+                                        disabled={cancelScheduleInput !== "Deshacer Programacion" || cancelingSchedule}
+                                        className="px-4 py-2 rounded-md bg-red-600 text-white hover:bg-red-700 disabled:opacity-50"
+                                    >
+                                        {cancelingSchedule ? "Deshaciendo..." : "Confirmar"}
                                     </button>
                                 </div>
                             </div>
