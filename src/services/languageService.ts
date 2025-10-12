@@ -1,9 +1,8 @@
-import { type LanguageDTO } from "../dto/LanguageDTO";
+import { type LanguageDTO } from "../dto/LanguageDTO.ts";
 import { useApiQuery } from "../api/useApiQuery.ts";
-import { useLanguageStore } from "../store/LanguageStore";
+import { useLanguageStore } from "../store/LanguageStore.ts";
 import { useEffect } from "react";
 
-// Custom hook que maneja la lógica de store + API
 export const useLanguages = () => {
     const {
         languages,
@@ -19,23 +18,21 @@ export const useLanguages = () => {
     } = useApiQuery<LanguageDTO[]>(
         ['languages'],
         {
-            url: import.meta.env.VITE_API_GET_FORMATS_URL,
+            url: import.meta.env.VITE_API_GET_LANGUAGES_URL,
             method: 'GET'
         },
         {
             staleTime: 5 * 60 * 1000,
-            enabled: languages.length === 0 // Solo hace la llamada si no hay idiomas en el store
+            enabled: languages.length === 0 
         }
     );
 
-    // Sincronizar datos de la API con el store
     useEffect(() => {
         if (data && data.length > 0) {
             setLanguages(data);
         }
     }, [data, setLanguages]);
 
-    // Sincronizar estados de loading y error
     useEffect(() => {
         setLoading(apiLoading);
         setError(apiError ? String(apiError) : null);
@@ -48,7 +45,6 @@ export const useLanguages = () => {
     };
 };
 
-// Función helper para obtener idiomas desde el store (solo lectura)
 export const getLanguagesFromStore = () => {
     return useLanguageStore.getState().languages;
 };

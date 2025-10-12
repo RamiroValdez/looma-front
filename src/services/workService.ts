@@ -3,17 +3,14 @@ import type { WorkDTO } from '../dto/WorkDTO';
 export class WorkService {
   static async getWorkById(id: number): Promise<WorkDTO> {
     try {
-      // Simulate a small delay like a real API
       await new Promise(resolve => setTimeout(resolve, 300));
       
-      // Fetch JSON file from public folder
       const response = await fetch(`/data/work-${id}.json`);
       
       if (!response.ok) {
         throw new Error(`Error ${response.status}: Could not load work`);
       }
       
-      // JSON is automatically converted to WorkDTO type
       const workData: WorkDTO = await response.json();
       
       return workData;
@@ -24,15 +21,12 @@ export class WorkService {
     }
   }
   
-    // Method prepared for when the real API is available
   static async getWorkByIdFromAPI(id: number): Promise<WorkDTO> {
     try {
       const response = await fetch(`/api/works/${id}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
-          // Authentication headers can be added here if needed
-          // 'Authorization': `Bearer ${token}`
         },
       });
       
@@ -48,14 +42,15 @@ export class WorkService {
       throw new Error('Server connection error');
     }
   }
-  
-  /**
-   * Method to get multiple works (for future functionality)
-   * @returns Promise with array of works
-   
-  static async getAllWorks(): Promise<WorkDTO[]> {
-    // For now returns array with single work
-    const work = await this.getWorkById(1);
-    return [work];
-  }*/
 }
+
+export const getTop10Works = async () => {
+  const response = await fetch("/data/top10Work.json");
+
+  if (!response.ok) {
+    throw new Error(`Error al obtener el Top 10: ${response.statusText}`);
+  }
+
+  const data = await response.json();
+  return data;
+};

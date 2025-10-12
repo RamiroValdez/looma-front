@@ -4,11 +4,6 @@ import { useApiQuery } from "../api/useApiQuery.ts";
 import { useAuthStore } from "../store/AuthStore.ts";
 import {buildEndpoint} from "../utils/endpoints.ts";
 
-/**
- * Obtiene todas las obras y las filtra por el ID de creador proporcionado.
- * @param creatorId El ID del usuario cuyas obras se deben buscar.
- * @returns El resultado del hook useApiQuery con las obras filtradas.
- */
 export function useMyWorks(creatorId: number) {
     const { token } = useAuthStore();
     console.log('Token:', token);

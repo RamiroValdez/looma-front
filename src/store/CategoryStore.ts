@@ -1,14 +1,12 @@
 import { create } from 'zustand';
-import type {CategoryDTO} from '../dtos/category.dto';
+import type {CategoryDTO} from '../dto/CategoryDTO';
 
 interface CategoryState {
-    // Estado
     categories: CategoryDTO[];
     selectedCategories: CategoryDTO[];
     isLoading: boolean;
     error: string | null;
 
-    // Acciones
     setCategories: (categories: CategoryDTO[]) => void;
     addCategory: (category: CategoryDTO) => void;
     removeCategory: (categoryId: number) => void;
@@ -18,20 +16,17 @@ interface CategoryState {
     setLoading: (loading: boolean) => void;
     setError: (error: string | null) => void;
 
-    // Selectores
     getCategoryById: (id: number) => CategoryDTO | undefined;
     getSelectedCategoryIds: () => number[];
     isSelectedCategory: (id: number) => boolean;
 }
 
 export const useCategoryStore = create<CategoryState>((set, get) => ({
-    // Estado inicial
     categories: [],
     selectedCategories: [],
     isLoading: false,
     error: null,
 
-    // Acciones
     setCategories: (categories) => set({ categories }),
 
     addCategory: (category) => set((state) => ({
@@ -60,7 +55,6 @@ export const useCategoryStore = create<CategoryState>((set, get) => ({
 
     setError: (error) => set({ error }),
 
-    // Selectores
     getCategoryById: (id) => {
         return get().categories.find(cat => cat.id === id);
     },

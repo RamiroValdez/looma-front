@@ -1,12 +1,12 @@
 import Button from "../../components/Button";
 import { useNavigate } from 'react-router-dom';
 import { WorkItem } from '../../components/WorkItem';
-import { useMyWorks } from '../../services/MyWorks.service';
+import { useMyWorks } from '../../services/MyWorksService.ts';
 import { useUserStore } from "../../store/UserStorage.ts";
 import type {WorkDTO} from "../../dto/WorkDTO.ts";
 
 const PURPLE_BG_CLASS = "bg-[#5C17A6]";
-const CREATE_PATH = '/Create';
+const CREATE_PATH = '/create';
 const INSTRUCTIONS_PATH = '/Terms';
 const MAX_WIDTH_CLASS = "max-w-6xl";
 
@@ -36,10 +36,8 @@ export default function CreateWork() {
 
 
     return (
-        // Contenedor principal con fondo (ocupa 100% del ancho)
         <div className="min-h-screen bg-[#F0EEF6] p-4 sm:p-8">
             
-            {/* HEADER */}
             <header className={`mx-auto ${MAX_WIDTH_CLASS} flex justify-between items-start mb-10`}>
                 <div>
                     <h1 className="text-[#2B2B2B] text-3xl font-bold">
@@ -55,7 +53,6 @@ export default function CreateWork() {
                 />
             </header>
 
-            {/* CONTENIDO PRINCIPAL */}
             <main className={`mx-auto ${MAX_WIDTH_CLASS} flex flex-col items-center min-h-[70vh]`}>
 
                 {isLoading ? (
@@ -64,7 +61,6 @@ export default function CreateWork() {
                     <div className="text-red-600 text-center mt-20">
                         Error al cargar las obras: {(error as Error).message || 'Error desconocido'}</div>
                 ) : hasWorks ? (
-                    /* SI TIENE OBRAS: */
                     <div className="w-full flex flex-col items-center">
                         {allGroups.map(group => (
                             group.works.length > 0 && (
@@ -72,13 +68,11 @@ export default function CreateWork() {
                                     key={group.name} 
                                     className="mb-8 w-full"
                                 >
-                                    {/*Título y Botón CREAR + */}
                                     <div className="flex justify-between items-center mb-4">
                                         <h2 className="text-[#2B2B2B] text-2xl font-bold">
                                             {group.name} ({group.works.length})
                                         </h2>
                                         
-                                        {/* Botón CREAR + solo en la misma línea que el primer grupo */}
                                         {group === firstGroup && (
                                             <Button
                                                 text="Crear +"
@@ -88,7 +82,6 @@ export default function CreateWork() {
                                         )}
                                     </div>
 
-                                    {/* Contenedor WorkItem */}
                                     <div className="flex flex-col items-center">
                                         {group.works.map(work => (
                                             <WorkItem key={work.id} work={work} />
@@ -99,7 +92,6 @@ export default function CreateWork() {
                         ))}
                     </div>
                 ) : (
-                    /* CASO SIN OBRAS: */
                     <div className="w-full flex flex-col items-center">
                         <div className="flex flex-col items-center justify-center min-h-[50vh] text-center">
                             <img src="/img/Carita.png" alt="no works" className="w-40 h-40 mb-8" />

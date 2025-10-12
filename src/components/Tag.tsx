@@ -13,7 +13,7 @@ export default function Tag({
 
   return (
     <div className={`${baseClasses} ${colorClass}`} onClick={onClick}>
-      <span>{text}</span>
+      <span className="select-none cursor-default">{text}</span>
 
       {onRemove && (
         <button
@@ -22,7 +22,7 @@ export default function Tag({
             e.stopPropagation();
             onRemove(text);
           }}
-          className="text-gray-500 hover:text-red-600 font-bold"
+          className="text-gray-500 hover:text-red-600 font-bold cursor-pointer"
         >
           ×
         </button>

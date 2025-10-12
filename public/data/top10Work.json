@@ -1,0 +1,282 @@
+[
+  {
+    "id": 1,
+    "title": "Obra 1",
+    "description": "Descripción de la obra 1",
+    "cover": "/images/foto.jpg",
+    "bannerUrl": "/images/banner1.jpg",
+    "status": "finished",
+    "categories": [
+      { "id": 1, "name": "Ficción" }
+    ],
+    "tags": ["aventura", "misterio"],
+    "chapters": [],
+    "createdAt": "2025-01-01T00:00:00Z",
+    "updatedAt": "2025-01-02T00:00:00Z",
+    "creator": {
+      "id": 1,
+      "name": "Autor 1",
+      "surname": "Apellido 1",
+      "username": "autor1",
+      "photo": "/images/autor1.jpg",
+      "email": "autor1@example.com"
+    },
+    "publicationDate": "2025-01-01",
+    "format": { "id": 1, "name": "Novela" },
+    "originalLanguage": "Español",
+    "price": 9.99,
+    "likes": 100
+  },
+  {
+    "id": 2,
+    "title": "Obra 2",
+    "description": "Descripción de la obra 2",
+    "cover": "/images/foto2.jpg",
+    "bannerUrl": "/images/banner2.jpg",
+    "status": "in_progress",
+    "categories": [
+      { "id": 2, "name": "Ciencia Ficción" }
+    ],
+    "tags": ["futurista", "acción"],
+    "chapters": [],
+    "createdAt": "2025-02-01T00:00:00Z",
+    "updatedAt": "2025-02-02T00:00:00Z",
+    "creator": {
+      "id": 2,
+      "name": "Autor 2",
+      "surname": "Apellido 2",
+      "username": "autor2",
+      "photo": "/images/autor2.jpg",
+      "email": "autor2@example.com"
+    },
+    "publicationDate": "2025-02-01",
+    "format": { "id": 2, "name": "Cuento" },
+    "originalLanguage": "Inglés",
+    "price": 4.99,
+    "likes": 50
+  },
+  {
+    "id": 3,
+    "title": "Obra 3",
+    "description": "Descripción de la obra 3",
+    "cover": "/images/foto3.jpg",
+    "bannerUrl": "/images/banner3.jpg",
+    "status": "finished",
+    "categories": [
+      { "id": 1, "name": "Ficción" }
+    ],
+    "tags": ["drama", "amor"],
+    "chapters": [],
+    "createdAt": "2025-03-01T00:00:00Z",
+    "updatedAt": "2025-03-02T00:00:00Z",
+    "creator": {
+      "id": 3,
+      "name": "Autor 3",
+      "surname": "Apellido 3",
+      "username": "autor3",
+      "photo": "/images/autor3.jpg",
+      "email": "autor3@example.com"
+    },
+    "publicationDate": "2025-03-01",
+    "format": { "id": 1, "name": "Novela" },
+    "originalLanguage": "Español",
+    "price": 14.99,
+    "likes": 200
+  },
+  {
+    "id": 4,
+    "title": "Obra 4",
+    "description": "Descripción de la obra 4",
+    "cover": "/images/foto4.jpg",
+    "bannerUrl": "/images/banner4.jpg",
+    "status": "in_progress",
+    "categories": [
+      { "id": 3, "name": "No Ficción" }
+    ],
+    "tags": ["historia", "realidad"],
+    "chapters": [],
+    "createdAt": "2025-04-01T00:00:00Z",
+    "updatedAt": "2025-04-02T00:00:00Z",
+    "creator": {
+      "id": 4,
+      "name": "Autor 4",
+      "surname": "Apellido 4",
+      "username": "autor4",
+      "photo": "/images/autor4.jpg",
+      "email": "autor4@example.com"
+    },
+    "publicationDate": "2025-04-01",
+    "format": { "id": 2, "name": "Cuento" },
+    "originalLanguage": "Inglés",
+    "price": 7.99,
+    "likes": 75
+  },
+  {
+    "id": 5,
+    "title": "Obra 5",
+    "description": "Descripción de la obra 5",
+    "cover": "/images/foto5.jpg",
+    "bannerUrl": "/images/banner5.jpg",
+    "status": "finished",
+    "categories": [
+      { "id": 2, "name": "Ciencia Ficción" }
+    ],
+    "tags": ["espacial", "aventura"],
+    "chapters": [],
+    "createdAt": "2025-05-01T00:00:00Z",
+    "updatedAt": "2025-05-02T00:00:00Z",
+    "creator": {
+      "id": 5,
+      "name": "Autor 5",
+      "surname": "Apellido 5",
+      "username": "autor5",
+      "photo": "/images/autor5.jpg",
+      "email": "autor5@example.com"
+    },
+    "publicationDate": "2025-05-01",
+    "format": { "id": 1, "name": "Novela" },
+    "originalLanguage": "Español",
+    "price": 11.99,
+    "likes": 150
+  },
+  {
+    "id": 6,
+    "title": "Obra 6",
+    "description": "Descripción de la obra 6",
+    "cover": "/images/foto6.jpg",
+    "bannerUrl": "/images/banner6.jpg",
+    "status": "in_progress",
+    "categories": [
+      { "id": 1, "name": "Ficción" }
+    ],
+    "tags": ["suspenso", "terror"],
+    "chapters": [],
+    "createdAt": "2025-06-01T00:00:00Z",
+    "updatedAt": "2025-06-02T00:00:00Z",
+    "creator": {
+      "id": 6,
+      "name": "Autor 6",
+      "surname": "Apellido 6",
+      "username": "autor6",
+      "photo": "/images/autor6.jpg",
+      "email": "autor6@example.com"
+    },
+    "publicationDate": "2025-06-01",
+    "format": { "id": 2, "name": "Cuento" },
+    "originalLanguage": "Inglés",
+    "price": 5.99,
+    "likes": 30
+  },
+  {
+    "id": 7,
+    "title": "Obra 7",
+    "description": "Descripción de la obra 7",
+    "cover": "/images/foto7.jpg",
+    "bannerUrl": "/images/banner7.jpg",
+    "status": "finished",
+    "categories": [
+      { "id": 3, "name": "No Ficción" }
+    ],
+    "tags": ["biografía", "realismo"],
+    "chapters": [],
+    "createdAt": "2025-07-01T00:00:00Z",
+    "updatedAt": "2025-07-02T00:00:00Z",
+    "creator": {
+      "id": 7,
+      "name": "Autor 7",
+      "surname": "Apellido 7",
+      "username": "autor7",
+      "photo": "/images/autor7.jpg",
+      "email": "autor7@example.com"
+    },
+    "publicationDate": "2025-07-01",
+    "format": { "id": 1, "name": "Novela" },
+    "originalLanguage": "Español",
+    "price": 12.99,
+    "likes": 90
+  },
+  {
+    "id": 8,
+    "title": "Obra 8",
+    "description": "Descripción de la obra 8",
+    "cover": "/images/foto8.jpg",
+    "bannerUrl": "/images/banner8.jpg",
+    "status": "in_progress",
+    "categories": [
+      { "id": 2, "name": "Ciencia Ficción" }
+    ],
+    "tags": ["alienígenas", "contacto"],
+    "chapters": [],
+    "createdAt": "2025-08-01T00:00:00Z",
+    "updatedAt": "2025-08-02T00:00:00Z",
+    "creator": {
+      "id": 8,
+      "name": "Autor 8",
+      "surname": "Apellido 8",
+      "username": "autor8",
+      "photo": "/images/autor8.jpg",
+      "email": "autor8@example.com"
+    },
+    "publicationDate": "2025-08-01",
+    "format": { "id": 2, "name": "Cuento" },
+    "originalLanguage": "Inglés",
+    "price": 6.99,
+    "likes": 40
+  },
+  {
+    "id": 9,
+    "title": "Obra 9",
+    "description": "Descripción de la obra 9",
+    "cover": "/images/foto9.jpg",
+    "bannerUrl": "/images/banner9.jpg",
+    "status": "finished",
+    "categories": [
+      { "id": 1, "name": "Ficción" }
+    ],
+    "tags": ["aventura", "fantasía"],
+    "chapters": [],
+    "createdAt": "2025-09-01T00:00:00Z",
+    "updatedAt": "2025-09-02T00:00:00Z",
+    "creator": {
+      "id": 9,
+      "name": "Autor 9",
+      "surname": "Apellido 9",
+      "username": "autor9",
+      "photo": "/images/autor9.jpg",
+      "email": "autor9@example.com"
+    },
+    "publicationDate": "2025-09-01",
+    "format": { "id": 1, "name": "Novela" },
+    "originalLanguage": "Español",
+    "price": 10.99,
+    "likes": 110
+  },
+  {
+    "id": 10,
+    "title": "Obra 10",
+    "description": "Descripción de la obra 10",
+    "cover": "/images/foto10.jpg",
+    "bannerUrl": "/images/banner10.jpg",
+    "status": "in_progress",
+    "categories": [
+      { "id": 3, "name": "No Ficción" }
+    ],
+    "tags": ["ensayo", "opinión"],
+    "chapters": [],
+    "createdAt": "2025-10-01T00:00:00Z",
+    "updatedAt": "2025-10-02T00:00:00Z",
+    "creator": {
+      "id": 10,
+      "name": "Autor 10",
+      "surname": "Apellido 10",
+      "username": "autor10",
+      "photo": "/images/autor10.jpg",
+      "email": "autor10@example.com"
+    },
+    "publicationDate": "2025-10-01",
+    "format": { "id": 2, "name": "Cuento" },
+    "originalLanguage": "Inglés",
+    "price": 8.99,
+    "likes": 65
+  }
+]

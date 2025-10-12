@@ -7,8 +7,7 @@ import Create from "./features/Work/Create.tsx";
 import Home from "./features/Home/Home.tsx";
 import {LoginPage} from "./features/Login/LoginPage.tsx";
 import {ProtectedRoute} from "./components/ProtectedRoute.tsx";
-import Header from "./components/Header/Header.tsx";
-
+import Header from "./components/Header.tsx";
 import AddChapter from "./features/Chapter/AddChapter.tsx";
 
 

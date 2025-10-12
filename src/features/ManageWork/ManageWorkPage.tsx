@@ -1,41 +1,46 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import type { WorkDTO } from '../../dto/WorkDTO';
 import { ChapterItem } from '../../components/ChapterItem';
 import Button from '../../components/Button';
 import Tag from '../../components/Tag';
 import { MORE_CATEGORIES, SUGGESTED_TAGS} from "../../types.ts/CreateWork.types";
-import { handleAddCategory, handleAddTag } from "../../services/CreateWork.service";
+import { handleAddCategory, handleAddTag, validateFile } from "../../services/CreateWorkService";
 import { useNavigate, useParams } from 'react-router-dom';
 import { addChapter, getWorkById } from '../../services/chapterService';
-
-
+import { uploadCover, uploadBanner } from '../../services/workAssetsService';
+import CoverImageModal from '../../components/CoverImageModal';
 interface ManageWorkPageProps {
   workId?: number;
 }
 
 export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
 
-  // el workId tiene que tomarlo por parametros
   const { id: workId } = useParams<{ id: string }>();
+  const [showCoverModal, setShowCoverModal] = useState(false);
   const [work, setWork] = useState<WorkDTO | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const defaultWorkId = 1; // por defecto que coincide con nuestro JSON
+  const defaultWorkId = 1; 
   const currentWorkId = Number(workId) || defaultWorkId;
-
-  // Estados para categorías
+  const [savingBanner, setSavingBanner] = useState(false);
+  
   const [isCategoryMenuOpen, setIsCategoryMenuOpen] = useState(false);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
 
-  // Estados para etiquetas
   const [currentTags, setCurrentTags] = useState<string[]>([]);
   const [isAddingTag, setIsAddingTag] = useState(false);
   const [newTagText, setNewTagText] = useState('');
   const [isSuggestionMenuOpen, setIsSuggestionMenuOpen] = useState(false);
   const [showIATooltip, setShowIATooltip] = useState(false);
   const [showBannerTooltip, setShowBannerTooltip] = useState(false);
-
-  // Estados para el panel de administración
+  const bannerInputRef = useRef<HTMLInputElement>(null);
+  const coverInputRef = useRef<HTMLInputElement>(null);
+  const [bannerPreview, setBannerPreview] = useState<string | null>(null);
+  const [coverPreview, setCoverPreview] = useState<string | null>(null);
+  const [errorBanner, setErrorBanner] = useState<string | null>(null);
+  const [errorCover, setErrorCover] = useState<string | null>(null);
+  const [pendingCoverFile, setPendingCoverFile] = useState<File | null>(null);
+  const [savingCover, setSavingCover] = useState(false);
   const [allowSubscription, setAllowSubscription] = useState(false);
   const [price, setPrice] = useState('');
   const [workStatus, setWorkStatus] = useState('');
@@ -46,24 +51,71 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
     const chapter = await addChapter(workId, languageId, 'TEXT');
     if (chapter?.fetchStatus === 200) {
       navigate(`/chapter/work/${workId}/edit/${chapter.chapterId}`);
-      return; // prevent the fallback navigation below from overriding this route
+      return;
     }
 
     navigate(`/manage-work/${workId}`);
   };
+
+  const handleBannerClick = () => bannerInputRef.current?.click();
+
+  const handleFileChange = useCallback(async (e: React.ChangeEvent<HTMLInputElement>, isCover: boolean = false) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+  
+    const options = isCover
+      ? { maxSizeMB: 20, maxWidth: 500, maxHeight: 800 }
+      : { maxSizeMB: 20, maxWidth: 1345, maxHeight: 256 };
+  
+    const result = await validateFile(file, options);
+  
+    if (!result.valid) {
+      const msg = result.error || 'Archivo inválido.';
+      if (isCover) {
+        setErrorCover(msg);
+        setCoverPreview(prev => { if (prev) URL.revokeObjectURL(prev); return null; });
+        setPendingCoverFile(null);
+        if (coverInputRef.current) coverInputRef.current.value = '';
+      } else {
+        setErrorBanner(msg);
+        setBannerPreview(prev => { if (prev) URL.revokeObjectURL(prev); return null; });
+        if (bannerInputRef.current) bannerInputRef.current.value = '';
+      }
+      return;
+    }
+  
+    if (isCover) {
+      setErrorCover(null);
+      setCoverPreview(prev => { if (prev) URL.revokeObjectURL(prev); return URL.createObjectURL(file); });
+      setPendingCoverFile(file);
+      if (coverInputRef.current) coverInputRef.current.value = '';
+    } else {
+      setErrorBanner(null);
+      setBannerPreview(prev => { if (prev) URL.revokeObjectURL(prev); return URL.createObjectURL(file); });
+      if (bannerInputRef.current) bannerInputRef.current.value = '';
+    }
+    if (!isCover) {
+      try {
+        setSavingBanner(true);
+        await uploadBanner(currentWorkId, file);
+      } catch (err) {
+        console.error('Error al subir el banner:', err);
+        setErrorBanner('No se pudo subir el banner. Intenta nuevamente.');
+      } finally {
+        setSavingBanner(false);
+      }
+    }
+  }, [currentWorkId]);
 
   useEffect(() => {
     const fetchWork = async () => {
       try {
         setLoading(true);
         const workData = await getWorkById(currentWorkId);
-
         console.log(workData);
         setWork(workData);
-        
-        // Inicializar estados con datos de la obra 
-        setSelectedCategories(workData.categories.map(cat => cat.name));
-        setCurrentTags(workData.tags.map(tag => tag.name));
+        setSelectedCategories(workData.categories.map((cat) => cat.name));
+        setCurrentTags(workData.tags.map((tag) => tag.name));
       } catch (err) {
         setError('Error loading work');
         console.error('Error:', err);
@@ -75,7 +127,13 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
     fetchWork();
   }, [currentWorkId]);
 
-  // Input de Tags 
+  useEffect(() => {
+    return () => {
+      if (bannerPreview) URL.revokeObjectURL(bannerPreview);
+      if (coverPreview) URL.revokeObjectURL(coverPreview);
+    };
+  }, [bannerPreview, coverPreview]);
+
   const handleTagSubmit = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       e.preventDefault();
@@ -83,7 +141,6 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
     }
   };
 
-  // Función para limpiar todos los campos del panel de administración
   const handleClearAdminPanel = () => {
     setAllowSubscription(false);
     setPrice('');
@@ -108,11 +165,10 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#F0EEF6' }}>
-      {/* Main Banner */}
       <div 
         className="relative h-64 bg-cover bg-center"
-        style={{ backgroundImage: `url(${work.banner})` }}
-      >
+        style={{ backgroundImage: `url(${bannerPreview || work.banner})` }}
+        >
         <div className="absolute inset-0 bg-opacity-40"></div>
         <div className="absolute top-4 right-4">
           <div 
@@ -120,9 +176,9 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
             onMouseEnter={() => setShowBannerTooltip(true)}
             onMouseLeave={() => setShowBannerTooltip(false)}
           >
-            <Button 
+          <Button 
               text="Editar Banner"
-              onClick={() => console.log('Editar Banner')}
+              onClick={handleBannerClick}
               colorClass="bg-[#5C17A6] hover:bg-[#4A1285] focus:ring-[#5C17A6] text-white"
             />
             
@@ -136,25 +192,74 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
           </div>
         </div>
       </div>
+        <input
+          type="file"
+          ref={bannerInputRef}
+          className="hidden"
+          accept="image/png,image/jpeg,image/jpg,image/webp"
+          onChange={(e) => handleFileChange(e, false)}
+        />
+        {errorBanner && (
+          <div className="flex justify-center">
+            <p className="text-red-600 text-sm mt-2">{errorBanner}</p>
+          </div>
+        )}
 
-      {/* Contenido Principal */}
       <div className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-10 gap-6">
 
-          {/* Columna 1: Portada */}
           <div className="lg:col-span-2 lg:border-r lg:border-gray-300 lg:pr-6">
             <div className="sticky top-8">
               <div className="flex flex-col items-start">
-                <img 
-                  src={work.cover}
-                  alt={work.title}
-                  className="w-48 h-64 object-cover rounded-lg shadow-md mb-3"
-                />
-                <Button 
-                  text="Editar Portada"
-                  onClick={() => console.log('Editar Portada')}
-                  colorClass="bg-[#3C2A50] hover:bg-[#2A1C3A] focus:ring-[#3C2A50] text-sm mb-2 w-48 text-white"
-                />
+              <img 
+                src={coverPreview || work.cover}
+                alt={work.title}
+                className="w-48 h-64 object-cover rounded-lg shadow-md mb-3"
+              />
+              <Button 
+                text="Editar Portada"
+                onClick={() => setShowCoverModal(true)}
+                colorClass="bg-[#3C2A50] hover:bg-[#2A1C3A] focus:ring-[#3C2A50] text-sm mb-2 w-48 text-white"
+              />
+              <input
+                type="file"
+                ref={coverInputRef}
+                className="hidden"
+                accept="image/png,image/jpeg,image/jpg,image/webp"
+                onChange={(e) => handleFileChange(e, true)}
+              />
+              <CoverImageModal
+                isOpen={showCoverModal}
+                onClose={() => {
+                  setShowCoverModal(false);
+                }}
+                onUploadClick={() => {
+                  coverInputRef.current?.click();
+                }}
+                onGenerateClick={() => {
+                  setShowCoverModal(false);
+                }}
+                onSave={async () => {
+                  if (!pendingCoverFile) return;
+                  try {
+                    setSavingCover(true);
+                    await uploadCover(currentWorkId, pendingCoverFile);
+                    setSavingCover(false);
+                    setShowCoverModal(false);
+                    setPendingCoverFile(null);
+                  } catch (err) {
+                    console.error('Error al guardar portada:', err);
+                    setSavingCover(false);
+                    setErrorCover('No se pudo guardar la portada. Intenta nuevamente.');
+                  }
+                }}
+                saveDisabled={!pendingCoverFile}
+                saving={savingCover}
+                errorMessage={errorCover}
+              />
+              {errorCover && (
+                <p className="text-red-600 text-xs mt-1">{errorCover}</p>
+              )}
                 <p className="text-xs text-gray-500 w-48 text-center">
                   *Se admiten PNG, JPG, JPEG, WEBP de máximo 20mb.
                 </p>
@@ -162,16 +267,13 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
             </div>
           </div>
 
-          {/* Columna 2-3: Información Principal y Contenido */}
           <div className="lg:col-span-6 lg:border-r lg:border-gray-300 lg:pr-6 lg:pl-6">
-            {/* Información de la Obra */}
             <div className="mb-6">
               <h1 className="text-3xl font-bold text-black">
                 <span className="font-bold">Nombre de la obra:</span> <span className="font-normal">{work.title}</span>
               </h1>
             </div>
 
-            {/* Categorias */}
             <div className="mb-6">
               <div className="flex items-center gap-2">
                 <span className="text-black font-semibold text-lg">Categorías:</span>
@@ -192,7 +294,6 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
                     colorClass={`w-8 h-8 pt-0 flex justify-center rounded-full border-2 border-[#172FA6] text-[#172FA6] text-2xl font-medium leading-none hover:bg-[#172FA6] hover:text-white z-10`}
                   />
 
-                  {/* MENU FLOTANTE DE CATEGORÍAS */}
                   {isCategoryMenuOpen && (
                     <div className="absolute z-20 top-10 mt-1 mr-[-10%] w-max max-w-sm lg:max-w-md">
                       <div className="bg-white p-4 border border-gray-300 rounded-md shadow-lg flex flex-wrap gap-2">
@@ -213,7 +314,6 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
               </div>
             </div>
 
-            {/* Formato e Idioma Original */}
             <div className="mb-6">
               <div className="space-y-6 text-lg text-black">
                 <div><span className="font-semibold">Formato:</span> <span className="font-normal">{work.format.name}</span></div>
@@ -221,7 +321,6 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
               </div>
             </div>
 
-            {/* Etiquetas */}
             <div className="mb-6">
               <div className="flex items-center gap-2">
                 <span className="text-black font-semibold text-lg">Etiquetas:</span>
@@ -257,7 +356,6 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
                     />
                   )}
 
-                  {/* BOTON IA Y TOOLTIP */}
                   <div 
                     className="relative"
                     onMouseEnter={() => setShowIATooltip(true)}
@@ -284,7 +382,6 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
                     )}
                   </div>
 
-                  {/* MENU FLOTANTE DE SUGERENCIAS */}
                   {isSuggestionMenuOpen && (
                     <div className="absolute z-20 top-10 mt-1 mr-[-30%] w-max max-w-xs">
                       <div className="bg-white p-4 border border-gray-300 rounded-md shadow-lg flex flex-wrap gap-2">
@@ -309,7 +406,6 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
               </div>
             </div>
 
-            {/* Capítulos */}
             <div className="mb-8">
               <div className="bg-white rounded-lg shadow-lg overflow-hidden">
                 <div className="text-white font-semibold text-lg px-6 py-4" style={{ backgroundColor: '#3C2A50' }}>
@@ -338,13 +434,10 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
             </div>
           </div>
 
-          {/* Panel de Administración */}
           <div className="lg:col-span-2 lg:pl-4">
             <div className="sticky top-8">
-              {/* Título */}
               <h2 className="text-3xl font-bold text-black mb-4 text-center">Administrar</h2>
               
-              {/* Tarjeta de administración */}
               <div className="bg-white rounded-lg shadow-lg p-4">
                 <div className="space-y-4">
                   <div>
