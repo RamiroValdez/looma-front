@@ -14,12 +14,17 @@ function mapWorkToCreateWorkDTO(work: WorkDTO, tagNames?: string[]): CreateWorkD
   };
 }
 
-export async function uploadCover(workId: number, coverFile: File): Promise<{ fetchStatus: number }> {
+export async function uploadCover(workId: number, coverFile: File | null, coverIaUrl: string | null): Promise<{ fetchStatus: number }> {
   const token = useAuthStore.getState().token;
   if (!token) throw new Error("No auth token available");
 
   const formData = new FormData();
-  formData.append("cover", coverFile);
+  if (coverFile !== null){
+      formData.append("cover", coverFile);
+  }
+  if (coverIaUrl !== null && coverIaUrl !== undefined) {
+      formData.append("coverIaUrl", coverIaUrl);
+  }
 
   const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_API_MY_WORKS_URL}/${workId}/cover`, {
     method: "PATCH",
