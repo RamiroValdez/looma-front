@@ -5,7 +5,7 @@ import Button from "../../components/Button";
 import Tag from "../../components/Tag";
 import CoverImageModal from "../../components/CoverImageModal";
 
-import {SUGGESTED_TAGS} from "../../types.ts/CreateWork.types";
+import { useSuggestTagsMutation} from "../../services/TagSuggestionService.ts";
 import { useGenerateCover, createFormDataForWork, useCreateWork, handleAddTag, validateFile, type CreateWorkDTO } from "../../services/CreateWorkService.ts";
 import {useCategories} from "../../services/categoryService.ts";
 import { useCategoryStore } from "../../store/CategoryStore.ts";
@@ -24,6 +24,7 @@ import { useCompositionStore } from '../../store/CompositionStore';
 import type { ArtisticStyleDTO } from '../../dto/ArtisticStyleDTO';
 import type { ColorPaletteDTO } from '../../dto/ColorPaletteDTO';
 import type { CompositionDTO } from '../../dto/CompositionDTO';
+import type { TagSuggestionRequestDTO } from "../../dto/TagSuggestionDTO.ts";
 
 export default function Create() {
     const navigate = useNavigate();
@@ -75,6 +76,14 @@ export default function Create() {
     const [descriptionForm, setDescriptionForm] = useState('');
     const [bannerPreview, setBannerPreview] = useState<string | null>(null);
     const [coverPreview, setCoverPreview] = useState<string | null>(null);
+
+    const [isAILoading, setIsAILoading] = useState(false); // Para el spinner
+    const [suggestedTags, setSuggestedTags] = useState<string[]>([]); // Tags que vienen de la API
+    const shortMessage = "Tags con IA: tu descripción tiene menos de 20 caracteres."; 
+    const aiSuggestionMessage = "Sugerencias de la IA";
+    const suggestMutation = useSuggestTagsMutation();
+
+    const isDescriptionValid = descriptionF.trim().length > 20; 
 
     const isSubmitEnabled =
         nameWork.trim() !== '' &&
@@ -161,9 +170,9 @@ export default function Create() {
         const workDTO: CreateWorkDTO = {
             title: nameWork,
             description: descriptionF,
-            formatId: selectedFormat?.id,
-            originalLanguageId: selectedLanguage?.id,
-            categoryIds: selectedCategories.map(cat => cat.id),
+            formatId: selectedFormat ? selectedFormat.id : null, 
+            originalLanguageId: selectedLanguage ? selectedLanguage.id : null,
+            categoryIds: selectedCategories.map(cat => cat.id), 
             tagIds: currentTags
         };
 
@@ -172,6 +181,7 @@ export default function Create() {
         console.log(formData);
 
         try {
+            console.log("Enviando formulario...");
             const workId = await createWorkMutation.mutateAsync(formData);
             console.log("¡Obra creada con éxito!" + workId);
             navigate("/manage-work/" + (workId));
@@ -207,6 +217,35 @@ export default function Create() {
             console.error("Error al generar la portada con IA:", error);
             alert("Hubo un error al generar la portada. Por favor, intenta de nuevo.");
         }
+    };
+
+     // --- FUNCIÓN QUE GESTIONA LA LLAMADA A LA IA ---
+    const handleAISuggestion = () => {
+        if (!isDescriptionValid) {
+            alert("La descripción es demasiado corta. Proporciona más detalles.");
+            return;
+        }
+
+        const payload: TagSuggestionRequestDTO = {
+            description: descriptionF,
+            title: nameWork, 
+            existingTags: currentTags, 
+        };
+        
+        setIsAILoading(true);
+        
+        suggestMutation.mutate(payload, {
+            onSuccess: (data) => {
+                setSuggestedTags(data.suggestions); 
+                setIsSuggestionMenuOpen(true);      
+            },
+            onError: (error) => {
+                console.error("Error de IA:", error);
+            },
+            onSettled: () => {
+                setIsAILoading(false); 
+            }
+        });
     };
 
     return (
@@ -626,56 +665,57 @@ export default function Create() {
                                         />
                                     )}
 
-                                    <div
-                                        className="relative"
-                                        onMouseEnter={() => setShowIATooltip(true)}
-                                        onMouseLeave={() => setShowIATooltip(false)}
+                                    {/* 🛑 BOTÓN MÁGICO Y TOOLTIP 🛑 */}
+                                <div 
+                                    className={`relative`}
+                                    onMouseEnter={() => setShowIATooltip(true)}
+                                    onMouseLeave={() => setShowIATooltip(false)}
+                                >
+                                    <Button
+                                        type="button"
+                                        onClick={handleAISuggestion} 
+                                        disabled={isAILoading || !isDescriptionValid}
+                                        colorClass={`w-8 h-8 flex items-center justify-center rounded-full border-2 border-[#5C17A6] !py-0 !px-0`}
                                     >
-                                        <Button
-                                            type="button"
-                                            onClick={() => setIsSuggestionMenuOpen(!isSuggestionMenuOpen)}
-                                            colorClass="w-8 h-8 flex items-center justify-center rounded-full border-2 border-[#5C17A6] text-white hover:bg-opacity-90 z-10 !px-0 !py-0"
-                                        >
-                                            <img
-                                                src="/img/magic.png"
-                                                className="w-6 h-6 hover:cursor-pointer"
-                                                alt="Sugerencias IA"
+                                        {isAILoading ? 
+                                            <svg className="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">...</svg> 
+                                            : 
+                                            <img src="/img/magic.png"  className={`w-8 h-6 ${isDescriptionValid ? 'hover:cursor-pointer' : 'cursor-not-allowed'}`}
                                             />
-                                        </Button>
-
-                                        {showIATooltip && (
-                                            <div className="absolute z-20 top-0 mt-1 ml-4 w-max max-w-xs left-full bg-gray-800 text-white px-2 py-1 rounded-md whitespace-nowrap">
-                                                Sugerencias de la IA
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    {isSuggestionMenuOpen && (
-                                        <div className="absolute z-20 top-10 mt-1 mr-[-30%] w-max max-w-xs">
-                                            <div className="bg-white p-4 border border-gray-300 rounded-md shadow-lg flex flex-wrap gap-2">
-                                                {SUGGESTED_TAGS
-                                                    .filter(tag => !currentTags.includes(tag))
-                                                    .map((tag) => (
-                                                        <Tag
-                                                            key={tag}
-                                                            text={tag}
-                                                            colorClass="border border-gray-300 text-gray-600 bg-transparent hover:bg-gray-100"
-                                                            onClick={() => handleAddTag(tag, currentTags, setCurrentTags, setIsAddingTag, setNewTagText, setIsSuggestionMenuOpen)}
-                                                        />
-                                                    ))}
-
-                                                {SUGGESTED_TAGS.filter(tag => !currentTags.includes(tag)).length === 0 && (
-                                                    <p className="text-gray-500 text-sm italic">No hay más sugerencias disponibles.</p>
-                                                )}
-                                            </div>
+                                        }
+                                    </Button>
+                                    
+                                    {/* TOOLTIP FLOTANTE */}
+                                    {showIATooltip && (
+                                        <div className="absolute z-30 top-[-30px] left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-2 py-1 rounded-md whitespace-nowrap">
+                                         {isDescriptionValid ? aiSuggestionMessage : shortMessage}
                                         </div>
                                     )}
+                                </div>
+
+                                {/* MENÚ FLOTANTE DE SUGERENCIAS */}
+                                {/* Usamos la lista de tags sugeridos que viene de la API (suggestedTags) */}
+                                {isSuggestionMenuOpen && (
+                                    <div className="absolute z-20 top-10 mt-1 mr-[-30%] w-max max-w-xs">
+                                        <div className="bg-white p-4 border border-gray-300 rounded-md shadow-lg flex flex-wrap gap-2">
+                                            {suggestedTags.map((tag) => (
+                                                <Tag
+                                                    key={tag}
+                                                    text={tag}
+                                                    colorClass="border border-gray-300 text-gray-600 bg-transparent hover:bg-gray-100" 
+                                                    onClick={() => handleAddTag(tag, currentTags, setCurrentTags, setIsAddingTag, setNewTagText, setIsSuggestionMenuOpen)}
+                                                />
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
                                 </div>
                             </div>
 
                             {currentTags.length === 0 && (
                                 <p className="text-red-500 text-sm mt-1 ml-1/4 pt-1 pl-[25%]">Debes agregar al menos una etiqueta.</p>
                             )}
+
                         </div>
 
                         <div className="flex flex-col mb-6">
