@@ -11,6 +11,7 @@ export interface CreateWorkDTO {
     originalLanguageId: number | null;
     categoryIds: number[];
     tagIds: string[];
+    coverIaUrl?: string;
 }
 
 export interface GenerateCoverResponse {

@@ -6,5 +6,5 @@ export interface ChapterDTO {
   likes: number; 
   lastModified: string; 
   publishedAt: string; 
-  status: "published" | "draft";
+  publicationStatus: "PUBLISHED" | "DRAFT";
 }
