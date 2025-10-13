@@ -5,28 +5,28 @@
       {
         "id": 1,
         "title": "Libro 1",
-        "cover": "/images/foto12.jpg",
+        "cover": "/img/portadas/foto12.jpg",
         "likes": 1200,
         "categories": ["Ficción", "Aventura"]
       },
       {
         "id": 2,
         "title": "Libro 2",
-        "cover": "/images/foto2.jpg",
+        "cover": "/img/portadas/foto2.jpg",
         "likes": 800,
         "categories": ["Romance", "Drama"]
       },
       {
         "id": 4,
         "title": "Libro 4",
-        "cover": "/images/foto4.jpg",
+        "cover": "/img/portadas/foto4.jpg",
         "likes": 950,
         "categories": ["Suspenso", "Misterio"]
       },
       {
         "id": 5,
         "title": "Libro 5",
-        "cover": "/images/foto5.jpg",
+        "cover": "/img/portadas/foto5.jpg",
         "likes": 1100,
         "categories": ["Fantasía", "Aventura"]
       }
@@ -38,14 +38,14 @@
       {
         "id": 3,
         "title": "Libro 3",
-        "cover": "/images/foto3.jpg",
+        "cover": "/img/portadas/foto3.jpg",
         "likes": 500,
         "categories": ["Ciencia Ficción"]
       },
       {
         "id": 6,
         "title": "Libro 6",
-        "cover": "/images/foto6.jpg",
+        "cover": "/img/portadas/foto6.jpg",
         "likes": 700,
         "categories": ["Historia", "Biografía"]
       }
