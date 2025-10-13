@@ -7,8 +7,8 @@ import type { CoverIaFormDTO } from "../dto/FormCoverIaDTO.ts";
 export interface CreateWorkDTO {
     title: string;
     description: string;
-    formatId?: number;
-    originalLanguageId?: number;
+    formatId: number | null; 
+    originalLanguageId: number | null;
     categoryIds: number[];
     tagIds: string[];
     coverIaUrl?: string;
