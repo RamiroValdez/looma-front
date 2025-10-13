@@ -7,8 +7,14 @@ import CoverImageModal from "../../components/CoverImageModal";
 
 import { useSuggestTagsMutation } from "../../services/TagSuggestionService.ts";
 import CoverAiModal from "../../components/create/CoverAiModal.tsx";
-import { SUGGESTED_TAGS } from "../../types.ts/CreateWork.types";
-import { createFormDataForWork, useCreateWork, handleAddTag, validateFile, type CreateWorkDTO } from "../../services/CreateWorkService.ts";
+import {
+    createFormDataForWork,
+    useCreateWork,
+    handleAddTag,
+    validateFile,
+    type CreateWorkDTO,
+    useClickOutside
+} from "../../services/CreateWorkService.ts";
 import {useCategories} from "../../services/categoryService.ts";
 import { useCategoryStore } from "../../store/CategoryStore.ts";
 import type { CategoryDTO } from "../../dto/CategoryDTO.ts";
@@ -16,6 +22,7 @@ import { useFormatStore} from "../../store/FormatStore.ts";
 import { useFormats } from "../../services/formatService.ts";
 import { useLanguages } from '../../services/languageService.ts';
 import { useLanguageStore } from '../../store/LanguageStore';
+import type {TagSuggestionRequestDTO} from "../../dto/TagSuggestionDTO.ts";
 
 
 
@@ -25,9 +32,9 @@ export default function Create() {
 
     const [isCategoryMenuOpen, setIsCategoryMenuOpen] = useState(false);
     const { categories, isLoading: isLoadingCategory, error: errorCategory } = useCategories();
-    const { selectedCategories, selectCategory, unselectCategory } = useCategoryStore();
+    const { selectedCategories, selectCategory, unselectCategory, clearSelectedCategories } = useCategoryStore();
     const { formats, isLoading: isLoadingFormat, error: errorFormat } = useFormats();
-    const { selectedFormat, selectFormat } = useFormatStore();
+    const { selectedFormat, selectFormat, clearSelectedFormat } = useFormatStore();
     const { languages, isLoading: isLoadingLanguage, error: errorLanguage } = useLanguages();
     const { selectedLanguage, selectLanguage , clearSelectedLanguage } = useLanguageStore();
 
@@ -177,34 +184,6 @@ export default function Create() {
         }
     }
 
-    const generateCoverMutation = useGenerateCover();
-
-    const handleGenerateCover = async (e: { preventDefault: () => void; }) => {
-        e.preventDefault();
-
-        if (!selectedArtisticStyle || !selectedColorPalette || !selectedComposition || !descriptionForm.trim()) {
-            alert("Por favor, completa todos los campos para generar la portada.");
-            return;
-        }
-
-        const formCoverDTO: CoverIaFormDTO = {
-            artisticStyleId: selectedArtisticStyle.name,
-            colorPaletteId: selectedColorPalette.name,
-            compositionId: selectedComposition.name,
-            description: descriptionForm
-        };
-
-        try {
-            const response = await generateCoverMutation.mutateAsync(formCoverDTO);
-            setIaCover(response.url);
-            alert("¡Portada generada y cargada con éxito!");
-            setShowCoverIaPopup(false);
-        } catch (error) {
-            console.error("Error al generar la portada con IA:", error);
-            alert("Hubo un error al generar la portada. Por favor, intenta de nuevo.");
-        }
-    };
-
      // --- FUNCIÓN QUE GESTIONA LA LLAMADA A LA IA ---
     const handleAISuggestion = () => {
         if (!isDescriptionValid) {
@@ -233,6 +212,12 @@ export default function Create() {
             }
         });
     };
+
+    const suggestionMenuRef = useRef<HTMLDivElement>(null);
+    const suggestionCategoryMenuRef = useRef<HTMLDivElement>(null);
+    useClickOutside(suggestionMenuRef, () => setIsSuggestionMenuOpen(false));
+    useClickOutside(suggestionCategoryMenuRef, () => setIsCategoryMenuOpen(false));
+
 
     return (
         <main>
@@ -366,7 +351,7 @@ export default function Create() {
                                     />
 
                                     {isCategoryMenuOpen && (
-                                        <div className="absolute z-20 top-10 mt-1 mr-[-10%] w-max max-w-sm lg:max-w-md">
+                                        <div ref={suggestionCategoryMenuRef} className="absolute z-20 top-10 mt-1 mr-[-10%] w-max max-w-sm lg:max-w-md">
                                             <div className="bg-white p-4 border border-gray-300 rounded-md shadow-lg flex flex-wrap gap-2">
                                                 {isLoadingCategory ? (
                                                     <p className="text-gray-500">Cargando categorías...</p>
@@ -522,23 +507,32 @@ export default function Create() {
                                             />
                                         }
                                     </Button>
-                                    
-                                    {showIATooltip && (
+
+                                    {showIATooltip && !isAILoading && (
                                         <div className="absolute z-30 top-[-30px] left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-2 py-1 rounded-md whitespace-nowrap">
-                                         {isDescriptionValid ? aiSuggestionMessage : shortMessage}
+                                                {isDescriptionValid ? aiSuggestionMessage : shortMessage}
                                         </div>
                                     )}
                                 </div>
 
                                 {isSuggestionMenuOpen && (
-                                    <div className="absolute z-20 top-10 mt-1 mr-[-30%] w-max max-w-xs">
+                                    <div ref={suggestionMenuRef} className="absolute z-20 top-10 mt-1 mr-[-30%] w-max max-w-xs">
                                         <div className="bg-white p-4 border border-gray-300 rounded-md shadow-lg flex flex-wrap gap-2">
                                             {suggestedTags.map((tag) => (
                                                 <Tag
                                                     key={tag}
                                                     text={tag}
                                                     colorClass="border border-gray-300 text-gray-600 bg-transparent hover:bg-gray-100" 
-                                                    onClick={() => handleAddTag(tag, currentTags, setCurrentTags, setIsAddingTag, setNewTagText, setIsSuggestionMenuOpen)}
+                                                    onClick={() => {handleAddTag(tag, currentTags, setCurrentTags, setIsAddingTag, setNewTagText, setIsSuggestionMenuOpen, false);
+                                                        setSuggestedTags((prev) => prev.filter((t) => t !== tag));
+                                                        setSuggestedTags((prev) => {
+                                                            const updated = prev.filter((t) => t !== tag);
+                                                            if (updated.length === 0) {
+                                                                setIsSuggestionMenuOpen(false);
+                                                            }
+                                                            return updated;
+                                                        });
+                                                    }}
                                                 />
                                             ))}
                                         </div>
