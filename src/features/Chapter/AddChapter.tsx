@@ -4,7 +4,7 @@ import AdvancedTools from "../../components/addChapter/AdvancedTools";
 import ChapterEditor from "../../components/addChapter/ChapterEditor";
 import ChapterActions from "../../components/addChapter/ChapterActions";
 import PublishOptions from "../../components/addChapter/PublishOptions";
-import InspirationBubble from "../../components/addChapter/InspirationBubble";
+//import InspirationBubble from "../../components/addChapter/InspirationBubble";
 import {updateChapter, deleteChapter, getChapterById, cancelScheduleChapter} from "../../services/chapterService.ts";
 import { handleError } from "../../utils/errorHandler";
 import type {ChapterWithContentDTO} from "../../dto/ChapterWithContentDTO.ts";
@@ -148,6 +148,22 @@ export default function AddChapter() {
     const handleLanguageSelect = (languageCode: string) => {
         setSelectedLanguage(languageCode);
     };
+
+    //NUEVO
+  const handlePreview = () => {
+    if (!chapter) return;
+
+    const previewData = {
+        content: chapter.content, 
+        selectedLanguages: chapter.availableLanguages, 
+        numberChapter: chapter.chapterNumber,
+        originalLanguage: chapter.languageDefaultCode.code,
+    };
+
+    const previewUrl = `/preview?data=${encodeURIComponent(JSON.stringify(previewData))}`;
+    window.open(previewUrl, "_blank"); 
+};
+
     return (
         <div>
             {isLoadingFetch ? (
@@ -231,7 +247,7 @@ export default function AddChapter() {
 
                             <ChapterActions
                                 onSaveDraft={handleChapterActions}
-                                onPreview={() => console.log("Vista previa activada")}
+                                onPreview={handlePreview}
                                 formData={{ titulo: chapter.title, contenido: chapter.content }}
                             />
 
@@ -281,7 +297,7 @@ export default function AddChapter() {
                     </div>
                     
 
-                    <InspirationBubble />
+                   {/* <InspirationBubble />  COMO AUN NO TIENE LOGICA NO LO MOSTRAMOS*/}
                     {showDeleteModal && (
                         <div className="fixed inset-0 z-50 flex items-center justify-center">
                             <div className="absolute inset-0 bg-black/40" onClick={closeDeleteModal} />
