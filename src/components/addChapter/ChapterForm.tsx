@@ -1,9 +1,13 @@
+import TextEditorTool from "../../features/Chapter/TextEditorTool.tsx";
+import {useEditor} from "@milkdown/react";
+
 interface Props {
   chapterTitle: string;
   setChapterTitle: (v: string) => void;
   chapterContent: string;
   setChapterContent: (v: string) => void;
   chapterNumber: number;
+  setEditorRef?: (editorGetter: ReturnType<typeof useEditor>['get']) => void;
 }
 
 export default function ChapterForm({
@@ -12,10 +16,12 @@ export default function ChapterForm({
   chapterContent,
   setChapterContent,
   chapterNumber,
+  setEditorRef
 }: Props) {
+
   return (
-    <div className="p-6 text-center bg-white">
-      <h2 className="text-lg font-medium text-gray-700 mb-4">
+    <div className="p-6 bg-white">
+      <h2 className="text-lg font-medium text-gray-700 mb-4 text-center">
         Capitulo:{" "}
         <span className="font-semibold">{chapterNumber}</span>
       </h2>
@@ -25,15 +31,14 @@ export default function ChapterForm({
         value={chapterTitle}
         onChange={(e) => setChapterTitle(e.target.value)}
         placeholder="Título del capítulo"
-        className="w-full text-center text-lg font-medium text-gray-500 placeholder-gray-400 focus:outline-none border-none"
+        className="w-full text-center text-lg font-medium text-gray-500 placeholder-gray-400 focus:outline-none border-none text-center"
       />
 
-      <textarea
-        value={chapterContent}
-        onChange={(e) => setChapterContent(e.target.value)}
-        placeholder="¡Da rienda suelta a tu imaginación!"
-        className="mt-4 w-full h-40 resize-none text-gray-700 placeholder-gray-400 text-sm p-3 focus:outline-none bg-white"
-      />
+        <TextEditorTool
+            chapterContent={chapterContent}
+            onChange={setChapterContent}
+            setEditorRef={setEditorRef}
+        />
     </div>
   );
 }

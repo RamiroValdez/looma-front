@@ -9,6 +9,7 @@ import {LoginPage} from "./features/Login/LoginPage.tsx";
 import {ProtectedRoute} from "./components/ProtectedRoute.tsx";
 import Header from "./components/Header.tsx";
 import AddChapter from "./features/Chapter/AddChapter.tsx";
+import {MilkdownProvider} from "@milkdown/react";
 
 
 function App() {
@@ -49,7 +50,9 @@ function App() {
 
                  <Route path="/chapter/work/:id/edit/:chapterId" element={
                     <ProtectedRoute>
-                        <AddChapter />
+                        <MilkdownProvider>
+                            <AddChapter />
+                        </MilkdownProvider>
                     </ProtectedRoute>
                 } />
 

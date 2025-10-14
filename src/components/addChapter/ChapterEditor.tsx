@@ -1,5 +1,7 @@
 import ChapterForm from "./ChapterForm";
 import EditorToolbar from "./EditorToolBar";
+import {useState} from "react";
+import type {useEditor} from "@milkdown/react";
 
 interface Props {
   chapterTitle: string;
@@ -16,17 +18,18 @@ export default function ChapterEditor({
   setChapterContent,
   chapterNumber,
 }: Props) {
+    const [editorGetter, setEditorGetter] = useState<ReturnType<typeof useEditor>['get']>();
+
   return (
     <div>
-
-      <EditorToolbar />
-
-      <ChapterForm
+        {editorGetter && <EditorToolbar editorGetter={editorGetter} />}
+        <ChapterForm
         chapterTitle={chapterTitle}
         setChapterTitle={setChapterTitle}
         chapterContent={chapterContent}
         setChapterContent={setChapterContent}
         chapterNumber={chapterNumber}
+        setEditorRef={setEditorGetter}
       />
     </div>
   );
