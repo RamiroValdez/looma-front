@@ -43,12 +43,12 @@ export const ChapterItem: React.FC<ChapterItemProps> = ({ chapter, workId }) => 
         <Button 
           text="Editar"
           onClick={handleEdit}
-          colorClass="bg-white border border-[#5C17A6] !text-[#5C17A6] text-sm px-3 py-1 hover:bg-purple-50 focus:ring-2 focus:ring-[#5C17A6]"
+          colorClass="bg-white border border-[#5C17A6] !text-[#5C17A6] text-sm px-3 py-1 hover:bg-purple-50 focus:ring-2 focus:ring-[#5C17A6] cursor-pointer"
         />
-        <Button 
-          text="Configurar"
+        <Button
+          text="Eliminar"
           onClick={handleConfigure}
-          colorClass="bg-[#5C17A6] hover:bg-[#4A1285] focus:ring-2 focus:ring-[#5C17A6] text-white text-sm px-3 py-1"
+          colorClass="bg-transparent border-0 text-red-600 hover:text-red-800 cursor-pointer text-sm px-3 py-1"
         />
       </div>
     </div>
