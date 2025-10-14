@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { useLogin } from "../../services/AuthService";
 import Button from "../../components/Button";
 import { getCurrentUser } from "../../services/dataUserService.ts";
+import { notifyError, notifySuccess } from "../../services/ToastProviderService.ts";
 
 export const LoginPage = () => {
     const [email, setEmail] = useState('');
@@ -43,8 +44,9 @@ export const LoginPage = () => {
                 username: String(user?.username)
             });
             navigate('/home');
+            notifySuccess("¡Inicio de sesión exitoso!");
         } catch (err) {
-            setError('Credenciales inválidas');
+            notifyError("¡Inicio de sesión fallido! Por favor verifica tus datos.");
         } finally {
             setLoading(false);
         }

@@ -23,8 +23,7 @@ import { useFormats } from "../../services/formatService.ts";
 import { useLanguages } from '../../services/languageService.ts';
 import { useLanguageStore } from '../../store/LanguageStore';
 import type {TagSuggestionRequestDTO} from "../../dto/TagSuggestionDTO.ts";
-
-
+import { notifyError, notifySuccess } from "../../services/ToastProviderService.ts";
 
 
 export default function Create() {
@@ -131,10 +130,12 @@ export default function Create() {
             setCoverFile(file);
             setCoverPreview(prev => { if (prev) URL.revokeObjectURL(prev); return URL.createObjectURL(file); });
             if (coverInputRef.current) coverInputRef.current.value = '';
+            notifySuccess("Portada subida con éxito.");
         } else {
             setErrorBanner(null);
             setBannerFile(file);
             setBannerPreview(prev => { if (prev) URL.revokeObjectURL(prev); return URL.createObjectURL(file); });
+            notifySuccess("Banner subido con éxito.");
             if (bannerInputRef.current) bannerInputRef.current.value = '';
         }
     }, []);
@@ -165,10 +166,7 @@ export default function Create() {
             tagIds: currentTags,
             coverIaUrl: coverIaUrl || undefined
         };
-        console.log(workDTO);
         const formData = createFormDataForWork(workDTO, bannerFile, coverFile);
-
-        console.log(formData);
 
         try {
             console.log("Enviando formulario...");
@@ -177,10 +175,10 @@ export default function Create() {
             clearSelectedFormat();   
             clearSelectedLanguage();
             clearSelectedCategories(); 
+            notifySuccess("Obra creada con éxito.");
             navigate("/manage-work/" + (workId));
         } catch (error) {
             console.error("Error al crear la obra:", error);
-            alert("Error al guardar la obra. Intente nuevamente.");
         }
     }
 
@@ -477,7 +475,7 @@ export default function Create() {
                                             onKeyDown={handleTagSubmit}
                                             onBlur={() => setIsAddingTag(false)}
                                             autoFocus
-                                            placeholder="Añadir nueva etiqueta"
+                                            placeholder="Enter para añadir etiqueta"
                                             className="p-1 border border-gray-400 rounded-md text-sm w-[150px] focus:outline-none focus:ring-2 focus:ring-opacity-50"
                                         />
                                     ) : (

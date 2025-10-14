@@ -146,7 +146,7 @@ function Header() {
                 <button className="text-gray-600 hover:text-purple-900 text-2xl transition">🔔</button>
                 <div className="relative">
                   <img
-                    src={user.image}
+                    src={/*{user.image}/*/ "/img/fotoPerfil.jpg"}
                     alt="perfil"
                     className="w-8 h-8 rounded-full border border-gray-300 object-cover cursor-pointer"
                     onClick={() => setOpenMenu(!openMenu)}
