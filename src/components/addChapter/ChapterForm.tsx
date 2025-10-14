@@ -19,7 +19,7 @@ export default function ChapterForm({
   setEditorRef
 }: Props) {
   return (
-    <div className="p-6 bg-white">
+    <div className="p-6 bg-white max-w-full">
       <h2 className="text-lg font-medium text-gray-700 mb-4 text-center">
         Capitulo:{" "}
         <span className="font-semibold">{chapterNumber}</span>
