@@ -34,6 +34,7 @@ export default function AddChapter() {
                 content: data.content,
                 price: data.price,
                 workName: data.workName,
+                workId: data.workId,
                 last_update: data.last_update,
                 likes: data.likes,
                 allowAiTranslation: data.allowAiTranslation,
@@ -233,6 +234,12 @@ export default function AddChapter() {
                                 onSaveDraft={handleChapterActions}
                                 onPreview={() => console.log("Vista previa activada")}
                                 formData={{ titulo: chapter.title, contenido: chapter.content }}
+                                chapterId={chapter.id}
+                                publicationStatus={chapter.publicationStatus}
+                                price={chapter.price}
+                                workId={chapter.workId}
+                                allowAiTranslation={chapter.allowAiTranslation}
+                                defaultLanguageCode={chapter.languageDefaultCode?.code}
                             />
 
                     { chapter.publicationStatus === 'DRAFT' ? (
@@ -269,7 +276,11 @@ export default function AddChapter() {
                             </h3>
                             <label className="flex items-center space-x-2 mb-6">
                                 <span>Permitir traducción con IA</span>
-                                <input type="checkbox" defaultChecked={chapter.allowAiTranslation} />
+                                <input
+                                    type="checkbox"
+                                    checked={chapter.allowAiTranslation}
+                                    onChange={(e) => handleFieldChange("allowAiTranslation", e.target.checked)}
+                                />
                             </label>
 
                             <AdvancedTools
