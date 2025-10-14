@@ -225,3 +225,31 @@ export async function publishChapter(
     throw new Error(handleError(error));
   }
 }
+
+export async function importFileToText(file: File): Promise<string> {
+  try {
+    if (!file) throw new Error("Archivo no seleccionado.");
+
+    const token = useAuthStore.getState().token;
+    const form = new FormData();
+    form.append("file", file, file.name);
+
+    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/edit-chapter/import-text`, {
+      method: "POST",
+      headers: {
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: form,
+    });
+
+    if (!response.ok) {
+      const errBody = await response.json().catch(() => null);
+      throw new Error(errBody?.error || `Error ${response.status}: ${response.statusText}`);
+    }
+
+    const data = (await response.json()) as { text: string };
+    return data.text ?? "";
+  } catch (error) {
+    throw new Error(handleError(error));
+  }
+}
