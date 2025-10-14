@@ -338,6 +338,7 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
               <div className="space-y-6 text-lg text-black">
                 <div><span className="font-semibold">Formato:</span> <span className="font-normal">{work.format.name}</span></div>
                 <div><span className="font-semibold">Idioma Original:</span> <span className="font-normal">{work.originalLanguage.name}</span></div>
+                <div><span className="font-semibold">Descripción:</span> <span className="font-normal">{work.description || 'Sin descripción...'}</span></div>
               </div>
             </div>
 
