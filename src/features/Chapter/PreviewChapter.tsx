@@ -3,6 +3,8 @@ import FooterLector from "../../components/FooterLector";
 import { useState } from "react";
 import { useLanguages } from "../../services/languageService";
 import { translateContent } from "../../services/TranslateService";
+import TextViewer from "./TextViewer.tsx";
+import {MilkdownProvider} from "@milkdown/react";
 
 const PreviewChapter = () => {
   const location = useLocation();
@@ -51,14 +53,18 @@ const PreviewChapter = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
-      <div className="flex-1 px-4 py-9 bg-white flex flex-col items-center overflow-y-auto pb-18">
+      <div className="flex-1 px-4 py-9 bg-white flex flex-col overflow-y-auto pb-18 items-center">
         <h1 className="text-xl mb-4 text-center">Capítulo {numberChapter}</h1>
         <hr className="w-full border-t border-gray-300 mb-6" />
-        <div className="max-w-3xl text-base leading-6">
+        <div className="max-w-3xl text-base mx-5">
           {isTranslating ? (
             <p className="text-center text-gray-500">Traduciendo contenido...</p> // Mensaje de carga
           ) : (
-            <p>{translatedContent}</p>
+          <div className="">
+              <MilkdownProvider>
+                  <TextViewer content={translatedContent}/>
+              </MilkdownProvider>
+          </div>
           )}
         </div>
       </div>

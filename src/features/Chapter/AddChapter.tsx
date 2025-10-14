@@ -176,7 +176,7 @@ export default function AddChapter() {
                     <p className="text-gray-600 text-lg">No se pudo cargar el capítulo.</p>
                 </div>
             ) : data && chapter ? (
-                <div className="min-h-screen bg-[#F4F0F7] px-4 sm:px-8 md:px-16 py-8">
+                <div className="min-h-screen bg-[#F4F0F7] px-4 sm:px-8 md:px-16 py-8 max-w-screen">
                     <div className="w-screen relative left-1/2 right-1/2 -mx-[50vw] bg-white mb-8">
                         <div className="bg-white border-b border-[#e4e2eb] h-14 flex items-center ">
                             <div className="px-4 sm:px-8 md:px-16 mx-auto flex justify-between items-center w-full">
@@ -236,7 +236,7 @@ export default function AddChapter() {
                                 </div>
                             ) : null}
 
-                            <div className="border-2 border-[#4C3B63] rounded-xl overflow-hidden mb-6">
+                            <div className="border-2 border-[#4C3B63] rounded-xl max-w-full overflow-hidden mb-6">
                                 <ChapterEditor
                                     chapterTitle={chapter.title}
                                     setChapterTitle={(value) => handleFieldChange("title", value)}
