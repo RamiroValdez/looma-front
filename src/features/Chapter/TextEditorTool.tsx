@@ -19,6 +19,10 @@ export default function TextEditorTool({chapterContent, onChange, setEditorRef}:
 
     const [editorValue, setEditorValue] = useState(chapterContent);
 
+    useEffect(() => {
+        setEditorValue(chapterContent);
+    }, [chapterContent]);
+
     const { get } = useEditor((root) =>
         Editor.make()
             .config((ctx) => {

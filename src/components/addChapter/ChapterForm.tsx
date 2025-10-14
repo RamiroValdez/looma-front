@@ -18,7 +18,6 @@ export default function ChapterForm({
   chapterNumber,
   setEditorRef
 }: Props) {
-
   return (
     <div className="p-6 bg-white">
       <h2 className="text-lg font-medium text-gray-700 mb-4 text-center">

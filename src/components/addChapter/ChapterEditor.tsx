@@ -28,6 +28,7 @@ export default function ChapterEditor({
 
   return (
     <div>
+
         {editorGetter && <EditorToolbar editorGetter={editorGetter} onImportFile={handleImportFile} />}
       <ChapterForm
         chapterTitle={chapterTitle}
