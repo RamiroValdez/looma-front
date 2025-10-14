@@ -10,6 +10,8 @@ import { addChapter, getWorkById } from '../../services/chapterService';
 import { uploadCover, uploadBanner } from '../../services/workAssetsService';
 import CoverImageModal from '../../components/CoverImageModal';
 import CoverAiModal from "../../components/create/CoverAiModal.tsx";
+import { notifyError, notifySuccess } from "../../services/ToastProviderService.ts";
+
 interface ManageWorkPageProps {
   workId?: number;
 }
@@ -90,6 +92,7 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
       setErrorCover(null);
       setCoverPreview(prev => { if (prev) URL.revokeObjectURL(prev); return URL.createObjectURL(file); });
       setPendingCoverFile(file);
+      notifySuccess("Portada actualizada con éxito.");
       if (coverInputRef.current) coverInputRef.current.value = '';
     } else {
       setErrorBanner(null);
@@ -100,6 +103,7 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
       try {
         setSavingBanner(true);
         await uploadBanner(currentWorkId, file);
+        notifySuccess("Banner actualizado con éxito.");
       } catch (err) {
         console.error('Error al subir el banner:', err);
         setErrorBanner('No se pudo subir el banner. Intenta nuevamente.');

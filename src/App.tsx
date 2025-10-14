@@ -9,6 +9,7 @@ import {LoginPage} from "./features/Login/LoginPage.tsx";
 import {ProtectedRoute} from "./components/ProtectedRoute.tsx";
 import Header from "./components/Header.tsx";
 import AddChapter from "./features/Chapter/AddChapter.tsx";
+import { ToastProvider } from "./components/ToastProvider"; 
 import {MilkdownProvider} from "@milkdown/react";
 
 
@@ -57,7 +58,9 @@ function App() {
                 } />
 
             </Routes>
-        </BrowserRouter>
+        <ToastProvider /> 
+
+    </BrowserRouter>
     )
 }
 

@@ -1,5 +1,36 @@
-// ...existing code...
 import { useRef, useState } from "react";
+import { notifySuccess, notifyError } from "../../services/ToastProviderService";
+
+export default function EditorToolbar({
+  onImportFile,
+}: {
+  onImportFile?: (file: File) => Promise<void>;
+}) {
+  const inputRef = useRef<HTMLInputElement | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const triggerFile = () => inputRef.current?.click();
+
+  const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const name = file.name.toLowerCase();
+    if (!name.endsWith(".doc") && !name.endsWith(".docx")) {
+      notifyError("Formato no soportado. Solo .doc o .docx");
+      e.currentTarget.value = "";
+      return;
+    }
+    if (!onImportFile) return;
+    setLoading(true);
+    try {
+      await onImportFile(file);
+      notifySuccess("Capítulo importado con éxito.");
+    } catch (err) {
+      console.error(err);
+      notifyError("Error al importar el capítulo.");
+    } finally {
+      setLoading(false);
+      e.currentTarget.value = "";
 import { toggleStrongCommand, toggleEmphasisCommand, wrapInHeadingCommand, wrapInOrderedListCommand, wrapInBulletListCommand } from '@milkdown/preset-commonmark';
 import type {useEditor} from "@milkdown/react";
 import { callCommand } from "@milkdown/kit/utils"
@@ -17,30 +48,6 @@ export default function EditorToolbar({ editorGetter, onImportFile }: Props) {
     const [isItalicActive, setIsItalicActive] = React.useState(false);
 
     const triggerFile = () => inputRef.current?.click();
-
-    const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-
-        if (!file) return;
-        const name = file.name.toLowerCase();
-        if (!name.endsWith(".doc") && !name.endsWith(".docx")) {
-            alert("Formato no soportado. Solo .doc o .docx");
-            e.currentTarget.value = "";
-            return;
-        }
-        if (!onImportFile) return;
-        setLoading(true);
-        try {
-            await onImportFile(file);
-        } catch (err) {
-            console.error(err);
-            alert("Error al importar el archivo.");
-        } finally {
-            if (e.target) e.target.value = "";
-            setLoading(false);
-        }
-    };
-
     const executeCommand = (cmd: any, payload?: any) => {
         if (!editorGetter) {
             console.log('Editor no disponible');
