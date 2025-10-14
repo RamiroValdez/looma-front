@@ -15,10 +15,6 @@ export const ChapterItem: React.FC<ChapterItemProps> = ({ chapter, workId }) => 
     navigate(`/chapter/work/${workId}/edit/${chapter.id}`);
   };
 
-  const handleConfigure = () => {
-    navigate(`/chapter/${chapter.id}/configure`);
-  };
-
   const getStatusColor = (status: string) => {
     // que el programado tenga otro color
     const statusMap = {
@@ -54,12 +50,7 @@ export const ChapterItem: React.FC<ChapterItemProps> = ({ chapter, workId }) => 
         <Button 
           text="Editar"
           onClick={handleEdit}
-          colorClass="bg-white border border-[#5C17A6] !text-[#5C17A6] text-sm px-3 py-1 hover:bg-purple-50 focus:ring-2 focus:ring-[#5C17A6]"
-        />
-        <Button 
-          text="Configurar"
-          onClick={handleConfigure}
-          colorClass="bg-[#5C17A6] hover:bg-[#4A1285] focus:ring-2 focus:ring-[#5C17A6] text-white text-sm px-3 py-1"
+          colorClass="bg-white border border-[#5C17A6] !text-[#5C17A6] text-sm px-3 py-1 hover:bg-purple-50 focus:ring-2 focus:ring-[#5C17A6] cursor-pointer"
         />
       </div>
     </div>
