@@ -11,6 +11,7 @@ import Header from "./components/Header.tsx";
 import AddChapter from "./features/Chapter/AddChapter.tsx";
 import { ToastProvider } from "./components/ToastProvider"; 
 import {MilkdownProvider} from "@milkdown/react";
+import Footer from "./components/Footer.tsx";
 
 
 function App() {
@@ -58,8 +59,9 @@ function App() {
                 } />
 
             </Routes>
-        <ToastProvider /> 
+             <Footer />
 
+        <ToastProvider /> 
     </BrowserRouter>
     )
 }
