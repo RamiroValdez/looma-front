@@ -9,6 +9,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { addChapter, getWorkById } from '../../services/chapterService';
 import { uploadCover, uploadBanner } from '../../services/workAssetsService';
 import CoverImageModal from '../../components/CoverImageModal';
+import CoverAiModal from "../../components/create/CoverAiModal.tsx";
 interface ManageWorkPageProps {
   workId?: number;
 }
@@ -17,6 +18,7 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
 
   const { id: workId } = useParams<{ id: string }>();
   const [showCoverModal, setShowCoverModal] = useState(false);
+  const [showCoverModalAi, setShowCoverModalAi] = useState(false);
   const [work, setWork] = useState<WorkDTO | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -238,12 +240,13 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
                 }}
                 onGenerateClick={() => {
                   setShowCoverModal(false);
+                  setShowCoverModalAi(true);
                 }}
                 onSave={async () => {
                   if (!pendingCoverFile) return;
                   try {
                     setSavingCover(true);
-                    await uploadCover(currentWorkId, pendingCoverFile);
+                    await uploadCover(currentWorkId, pendingCoverFile, null);
                     setSavingCover(false);
                     setShowCoverModal(false);
                     setPendingCoverFile(null);
@@ -265,6 +268,23 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
                 </p>
               </div>
             </div>
+              <CoverAiModal
+                  isOpen={showCoverModalAi}
+                  onClose={() => setShowCoverModalAi(false)}
+                  onSetIaCoverUrl={async (url: string) => {
+                      try {
+                      setSavingCover(true);
+                      await uploadCover(currentWorkId, null, url);
+                      setSavingCover(false);
+                      setShowCoverModalAi(false);
+                      setCoverPreview(url);
+                  } catch (err) {
+                      console.error('Error al guardar portada:', err);
+                      setSavingCover(false);
+                      setErrorCover('No se pudo guardar la portada. Intenta nuevamente.');
+                  }
+                  }}
+              />
           </div>
 
           <div className="lg:col-span-6 lg:border-r lg:border-gray-300 lg:pr-6 lg:pl-6">
@@ -434,7 +454,9 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
             </div>
           </div>
 
-          <div className="lg:col-span-2 lg:pl-4">
+
+          {/* COMENTADO POR MVP */}
+          {/* <div className="lg:col-span-2 lg:pl-4"> 
             <div className="sticky top-8">
               <h2 className="text-3xl font-bold text-black mb-4 text-center">Administrar</h2>
               
@@ -536,7 +558,7 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
                 </div>
               </div>
             </div>
-          </div>
+          </div>*/}
         </div>
       </div>
     </div>

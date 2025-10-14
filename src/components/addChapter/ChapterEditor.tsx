@@ -1,5 +1,6 @@
 import ChapterForm from "./ChapterForm";
 import EditorToolbar from "./EditorToolBar";
+import { importFileToText } from "../../services/chapterService";
 
 interface Props {
   chapterTitle: string;
@@ -16,10 +17,14 @@ export default function ChapterEditor({
   setChapterContent,
   chapterNumber,
 }: Props) {
+  const handleImportFile = async (file: File) => {
+    const text = await importFileToText(file);
+    setChapterContent(text);
+  }
+
   return (
     <div>
-
-      <EditorToolbar />
+      <EditorToolbar onImportFile={handleImportFile} />
 
       <ChapterForm
         chapterTitle={chapterTitle}

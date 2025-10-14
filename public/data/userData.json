@@ -7,7 +7,7 @@
       "id": 1,
       "name": "Holly",
       "author": "Stephen King",
-      "coverUrl": "/images/foto.jpg",
+      "coverUrl": "/img/portadas/foto.jpg",
       "categories": ["Fantasia", "Juvenil"],
       "likes": 5500
     },
@@ -15,7 +15,7 @@
       "id": 2,
       "name": "El hobbit",
       "author": "J.K. Rowling",
-      "coverUrl": "/images/foto2.jpg",
+      "coverUrl": "/img/portadas/foto2.jpg",
       "categories": ["Fantasía"],
       "likes": 3000
     },
@@ -23,7 +23,7 @@
       "id": 3,
       "name": "Wicked Like A Wildfire",
       "author": "Lana Popović",
-      "coverUrl": "/images/foto3.jpg",
+      "coverUrl": "/img/portadas/foto3.jpg",
       "categories": ["Juvenil", "Fantasía"],
       "likes": 1000
     }
@@ -33,7 +33,7 @@
       "id": 4,
       "name": "Evangelion",
       "author": "Hideaki Anno",
-      "coverUrl": "/images/foto4.jpg",
+      "coverUrl": "/img/portadas/foto4.jpg",
       "categories": ["Ciencia Ficción", "Manga"],
       "likes": 8800
     },
@@ -41,7 +41,7 @@
       "id": 5,
       "name": "Crying in H Mart",
       "author": "Michelle Zauner",
-      "coverUrl": "/images/foto5.jpg",
+      "coverUrl": "/img/portadas/foto5.jpg",
       "categories": ["Drama"],
       "likes": 5300
     },
@@ -49,7 +49,7 @@
       "id": 6,
       "name": "The Midnight Library",
       "author": "Matt Haig",
-      "coverUrl": "/images/foto6.jpg",
+      "coverUrl": "/img/portadas/foto6.jpg",
       "categories": ["Fantasía", "Ficción"],
       "likes": 4100
     },
@@ -57,7 +57,7 @@
       "id": 7,
       "name": "The Song of Achilles",
       "author": "Madeline Miller",
-      "coverUrl": "/images/foto7.jpg",
+      "coverUrl": "/img/portadas/foto7.jpg",
       "categories": ["Fantasía", "Romance"],
       "likes": 7200
     },
@@ -65,7 +65,7 @@
       "id": 8,
       "name": "Dune",
       "author": "Frank Herbert",
-      "coverUrl": "/images/foto8.jpg",
+      "coverUrl": "/img/portadas/foto8.jpg",
       "categories": ["Ciencia Ficción"],
       "likes": 9600
     },
@@ -73,7 +73,7 @@
       "id": 9,
       "name": "The Night Circus",
       "author": "Erin Morgenstern",
-      "coverUrl": "/images/foto9.jpg",
+      "coverUrl": "/img/portadas/foto9.jpg",
       "categories": ["Fantasía", "Romance"],
       "likes": 7200
     },
@@ -81,7 +81,7 @@
       "id": 10,
       "name": "Circe",
       "author": "Madeline Miller",
-      "coverUrl": "/images/foto10.jpg",
+      "coverUrl": "/img/portadas/foto10.jpg",
       "categories": ["Fantasía", "Mitología"],
       "likes": 8000
     },
@@ -89,7 +89,7 @@
       "id": 11,
       "name": "The Alchemist",
       "author": "Paulo Coelho",
-      "coverUrl": "/images/foto11.jpg",
+      "coverUrl": "/img/portadas/foto11.jpg",
       "categories": ["Filosofía", "Ficción"],
       "likes": 6700
     },
@@ -97,7 +97,7 @@
       "id": 12,
       "name": "The Power of Now",
       "author": "Eckhart Tolle",
-      "coverUrl": "/images/foto12.jpg",
+      "coverUrl": "/img/portadas/foto12.jpg",
       "categories": ["Autoayuda", "Espiritualidad"],
       "likes": 4500
     }
@@ -111,7 +111,7 @@
         "id": 2,
         "name": "El hobbit",
         "author": "J.R.R. Tolkien",
-        "coverUrl": "/images/foto2.jpg",
+        "coverUrl": "/img/portadas/foto2.jpg",
         "categories": ["Fantasía"],
         "likes": 3000
       }
@@ -121,7 +121,7 @@
         "id": 5,
         "name": "Crying in H Mart",
         "author": "Michelle Zauner",
-        "coverUrl": "/images/foto5.jpg",
+        "coverUrl": "/img/portadas/foto5.jpg",
         "categories": ["Drama"],
         "likes": 5300
       }

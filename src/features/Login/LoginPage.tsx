@@ -59,21 +59,20 @@ export const LoginPage = () => {
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-white to-gray-50 py-12 px-4 sm:px-6 lg:px-8">
                 <div className="w-full max-w-5xl mx-auto">
                 <div className="bg-white/60 backdrop-blur-lg rounded-3xl shadow-2xl overflow-hidden md:flex md:items-stretch">
-                    {/* Left illustration / branding */}
                     <div className="hidden md:flex md:w-1/2 bg-gradient-to-br from-[#f3e9fb] to-[#efe6ff] p-8">
                         <div className="z-10 px-6 flex flex-col justify-center items-start h-full">
-                            <h2 className="text-3xl font-extrabold text-[#3C2A50]">Bienvenido a Looma</h2>
-                            <p className="text-gray-600 max-w-md mt-4">Para autores y lectores: administra, descubrí y disfruta obras desde un lugar cómodo e intuitivo.</p>
+                            <div className="flex items-center justify-center gap-4 w-full">
+                                <h2 className="text-3xl font-extrabold text-[#3C2A50]">Bienvenido a</h2>
+                                <div className="mb-0">
+                                    <img src="/img/loomaLogo-.png" alt="LOOMA" className="h-35 w-35 object-contain mb-7" />
+                                </div>
+                            </div>
+                            
                         </div>
                     </div>
 
-                    {/* Right: form */}
                     <div className="w-full md:w-1/2 p-8 md:p-12 bg-white">
                         <div className="max-w-md mx-auto">
-                            <div className="flex items-center justify-center mb-0">
-                                <img src="/imagenes/loomaLogo.png" alt="LOOMA" className="h-25 w-25 object-contain" />
-                            </div>
-
                             <h1 className="text-2xl mb-4 md:text-3xl font-bold text-center text-[#3C2A50]">Inicia sesión</h1>
 
                             <form onSubmit={handleSubmit} className="space-y-4">

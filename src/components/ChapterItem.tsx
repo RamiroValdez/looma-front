@@ -15,16 +15,23 @@ export const ChapterItem: React.FC<ChapterItemProps> = ({ chapter, workId }) => 
     navigate(`/chapter/work/${workId}/edit/${chapter.id}`);
   };
 
-  const handleConfigure = () => {
-    navigate(`/chapter/${chapter.id}/configure`);
-  };
-
   const getStatusColor = (status: string) => {
-    return status === 'published' ? 'text-green-600' : 'text-yellow-600';
+    // que el programado tenga otro color
+    const statusMap = {
+      SCHEDULED: 'text-orange-600',
+      PUBLISHED: 'text-green-600',
+      DRAFT: 'text-yellow-600',
+    };
+    return statusMap[status as keyof typeof statusMap] || 'text-yellow-600';
   };
 
   const getStatusText = (status: string) => {
-    return status === 'published' ? 'Publicado' : 'Borrador';
+    const statusMap = {
+      SCHEDULED: 'Programado',
+      PUBLISHED: 'Publicado',
+      DRAFT: 'Borrador',
+    };
+    return statusMap[status as keyof typeof statusMap] || 'Borrador';
   };
 
   return (
@@ -33,8 +40,8 @@ export const ChapterItem: React.FC<ChapterItemProps> = ({ chapter, workId }) => 
         <div className="flex justify-between items-center">
           <span className="font-medium">{chapter.title}</span>
           <div className="text-xs flex gap-4">
-            <span className={`font-semibold ${getStatusColor(chapter.status)}`}>
-              {getStatusText(chapter.status)}
+            <span className={`font-semibold ${getStatusColor(chapter.publicationStatus)}`}>
+              {getStatusText(chapter.publicationStatus)}
             </span>
           </div>
         </div>
@@ -44,11 +51,6 @@ export const ChapterItem: React.FC<ChapterItemProps> = ({ chapter, workId }) => 
           text="Editar"
           onClick={handleEdit}
           colorClass="bg-white border border-[#5C17A6] !text-[#5C17A6] text-sm px-3 py-1 hover:bg-purple-50 focus:ring-2 focus:ring-[#5C17A6] cursor-pointer"
-        />
-        <Button
-          text="Eliminar"
-          onClick={handleConfigure}
-          colorClass="bg-transparent border-0 text-red-600 hover:text-red-800 cursor-pointer text-sm px-3 py-1"
         />
       </div>
     </div>

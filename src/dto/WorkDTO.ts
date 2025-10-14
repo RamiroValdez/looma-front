@@ -32,7 +32,7 @@ export interface ChapterDTO {
   likes: number;
   lastModified: string;
   publishedAt?: string;
-  status: 'published' | 'draft';
+  publicationStatus: 'PUBLISHED' | 'DRAFT';
 }
 
 export interface CategoryDTO {
