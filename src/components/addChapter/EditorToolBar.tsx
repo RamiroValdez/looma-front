@@ -1,5 +1,5 @@
-// ...existing code...
 import { useRef, useState } from "react";
+import { notifySuccess, notifyError } from "../../services/ToastProviderService";
 
 export default function EditorToolbar({
   onImportFile,
@@ -16,7 +16,7 @@ export default function EditorToolbar({
     if (!file) return;
     const name = file.name.toLowerCase();
     if (!name.endsWith(".doc") && !name.endsWith(".docx")) {
-      alert("Formato no soportado. Solo .doc o .docx");
+      notifyError("Formato no soportado. Solo .doc o .docx");
       e.currentTarget.value = "";
       return;
     }
@@ -24,9 +24,10 @@ export default function EditorToolbar({
     setLoading(true);
     try {
       await onImportFile(file);
+      notifySuccess("Capítulo importado con éxito.");
     } catch (err) {
       console.error(err);
-      alert("Error al importar el archivo.");
+      notifyError("Error al importar el capítulo.");
     } finally {
       setLoading(false);
       e.currentTarget.value = "";
