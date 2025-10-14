@@ -1,5 +1,7 @@
 import ChapterForm from "./ChapterForm";
 import EditorToolbar from "./EditorToolBar";
+import {useState} from "react";
+import type {useEditor} from "@milkdown/react";
 import { importFileToText } from "../../services/chapterService";
 
 interface Props {
@@ -17,6 +19,8 @@ export default function ChapterEditor({
   setChapterContent,
   chapterNumber,
 }: Props) {
+    const [editorGetter, setEditorGetter] = useState<ReturnType<typeof useEditor>['get']>();
+
   const handleImportFile = async (file: File) => {
     const text = await importFileToText(file);
     setChapterContent(text);
@@ -24,14 +28,15 @@ export default function ChapterEditor({
 
   return (
     <div>
-      <EditorToolbar onImportFile={handleImportFile} />
 
+        {editorGetter && <EditorToolbar editorGetter={editorGetter} onImportFile={handleImportFile} />}
       <ChapterForm
         chapterTitle={chapterTitle}
         setChapterTitle={setChapterTitle}
         chapterContent={chapterContent}
         setChapterContent={setChapterContent}
         chapterNumber={chapterNumber}
+        setEditorRef={setEditorGetter}
       />
     </div>
   );
