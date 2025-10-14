@@ -10,6 +10,8 @@ import { addChapter, getWorkById } from '../../services/chapterService';
 import { uploadCover, uploadBanner } from '../../services/workAssetsService';
 import CoverImageModal from '../../components/CoverImageModal';
 import CoverAiModal from "../../components/create/CoverAiModal.tsx";
+import { notifyError, notifySuccess } from "../../services/ToastProviderService.ts";
+
 interface ManageWorkPageProps {
   workId?: number;
 }
@@ -90,6 +92,7 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
       setErrorCover(null);
       setCoverPreview(prev => { if (prev) URL.revokeObjectURL(prev); return URL.createObjectURL(file); });
       setPendingCoverFile(file);
+      notifySuccess("Portada actualizada con éxito.");
       if (coverInputRef.current) coverInputRef.current.value = '';
     } else {
       setErrorBanner(null);
@@ -100,6 +103,7 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
       try {
         setSavingBanner(true);
         await uploadBanner(currentWorkId, file);
+        notifySuccess("Banner actualizado con éxito.");
       } catch (err) {
         console.error('Error al subir el banner:', err);
         setErrorBanner('No se pudo subir el banner. Intenta nuevamente.');
@@ -181,7 +185,7 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
           <Button 
               text="Editar Banner"
               onClick={handleBannerClick}
-              colorClass="bg-[#5C17A6] hover:bg-[#4A1285] focus:ring-[#5C17A6] text-white"
+              colorClass="bg-[#5C17A6] hover:bg-[#4A1285] focus:ring-[#5C17A6] text-white cursor-pointer"
             />
             
             {showBannerTooltip && (
@@ -221,7 +225,7 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
               <Button 
                 text="Editar Portada"
                 onClick={() => setShowCoverModal(true)}
-                colorClass="bg-[#3C2A50] hover:bg-[#2A1C3A] focus:ring-[#3C2A50] text-sm mb-2 w-48 text-white"
+                colorClass="bg-[#3C2A50] hover:bg-[#2A1C3A] focus:ring-[#3C2A50] text-sm mb-2 w-48 text-white cursor-pointer"
               />
               <input
                 type="file"
@@ -311,7 +315,7 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
                   <Button 
                     text={'+'}
                     onClick={() => setIsCategoryMenuOpen(!isCategoryMenuOpen)}
-                    colorClass={`w-8 h-8 pt-0 flex justify-center rounded-full border-2 border-[#172FA6] text-[#172FA6] text-2xl font-medium leading-none hover:bg-[#172FA6] hover:text-white z-10`}
+                    colorClass={`w-8 h-8 pt-0 flex justify-center rounded-full border-2 border-[#172FA6] text-[#172FA6] text-2xl font-medium leading-none cursor-pointer hover:bg-[#172FA6] hover:text-white z-10`}
                   />
 
                   {isCategoryMenuOpen && (
@@ -349,7 +353,7 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
                     <Tag
                       key={tag}
                       text={tag}
-                      colorClass={`border-[#5C17A6] text-[#5C17A6] bg-transparent`}
+                      colorClass={`border-[#5C17A6] text-[#5C17A6] bg-transparent `}
                       onRemove={() =>
                         setCurrentTags(currentTags.filter(t => t !== tag))
                       }
@@ -372,7 +376,7 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
                       type="button"
                       text="+"
                       onClick={() => setIsAddingTag(true)}
-                      colorClass={`w-8 h-8 pt-0 flex justify-center rounded-full border-2 border-[#5C17A6] text-[#5C17A6] text-2xl font-medium leading-none hover:bg-[#5C17A6] hover:text-white`}
+                      colorClass={`w-8 h-8 pt-0 flex justify-center rounded-full border-2 border-[#5C17A6] text-[#5C17A6] text-2xl font-medium leading-none hover:bg-[#5C17A6] hover:text-white cursor-pointer`}
                     />
                   )}
 
@@ -446,7 +450,7 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
                     <Button 
                       text="Agregar Capítulo"
                       onClick={() => handleCreateChapter(currentWorkId, work.originalLanguage.id)}
-                      colorClass="bg-[#5C17A6] hover:bg-[#4A1285] focus:ring-[#5C17A6] text-white"
+                      colorClass="bg-[#5C17A6] hover:bg-[#4A1285] focus:ring-[#5C17A6] text-white cursor-pointer"
                     />
                   </div>
                 </div>
@@ -454,7 +458,9 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
             </div>
           </div>
 
-          <div className="lg:col-span-2 lg:pl-4">
+
+          {/* COMENTADO POR MVP */}
+          {/* <div className="lg:col-span-2 lg:pl-4"> 
             <div className="sticky top-8">
               <h2 className="text-3xl font-bold text-black mb-4 text-center">Administrar</h2>
               
@@ -514,6 +520,20 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
                         <input 
                           type="radio" 
                           name="estado" 
+                          value="process"
+                          checked={workStatus === 'process'}
+                          onChange={(e) => setWorkStatus(e.target.value)}
+                          className="mr-2" 
+                        />
+                        <span>Marcar como en proceso</span>
+                      </label>
+                    </div>
+
+                    <div>
+                      <label className="flex items-center text-base text-black">
+                        <input 
+                          type="radio" 
+                          name="estado" 
                           value="finished"
                           checked={workStatus === 'finished'}
                           onChange={(e) => setWorkStatus(e.target.value)}
@@ -536,13 +556,13 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
                     <Button 
                       text="Guardar"
                       onClick={() => console.log('Guardar cambios')}
-                      colorClass="bg-[#5C17A6] hover:bg-[#4A1285] focus:ring-[#5C17A6] flex-1 text-white"
+                      colorClass="bg-[#5C17A6] hover:bg-[#4A1285] focus:ring-[#5C17A6] flex-1 text-white cursor-pointer"
                     />
                   </div>
                 </div>
               </div>
             </div>
-          </div>
+          </div>*/}
         </div>
       </div>
     </div>

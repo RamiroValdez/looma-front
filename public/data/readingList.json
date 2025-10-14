@@ -5,7 +5,7 @@
       {
         "id": 1,
         "title": "Libro 1",
-        "cover": "/img/portadas/foto.jpg",
+        "cover": "/img/portadas/foto12.jpg",
         "likes": 1200,
         "categories": ["Ficción", "Aventura"]
       },

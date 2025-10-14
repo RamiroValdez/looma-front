@@ -3,12 +3,13 @@ import {useApiMutation} from "../api/useApiMutation.ts";
 import {useAuthStore} from "../store/AuthStore.ts";
 import React from "react";
 import type { CoverIaFormDTO } from "../dto/FormCoverIaDTO.ts";
+import { useEffect } from "react";
 
 export interface CreateWorkDTO {
     title: string;
     description: string;
-    formatId?: number;
-    originalLanguageId?: number;
+    formatId: number | null; 
+    originalLanguageId: number | null;
     categoryIds: number[];
     tagIds: string[];
     coverIaUrl?: string;
@@ -36,15 +37,19 @@ export const handleAddTag = (
   setCurrentTags: React.Dispatch<React.SetStateAction<string[]>>,
   setIsAddingTag: React.Dispatch<React.SetStateAction<boolean>>,
   setNewTagText: React.Dispatch<React.SetStateAction<string>>,
-  setIsSuggestionMenuOpen: React.Dispatch<React.SetStateAction<boolean>>
+  setIsSuggestionMenuOpen: React.Dispatch<React.SetStateAction<boolean>>,
+  closeMenu: boolean = true
 ) => {
+    tagToAdd = tagToAdd.toLowerCase().replace(/\s+/g, '-');
   const trimmedTag = tagToAdd.trim();
   if (trimmedTag && !currentTags.includes(trimmedTag)) {
     setCurrentTags([...currentTags, trimmedTag]);
   }
   setIsAddingTag(false);
   setNewTagText("");
-  setIsSuggestionMenuOpen(false);
+  if(closeMenu){
+      setIsSuggestionMenuOpen(false);
+  }
 };
 
 interface ValidationOptions {
@@ -52,6 +57,23 @@ interface ValidationOptions {
   maxWidth: number;
   maxHeight: number;
 }
+
+
+
+export function useClickOutside(ref: React.RefObject<HTMLElement>, onClickOutside: () => void) {
+    useEffect(() => {
+        function handleClick(event: MouseEvent) {
+            if (ref.current && !ref.current.contains(event.target as Node)) {
+                onClickOutside();
+            }
+        }
+
+        document.addEventListener("mousedown", handleClick);
+        return () => document.removeEventListener("mousedown", handleClick);
+    }, [ref, onClickOutside]);
+}
+
+
 
 export function validateFile(file: File, options: ValidationOptions): Promise<{ valid: boolean; error?: FileValidationError }> {
     const { maxSizeMB, maxWidth, maxHeight } = options;

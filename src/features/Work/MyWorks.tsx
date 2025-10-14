@@ -46,11 +46,12 @@ export default function CreateWork() {
                     <p className="text-[#474747]">Gestiona y organiza tu contenido literario.</p>
                 </div>
 
-                <Button
-                    text="Instrucciones"
-                    onClick={() => navigate(INSTRUCTIONS_PATH)}
-                    colorClass={`${PURPLE_BG_CLASS} text-white font-medium cursor-pointer hover:scale-105`}
-                />
+                {
+                  //  <Button
+                    //  onClick={() => navigate(INSTRUCTIONS_PATH)}
+                    //    colorClass={`${PURPLE_BG_CLASS} text-white font-medium cursor-pointer hover:scale-105`}
+                   // />
+                }
             </header>
 
             <main className={`mx-auto ${MAX_WIDTH_CLASS} flex flex-col items-center min-h-[70vh]`}>

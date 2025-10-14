@@ -4,18 +4,26 @@ import { useCallback, useState, useRef, useEffect } from "react";
 import Button from "../../components/Button";
 import Tag from "../../components/Tag";
 import CoverImageModal from "../../components/CoverImageModal";
+
+import { useSuggestTagsMutation } from "../../services/TagSuggestionService.ts";
 import CoverAiModal from "../../components/create/CoverAiModal.tsx";
-import {SUGGESTED_TAGS} from "../../types.ts/CreateWork.types";
-import { createFormDataForWork, useCreateWork, handleAddTag, validateFile, type CreateWorkDTO } from "../../services/CreateWorkService.ts";
+import {
+    createFormDataForWork,
+    useCreateWork,
+    handleAddTag,
+    validateFile,
+    type CreateWorkDTO,
+    useClickOutside
+} from "../../services/CreateWorkService.ts";
 import {useCategories} from "../../services/categoryService.ts";
 import { useCategoryStore } from "../../store/CategoryStore.ts";
 import type { CategoryDTO } from "../../dto/CategoryDTO.ts";
-import { useFormatStore } from "../../store/FormatStore.ts";
+import { useFormatStore} from "../../store/FormatStore.ts";
 import { useFormats } from "../../services/formatService.ts";
 import { useLanguages } from '../../services/languageService.ts';
 import { useLanguageStore } from '../../store/LanguageStore';
-
-
+import type {TagSuggestionRequestDTO} from "../../dto/TagSuggestionDTO.ts";
+import { notifyError, notifySuccess } from "../../services/ToastProviderService.ts";
 
 
 export default function Create() {
@@ -23,11 +31,11 @@ export default function Create() {
 
     const [isCategoryMenuOpen, setIsCategoryMenuOpen] = useState(false);
     const { categories, isLoading: isLoadingCategory, error: errorCategory } = useCategories();
-    const { selectedCategories, selectCategory, unselectCategory } = useCategoryStore();
+    const { selectedCategories, selectCategory, unselectCategory, clearSelectedCategories } = useCategoryStore();
     const { formats, isLoading: isLoadingFormat, error: errorFormat } = useFormats();
-    const { selectedFormat, selectFormat } = useFormatStore();
+    const { selectedFormat, selectFormat, clearSelectedFormat } = useFormatStore();
     const { languages, isLoading: isLoadingLanguage, error: errorLanguage } = useLanguages();
-    const { selectedLanguage, selectLanguage } = useLanguageStore();
+    const { selectedLanguage, selectLanguage , clearSelectedLanguage } = useLanguageStore();
 
     const handleAddCategory = (category: CategoryDTO) => {
         selectCategory(category);
@@ -57,7 +65,13 @@ export default function Create() {
     const [bannerPreview, setBannerPreview] = useState<string | null>(null);
     const [coverPreview, setCoverPreview] = useState<string | null>(null);
 
+    const [isAILoading, setIsAILoading] = useState(false);
+    const [suggestedTags, setSuggestedTags] = useState<string[]>([]);
+    const shortMessage = "Tags con IA: tu descripción tiene menos de 20 caracteres."; 
+    const aiSuggestionMessage = "Sugerencias de la IA";
+    const suggestMutation = useSuggestTagsMutation();
 
+    const isDescriptionValid = descriptionF.trim().length > 20; 
 
     const isSubmitEnabled =
         nameWork.trim() !== '' &&
@@ -116,10 +130,12 @@ export default function Create() {
             setCoverFile(file);
             setCoverPreview(prev => { if (prev) URL.revokeObjectURL(prev); return URL.createObjectURL(file); });
             if (coverInputRef.current) coverInputRef.current.value = '';
+            notifySuccess("Portada subida con éxito.");
         } else {
             setErrorBanner(null);
             setBannerFile(file);
             setBannerPreview(prev => { if (prev) URL.revokeObjectURL(prev); return URL.createObjectURL(file); });
+            notifySuccess("Banner subido con éxito.");
             if (bannerInputRef.current) bannerInputRef.current.value = '';
         }
     }, []);
@@ -144,26 +160,62 @@ export default function Create() {
         const workDTO: CreateWorkDTO = {
             title: nameWork,
             description: descriptionF,
-            formatId: selectedFormat?.id,
-            originalLanguageId: selectedLanguage?.id,
-            categoryIds: selectedCategories.map(cat => cat.id),
+            formatId: selectedFormat ? selectedFormat.id : null, 
+            originalLanguageId: selectedLanguage ? selectedLanguage.id : null,
+            categoryIds: selectedCategories.map(cat => cat.id), 
             tagIds: currentTags,
             coverIaUrl: coverIaUrl || undefined
         };
-        console.log(workDTO);
         const formData = createFormDataForWork(workDTO, bannerFile, coverFile);
 
-        console.log(formData);
-
         try {
+            console.log("Enviando formulario...");
             const workId = await createWorkMutation.mutateAsync(formData);
             console.log("¡Obra creada con éxito!" + workId);
+            clearSelectedFormat();   
+            clearSelectedLanguage();
+            clearSelectedCategories(); 
+            notifySuccess("Obra creada con éxito.");
             navigate("/manage-work/" + (workId));
         } catch (error) {
             console.error("Error al crear la obra:", error);
-            alert("Error al guardar la obra. Intente nuevamente.");
         }
     }
+
+     // --- FUNCIÓN QUE GESTIONA LA LLAMADA A LA IA ---
+    const handleAISuggestion = () => {
+        if (!isDescriptionValid) {
+            alert("La descripción es demasiado corta. Proporciona más detalles.");
+            return;
+        }
+
+        const payload: TagSuggestionRequestDTO = {
+            description: descriptionF,
+            title: nameWork, 
+            existingTags: currentTags, 
+        };
+        
+        setIsAILoading(true);
+        
+        suggestMutation.mutate(payload, {
+            onSuccess: (data) => {
+                setSuggestedTags(data.suggestions); 
+                setIsSuggestionMenuOpen(true);      
+            },
+            onError: (error) => {
+                console.error("Error de IA:", error);
+            },
+            onSettled: () => {
+                setIsAILoading(false); 
+            }
+        });
+    };
+
+    const suggestionMenuRef = useRef<HTMLDivElement>(null);
+    const suggestionCategoryMenuRef = useRef<HTMLDivElement>(null);
+    useClickOutside(suggestionMenuRef, () => setIsSuggestionMenuOpen(false));
+    useClickOutside(suggestionCategoryMenuRef, () => setIsCategoryMenuOpen(false));
+
 
     return (
         <main>
@@ -297,7 +349,7 @@ export default function Create() {
                                     />
 
                                     {isCategoryMenuOpen && (
-                                        <div className="absolute z-20 top-10 mt-1 mr-[-10%] w-max max-w-sm lg:max-w-md">
+                                        <div ref={suggestionCategoryMenuRef} className="absolute z-20 top-10 mt-1 mr-[-10%] w-max max-w-sm lg:max-w-md">
                                             <div className="bg-white p-4 border border-gray-300 rounded-md shadow-lg flex flex-wrap gap-2">
                                                 {isLoadingCategory ? (
                                                     <p className="text-gray-500">Cargando categorías...</p>
@@ -377,6 +429,7 @@ export default function Create() {
                                 ) : (
                                     <div className="w-[120px] p-2 bg-[#3B2252] text-white rounded-md flex justify-center items-center">
                                         <select
+                                            className="bg-[#3B2252] font-medium cursor-pointer"
                                             value={selectedLanguage?.id || ''}
                                             onChange={(e) => {
                                                 const languageId = parseInt(e.target.value);
@@ -422,7 +475,7 @@ export default function Create() {
                                             onKeyDown={handleTagSubmit}
                                             onBlur={() => setIsAddingTag(false)}
                                             autoFocus
-                                            placeholder="Añadir nueva etiqueta"
+                                            placeholder="Enter para añadir etiqueta"
                                             className="p-1 border border-gray-400 rounded-md text-sm w-[150px] focus:outline-none focus:ring-2 focus:ring-opacity-50"
                                         />
                                     ) : (
@@ -430,60 +483,66 @@ export default function Create() {
                                             type="button"
                                             text="+"
                                             onClick={() => setIsAddingTag(true)}
-                                            colorClass="w-8 h-8 pt-0 flex justify-center rounded-full border-2 border-[#5C17A6] text-[#5C17A6] text-2xl font-medium leading-none hover:bg-[#5C17A6] hover:text-white"
+                                            colorClass="w-8 h-8 pt-0 flex justify-center rounded-full border-2 border-[#5C17A6] text-[#5C17A6] text-2xl font-medium leading-none hover:bg-[#5C17A6] hover:text-white cursor-pointer"
                                         />
                                     )}
 
-                                    <div
-                                        className="relative"
-                                        onMouseEnter={() => setShowIATooltip(true)}
-                                        onMouseLeave={() => setShowIATooltip(false)}
+                                <div 
+                                    className={`relative`}
+                                    onMouseEnter={() => setShowIATooltip(true)}
+                                    onMouseLeave={() => setShowIATooltip(false)}
+                                >
+                                    <Button
+                                        type="button"
+                                        onClick={handleAISuggestion} 
+                                        disabled={isAILoading || !isDescriptionValid}
+                                        colorClass={`w-8 h-8 flex items-center justify-center rounded-full border-2 border-[#5C17A6] !py-0 !px-0`}
                                     >
-                                        <Button
-                                            type="button"
-                                            onClick={() => setIsSuggestionMenuOpen(!isSuggestionMenuOpen)}
-                                            colorClass="w-8 h-8 flex items-center justify-center rounded-full border-2 border-[#5C17A6] text-white hover:bg-opacity-90 z-10 !px-0 !py-0"
-                                        >
-                                            <img
-                                                src="/img/magic.png"
-                                                className="w-6 h-6 hover:cursor-pointer"
-                                                alt="Sugerencias IA"
+                                        {isAILoading ? 
+                                            <svg className="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">...</svg> 
+                                            : 
+                                            <img src="/img/magic.png"  className={`w-8 h-6 ${isDescriptionValid ? 'hover:cursor-pointer' : 'cursor-not-allowed'}`}
                                             />
-                                        </Button>
+                                        }
+                                    </Button>
 
-                                        {showIATooltip && (
-                                            <div className="absolute z-20 top-0 mt-1 ml-4 w-max max-w-xs left-full bg-gray-800 text-white px-2 py-1 rounded-md whitespace-nowrap">
-                                                Sugerencias de la IA
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    {isSuggestionMenuOpen && (
-                                        <div className="absolute z-20 top-10 mt-1 mr-[-30%] w-max max-w-xs">
-                                            <div className="bg-white p-4 border border-gray-300 rounded-md shadow-lg flex flex-wrap gap-2">
-                                                {SUGGESTED_TAGS
-                                                    .filter(tag => !currentTags.includes(tag))
-                                                    .map((tag) => (
-                                                        <Tag
-                                                            key={tag}
-                                                            text={tag}
-                                                            colorClass="border border-gray-300 text-gray-600 bg-transparent hover:bg-gray-100"
-                                                            onClick={() => handleAddTag(tag, currentTags, setCurrentTags, setIsAddingTag, setNewTagText, setIsSuggestionMenuOpen)}
-                                                        />
-                                                    ))}
-
-                                                {SUGGESTED_TAGS.filter(tag => !currentTags.includes(tag)).length === 0 && (
-                                                    <p className="text-gray-500 text-sm italic">No hay más sugerencias disponibles.</p>
-                                                )}
-                                            </div>
+                                    {showIATooltip && !isAILoading && (
+                                        <div className="absolute z-30 top-[-30px] left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-2 py-1 rounded-md whitespace-nowrap">
+                                                {isDescriptionValid ? aiSuggestionMessage : shortMessage}
                                         </div>
                                     )}
+                                </div>
+
+                                {isSuggestionMenuOpen && (
+                                    <div ref={suggestionMenuRef} className="absolute z-20 top-10 mt-1 mr-[-30%] w-max max-w-xs">
+                                        <div className="bg-white p-4 border border-gray-300 rounded-md shadow-lg flex flex-wrap gap-2">
+                                            {suggestedTags.map((tag) => (
+                                                <Tag
+                                                    key={tag}
+                                                    text={tag}
+                                                    colorClass="border border-gray-300 text-gray-600 bg-transparent hover:bg-gray-100" 
+                                                    onClick={() => {handleAddTag(tag, currentTags, setCurrentTags, setIsAddingTag, setNewTagText, setIsSuggestionMenuOpen, false);
+                                                        setSuggestedTags((prev) => prev.filter((t) => t !== tag));
+                                                        setSuggestedTags((prev) => {
+                                                            const updated = prev.filter((t) => t !== tag);
+                                                            if (updated.length === 0) {
+                                                                setIsSuggestionMenuOpen(false);
+                                                            }
+                                                            return updated;
+                                                        });
+                                                    }}
+                                                />
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
                                 </div>
                             </div>
 
                             {currentTags.length === 0 && (
                                 <p className="text-red-500 text-sm mt-1 ml-1/4 pt-1 pl-[25%]">Debes agregar al menos una etiqueta.</p>
                             )}
+
                         </div>
 
                         <div className="flex flex-col mb-6">
@@ -520,6 +579,22 @@ export default function Create() {
                     </div>
                 </section>
             </form>
+
+            {isAILoading && (
+         <div 
+        className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center" >
+
+            <div className="bg-white p-6 rounded-xl shadow-2xl flex items-center">     
+        <svg aria-hidden="true" role="status" className="inline w-6 h-6 me-3 text-[#5C17A6] animate-spin" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="#9d9d9eff"/>
+            <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentColor"/>
+        </svg>
+                <span className="text-lg font-semibold text-[#5C17A6] ml-2">
+                    Generando tags con Inteligencia Artificial...
+                </span>
+            </div>
+        </div>
+        )}
         </main>
     );
 }

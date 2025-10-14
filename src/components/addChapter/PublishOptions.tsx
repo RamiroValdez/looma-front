@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { publishChapter, scheduleChapter } from "../../services/chapterService.ts";
 import { useNavigate } from "react-router-dom";
+import Button from "../Button.tsx";
 
 interface Props {
   workId: number;
@@ -121,7 +122,7 @@ export default function PublishOptions({ workId, chapterId, onScheduleChange }: 
               setShowPublishModal(true);
             }}
             disabled={publishing}
-            className="px-4 py-2 rounded-md bg-[#172FA6] text-white text-sm hover:bg-blue-800 disabled:opacity-60"
+            className="mt-5 px-6 py-3 rounded-md bg-[#172FA6] text-white text-lg font-semibold hover:bg-blue-800 disabled:opacity-60 cursor-pointer"
           >
             {publishing ? "Publicando..." : "Publicar ahora"}
           </button>
@@ -199,7 +200,7 @@ export default function PublishOptions({ workId, chapterId, onScheduleChange }: 
                 setShowScheduleModal(true);
               }}
               disabled={scheduling}
-              className="px-4 py-2 rounded-md bg-[#172FA6] text-white text-sm hover:bg-blue-800 disabled:opacity-60"
+            className="mt-5 px-6 py-3 rounded-md bg-[#172FA6] text-white text-lg font-semibold hover:bg-blue-800 disabled:opacity-60 cursor-pointer"
             >
               {scheduling ? "Programando..." : "Programar publicación"}
             </button>
@@ -215,21 +216,23 @@ export default function PublishOptions({ workId, chapterId, onScheduleChange }: 
 
       {showPublishModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="absolute inset-0 bg-black/40" onClick={() => !publishing && setShowPublishModal(false)} />
-          <div className="relative z-10 w-full max-w-md bg-white rounded-xl shadow-lg p-6">
-            <h3 className="text-lg font-semibold mb-2">¿Confirmar publicación?</h3>
-            <p className="text-sm text-gray-600 mb-4">
-              Para confirmar, escribe exactamente: <span className="font-semibold">Publicar Capitulo</span>
-            </p>
-            <input
-              type="text"
-              value={publishInput}
-              onChange={(e) => setPublishInput(e.target.value)}
-              placeholder="Publicar Capitulo"
-              className="w-full border rounded-md px-3 py-2 mb-3 focus:outline-none focus:ring-2 focus:ring-blue-300"
-            />
-            {publishError && <p className="text-sm text-red-600 mb-2">{publishError}</p>}
-            <div className="flex justify-end gap-2">
+          <div
+            className="absolute inset-0 bg-black/40"
+            onClick={() => !publishing && setShowPublishModal(false)}
+          />
+          <div
+            className="relative z-10 w-full max-w-md bg-white rounded-xl shadow-lg p-5 flex flex-col items-center"
+          >
+            <div className="w-full text-center">
+              <h3 className="text-lg font-semibold mb-1">
+                ¿Deseas publicar tu capítulo ahora?
+              </h3>
+              {publishError && (
+                <p className="text-sm text-red-600 mb-1">{publishError}</p>
+              )}
+            </div>
+
+            <div className="w-full flex justify-center gap-3 mt-3">
               <button
                 onClick={() => !publishing && setShowPublishModal(false)}
                 disabled={publishing}
@@ -238,15 +241,11 @@ export default function PublishOptions({ workId, chapterId, onScheduleChange }: 
                 Cancelar
               </button>
               <button
-                onClick={async () => {
-                  if (publishInput !== "Publicar Capitulo" || publishing) return;
-                  await handlePublishNow();
-                  setShowPublishModal(false);
-                }}
-                disabled={publishInput !== "Publicar Capitulo" || publishing}
-                className="px-4 py-2 rounded-md bg-[#172FA6] text-white hover:bg-blue-800 disabled:opacity-50"
+                onClick={() => handlePublishNow()}
+                disabled={publishing}
+                className="px-4 py-2 rounded-md text-white bg-blue-800 hover:bg-blue-900 disabled:opacity-50"
               >
-                {publishing ? "Publicando..." : "Confirmar publicación"}
+                Confirmar publicación
               </button>
             </div>
           </div>

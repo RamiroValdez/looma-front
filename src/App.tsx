@@ -10,6 +10,10 @@ import { ProtectedRoute } from "./components/ProtectedRoute.tsx";
 import Header from "./components/Header.tsx";
 import AddChapter from "./features/Chapter/AddChapter.tsx";
 import PreviewChapter from "./features/Chapter/PreviewChapter.tsx";
+import { ToastProvider } from "./components/ToastProvider";
+import {MilkdownProvider} from "@milkdown/react";
+
+
 function App() {
 
     return (
@@ -52,8 +56,10 @@ function App() {
 
                 <Route path="/chapter/work/:id/edit/:chapterId" element={
                     <ProtectedRoute>
-                        <Header />
-                        <AddChapter />
+                            <Header />
+                        <MilkdownProvider>
+                            <AddChapter />
+                        </MilkdownProvider>
                     </ProtectedRoute>
                 } />
 
@@ -64,7 +70,9 @@ function App() {
                 } />
 
             </Routes>
-        </BrowserRouter>
+        <ToastProvider />
+
+    </BrowserRouter>
     )
 }
 
