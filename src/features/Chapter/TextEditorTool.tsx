@@ -8,6 +8,8 @@ import '@milkdown/theme-nord/style.css';
 import '@milkdown/kit/prose/view/style/prosemirror.css';
 import {useEffect, useState} from "react";
 import { gfm } from '@milkdown/kit/preset/gfm';
+import { editorViewCtx, parserCtx } from '@milkdown/kit/core';
+
 
 interface TextEditorToolProps {
     chapterContent: string;
@@ -19,10 +21,7 @@ export default function TextEditorTool({chapterContent, onChange, setEditorRef}:
 
     const [editorValue, setEditorValue] = useState(chapterContent);
 
-    useEffect(() => {
-        setEditorValue(chapterContent);
-    }, [chapterContent]);
-
+    console.log('editorValue', editorValue);
     const { get } = useEditor((root) =>
         Editor.make()
             .config((ctx) => {
@@ -39,6 +38,23 @@ export default function TextEditorTool({chapterContent, onChange, setEditorRef}:
             .use(listener)
             .use(gfm)
     );
+
+    useEffect(() => {
+        setEditorValue(chapterContent);
+
+        // Actualizar el contenido del editor cuando cambia chapterContent
+        const editor = get();
+        if (editor && chapterContent !== editorValue) {
+            editor.action((ctx) => {
+                const view = ctx.get(editorViewCtx);
+                const parser = ctx.get(parserCtx);
+                const doc = parser(chapterContent);
+                if (doc) {
+                    view.dispatch(view.state.tr.replaceWith(0, view.state.doc.content.size, doc));
+                }
+            });
+        }
+    }, [chapterContent, get, editorValue]);
 
     useEffect(() => {
         if (setEditorRef) {

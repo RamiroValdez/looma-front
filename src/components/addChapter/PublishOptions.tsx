@@ -241,7 +241,7 @@ export default function PublishOptions({ workId, chapterId, onScheduleChange }: 
                 Cancelar
               </button>
               <button
-                onClick={() => !publishing && setShowPublishModal(false)}
+                onClick={() => handlePublishNow()}
                 disabled={publishing}
                 className="px-4 py-2 rounded-md text-white bg-blue-800 hover:bg-blue-900 disabled:opacity-50"
               >

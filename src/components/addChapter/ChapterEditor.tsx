@@ -23,6 +23,7 @@ export default function ChapterEditor({
 
   const handleImportFile = async (file: File) => {
     const text = await importFileToText(file);
+
     setChapterContent(text);
   }
 

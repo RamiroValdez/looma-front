@@ -166,10 +166,7 @@ export default function Create() {
             tagIds: currentTags,
             coverIaUrl: coverIaUrl || undefined
         };
-        console.log(workDTO);
         const formData = createFormDataForWork(workDTO, bannerFile, coverFile);
-
-        console.log(formData);
 
         try {
             console.log("Enviando formulario...");

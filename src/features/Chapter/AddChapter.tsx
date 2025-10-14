@@ -290,9 +290,11 @@ export default function AddChapter() {
                             />
                         </div>
                     </div>
-                    
 
-                    <InspirationBubble />
+
+                    {
+                        // <InspirationBubble />
+                    }
                     {showDeleteModal && (
                         <div className="fixed inset-0 z-50 flex items-center justify-center">
                             <div className="absolute inset-0 bg-black/40" onClick={closeDeleteModal} />
