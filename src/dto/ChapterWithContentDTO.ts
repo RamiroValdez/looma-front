@@ -6,6 +6,7 @@ export interface ChapterWithContentDTO {
     content: string;
     price: number;
     workName: string;
+    workId: string;
     last_update: string;
     likes: number;
     allowAiTranslation: boolean;

@@ -3,14 +3,14 @@ import works from "../../public/data/work-2.json";
 import { useAuthStore } from "../store/AuthStore.ts";
 import { handleError } from "../utils/errorHandler.ts";
 import type { WorkDTO } from "../dto/WorkDTO.ts";
-import {useApiQuery} from "../api/useApiQuery.ts";
-import type {ChapterWithContentDTO} from "../dto/ChapterWithContentDTO.ts";
+import { useApiQuery } from "../api/useApiQuery.ts";
+import type { ChapterWithContentDTO } from "../dto/ChapterWithContentDTO.ts";
 
 export async function addChapter(
   workId: number,
   languageId: number,
-  contentType: string 
-): Promise<{ fetchStatus: number, chapterId: number }> {
+  contentType: string
+): Promise<{ fetchStatus: number; chapterId: number }> {
   try {
     if (!languageId && !contentType && !workId) {
       throw new Error("Datos obligatorios no proporcionados.");
@@ -18,47 +18,26 @@ export async function addChapter(
 
     const token = useAuthStore.getState().token;
 
-    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_API_MANAGE_WORK_URL}/create-chapter`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      },
-      body: JSON.stringify({ workId, languageId, contentType }),
-    });
-    
+    const response = await fetch(
+      `${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_API_MANAGE_WORK_URL}/create-chapter`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({ workId, languageId, contentType }),
+      }
+    );
+
     if (!response.ok) {
       throw new Error(`Error ${response.status}: ${response.statusText}`);
     }
     const data = await response.json();
     return {
       fetchStatus: response.status,
-      chapterId: data.chapterId
+      chapterId: data.chapterId,
     };
-  } catch (error) {
-    throw new Error(handleError(error));
-  }
-}
-
-export async function cancelScheduleChapter(
-  workId: number,
-  chapterId: number
-): Promise<{ fetchStatus: number }> {
-  try {
-    const token = useAuthStore.getState().token;
-
-    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_API_WORK_URL}/${workId}/chapter/${chapterId}/schedule`, {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error(`Error ${response.status}: ${response.statusText}`);
-    }
-    return { fetchStatus: response.status };
   } catch (error) {
     throw new Error(handleError(error));
   }
@@ -85,7 +64,7 @@ export async function updateChapter(
 
     const token = useAuthStore.getState().token;
 
-    const response = await fetch(`http://localhost:8080/api/update-chapter`, { 
+    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_API_MANAGE_WORK_URL}/update-chapter`, {
       method: "POST",
       headers: {
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -93,12 +72,12 @@ export async function updateChapter(
       },
       body: JSON.stringify({ workId, chapterId, titulo, contenido, publishAt }),
     });
-    
+
     if (!response.ok) {
       throw new Error(`Error ${response.status}: ${response.statusText}`);
     }
     return {
-      fetchStatus: response.status
+      fetchStatus: response.status,
     };
   } catch (error) {
     throw new Error(handleError(error));
@@ -108,17 +87,19 @@ export async function updateChapter(
 export async function getWorkById(id: number): Promise<WorkDTO> {
   try {
     const token = useAuthStore.getState().token;
-    
+
     const headers = {
       "Content-Type": "application/json",
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     };
-    
-    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_API_MANAGE_WORK_URL}/${id}`, {
-      method: "GET",
-      headers,
-    });
 
+    const response = await fetch(
+      `${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_API_MANAGE_WORK_URL}/${id}`,
+      {
+        method: "GET",
+        headers,
+      }
+    );
 
     if (!response.ok) {
       const errorData = await response.json();
@@ -131,26 +112,28 @@ export async function getWorkById(id: number): Promise<WorkDTO> {
 }
 
 export function getChapterById(chapterId: number, languageCode: string) {
-    const { token } = useAuthStore();
-    let url = "http://localhost:8080/api/edit-chapter/" + chapterId ;
-    if (languageCode) {
-        url += `?language=${encodeURIComponent(languageCode)}`;
+  const { token } = useAuthStore();
+  let url = `${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_API_EDIT_CHAPTER_URL}/${chapterId}`;
+  if (languageCode) {
+    url += `?language=${encodeURIComponent(languageCode)}`;
+  }
+
+  return useApiQuery<ChapterWithContentDTO>(
+    [
+      "get-chapter-content " +
+        chapterId +
+        (languageCode ? `-${languageCode}` : ""),
+    ],
+    {
+      url: url,
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
     }
-
-
-    return useApiQuery<ChapterWithContentDTO>(
-        ["get-chapter-content " + chapterId + (languageCode ? `-${languageCode}` : "")],
-        {
-            url: url,
-            method: "GET",
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            }
-        }
-    );
+  );
 }
-
 
 export async function deleteChapter(
   chapterId: number,
@@ -159,13 +142,16 @@ export async function deleteChapter(
   try {
     const token = useAuthStore.getState().token;
 
-    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_API_WORK_URL}/${workId}/chapter/${chapterId}/delete`, {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      },
-    });
+    const response = await fetch(
+      `${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_API_WORK_URL}/${workId}/chapter/${chapterId}/delete`,
+      {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      }
+    );
 
     if (!response.ok) {
       throw new Error(`Error ${response.status}: ${response.statusText}`);
@@ -184,14 +170,17 @@ export async function scheduleChapter(
   try {
     const token = useAuthStore.getState().token;
 
-    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_API_WORK_URL}/${workId}/chapter/${chapterId}/schedule`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      },
-      body: JSON.stringify({ when })
-    });
+    const response = await fetch(
+      `${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_API_WORK_URL}/${workId}/chapter/${chapterId}/schedule`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({ when }),
+      }
+    );
 
     if (!response.ok) {
       throw new Error(`Error ${response.status}: ${response.statusText}`);
@@ -209,13 +198,77 @@ export async function publishChapter(
   try {
     const token = useAuthStore.getState().token;
 
-    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_API_WORK_URL}/${workId}/chapter/${chapterId}/publish`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      },
-    });
+    const response = await fetch(
+      `${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_API_WORK_URL}/${workId}/chapter/${chapterId}/publish`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`Error ${response.status}: ${response.statusText}`);
+    }
+    return { fetchStatus: response.status };
+  } catch (error) {
+    throw new Error(handleError(error));
+  }
+}
+
+export async function cancelScheduleChapter(
+  workId: number,
+  chapterId: number
+): Promise<{ fetchStatus: number }> {
+  try {
+    const token = useAuthStore.getState().token;
+
+    const response = await fetch(
+      `${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_API_WORK_URL}/${workId}/chapter/${chapterId}/schedule`,
+      {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`Error ${response.status}: ${response.statusText}`);
+    }
+    return { fetchStatus: response.status };
+  } catch (error) {
+    throw new Error(handleError(error));
+  }
+}
+
+export async function saveDraftChapter(
+  chapterId: number,
+  payload: {
+    title: string;
+    status: string;
+    last_update: string;
+    price: number;
+    allow_ai_translation: boolean;
+    versions: Record<string, string>;
+  }
+): Promise<{ fetchStatus: number }> {
+  try {
+    const token = useAuthStore.getState().token;
+    const response = await fetch(
+      `${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_API_EDIT_CHAPTER_URL}/update/${chapterId}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify(payload),
+      }
+    );
 
     if (!response.ok) {
       throw new Error(`Error ${response.status}: ${response.statusText}`);
