@@ -7,7 +7,6 @@ import type {WorkDTO} from "../../dto/WorkDTO.ts";
 
 const PURPLE_BG_CLASS = "bg-[#5C17A6]";
 const CREATE_PATH = '/create';
-const INSTRUCTIONS_PATH = '/Terms';
 const MAX_WIDTH_CLASS = "max-w-6xl";
 
 export default function CreateWork() {

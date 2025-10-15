@@ -8,12 +8,46 @@ interface UserData {
   recomendados: BookDTO[];
 }
 
+// Raw JSON shapes from public/data/userData.json
+type RawBook = {
+  id: number;
+  name: string;
+  author: string;
+  coverUrl: string;
+  categories: string[];
+  likes: number;
+};
+
+type RawUser = {
+  userId: number;
+  username: string;
+  seguirLeyendo: RawBook[];
+  recomendados: RawBook[];
+};
+
 export const getUserData = async (userId: number): Promise<UserData> => {
   return new Promise((resolve, reject) => {
     setTimeout(() => {
-      const user = userData.find((u: UserData) => u.userId === userId);
-      if (user) {
-        resolve(user);
+      const users = userData as unknown as RawUser[];
+      const raw = users.find((u) => u.userId === userId);
+      if (raw) {
+        const toBookDTO = (b: RawBook): BookDTO => ({
+          id: b.id,
+          title: b.name,
+          author: b.author,
+          cover: b.coverUrl,
+          categories: b.categories,
+          likes: b.likes,
+        });
+
+        const mapped: UserData = {
+          userId: raw.userId,
+          username: raw.username,
+          seguirLeyendo: raw.seguirLeyendo.map(toBookDTO),
+          recomendados: raw.recomendados.map(toBookDTO),
+        };
+
+        resolve(mapped);
       } else {
         reject(new Error(`Usuario con ID ${userId} no encontrado`));
       }

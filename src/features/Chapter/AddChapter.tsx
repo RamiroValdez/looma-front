@@ -49,11 +49,10 @@ export default function AddChapter() {
     }, [data]);
 
     const handleFieldChange = (field: keyof ChapterWithContentDTO, value: any) => {
-        if (!chapter) return;
-        setChapter({ ...chapter, [field]: value });
+        setChapter((prev) => (prev ? { ...prev, [field]: value } : prev));
     };
 
-    const handleSave = async (publicationStatus: "DRAFT" | "PUBLISHED") => {
+    const handleSave = async () => {
         if (!chapter) return;
         setError("");
 
@@ -123,7 +122,7 @@ export default function AddChapter() {
 
     const handleChapterActions = () => {
         if (chapter) {
-            handleSave("draft");
+            handleSave();
         }
     };
 

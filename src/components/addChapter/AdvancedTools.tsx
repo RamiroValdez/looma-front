@@ -30,8 +30,9 @@ export default function AdvancedTools({ availableLanguages, defaultLanguageCode,
           ))}
 
         <div className="flex justify-center py-3 bg-white">
+
           <button className="bg-[#172FA6] hover:bg-[#0e1c80] text-white font-semibold text-sm px-4 py-1.5 rounded-md disabled:bg-[#A0A0A0]"
-          disabled="true"
+          disabled
           >
             Agregar versión
           </button>
