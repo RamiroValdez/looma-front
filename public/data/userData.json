@@ -1,0 +1,130 @@
+[
+  {
+  "userId": 1,
+  "username": "Mayra",
+  "seguirLeyendo": [
+    {
+      "id": 1,
+      "name": "Holly",
+      "author": "Stephen King",
+      "coverUrl": "/img/portadas/foto.jpg",
+      "categories": ["Fantasia", "Juvenil"],
+      "likes": 5500
+    },
+    {
+      "id": 2,
+      "name": "El hobbit",
+      "author": "J.K. Rowling",
+      "coverUrl": "/img/portadas/foto2.jpg",
+      "categories": ["Fantasía"],
+      "likes": 3000
+    },
+    {
+      "id": 3,
+      "name": "Wicked Like A Wildfire",
+      "author": "Lana Popović",
+      "coverUrl": "/img/portadas/foto3.jpg",
+      "categories": ["Juvenil", "Fantasía"],
+      "likes": 1000
+    }
+  ],
+  "recomendados": [
+    {
+      "id": 4,
+      "name": "Evangelion",
+      "author": "Hideaki Anno",
+      "coverUrl": "/img/portadas/foto4.jpg",
+      "categories": ["Ciencia Ficción", "Manga"],
+      "likes": 8800
+    },
+    {
+      "id": 5,
+      "name": "Crying in H Mart",
+      "author": "Michelle Zauner",
+      "coverUrl": "/img/portadas/foto5.jpg",
+      "categories": ["Drama"],
+      "likes": 5300
+    },
+    {
+      "id": 6,
+      "name": "The Midnight Library",
+      "author": "Matt Haig",
+      "coverUrl": "/img/portadas/foto6.jpg",
+      "categories": ["Fantasía", "Ficción"],
+      "likes": 4100
+    },
+    {
+      "id": 7,
+      "name": "The Song of Achilles",
+      "author": "Madeline Miller",
+      "coverUrl": "/img/portadas/foto7.jpg",
+      "categories": ["Fantasía", "Romance"],
+      "likes": 7200
+    },
+    {
+      "id": 8,
+      "name": "Dune",
+      "author": "Frank Herbert",
+      "coverUrl": "/img/portadas/foto8.jpg",
+      "categories": ["Ciencia Ficción"],
+      "likes": 9600
+    },
+    {
+      "id": 9,
+      "name": "The Night Circus",
+      "author": "Erin Morgenstern",
+      "coverUrl": "/img/portadas/foto9.jpg",
+      "categories": ["Fantasía", "Romance"],
+      "likes": 7200
+    },
+    {
+      "id": 10,
+      "name": "Circe",
+      "author": "Madeline Miller",
+      "coverUrl": "/img/portadas/foto10.jpg",
+      "categories": ["Fantasía", "Mitología"],
+      "likes": 8000
+    },
+    {
+      "id": 11,
+      "name": "The Alchemist",
+      "author": "Paulo Coelho",
+      "coverUrl": "/img/portadas/foto11.jpg",
+      "categories": ["Filosofía", "Ficción"],
+      "likes": 6700
+    },
+    {
+      "id": 12,
+      "name": "The Power of Now",
+      "author": "Eckhart Tolle",
+      "coverUrl": "/img/portadas/foto12.jpg",
+      "categories": ["Autoayuda", "Espiritualidad"],
+      "likes": 4500
+    }
+  ]
+},
+ {
+    "userId": 2,
+    "username": "Ramiro",
+    "seguirLeyendo": [
+      {
+        "id": 2,
+        "name": "El hobbit",
+        "author": "J.R.R. Tolkien",
+        "coverUrl": "/img/portadas/foto2.jpg",
+        "categories": ["Fantasía"],
+        "likes": 3000
+      }
+    ],
+    "recomendados": [
+      {
+        "id": 5,
+        "name": "Crying in H Mart",
+        "author": "Michelle Zauner",
+        "coverUrl": "/img/portadas/foto5.jpg",
+        "categories": ["Drama"],
+        "likes": 5300
+      }
+    ]
+  }
+]
