@@ -1,9 +1,9 @@
 [
   {
     "id": 1,
-    "title": "Obra 1",
+    "title": "Saga de Fantasia",
     "description": "Descripción de la obra 1",
-    "cover": "/img/portadas/foto.jpg",
+    "cover": "/img/portadas/foto.png",
     "bannerUrl": "/images/banner1.jpg",
     "status": "finished",
     "categories": [
