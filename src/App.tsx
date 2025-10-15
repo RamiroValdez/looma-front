@@ -1,4 +1,4 @@
-import { Routes, Route, BrowserRouter } from "react-router-dom";
+import {Routes, Route, BrowserRouter, useLocation} from "react-router-dom";
 import './App.css'
 import ExplorePage from "./features/Explore/ExplorePage.tsx";
 import ManageWorkPage from "./features/ManageWork/ManageWorkPage.tsx";
@@ -16,21 +16,35 @@ import Footer from "./components/Footer.tsx";
 
 
 function App() {
-
     return (
         <BrowserRouter>
 
             <Routes>
-                <Route path="/login" element={ <><Header/><LoginPage /></>} />
+                <Route path="/login" element={ <>
+                    <Header/>
+                    <LoginPage />
+                    <Footer />
+                </>} />
 
-                <Route path="/" element={<><Header/><Home /></>} />
+                <Route path="/" element={<>
+                    <Header/>
+                    <Home />
+                    <Footer />
+                </>} />
 
-                <Route path="/home" element={<><Header/><Home /></>} />
+                <Route path="/home" element={
+                    <>
+                        <Header/>
+                        <Home />
+                        <Footer />
+                    </>
+                } />
 
                 <Route path="/explore" element={
                     <ProtectedRoute>
                         <Header />
                         <ExplorePage />
+                        <Footer />
                     </ProtectedRoute>
                 } />
 
@@ -38,6 +52,7 @@ function App() {
                     <ProtectedRoute>
                         <Header />
                         <CreatePiece />
+                        <Footer />
                     </ProtectedRoute>
                 } />
 
@@ -45,6 +60,7 @@ function App() {
                     <ProtectedRoute>
                         <Header />
                         <Create />
+                        <Footer />
                     </ProtectedRoute>
                 } />
 
@@ -52,6 +68,7 @@ function App() {
                     <ProtectedRoute>
                         <Header />
                         <ManageWorkPage />
+                        <Footer />
                     </ProtectedRoute>
                 } />
 
@@ -61,6 +78,7 @@ function App() {
                         <MilkdownProvider>
                             <AddChapter />
                         </MilkdownProvider>
+                        <Footer />
                     </ProtectedRoute>
                 } />
 
@@ -69,10 +87,7 @@ function App() {
                         <PreviewChapter />
                     </ProtectedRoute>
                 } />
-
             </Routes>
-             <Footer />
-
         <ToastProvider /> 
     </BrowserRouter>
     )
