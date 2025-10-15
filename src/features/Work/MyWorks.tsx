@@ -103,7 +103,7 @@ export default function CreateWork() {
                             <Button
                                 text="Crear +"
                                 onClick={() => navigate(CREATE_PATH)}
-                                colorClass={`${PURPLE_BG_CLASS} font-semibold px-8 cursor-pointer hover:scale-105`}
+                                colorClass={`${PURPLE_BG_CLASS} text-white font-semibold cursor-pointer hover:scale-105 w-90`}
                             />
                         </div>
                     </div>
