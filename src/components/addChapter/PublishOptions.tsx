@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { publishChapter, scheduleChapter } from "../../services/chapterService.ts";
 import { useNavigate } from "react-router-dom";
-import Button from "../Button.tsx";
 
 interface Props {
   workId: number;
@@ -17,7 +16,6 @@ export default function PublishOptions({ workId, chapterId, onScheduleChange }: 
   const [publishing, setPublishing] = useState(false);
   const [publishError, setPublishError] = useState<string | null>(null);
   const [showPublishModal, setShowPublishModal] = useState(false);
-  const [publishInput, setPublishInput] = useState("");
   const [scheduling, setScheduling] = useState(false);
   const [scheduleError, setScheduleError] = useState<string | null>(null);
   const [showScheduleModal, setShowScheduleModal] = useState(false);
@@ -117,7 +115,6 @@ export default function PublishOptions({ workId, chapterId, onScheduleChange }: 
           <button
             type="button"
             onClick={() => {
-              setPublishInput("");
               setPublishError(null);
               setShowPublishModal(true);
             }}

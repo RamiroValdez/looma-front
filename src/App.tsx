@@ -1,4 +1,8 @@
+<<<<<<< Updated upstream
 import {Routes, Route, BrowserRouter } from "react-router-dom";
+=======
+import {Routes, Route, BrowserRouter} from "react-router-dom";
+>>>>>>> Stashed changes
 import './App.css'
 import ExplorePage from "./features/Explore/ExplorePage.tsx";
 import ManageWorkPage from "./features/ManageWork/ManageWorkPage.tsx";

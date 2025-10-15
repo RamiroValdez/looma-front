@@ -11,7 +11,7 @@ export default function Button({
 {
   type?: "button" | "submit";
   text?: string;
-  onClick: () => void;
+  onClick?: React.MouseEventHandler<HTMLButtonElement>;
   colorClass: string;
   children?: React.ReactNode;
   disabled?: boolean;
@@ -20,7 +20,7 @@ export default function Button({
 {
 
   const baseClasses =
-    "rounded transition flex justify-center items-center text-center px-4 py-2"; 
+    "rounded transition flex justify-center items-center text-center px-4 py-2"; 
 
   return (
     <button

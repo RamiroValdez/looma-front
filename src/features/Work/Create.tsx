@@ -23,7 +23,7 @@ import { useFormats } from "../../services/formatService.ts";
 import { useLanguages } from '../../services/languageService.ts';
 import { useLanguageStore } from '../../store/LanguageStore';
 import type {TagSuggestionRequestDTO} from "../../dto/TagSuggestionDTO.ts";
-import { notifyError, notifySuccess } from "../../services/ToastProviderService.ts";
+import { notifySuccess } from "../../services/ToastProviderService.ts";
 
 
 export default function Create() {

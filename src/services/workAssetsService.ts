@@ -1,18 +1,4 @@
-import type { WorkDTO } from "../dto/WorkDTO";
-import type { CreateWorkDTO } from "./CreateWorkService";
-import { createFormDataForWork } from "./CreateWorkService";
 import { useAuthStore } from "../store/AuthStore";
-
-function mapWorkToCreateWorkDTO(work: WorkDTO, tagNames?: string[]): CreateWorkDTO {
-  return {
-    title: work.title,
-    description: work.description ?? "",
-    formatId: work.format?.id,
-    originalLanguageId: work.originalLanguage?.id,
-    categoryIds: work.categories?.map((c) => c.id) ?? [],
-    tagIds: tagNames && tagNames.length > 0 ? tagNames : (work.tags?.map((t) => t.name) ?? []),
-  };
-}
 
 export async function uploadCover(workId: number, coverFile: File | null, coverIaUrl: string | null): Promise<{ fetchStatus: number }> {
   const token = useAuthStore.getState().token;
