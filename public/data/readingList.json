@@ -4,31 +4,31 @@
     "books": [
       {
         "id": 1,
-        "title": "Libro 1",
+        "title": "The power of now",
         "cover": "/img/portadas/foto12.jpg",
         "likes": 1200,
-        "categories": ["Ficción", "Aventura"]
+        "categories": ["Ficción"]
       },
       {
         "id": 2,
-        "title": "Libro 2",
+        "title": "El Hobbit",
         "cover": "/img/portadas/foto2.jpg",
-        "likes": 800,
-        "categories": ["Romance", "Drama"]
+        "likes": 8700,
+        "categories": ["Romance"]
       },
       {
         "id": 4,
-        "title": "Libro 4",
+        "title": "El jilguero",
         "cover": "/img/portadas/foto4.jpg",
-        "likes": 950,
-        "categories": ["Suspenso", "Misterio"]
+        "likes": 2000,
+        "categories": ["Suspenso"]
       },
       {
         "id": 5,
-        "title": "Libro 5",
+        "title": "Verano infinito",
         "cover": "/img/portadas/foto5.jpg",
         "likes": 1100,
-        "categories": ["Fantasía", "Aventura"]
+        "categories": ["Fantasía"]
       }
     ]
   },

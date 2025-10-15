@@ -1,7 +1,7 @@
 
 export interface BookDTO {
   id: number;
-  name: string;
+  title: string;
   author: string;
   cover: string;
   categories: string[];
