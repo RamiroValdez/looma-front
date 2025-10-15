@@ -21,7 +21,6 @@ export default function TextEditorTool({chapterContent, onChange, setEditorRef}:
 
     const [editorValue, setEditorValue] = useState(chapterContent);
 
-    console.log('editorValue', editorValue);
     const { get } = useEditor((root) =>
         Editor.make()
             .config((ctx) => {
@@ -41,8 +40,6 @@ export default function TextEditorTool({chapterContent, onChange, setEditorRef}:
 
     useEffect(() => {
         setEditorValue(chapterContent);
-
-        // Actualizar el contenido del editor cuando cambia chapterContent
         const editor = get();
         if (editor && chapterContent !== editorValue) {
             editor.action((ctx) => {
@@ -70,7 +67,7 @@ export default function TextEditorTool({chapterContent, onChange, setEditorRef}:
 
 
     return (
-        <div className="border border-gray-300 rounded-lg p-4 h-80 overflow-y-auto">
+        <div className="p-4 h-80 overflow-y-auto max-w-full ">
             <Milkdown />
         </div>
     );

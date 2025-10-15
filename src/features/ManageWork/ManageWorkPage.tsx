@@ -3,14 +3,16 @@ import type { WorkDTO } from '../../dto/WorkDTO';
 import { ChapterItem } from '../../components/ChapterItem';
 import Button from '../../components/Button';
 import Tag from '../../components/Tag';
-import { MORE_CATEGORIES, SUGGESTED_TAGS} from "../../types.ts/CreateWork.types";
-import { handleAddCategory, handleAddTag, validateFile } from "../../services/CreateWorkService";
+import { MORE_CATEGORIES } from "../../types.ts/CreateWork.types";
+import { handleAddCategory, handleAddTag, validateFile, useClickOutside } from "../../services/CreateWorkService";
+import { useSuggestTagsMutation } from "../../services/TagSuggestionService.ts";
+import type { TagSuggestionRequestDTO } from "../../dto/TagSuggestionDTO.ts";
 import { useNavigate, useParams } from 'react-router-dom';
 import { addChapter, getWorkById } from '../../services/chapterService';
 import { uploadCover, uploadBanner } from '../../services/workAssetsService';
 import CoverImageModal from '../../components/CoverImageModal';
 import CoverAiModal from "../../components/create/CoverAiModal.tsx";
-import { notifyError, notifySuccess } from "../../services/ToastProviderService.ts";
+import { notifySuccess } from "../../services/ToastProviderService.ts";
 
 interface ManageWorkPageProps {
   workId?: number;
@@ -26,7 +28,7 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
   const [error, setError] = useState<string | null>(null);
   const defaultWorkId = 1; 
   const currentWorkId = Number(workId) || defaultWorkId;
-  const [savingBanner, setSavingBanner] = useState(false);
+  
   
   const [isCategoryMenuOpen, setIsCategoryMenuOpen] = useState(false);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
@@ -36,20 +38,31 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
   const [newTagText, setNewTagText] = useState('');
   const [isSuggestionMenuOpen, setIsSuggestionMenuOpen] = useState(false);
   const [showIATooltip, setShowIATooltip] = useState(false);
+  const [isAILoading, setIsAILoading] = useState(false);
+  const [suggestedTags, setSuggestedTags] = useState<string[]>([]);
+  const shortMessage = "Tags con IA: tu descripción tiene menos de 20 caracteres.";
+  const aiSuggestionMessage = "Sugerencias de la IA";
+  const suggestMutation = useSuggestTagsMutation();
+  const [nameWork, setNameWork] = useState('');
   const [showBannerTooltip, setShowBannerTooltip] = useState(false);
+
+  const [descriptionF, setDescriptionF] = useState('');
+
   const bannerInputRef = useRef<HTMLInputElement>(null);
   const coverInputRef = useRef<HTMLInputElement>(null);
+  const suggestionMenuRef = useRef<HTMLDivElement | null>(null);
+  const suggestionCategoryMenuRef = useRef<HTMLDivElement | null>(null);
+  useClickOutside(suggestionMenuRef as React.RefObject<HTMLElement>, () => setIsSuggestionMenuOpen(false));
+  useClickOutside(suggestionCategoryMenuRef as React.RefObject<HTMLElement>, () => setIsCategoryMenuOpen(false));
+  
   const [bannerPreview, setBannerPreview] = useState<string | null>(null);
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
   const [errorBanner, setErrorBanner] = useState<string | null>(null);
   const [errorCover, setErrorCover] = useState<string | null>(null);
   const [pendingCoverFile, setPendingCoverFile] = useState<File | null>(null);
   const [savingCover, setSavingCover] = useState(false);
-  const [allowSubscription, setAllowSubscription] = useState(false);
-  const [price, setPrice] = useState('');
-  const [workStatus, setWorkStatus] = useState('');
-
-   const navigate = useNavigate();
+  const navigate = useNavigate();
+  const isDescriptionValid = descriptionF.trim().length > 20; 
 
   const handleCreateChapter = async (workId: number, languageId: number) => {
     const chapter = await addChapter(workId, languageId, 'TEXT');
@@ -101,17 +114,42 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
     }
     if (!isCover) {
       try {
-        setSavingBanner(true);
         await uploadBanner(currentWorkId, file);
         notifySuccess("Banner actualizado con éxito.");
       } catch (err) {
         console.error('Error al subir el banner:', err);
         setErrorBanner('No se pudo subir el banner. Intenta nuevamente.');
-      } finally {
-        setSavingBanner(false);
       }
     }
   }, [currentWorkId]);
+
+  const handleAISuggestion = () => {
+    if (!isDescriptionValid) {
+      alert("La descripción es demasiado corta. Proporciona más detalles.");
+      return;
+    }
+
+    const payload: TagSuggestionRequestDTO = {
+      description: descriptionF,
+      title: nameWork,
+      existingTags: currentTags,
+    };
+
+    setIsAILoading(true);
+
+    suggestMutation.mutate(payload, {
+      onSuccess: (data) => {
+        setSuggestedTags(data.suggestions);
+        setIsSuggestionMenuOpen(true);
+      },
+      onError: (error) => {
+        console.error("Error de IA:", error);
+      },
+      onSettled: () => {
+        setIsAILoading(false);
+      },
+    });
+  };
 
   useEffect(() => {
     const fetchWork = async () => {
@@ -120,8 +158,10 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
         const workData = await getWorkById(currentWorkId);
         console.log(workData);
         setWork(workData);
-        setSelectedCategories(workData.categories.map((cat) => cat.name));
-        setCurrentTags(workData.tags.map((tag) => tag.name));
+  setSelectedCategories(workData.categories.map((cat) => cat.name));
+  setCurrentTags(workData.tags.map((tag) => tag.name));
+  setNameWork(workData.title || '');
+  setDescriptionF(workData.description || '');
       } catch (err) {
         setError('Error loading work');
         console.error('Error:', err);
@@ -145,12 +185,6 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
       e.preventDefault();
       handleAddTag(newTagText, currentTags, setCurrentTags, setIsAddingTag, setNewTagText, setIsSuggestionMenuOpen);
     }
-  };
-
-  const handleClearAdminPanel = () => {
-    setAllowSubscription(false);
-    setPrice('');
-    setWorkStatus('');
   };
 
   if (loading) {
@@ -338,10 +372,15 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
               </div>
             </div>
 
+            {selectedCategories.length === 0 && (
+                <p className="text-red-500 text-sm mt-1 ml-1/4 pt-1 pl-[25%]">Selecciona al menos una categoría.</p>
+            )}
+
             <div className="mb-6">
               <div className="space-y-6 text-lg text-black">
                 <div><span className="font-semibold">Formato:</span> <span className="font-normal">{work.format.name}</span></div>
                 <div><span className="font-semibold">Idioma Original:</span> <span className="font-normal">{work.originalLanguage.name}</span></div>
+                <div><span className="font-semibold">Descripción:</span> <span className="font-normal">{work.description || 'Sin descripción...'}</span></div>
               </div>
             </div>
 
@@ -353,7 +392,7 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
                     <Tag
                       key={tag}
                       text={tag}
-                      colorClass={`border-[#5C17A6] text-[#5C17A6] bg-transparent `}
+                      colorClass={`border-[#5C17A6] text-[#5C17A6]`}
                       onRemove={() =>
                         setCurrentTags(currentTags.filter(t => t !== tag))
                       }
@@ -368,7 +407,7 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
                       onKeyDown={handleTagSubmit}
                       onBlur={() => setIsAddingTag(false)}
                       autoFocus
-                      placeholder="Añadir nueva etiqueta"
+                      placeholder="Enter para añadir etiqueta"
                       className="p-1 border border-gray-400 rounded-md text-sm w-[150px] focus:outline-none focus:ring-2 focus:ring-opacity-50"
                     />
                   ) : (
@@ -386,49 +425,56 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
                     onMouseLeave={() => setShowIATooltip(false)}
                   >
                     <Button
-                    type="button"
-                    onClick={() => setIsSuggestionMenuOpen(!isSuggestionMenuOpen)}
-                    colorClass="w-8 h-8 !px-0 !py-0 flex items-center justify-center rounded-full border-2 border-[#5C17A6] text-white hover:bg-opacity-90 z-10"
-                  >
-                  <img 
-                    src="/img/magic.png" 
-                    className="w-6 h-6 hover:cursor-pointer"  
-                    alt="Sugerencias IA" 
-                  />
-                  </Button>
-                  
-                  {showIATooltip && (
-                    <div 
-                      className="absolute z-20 top-0 mt-1 ml-4 w-max max-w-xs left-full bg-gray-800 text-white px-2 py-1 rounded-md whitespace-nowrap"
+                        type="button"
+                        onClick={handleAISuggestion} 
+                        disabled={isAILoading || !isDescriptionValid}
+                        colorClass={`w-8 h-8 flex items-center justify-center rounded-full border-2 border-[#5C17A6] !py-0 !px-0`}
                     >
-                      Sugerencias de la IA
+                        {isAILoading ? 
+                            <svg className="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">...</svg> 
+                            : 
+                            <img src="/img/magic.png"  className={`w-8 h-6 ${isDescriptionValid ? 'hover:cursor-pointer' : 'cursor-not-allowed'}`}
+                            />
+                        }
+                    </Button>
+                  
+                  {showIATooltip && !isAILoading && (
+                      <div className="absolute z-30 top-[-30px] left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-2 py-1 rounded-md whitespace-nowrap">
+                          {isDescriptionValid ? aiSuggestionMessage : shortMessage}
                       </div>
-                    )}
+                  )}
                   </div>
 
                   {isSuggestionMenuOpen && (
-                    <div className="absolute z-20 top-10 mt-1 mr-[-30%] w-max max-w-xs">
-                      <div className="bg-white p-4 border border-gray-300 rounded-md shadow-lg flex flex-wrap gap-2">
-                        {SUGGESTED_TAGS
-                          .filter(tag => !currentTags.includes(tag))
-                          .map((tag) => (
-                            <Tag
-                              key={tag}
-                              text={tag}
-                              colorClass="border border-gray-300 text-gray-600 bg-transparent hover:bg-gray-100" 
-                              onClick={() => handleAddTag(tag, currentTags, setCurrentTags, setIsAddingTag, setNewTagText, setIsSuggestionMenuOpen)}
-                            />
-                          ))}
-                        
-                        {SUGGESTED_TAGS.filter(tag => !currentTags.includes(tag)).length === 0 && (
-                          <p className="text-gray-500 text-sm italic">No hay más sugerencias disponibles.</p>
-                        )}
+                      <div ref={suggestionMenuRef} className="absolute z-20 top-10 mt-1 mr-[-30%] w-max max-w-xs">
+                          <div className="bg-white p-4 border border-gray-300 rounded-md shadow-lg flex flex-wrap gap-2">
+                              {suggestedTags.map((tag) => (
+                                  <Tag
+                                      key={tag}
+                                      text={tag}
+                                      colorClass="border border-gray-300 text-gray-600 bg-transparent hover:bg-gray-100" 
+                                      onClick={() => {handleAddTag(tag, currentTags, setCurrentTags, setIsAddingTag, setNewTagText, setIsSuggestionMenuOpen, false);
+                                          setSuggestedTags((prev) => prev.filter((t) => t !== tag));
+                                          setSuggestedTags((prev) => {
+                                              const updated = prev.filter((t) => t !== tag);
+                                              if (updated.length === 0) {
+                                                  setIsSuggestionMenuOpen(false);
+                                              }
+                                              return updated;
+                                          });
+                                      }}
+                                  />
+                              ))}
+                          </div>
                       </div>
-                    </div>
-                  )}
+                 )}
                 </div>
               </div>
             </div>
+
+            {currentTags.length === 0 && (
+                <p className="text-red-500 text-sm mt-1 ml-1/4 pt-1 pl-[25%]">Debes agregar al menos una etiqueta.</p>
+            )}
 
             <div className="mb-8">
               <div className="bg-white rounded-lg shadow-lg overflow-hidden">

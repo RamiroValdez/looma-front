@@ -4,7 +4,7 @@ import AdvancedTools from "../../components/addChapter/AdvancedTools";
 import ChapterEditor from "../../components/addChapter/ChapterEditor";
 import ChapterActions from "../../components/addChapter/ChapterActions";
 import PublishOptions from "../../components/addChapter/PublishOptions";
-import InspirationBubble from "../../components/addChapter/InspirationBubble";
+//import InspirationBubble from "../../components/addChapter/InspirationBubble";
 import {updateChapter, deleteChapter, getChapterById, cancelScheduleChapter} from "../../services/chapterService.ts";
 import { handleError } from "../../utils/errorHandler";
 import type {ChapterWithContentDTO} from "../../dto/ChapterWithContentDTO.ts";
@@ -149,6 +149,22 @@ export default function AddChapter() {
     const handleLanguageSelect = (languageCode: string) => {
         setSelectedLanguage(languageCode);
     };
+
+    //NUEVO
+  const handlePreview = () => {
+    if (!chapter) return;
+
+    const previewData = {
+        content: chapter.content,
+        selectedLanguages: chapter.availableLanguages,
+        numberChapter: chapter.chapterNumber,
+        originalLanguage: chapter.languageDefaultCode.code,
+    };
+
+    const previewUrl = `/preview?data=${encodeURIComponent(JSON.stringify(previewData))}`;
+    window.open(previewUrl, "_blank");
+};
+
     return (
         <div>
             {isLoadingFetch ? (
@@ -160,7 +176,7 @@ export default function AddChapter() {
                     <p className="text-gray-600 text-lg">No se pudo cargar el capítulo.</p>
                 </div>
             ) : data && chapter ? (
-                <div className="min-h-screen bg-[#F4F0F7] px-4 sm:px-8 md:px-16 py-8">
+                <div className="min-h-screen bg-[#F4F0F7] px-4 sm:px-8 md:px-16 py-8 max-w-screen">
                     <div className="w-screen relative left-1/2 right-1/2 -mx-[50vw] bg-white mb-8">
                         <div className="bg-white border-b border-[#e4e2eb] h-14 flex items-center ">
                             <div className="px-4 sm:px-8 md:px-16 mx-auto flex justify-between items-center w-full">
@@ -220,7 +236,7 @@ export default function AddChapter() {
                                 </div>
                             ) : null}
 
-                            <div className="border-2 border-[#4C3B63] rounded-xl overflow-hidden mb-6">
+                            <div className="border-2 border-[#4C3B63] rounded-xl max-w-full overflow-hidden mb-6">
                                 <ChapterEditor
                                     chapterTitle={chapter.title}
                                     setChapterTitle={(value) => handleFieldChange("title", value)}
@@ -232,7 +248,7 @@ export default function AddChapter() {
 
                             <ChapterActions
                                 onSaveDraft={handleChapterActions}
-                                onPreview={() => console.log("Vista previa activada")}
+                                onPreview={handlePreview}
                                 formData={{ titulo: chapter.title, contenido: chapter.content }}
                                 chapterId={chapter.id}
                                 publicationStatus={chapter.publicationStatus}
@@ -292,9 +308,7 @@ export default function AddChapter() {
                     </div>
 
 
-                    {
-                        // <InspirationBubble />
-                    }
+                   {/* <InspirationBubble />  COMO AUN NO TIENE LOGICA NO LO MOSTRAMOS*/}
                     {showDeleteModal && (
                         <div className="fixed inset-0 z-50 flex items-center justify-center">
                             <div className="absolute inset-0 bg-black/40" onClick={closeDeleteModal} />

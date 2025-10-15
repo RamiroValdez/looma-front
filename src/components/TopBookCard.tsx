@@ -13,9 +13,9 @@ const TopBookCard: React.FC<Props> = ({ position, cover, title }) => {
       <span
         className="absolute font-extrabold text-transparent leading-[1] z-[1] select-none overflow-y-hidden"
         style={{
-          fontSize: "15rem",
+          fontSize: "16rem",
           top: "-2rem",
-          left: "-4rem",
+          left: "-4.5rem",
           WebkitTextStroke: "4px #5C17A6", 
           opacity: 0.5, 
         }}

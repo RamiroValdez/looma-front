@@ -6,6 +6,8 @@ import type { WorkDTO } from "../../dto/WorkDTO";
 import type { BookDTO } from "../../dto/BookDTO";
 import Section from "../../components/Section";
 import Top10Section from "../../components/Top10Section";
+import BannerHome from "../../components/BannerHome";
+
 
 
 interface TopBook {
@@ -57,6 +59,29 @@ const Home = () => {
 
   return (
     <div className="flex flex-col min-h-screen bg-[#f4f0f7]">
+      <BannerHome
+  books={[
+    {
+      title: "El Señor de los Anillos",
+      cover: "/img/portadas/banner1.jpg",
+      categories: ["fantasía", "aventura"],
+      description: "Una épica aventura de fantasía."
+    },
+    {
+      title: "Harry Potter",
+      cover: "/img/portadas/banner2.jpg",
+      categories: ["fantasía", "juvenil"],
+      description: "La historia de un joven mago y sus amigos."
+    },
+    {
+      title: "Narnia",
+      cover: "/img/portadas/banner3.jpg",
+      categories: ["misterio"],
+      description: "Un mundo mágico lleno de criaturas fantásticas."
+    },
+  ]}
+/>
+
       <Top10Section books={top10} />
 
       <div className="px-6 mb-12 grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
