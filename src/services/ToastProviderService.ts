@@ -2,7 +2,7 @@ import { toast } from 'react-toastify';
 
 export const notifySuccess = (text: string) => {
     toast.success(text, {
-        position: "top-center",
+        position: "top-right",
         theme: "light",
 
             style: {
@@ -17,7 +17,7 @@ export const notifySuccess = (text: string) => {
 
 export const notifyError = (text: string) => {
     toast.error(text, {
-        position: "top-center",
+        position: "top-right",
         theme: "light", 
         
         style: {

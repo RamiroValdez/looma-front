@@ -11,7 +11,8 @@ export const ToastProvider = () => {
             pauseOnHover={false}
             closeOnClick
             draggable
-            limit={3} 
+            limit={3}
+            style={{ top: 150 }}
         />
     );
 };
