@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { fetchMockQuiz } from '../services/mockQuizService';
+import { fetchMockQuiz } from '../services/MockQuizService';
 import type { QuizDTO, QuestionDTO } from '../dto/QuestionDTO';
 
 export function useQuiz() {
