@@ -1,6 +1,29 @@
 import type { WorkDTO } from '../dto/WorkDTO';
+import { MOCK_WORK_DATA } from '../features/WorkDetail/services/mockData';
+import { getWorkById as getWorkByIdFromChapterService } from './chapterService';
 
 export class WorkService {
+
+ static async getWorkDetail(id: number): Promise<WorkDTO> {
+    return getWorkByIdFromChapterService(id); 
+  }
+
+/* METODO QUE PRUEBA EL MOCKEADOOO 
+  static async getWorkDetail(workId: number): Promise<WorkDTO> {
+    try {
+      await new Promise(resolve => setTimeout(resolve, 500)); 
+      if (workId!== MOCK_WORK_DATA.id) {
+        throw new Error("Error 404: Obra no encontrada (Simulación).");
+      }
+      
+      return MOCK_WORK_DATA; 
+
+    } catch (error) {
+      console.error('Error fetching work detail:', error);
+      throw new Error('No se pudo establecer conexión con el servidor.');
+    }
+  }*/
+
   static async getWorkById(id: number): Promise<WorkDTO> {
     try {
       await new Promise(resolve => setTimeout(resolve, 300));
@@ -54,3 +77,4 @@ export const getTop10Works = async () => {
   const data = await response.json();
   return data;
 };
+
