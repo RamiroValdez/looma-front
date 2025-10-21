@@ -6,7 +6,6 @@ import {buildEndpoint} from "../utils/endpoints.ts";
 
 export function useMyWorks(creatorId: number) {
     const { token } = useAuthStore();
-    console.log('Token:', token);
     return useApiQuery<WorkDTO[]>(
         ["get-my-works", creatorId.toString()],
         {

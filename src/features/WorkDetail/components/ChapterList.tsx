@@ -18,7 +18,7 @@ const handleChapterClick = (chapter: ChapterDTO) => {
     originalLanguage,
   };
 
-  navigate(`/preview?data=${encodeURIComponent(JSON.stringify(chapterData))}`);
+  navigate(`/work/chapter/${encodeURIComponent(JSON.stringify(chapterData.id))}/read`);
 };
 
 const sortedChapters = [...chapters].sort((a, b) => a.id - b.id);

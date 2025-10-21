@@ -3,18 +3,19 @@ import { type WorkDTO } from "../../../dto/WorkDTO";
 
 interface WorkInfoProps {
   work: WorkDTO;
+  manageFirstChapter: () => void;
 }
 
-export const WorkInfo: React.FC<WorkInfoProps> = ({ work }) => {
+export const WorkInfo: React.FC<WorkInfoProps> = ({ work, manageFirstChapter }) => {
   const likesFormatted = work.likes >= 1000 ? (work.likes / 1000).toFixed(1) + "k" : work.likes;
 
   return (
     <div className="p-8 bg-white space-y-6 ">
          <div className="flex flex-wrap gap-3">
-        <button className="flex-1 bg-[#3c2a50] text-white py-2 rounded-lg text-sm hover:bg-gray-200 transition hover:text-black">
+        <button disabled={true} className=" disabled:opacity-50 cursor-not-allowed flex-1 bg-[#3c2a50] text-white py-2 rounded-lg text-sm">
           Guardar
         </button>
-        <button className="flex-1 bg-[#5c17a6] text-white py-2 rounded-lg text-sm hover:bg-gray-200 transition hover:text-black">
+        <button disabled={true} className="flex-1 bg-[#5c17a6] text-white py-2 rounded-lg text-sm  disabled:opacity-50 cursor-not-allowed">
           Suscribirse
         </button>
   
@@ -56,7 +57,7 @@ export const WorkInfo: React.FC<WorkInfoProps> = ({ work }) => {
           </svg>
           <span className="text-[16px] font-semibold text-gray-700">1.7k</span>
         </div>
-         <button className="flex-1 bg-[#172fa6] text-white py-2 rounded-lg text-sm  hover:bg-gray-200 transition hover:text-black">
+         <button disabled={true} className="flex-1 bg-[#172fa6] text-white py-2 rounded-lg text-sm disabled:opacity-50 cursor-not-allowed">
           Exportar EPUB
         </button>
       </div>
@@ -74,7 +75,7 @@ export const WorkInfo: React.FC<WorkInfoProps> = ({ work }) => {
         ))}
       </div>
 
-      <button className="w-full bg-[#5c17a6] text-white py-3 rounded-lg text-base font-semibold hover:bg-[#3c2a50] transition">
+      <button onClick={manageFirstChapter} className="w-full bg-[#5c17a6] text-white py-3 rounded-lg text-base font-semibold hover:bg-[#3c2a50] transition cursor-pointer">
         Primer capítulo →
       </button>
     </div>

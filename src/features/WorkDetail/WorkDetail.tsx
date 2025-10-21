@@ -2,15 +2,22 @@ import React from "react";
 import { useWorkDetailData } from "./hooks/useWorkDetailData";
 import { WorkInfo } from "./components/WorkInfo";
 import { ChapterList } from "./components/ChapterList";
+import {useNavigate} from "react-router-dom";
 
 export const WorkDetail: React.FC = () => {
   const { work, isLoading, error } = useWorkDetailData();
-
+    const navigate = useNavigate();
   if (isLoading)
     return <div className="text-center py-10">Cargando detalles de la obra...</div>;
   if (error)
     return <div className="text-center text-red-600 py-10">Error: {error}</div>;
   if (!work) return <div className="text-center py-10">Obra no encontrada.</div>;
+
+    const handleFirstChapter = () => {
+        if (work.chapters.length > 0) {
+            navigate(`/work/chapter/${work.chapters[0].id}/read`);
+        }
+    }
 
   return (
     <div className="min-h-screen bg-[#f2f0f7]">
@@ -35,7 +42,7 @@ export const WorkDetail: React.FC = () => {
             <ChapterList chapters={work.chapters} originalLanguage={work.originalLanguage.name} />
           </div>
           <div className="w-full md:w-2/5 border-b md:border-b-0 md:border-r border-gray-200 p-6">
-            <WorkInfo work={work} />
+            <WorkInfo work={work} manageFirstChapter={handleFirstChapter} />
           </div>
         </div>
       </div>

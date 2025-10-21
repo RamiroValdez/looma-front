@@ -15,6 +15,7 @@ import {MilkdownProvider} from "@milkdown/react";
 import Footer from "./components/Footer.tsx";
 
 import { WorkDetail } from './features/WorkDetail/WorkDetail.tsx';
+import ReadChapterNovel from "./features/WorkDetail/ReadChapterNovel.tsx";
 
 
 function App() {
@@ -87,6 +88,12 @@ function App() {
                 <Route path="/preview" element={
                     <ProtectedRoute>
                         <PreviewChapter />
+                    </ProtectedRoute>
+                } />
+
+                <Route path="/work/chapter/:chapterId/read" element={
+                    <ProtectedRoute>
+                            <ReadChapterNovel />
                     </ProtectedRoute>
                 } />
 
