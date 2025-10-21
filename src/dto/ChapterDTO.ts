@@ -5,6 +5,6 @@ export interface ChapterDTO {
   price: number; 
   likes: number; 
   lastModified: string; 
-  publishedAt: string; 
+  publishedAt?: string; 
   publicationStatus: "PUBLISHED" | "DRAFT";
 }
