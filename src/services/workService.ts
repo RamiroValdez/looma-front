@@ -1,6 +1,30 @@
 import type { WorkDTO } from '../dto/WorkDTO';
+import { MOCK_WORK_DATA } from '../features/WorkDetail/services/mockData';
+import { getWorkById as getWorkByIdFromChapterService } from './chapterService';
+import {useApiQuery} from "../api/useApiQuery.ts";
 
 export class WorkService {
+
+ static async getWorkDetail(id: number): Promise<WorkDTO> {
+    return getWorkByIdFromChapterService(id); 
+  }
+
+/* METODO QUE PRUEBA EL MOCKEADOOO 
+  static async getWorkDetail(workId: number): Promise<WorkDTO> {
+    try {
+      await new Promise(resolve => setTimeout(resolve, 500)); 
+      if (workId!== MOCK_WORK_DATA.id) {
+        throw new Error("Error 404: Obra no encontrada (Simulación).");
+      }
+      
+      return MOCK_WORK_DATA; 
+
+    } catch (error) {
+      console.error('Error fetching work detail:', error);
+      throw new Error('No se pudo establecer conexión con el servidor.');
+    }
+  }*/
+
   static async getWorkById(id: number): Promise<WorkDTO> {
     try {
       await new Promise(resolve => setTimeout(resolve, 300));
@@ -44,13 +68,54 @@ export class WorkService {
   }
 }
 
-export const getTop10Works = async () => {
-  const response = await fetch("/data/top10Work.json");
+export const getTop10Works = () => {
+    const requestBody: ExploreRequestDTO = {
+        sortBy: 'likes',
+        asc: false
+    };
 
-  if (!response.ok) {
-    throw new Error(`Error al obtener el Top 10: ${response.statusText}`);
-  }
-
-  const data = await response.json();
-  return data;
+    return useApiQuery<Page<WorkDTO>, WorkDTO[]>(
+        ['top10Works'],
+        {
+            url: '/explore?page=0&size=10&sort=likes',
+            method: 'POST',
+            data: requestBody
+        },
+        {
+            select: (data) => data.content,
+            staleTime: 5 * 60 * 1000
+        }
+    );
 };
+
+export interface ExploreRequestDTO {
+    categoryIds?: number[];
+    formatIds?: number[];
+    state?: string;
+    minLikes?: number;
+    text?: string;
+    sortBy?: 'title' | 'likes' | 'publicationDate';
+    asc?: boolean;
+}
+
+
+export interface Page<T> {
+    content: T[];
+    pageable: {
+        pageNumber: number;
+        pageSize: number;
+        offset: number;
+        paged: boolean;
+        unpaged: boolean;
+    };
+    totalPages: number;
+    totalElements: number;
+    last: boolean;
+    size: number;
+    number: number;
+    numberOfElements: number;
+    first: boolean;
+    empty: boolean;
+}
+
+

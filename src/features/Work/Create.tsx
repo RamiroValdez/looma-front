@@ -254,6 +254,7 @@ export default function Create() {
                         className="hidden"
                         accept="image/png,image/jpeg,image/jpg,image/webp"
                         onChange={handleFileChange}
+                        data-testid="banner-input" // ⬅️ agregado
                     />
 
                     {errorBanner && (
@@ -289,6 +290,8 @@ export default function Create() {
                             className="hidden"
                             accept="image/png,image/jpeg,image/jpg,image/webp"
                             onChange={e => handleFileChange(e, true)}
+                            data-testid="cover-input" // ⬅️ agregado
+
                         />
 
                         <CoverImageModal
@@ -326,6 +329,8 @@ export default function Create() {
                                 <label className="w-1/4 text-lg font-medium text-gray-700">Nombre de la obra</label>
                                 <input
                                     type="text"
+                                    placeholder="Título de la obra"
+                                    data-testid="work-title"
                                     value={nameWork}
                                     onChange={e => setNameWork(e.target.value)}
                                     className={`w-3/4 p-2 border ${hasTriedSubmit && nameWork.trim() === '' ? 'border-red-500' : 'border-gray-300'} rounded-md focus:ring-2 focus:border-transparent`}
@@ -351,6 +356,7 @@ export default function Create() {
 
                                     <Button
                                         type="button"
+                                        data-testid="open-category-menu"
                                         onClick={() => setIsCategoryMenuOpen(!isCategoryMenuOpen)}
                                         colorClass="w-8 h-8 pt-0 flex justify-center rounded-full border-2 border-[#172FA6] text-[#172FA6] text-2xl font-medium leading-none hover:bg-[#172FA6] hover:text-white z-10 cursor-pointer"
                                         text="+"
@@ -400,6 +406,7 @@ export default function Create() {
                                 ) : (
                                     <div className="w-40 p-2 bg-[#3B2252] text-white rounded-md flex justify-center items-center">
                                         <select
+                                            data-testid="format-select"
                                             className="bg-[#3B2252] font-medium cursor-pointer"
                                             value={selectedFormat?.id || ''}
                                             onChange={e => {
@@ -437,6 +444,7 @@ export default function Create() {
                                 ) : (
                                     <div className="w-40 p-2 bg-[#3B2252] text-white rounded-md flex justify-center items-center">
                                         <select
+                                            data-testid="language-select"
                                             className="bg-[#3B2252] font-medium cursor-pointer"
                                             value={selectedLanguage?.id || ''}
                                             onChange={(e) => {
@@ -466,6 +474,7 @@ export default function Create() {
                                 <div className="w-3/4 flex flex-wrap gap-2 relative items-center">
                                     {currentTags.map((tag) => (
                                         <Tag
+
                                             key={tag}
                                             text={tag}
                                             colorClass="border-[#5C17A6] text-[#5C17A6]"
@@ -479,6 +488,7 @@ export default function Create() {
                                         <input
                                             type="text"
                                             value={newTagText}
+                                            data-testid="tag-input"
                                             onChange={(e) => setNewTagText(e.target.value)}
                                             onKeyDown={handleTagSubmit}
                                             onBlur={() => setIsAddingTag(false)}
@@ -488,6 +498,7 @@ export default function Create() {
                                         />
                                     ) : (
                                         <Button
+                                            data-testid="add-tag-button"
                                             type="button"
                                             text="+"
                                             onClick={() => setIsAddingTag(true)}
@@ -555,16 +566,21 @@ export default function Create() {
 
                         <div className="flex flex-col mb-6">
                             <div className="flex items-start">
-                                <label className="w-1/4 text-lg font-medium text-gray-700">Descripción</label>
-                                <div className="w-3/4 relative">
-                  <textarea className={`w-full h-40 p-2 border ${hasTriedSubmit && descriptionF.trim() === '' ? 'border-red-500' : 'border-gray-300'} rounded-md focus:ring-2 focus:border-transparent resize-none`}
-                            value={descriptionF}
-                            onChange={e => setDescriptionF(e.target.value)}>
-                  </textarea>
-
-                                    <p className="absolute bottom-2 right-2 text-xs text-gray-500">max 400 caracteres</p>
-                                </div>
+                            {/* 1. AGREGAR htmlFor="descripcion-obra" */}
+                            <label htmlFor="descripcion-obra" className="w-1/4 text-lg font-medium text-gray-700">
+                                Descripción
+                            </label>
+                            <div className="w-3/4 relative">
+                                {/* 2. AGREGAR id="descripcion-obra" */}
+                                <textarea
+                                    data-testid="work-description"
+                                    className={`w-full h-40 p-2 border ${hasTriedSubmit && descriptionF.trim() === '' ? 'border-red-500' : 'border-gray-300'} rounded-md focus:ring-2 focus:border-transparent resize-none`}
+                                    value={descriptionF}
+                                    onChange={e => setDescriptionF(e.target.value)}
+                                >
+                                </textarea>
                             </div>
+                        </div>
                             {hasTriedSubmit && descriptionF.trim() === '' && (
                                 <p className="text-red-500 text-sm mt-1 ml-1/4 pt-1 pl-[25%]">La descripción es obligatoria.</p>
                             )}
@@ -578,6 +594,8 @@ export default function Create() {
                             )}
                             <Button
                                 type="submit"
+                                data-testid="submit-create"
+                                name="Guardar"
                                 onClick={() => { }}
                                 disabled={!isSubmitEnabled || isSubmitting}
                                 colorClass={`${(!isSubmitEnabled || isSubmitting) ? 'bg-gray-500 cursor-not-allowed' : 'bg-[#5C17A6] cursor-pointer hover:scale-102'} text-white text-lg font-medium rounded-md transition duration-150 flex items-center gap-2`}

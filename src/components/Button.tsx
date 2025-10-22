@@ -1,35 +1,34 @@
 import React from 'react';
 
+export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  colorClass: string;
+  text?: string;
+}
+
 export default function Button({
-  type = "button",
+  type = 'button' ,
   text,
+  name,
   onClick,
   colorClass,
   children,
   disabled = false,
-}:
-{
-  type?: "button" | "submit";
-  text?: string;
-  onClick?: React.MouseEventHandler<HTMLButtonElement>;
-  colorClass: string;
-  children?: React.ReactNode;
-  disabled?: boolean;
-})
-
-{
-
+  className,
+  ...rest
+}: ButtonProps) {
   const baseClasses =
-    "rounded transition flex justify-center items-center text-center px-4 py-2"; 
+    'rounded transition flex justify-center items-center text-center px-4 py-2';
 
   return (
     <button
       type={type}
       onClick={onClick}
       disabled={disabled}
-      className={`${baseClasses} ${colorClass} ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+      name={name}
+      {...rest} // Propaga data-testid, aria-*, id, etc.
+      className={`${baseClasses} ${colorClass} ${disabled ? 'opacity-50 cursor-not-allowed' : ''} ${className ?? ''}`}
     >
-      {children ? children : text}
+      {children ?? text}
     </button>
   );
 }

@@ -18,6 +18,9 @@ import { ToastProvider } from "./components/ToastProvider";
 import {MilkdownProvider} from "@milkdown/react";
 import Footer from "./components/Footer.tsx";
 
+import { WorkDetail } from './features/WorkDetail/WorkDetail.tsx';
+import ReadChapterNovel from "./features/WorkDetail/ReadChapterNovel.tsx";
+
 
 function App() {
     return (
@@ -116,6 +119,20 @@ function App() {
                     <IncorrectPage />
                     <Footer />
                 </> } />
+
+                <Route path="/work/chapter/:chapterId/read" element={
+                    <ProtectedRoute>
+                            <ReadChapterNovel />
+                    </ProtectedRoute>
+                } />
+
+                 <Route path="/work/:workId" element={
+                    <ProtectedRoute>
+                        <Header />
+                        <WorkDetail />
+                        <Footer />
+                    </ProtectedRoute>
+                } />
             </Routes>
         <ToastProvider /> 
     </BrowserRouter>

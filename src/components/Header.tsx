@@ -86,7 +86,7 @@ function Header() {
               >
                 <button
                   onClick={() => handleSectionClick(sec)}
-                  className="flex items-center gap-1 hover:text-[#5c17a6] transition text-[#686868]"
+                  className="flex items-center gap-1 hover:text-[#5c17a6] transition text-[#686868] cursor-pointer"
                 >
                   {sec}
                 </button>
@@ -152,7 +152,7 @@ function Header() {
                 <button className="text-gray-600 hover:text-purple-900 text-2xl transition">🔔</button>
                 <div className="relative">
                   <img
-                    src={/*{user.image}/*/ "/img/fotoPerfil.jpg"}
+                    src={"/img/fotoPerfil.jpg"}
                     alt="perfil"
                     className="w-8 h-8 rounded-full border border-gray-300 object-cover cursor-pointer"
                     onClick={() => setOpenMenu(!openMenu)}
