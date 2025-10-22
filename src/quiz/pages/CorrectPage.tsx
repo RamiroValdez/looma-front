@@ -17,7 +17,7 @@ export default function CorrectPage() {
                         </div>
 
                         <div className="-mx-6 mt-6 bg-white py-3 text-center rounded-t-md block min-w-full">
-                            <div className="text-[#172FA6] text-xl font-semibold">¡Ganaste un separador!</div>
+                            <div className="text-[#172FA6] text-xl font-semibold">¡Ganaste un señalador!</div>
                         </div>
 
                         <div className="-mx-6 bg-[#2b1a3a] rounded-b-md py-3 text-center block min-w-full">

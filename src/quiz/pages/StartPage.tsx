@@ -15,7 +15,7 @@ export default function StartPage() {
                     topContent={
                         <div className="bg-white rounded-md px-6 py-3 shadow-md text-center">
                             <h1 className="text-xl font-bold text-[#5C17A6]">
-                                Cuestionario para evaluar tu conocimiento en obras literarias
+                                Cuestionario de 5 preguntas para evaluar tu conocimiento en obras literarias
                             </h1>
                         </div>
                     }
