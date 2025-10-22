@@ -5,6 +5,10 @@ import ManageWorkPage from "./features/ManageWork/ManageWorkPage.tsx";
 import CreatePiece from "./features/Work/MyWorks.tsx";
 import Create from "./features/Work/Create.tsx";
 import Home from "./features/Home/Home.tsx";
+import StartPage from "./quiz/pages/StartPage";
+import QuestionsPage from "./quiz/pages/QuestionsPage";
+import CorrectPage from "./quiz/pages/CorrectPage";
+import IncorrectPage from "./quiz/pages/IncorrectPage";
 import { LoginPage } from "./features/Login/LoginPage.tsx";
 import { ProtectedRoute } from "./components/ProtectedRoute.tsx";
 import Header from "./components/Header.tsx";
@@ -90,6 +94,31 @@ function App() {
                         <PreviewChapter />
                     </ProtectedRoute>
                 } />
+                
+                {/* Rutas del quiz (inicio, preguntas, correct/incorrect) */}
+                <Route path="/quiz" element={ <>
+                    <Header />
+                    <StartPage />
+                    <Footer />
+                </> } />
+
+                <Route path="/quiz/questions" element={ <>
+                    <Header />
+                    <QuestionsPage />
+                    <Footer />
+                </> } />
+
+                <Route path="/quiz/correct" element={ <>
+                    <Header />
+                    <CorrectPage />
+                    <Footer />
+                </> } />
+
+                <Route path="/quiz/incorrect" element={ <>
+                    <Header />
+                    <IncorrectPage />
+                    <Footer />
+                </> } />
 
                 <Route path="/work/chapter/:chapterId/read" element={
                     <ProtectedRoute>

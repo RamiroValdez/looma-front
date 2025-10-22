@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import { type UserDTO } from "../dto/UserDTO";
 import { useAuthStore } from '../store/AuthStore';
 import { useNavigate } from 'react-router-dom';
+import Button from './Button';
 
 function Header() {
   const navigate = useNavigate();
@@ -70,11 +71,11 @@ function Header() {
 
   return (
     <header className="bg-[linear-gradient(to_right,#EBE4EC,#B597D2,#EDE4F9)] shadow relative z-[9999]">
-      <div className="flex items-end justify-between px-6 py-3">
+      <div className="flex items-end justify-between px-4 py-3">
         <div className="flex items-end gap-2">
           <img onClick={() => navigate("/home")} src="/img/loomaLogo.png" alt="LOOMA logo" className="h-8 w-auto object-contain" />
-          <nav className="flex items-end gap-6 ml-6">
-            <a onClick={() => navigate("/home")} className="text-[#686868] hover:text-[#5c17a6] transition cursor-pointer">Inicio</a>
+          <nav className="flex items-end gap-4 ml-4">
+            <a onClick={() => navigate("/home")} className="text-[#686868] hover:text-[#5c17a6] transition">Inicio</a>
             {secciones.map((sec, i) => (
               <div
                 key={i}
@@ -128,7 +129,7 @@ function Header() {
           </nav>
         </div>
 
-        <div className="flex-1 mx-8 max-w-lg">
+        <div className="flex-1 mx-4 max-w-lg">
           <input
             type="text"
             placeholder="Buscar"
@@ -136,9 +137,14 @@ function Header() {
           />
         </div>
 
-        <div className="flex items-center gap-6 relative">
+        <div className="flex items-center gap-4 relative">
           {user ? (
             <>
+              <Button 
+                text="JUGAR!"
+                onClick={() => navigate('/quiz')}
+                colorClass="bg-[#172FA6] text-white w-30 px-4 !py-1 rounded-xl hover:bg-[#0F1E66] transition flex items-center justify-center cursor-pointer"
+              />
               <Link to="/my-works" className="bg-[#5c17a6] text-white w-30 px-4 py-1 rounded-xl hover:bg-[#4b1387] transition flex items-center justify-center">
                 Publicar
               </Link>
