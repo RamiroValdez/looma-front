@@ -2,9 +2,10 @@ interface FooterLectorProps {
   selectedLanguages: { code: string; name: string }[];
   chapterTitle: string;
   onLanguageChange: (languageCode: string) => void;
+  disableLanguageSelect?: boolean;
 }
 
-const FooterLector = ({ selectedLanguages, chapterTitle, onLanguageChange }: FooterLectorProps) => {
+const FooterLector = ({ selectedLanguages, chapterTitle, onLanguageChange, disableLanguageSelect = false }: FooterLectorProps) => {
   return (
     <footer className="fixed bottom-0 left-0 w-full bg-[#3b245a] text-white px-6 py-3 flex items-center justify-between flex-wrap z-50">
 
@@ -63,8 +64,11 @@ const FooterLector = ({ selectedLanguages, chapterTitle, onLanguageChange }: Foo
           <div className="flex flex-col items-center leading-tight text-white">
             <span className="text-[10px] uppercase mb-1">Idiomas</span>
             <select
-              className="bg-transparent text-white font-bold text-sm border border-gray-300 rounded-md px-2 py-1 focus:text-black focus:bg-white"
+              className={`bg-transparent text-white font-bold text-sm border border-gray-300 rounded-md px-2 py-1 focus:text-black focus:bg-white ${
+                "disabled:opacity-60"
+              }`}
               onChange={(e) => onLanguageChange(e.target.value)}
+              disabled={disableLanguageSelect}
             >
               {selectedLanguages.map((lang) => (
                 <option key={lang.code} value={lang.code} className="text-black">

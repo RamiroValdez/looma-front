@@ -122,7 +122,8 @@ function App() {
 
                 <Route path="/work/chapter/:chapterId/read" element={
                     <ProtectedRoute>
-                            <ReadChapterNovel />
+                        <Header />
+                        <ReadChapterNovel />
                     </ProtectedRoute>
                 } />
 
