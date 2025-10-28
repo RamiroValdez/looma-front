@@ -25,6 +25,7 @@ export default function AddChapter() {
     const [cancelScheduleError, setCancelScheduleError] = useState("");
     const [showCancelScheduleModal, setShowCancelScheduleModal] = useState(false);
     const [cancelScheduleInput, setCancelScheduleInput] = useState("");
+
     useEffect(() => {
         if (errorFetch) {
             const status = (errorFetch as any)?.response?.status;
@@ -33,6 +34,13 @@ export default function AddChapter() {
             }
         }
     }, [errorFetch, id, navigate]);
+
+    useEffect(() => {
+        if (data) {
+            setChapter(data);
+        }
+    }, [data]);
+
 
     const handleFieldChange = (field: keyof ChapterWithContentDTO, value: any) => {
         setChapter((prev) => (prev ? { ...prev, [field]: value } : prev));
