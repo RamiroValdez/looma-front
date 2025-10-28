@@ -7,5 +7,4 @@ export interface ExploreFiltersDto {
   minLikes?: number;      
   text?: string;         
   sortBy?: string;       
-  asc?: boolean;
 }
