@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef , type KeyboardEvent} from 'react';
 import { useCategories } from '../services/categoryService';
 import { getCurrentUser } from '../services/dataUserService';
 import { Link } from "react-router-dom";
@@ -18,6 +18,17 @@ function Header() {
 
   const { categories, isLoading, error } = useCategories();
   const { token, logout } = useAuthStore();
+
+   const [searchText, setSearchText] = useState('');
+  // ...existing code...
+
+  const handleSearchKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && searchText.trim()) {
+      // Navegar a explore con el texto de búsqueda
+      navigate(`/explore?q=${encodeURIComponent(searchText.trim())}`);
+      setSearchText(''); // Limpiar el input después de buscar
+    }
+  };
 
   useEffect(() => {
     let alive = true;
@@ -129,15 +140,30 @@ function Header() {
           </nav>
         </div>
 
-        <div className="flex-1 mx-4 max-w-lg">
+        <div className="flex-1 mx-8 max-w-lg relative">
           <input
-            type="text"
-            placeholder="Buscar"
-            className="w-full rounded-xl py-1 px-3 focus:outline-none focus:ring-2 focus:ring-purple-400 bg-white"
+          type="text"
+          value={searchText}
+          onChange={(e) => setSearchText(e.target.value)}
+          onKeyDown={handleSearchKeyDown}
+          placeholder="Buscar por título, descripción, etiquetas..."
+          className="w-full pl-10 pr-4 py-2 rounded-full bg-white focus:outline-none focus:ring-2 focus:ring-purple-400"
+        />
+        <svg
+          className="absolute left-3 top-2.5 w-5 h-5 text-gray-500"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
           />
+        </svg>
         </div>
-
-        <div className="flex items-center gap-4 relative">
+        <div className="flex items-center gap-6 relative">
           {user ? (
             <>
               <Button 

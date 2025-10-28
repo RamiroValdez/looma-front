@@ -1,4 +1,3 @@
-// DTO for work information
 export interface WorkDTO {
   id: number;
   title: string;

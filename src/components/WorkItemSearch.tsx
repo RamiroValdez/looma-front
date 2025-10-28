@@ -1,35 +1,93 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import type { WorkCardDto } from "../dto/WorkCardDTO";
 
-export const WorkItemSearch = ({work}  : {work: WorkCardDto}) => {
+const FORMAT_BG_BY_NAME: Record<string, string> = {
+  novela: "bg-emerald-600/80",
+  cuento: "bg-sky-600/80",
+  poesía: "bg-fuchsia-600/80",
+  ensayo: "bg-amber-600/80",
+  comic: "bg-indigo-600/80",
+  default: "bg-white/20", 
+};
 
-    const navigate = useNavigate();
+function getFormatBgByName(name?: string) {
+  if (!name) return FORMAT_BG_BY_NAME.default;
+  const key = name.trim().toLowerCase();
+  return FORMAT_BG_BY_NAME[key] ?? FORMAT_BG_BY_NAME.default;
+}
 
-    const handleClick = () => {
-        navigate(`/work/${work.id}`);
-    };
+export const WorkItemSearch = ({ work }: { work: WorkCardDto }) => {
+  const navigate = useNavigate();
+  const [isHovered, setIsHovered] = useState(false);
+
+  const handleClick = () => {
+    navigate(`/work/${work.id}`);
+  };
 
   return (
-    <div className="border rounded p-4 shadow hover:shadow-lg transition" onClick={handleClick}>
+    <div
+      className="relative z-[2] rounded-2xl overflow-hidden shadow-md w-[210px] h-[280px] bg-white hover:scale-104 transition-transform duration-300 cursor-pointer"
+      onClick={handleClick}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      {/* Imagen de fondo */}
       <img
         src={work.cover}
         alt={work.title}
-        className="w-full h-48 object-cover rounded mb-2"
+        className="absolute inset-0 w-full h-full object-cover"
       />
-      <h3 className="font-bold text-lg">{work.title}</h3>
-      <p className="text-sm text-gray-600 line-clamp-2">{work.description}</p>
-      <div className="flex items-center gap-2 mt-2">
-        <span className="text-sm">❤️ {work.likes}</span>
-        <span className="text-xs bg-gray-200 px-2 py-1 rounded">{work.format.name}</span>
-      </div>
-      <div className="flex flex-wrap gap-1 mt-2">
-        {work.categories.map((cat) => (
-          <span key={cat.id} className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
-            {cat.name}
-          </span>
-        ))}
+
+      {/* Overlay base: gradiente sutil desde abajo (solo sin hover) */}
+      {!isHovered && (
+        <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-black/80 to-transparent" />
+      )}
+
+      {/* Overlay hover: oscurecimiento uniforme sin gradiente */}
+      {isHovered && (
+        <div className="absolute inset-0 pointer-events-none bg-black/90" />
+      )}
+
+      {/* Contenido superpuesto */}
+      <div className="relative z-10 flex flex-col justify-end h-full p-3 text-white">
+        {/* Descripción (visible solo en hover) */}
+        {isHovered && (
+          <div className="absolute top-0 left-0 right-0 p-3">
+            <p className="leading-relaxed line-clamp-6 drop-shadow-md">
+              {work.description}
+            </p>
+          </div>
+        )}
+
+        {/* Título centrado (siempre visible, abajo) */}
+        <h3 className="font-semibold text-xl leading-tight text-center mb-2 drop-shadow-md line-clamp-2">
+          {work.title}
+        </h3>
+
+        {/* Metadata debajo del título con altura fija */}
+        <div className="min-h-[28px]">
+          {!isHovered ? (
+            <div className="flex items-center justify-between text-sm">
+              <span className="font-semibold drop-shadow-md text-base">❤️ {work.likes}</span>
+              <span className={`px-2 py-1 rounded-full font-semibold ${getFormatBgByName(work.format?.name)}`}>
+                {work.format.name}
+              </span>
+            </div>
+          ) : (
+            <div className="flex flex-wrap justify-center gap-1">
+              {work.categories.map((cat) => (
+                <span
+                  key={cat.id}
+                  className="text-xs font-semibold bg-[#172FA6] backdrop-blur-sm text-white px-2 py-0.5 rounded"
+                >
+                  {cat.name}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
-
-}
+};
