@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable react-hooks/rules-of-hooks */
 import { useLocation } from "react-router-dom";
 import FooterLector from "../../components/FooterLector";
 import { useState } from "react";

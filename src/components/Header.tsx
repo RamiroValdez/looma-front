@@ -47,7 +47,8 @@ function Header() {
         } else {
           logout();
         }
-      } catch (err) {
+      } catch (error) {
+        console.error(error);
         if (!alive) return;
         logout();
       }

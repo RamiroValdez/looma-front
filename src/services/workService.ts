@@ -1,5 +1,5 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 import type { WorkDTO } from '../dto/WorkDTO';
-import { MOCK_WORK_DATA } from '../features/WorkDetail/services/mockData';
 import { getWorkById as getWorkByIdFromChapterService } from './chapterService';
 import {useApiQuery} from "../api/useApiQuery.ts";
 

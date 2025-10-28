@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom'; 
 import { WorkService } from '../../../services/workService';
 import {type WorkDTO } from '../../../dto/WorkDTO';
-import {type ChapterDTO } from '../../../dto/ChapterDTO';
 
 export const useWorkDetailData = () => {
 

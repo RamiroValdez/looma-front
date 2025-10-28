@@ -1,19 +1,19 @@
 import { useQuery, type UseQueryOptions } from "@tanstack/react-query";
 import { apiRequest } from "./apiClient.ts";
 
-export const useApiQuery = <TData, TError = unknown>(
+export const useApiQuery = <TQueryFnData, TData = TQueryFnData, TError = unknown>(
     key: string[],
     config: {
         url: string;
         method: 'GET' | 'POST' | 'PUT' | 'DELETE';
-        data?: any;
+        data?: unknown;
         headers?: Record<string, string>;
     },
-    options?: Omit<UseQueryOptions<TData, TError>, 'queryKey' | 'queryFn'>
+    options?: Omit<UseQueryOptions<TQueryFnData, TError, TData, string[]>, 'queryKey' | 'queryFn'>
 ) => {
-    return useQuery<TData, TError>({
+    return useQuery<TQueryFnData, TError, TData, string[]>({
         queryKey: key,
-        queryFn: () => apiRequest<TData>({
+        queryFn: () => apiRequest<TQueryFnData>({
             url: config.url,
             method: config.method,
             data: config.data,

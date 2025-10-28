@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import FooterLector from "../../components/FooterLector";
 import { useState, useEffect } from "react";
 import { useLanguages } from "../../services/languageService";
@@ -6,15 +7,26 @@ import TextViewer from "../Chapter/TextViewer.tsx";
 import { MilkdownProvider } from "@milkdown/react";
 import { getChapterById } from "../../services/chapterService.ts";
 import { useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const ReadChapter = () => {
+    const navigate = useNavigate();
     const { chapterId } = useParams<{ chapterId: string }>();
-    const { data, isLoading } = getChapterById(Number(chapterId), "");
+    const { data, isLoading, error: errorFetch } = getChapterById(Number(chapterId), "");
 
     const { languages } = useLanguages();
     const [translatedContent, setTranslatedContent] = useState<string>("");
     const [currentLanguage, setCurrentLanguage] = useState<string>("");
     const [isTranslating, setIsTranslating] = useState(false);
+
+    useEffect(() => {
+        if (errorFetch) {
+            const status = (errorFetch as any)?.response?.status;
+            if (status === 403) {
+                navigate(-1);
+            }
+        }
+    }, [errorFetch, navigate]);
 
     // Establecer contenido original al cargar
     useEffect(() => {
