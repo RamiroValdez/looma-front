@@ -55,7 +55,6 @@ export async function subscribeToWork(
 
 export async function subscribeToAuthor(
   authorId: number,
-  workId: number,
   provider: "mercadopago" = "mercadopago"
 ): Promise<{ fetchStatus: number; redirectUrl?: string }> {
   try {
