@@ -21,78 +21,84 @@ import Footer from "./components/Footer.tsx";
 import { WorkDetail } from './features/WorkDetail/WorkDetail.tsx';
 import ReadChapterNovel from "./features/WorkDetail/ReadChapterNovel.tsx";
 
+function Shell({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="min-h-screen flex flex-col">
+      <Header />
+      <main className="flex-1">{children}</main>
+      <Footer />
+    </div>
+  );
+}
 
 function App() {
     return (
         <BrowserRouter>
-
             <Routes>
-                <Route path="/login" element={ <>
-                    <Header/>
+                <Route path="/login" element={
+                  <Shell>
                     <LoginPage />
-                    <Footer />
-                </>} />
+                  </Shell>
+                } />
 
-                <Route path="/" element={<>
-                    <Header/>
+                <Route path="/" element={
+                  <Shell>
                     <Home />
-                    <Footer />
-                </>} />
+                  </Shell>
+                } />
 
                 <Route path="/home" element={
-                    <>
-                        <Header/>
-                        <Home />
-                        <Footer />
-                    </>
+                  <Shell>
+                    <Home />
+                  </Shell>
                 } />
 
                 <Route path="/explore" element={
-                    <ProtectedRoute>
-                        <Header />
-                        <ExplorePage />
-                        <Footer />
-                    </ProtectedRoute>
+                  <ProtectedRoute>
+                    <Shell>
+                      <ExplorePage />
+                    </Shell>
+                  </ProtectedRoute>
                 } />
 
                 <Route path="/my-works" element={
-                    <ProtectedRoute>
-                        <Header />
-                        <CreatePiece />
-                        <Footer />
-                    </ProtectedRoute>
+                  <ProtectedRoute>
+                    <Shell>
+                      <CreatePiece />
+                    </Shell>
+                  </ProtectedRoute>
                 } />
 
                 <Route path="/create" element={
-                    <ProtectedRoute>
-                        <Header />
-                        <Create />
-                        <Footer />
-                    </ProtectedRoute>
+                  <ProtectedRoute>
+                    <Shell>
+                      <Create />
+                    </Shell>
+                  </ProtectedRoute>
                 } />
 
                 <Route path="/manage-work/:id" element={
-                    <ProtectedRoute>
-                        <Header />
-                        <ManageWorkPage />
-                        <Footer />
-                    </ProtectedRoute>
+                  <ProtectedRoute>
+                    <Shell>
+                      <ManageWorkPage />
+                    </Shell>
+                  </ProtectedRoute>
                 } />
 
                 <Route path="/chapter/work/:id/edit/:chapterId" element={
-                    <ProtectedRoute>
-                            <Header />
-                        <MilkdownProvider>
-                            <AddChapter />
-                        </MilkdownProvider>
-                        <Footer />
-                    </ProtectedRoute>
+                  <ProtectedRoute>
+                    <Shell>
+                      <MilkdownProvider>
+                        <AddChapter />
+                      </MilkdownProvider>
+                    </Shell>
+                  </ProtectedRoute>
                 } />
 
                 <Route path="/preview" element={
-                    <ProtectedRoute>
-                        <PreviewChapter />
-                    </ProtectedRoute>
+                  <ProtectedRoute>
+                    <PreviewChapter />
+                  </ProtectedRoute>
                 } />
                 
                 {/* Rutas del quiz (inicio, preguntas, correct/incorrect) */}
@@ -127,16 +133,16 @@ function App() {
                     </ProtectedRoute>
                 } />
 
-                 <Route path="/work/:workId" element={
-                    <ProtectedRoute>
-                        <Header />
-                        <WorkDetail />
-                        <Footer />
-                    </ProtectedRoute>
+                <Route path="/work/:workId" element={
+                  <ProtectedRoute>
+                    <Shell>
+                      <WorkDetail />
+                    </Shell>
+                  </ProtectedRoute>
                 } />
             </Routes>
-        <ToastProvider /> 
-    </BrowserRouter>
+            <ToastProvider />
+        </BrowserRouter>
     )
 }
 
