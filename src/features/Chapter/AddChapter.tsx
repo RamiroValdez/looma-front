@@ -24,34 +24,18 @@ export default function AddChapter() {
     const [cancelScheduleError, setCancelScheduleError] = useState("");
     const [showCancelScheduleModal, setShowCancelScheduleModal] = useState(false);
     const [cancelScheduleInput, setCancelScheduleInput] = useState("");
-
-
     useEffect(() => {
-        if (data) {
-            setChapter({
-                id: data.id,
-                title: data.title,
-                content: data.content,
-                price: data.price,
-                workName: data.workName,
-                workId: data.workId,
-                last_update: data.last_update,
-                likes: data.likes,
-                allowAiTranslation: data.allowAiTranslation,
-                languageDefaultCode: data.languageDefaultCode,
-                publicationStatus: data.publicationStatus,
-                scheduledPublicationDate: data.scheduledPublicationDate,
-                publishedAt: data.publishedAt,
-                availableLanguages: data.availableLanguages,
-                chapterNumber: data.chapterNumber
-            });
+        if (errorFetch) {
+            const status = (errorFetch as any)?.response?.status;
+            if (status === 403 && id) {
+                navigate(`/work/${id}`);
+            }
         }
-    }, [data]);
+    }, [errorFetch, id, navigate]);
 
     const handleFieldChange = (field: keyof ChapterWithContentDTO, value: any) => {
         setChapter((prev) => (prev ? { ...prev, [field]: value } : prev));
     };
-
     const handleSave = async () => {
         if (!chapter) return;
         setError("");
