@@ -41,7 +41,7 @@ export const WorkInfo: React.FC<WorkInfoProps> = ({ work, manageFirstChapter, di
       setIsPaying(true);
       const paymentWindow = window.open("", "_blank");
       const res = modalMode === "author"
-        ? await subscribeToAuthor(work.creator.id, work.id, "mercadopago")
+        ? await subscribeToAuthor(work.creator.id, "mercadopago")
         : await subscribeToWork(work.id, "mercadopago");
       let url = (res.redirectUrl || "").toString().trim();
       if (url && !/^https?:\/\//i.test(url)) {
