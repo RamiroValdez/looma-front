@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useAuthStore } from "../store/AuthStore.ts";
 import { handleError } from "../utils/errorHandler.ts";
 

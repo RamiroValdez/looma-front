@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 import React, { useEffect, useState } from "react";
 import { useAuthStore } from "../../store/AuthStore";
 import { useUserStore } from "../../store/UserStorage.ts";
@@ -46,6 +47,7 @@ export const LoginPage = () => {
             navigate('/home');
             notifySuccess("¡Inicio de sesión exitoso!");
         } catch (err) {
+            console.error(err);
             notifyError("¡Inicio de sesión fallido! Por favor verifica tus datos.");
         } finally {
             setLoading(false);

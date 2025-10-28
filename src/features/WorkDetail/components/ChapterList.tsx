@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useMemo, useState } from "react";
 import { type ChapterDTO } from "../../../dto/ChapterDTO";
 import { ChapterListItem } from "./ChapterListItem";

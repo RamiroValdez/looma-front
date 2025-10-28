@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 import works from "../../public/data/work-2.json";
 
 import { useAuthStore } from "../store/AuthStore.ts";

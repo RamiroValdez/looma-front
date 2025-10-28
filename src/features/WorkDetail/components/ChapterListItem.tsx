@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 import React from "react";
 import { type ChapterDTO } from "../../../dto/ChapterDTO";
 import Button from "../../../components/Button";

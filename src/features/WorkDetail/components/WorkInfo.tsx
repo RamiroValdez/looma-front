@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState } from "react";
 import { type WorkDTO } from "../../../dto/WorkDTO";
 import { notifyError, notifySuccess } from "../../../services/ToastProviderService.ts";

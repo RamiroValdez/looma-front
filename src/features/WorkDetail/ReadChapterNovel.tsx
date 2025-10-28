@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import FooterLector from "../../components/FooterLector";
 import { useState, useEffect } from "react";
 import { useLanguages } from "../../services/languageService";

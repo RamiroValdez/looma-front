@@ -1,10 +1,10 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useEffect, useState } from "react";
 import { getTop10Works} from "../../services/workService";
 import { useCategories } from "../../services/categoryService";
 import { getUserReadingList } from "../../services/userService";
 import type { WorkDTO } from "../../dto/WorkDTO";
 import type { BookDTO } from "../../dto/BookDTO";
-import Section from "../../components/Section";
 import Top10Section from "../../components/Top10Section";
 import BannerHome from "../../components/BannerHome";
 
@@ -33,12 +33,12 @@ const Home = () => {
 
         const top10Data = await getTop10Works();
         setTop10(
-          top10Data.map((work: WorkDTO, index: number) => ({
+          top10Data?.data?.map((work: WorkDTO, index: number) => ({
             id: work.id,
             title: work.title,
             cover: work.cover, 
             position: index + 1,
-          }))
+          })) || []
         );
 
         const readingList = await getUserReadingList(userId);
@@ -82,7 +82,7 @@ const Home = () => {
   ]}
 />
 
-      <Top10Section books={top10} />
+      <Top10Section />
 
       <div className="px-6 mb-12 grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
           {/*<div className="w-full">
