@@ -12,13 +12,27 @@ export default function ExplorePage() {
 
   const [filters, setFilters] = useState<ExploreFiltersDto>({ text: qParam });
   const [page, setPage] = useState(0);
-
   const { formats, isLoading: loadingFormats } = useFormats();
   const { categories, isLoading: loadingCategories } = useCategories();
-
   const { data, isLoading, error } = useExploreWorks(filters, page, 20);
 
-  // Sincronizar el filtro de texto con el query param
+
+  const EPISODE_RANGES = [
+    { label: 'Cualquiera', value: 'cualquiera' },
+    { label: '1-5 episodios', value: '1-5' },
+    { label: '6-10 episodios', value: '6-10' },
+    { label: '11-20 episodios', value: '11-20' },
+    { label: '21+ episodios', value: '21+' },
+  ];
+
+  const UPDATE_PERIODS = [
+    { label: 'Hoy', value: 'today' },
+    { label: 'Última semana', value: 'last_week' },
+    { label: 'Último mes', value: 'last_month' },
+    { label: 'Últimos 3 meses', value: 'last_3_months' },
+    { label: 'Último año', value: 'last_year' },
+  ];
+
   useEffect(() => {
     if (qParam) {
       setFilters((prev) => ({ ...prev, text: qParam }));
@@ -30,7 +44,6 @@ export default function ExplorePage() {
     setFilters((prev) => ({ ...prev, ...newFilters }));
     setPage(0);
 
-    // Si cambia el texto de búsqueda, actualizar la URL
     if ('text' in newFilters) {
       if (newFilters.text) {
         searchParams.set('q', newFilters.text);
@@ -41,81 +54,117 @@ export default function ExplorePage() {
     }
   };
 
+  const handleEpisodeRangeChange = (rangeValue: string, isChecked: boolean) => {
+    const currentRanges = (filters.rangeEpisodes as string[] || []); 
+    let updatedRanges: string[];
+
+    if (isChecked) {
+        updatedRanges = [...currentRanges, rangeValue];
+    } else {
+        updatedRanges = currentRanges.filter(val => val !== rangeValue);
+    }
+
+    const newFilters: Partial<ExploreFiltersDto> = {
+        rangeEpisodes: updatedRanges,
+    };
+    handleFilterChange(newFilters);
+};
+
+const handleUpdateRangeChange = (updateValue: string, isChecked: boolean) => {
+    const currentUpdates = (filters.lastUpdated as string[] || []); 
+    let updatedUpdates: string[];
+    if (isChecked) {
+        updatedUpdates = [...currentUpdates, updateValue];
+    } else {
+        updatedUpdates = currentUpdates.filter(val => val !== updateValue);
+    }
+    const newFilters: Partial<ExploreFiltersDto> = {
+        lastUpdated: updatedUpdates,
+    };
+    handleFilterChange(newFilters);
+}
+
+const handleFinishedChange = (isChecked: boolean) => {
+    const newFilters: Partial<ExploreFiltersDto> = {
+        state: isChecked ? 'finished' : undefined,
+    };
+    handleFilterChange(newFilters);
+}
+
+
   if (loadingFormats || loadingCategories) return <div>Cargando catálogos...</div>;
   if (error) return <div>Error al cargar obras: {error.message}</div>;
 
   return (
     <div className="p-4">
-      {/* Layout principal: sidebar de ordenamiento + grilla */}
       <div className="flex gap-6">
-        {/* Sidebar de ordenamiento (izquierda) */}
         <aside className="w-48 flex-shrink-0 mt-22">
-          <h3 className="font-semibold mb-3 text-sm">Ordenar por</h3>
-          <div className="space-y-2 mb-4">
-            <label className="flex items-center gap-2 text-sm cursor-pointer">
-              <input
-                type="radio"
-                name="sortBy"
-                value="publicationDate"
-                checked={filters.sortBy === 'publicationDate' || !filters.sortBy}
-                onChange={(e) => handleFilterChange({ sortBy: e.target.value })}
-              />
-              Fecha de publicación
-            </label>
-            <label className="flex items-center gap-2 text-sm cursor-pointer">
-              <input
-                type="radio"
-                name="sortBy"
-                value="title"
-                checked={filters.sortBy === 'title'}
-                onChange={(e) => handleFilterChange({ sortBy: e.target.value })}
-              />
-              Título
-            </label>
-            <label className="flex items-center gap-2 text-sm cursor-pointer">
-              <input
-                type="radio"
-                name="sortBy"
-                value="likes"
-                checked={filters.sortBy === 'likes'}
-                onChange={(e) => handleFilterChange({ sortBy: e.target.value })}
-              />
-              Likes
-            </label>
+          <h3 className="font-semibold mb-2 text-lg">Longitud</h3>
+          <div className="filter-group ml-1">
+                {EPISODE_RANGES.map(({ label, value }) => (
+            <label key={value} className="flex items-center space-x-2 mb-2">
+                <input
+                    type="checkbox"
+                    checked={filters.rangeEpisodes?.includes(value) || false}
+                    onChange={(e) => 
+                        handleEpisodeRangeChange(value, e.target.checked)
+                    }
+                    className="form-checkbox accent-gray-900"
+                      />
+                      <span>{label}</span>
+                  </label>
+              ))} 
           </div>
 
-          <h3 className="font-semibold mb-3 text-sm pt-3">Orden</h3>
-          <div className="space-y-2">
-            <label className="flex items-center gap-2 text-sm cursor-pointer">
-              <input
-                type="radio"
-                name="order"
-                value="asc"
-                checked={filters.asc !== false}
-                onChange={() => handleFilterChange({ asc: true })}
-              />
-              Ascendente
-            </label>
-            <label className="flex items-center gap-2 text-sm cursor-pointer">
-              <input
-                type="radio"
-                name="order"
-                value="desc"
-                checked={filters.asc === false}
-                onChange={() => handleFilterChange({ asc: false })}
-              />
-              Descendente
-            </label>
-          </div>
+          <h3 className="font-semibold mb-2 text-lg mt-8">Última actualización</h3>
+          <div className="mt-2 filter-group ml-1">
+                {UPDATE_PERIODS.map(({ label, value }) => (
+            <label key={value} className="flex items-center space-x-2 mb-2">
+                <input
+                    type="checkbox"
+                    checked={filters.lastUpdated?.includes(value) || false}
+                    onChange={(e) =>
+                        handleUpdateRangeChange(value, e.target.checked)
+                    }
+                    className="form-checkbox accent-gray-900"
+                />
+                <span>{label}</span>
+                    </label>
+                ))}
+            </div>
+            
+            <h3 className='font-semibold mb-2 text-lg mt-8'>Contenido</h3>
+                <div className="filter-group">
+                    <label className="flex items-center space-x-2 ml-1">
+                        <input
+                            type="checkbox"
+                            checked={filters.state === 'finished'} 
+                            onChange={(e) => 
+                                handleFinishedChange(e.target.checked)
+                            }
+                            className="form-checkbox accent-gray-900"
+                        />
+                        <span className='whitespace-nowrap'>Solo historias completas</span>
+                    </label>
+                </div>
         </aside>
 
-        {/* Columna derecha: cabecera (título + selects) + grilla */}
         <div className="flex-1">
-          {/* Cabecera alineada al inicio de la grilla */}
           <div className="mb-6 flex items-end justify-between mr-17">
-            <h2 className="text-2xl font-bold">
-              Explorar obras {qParam && <span className="text-base text-gray-600">– "{qParam}"</span>}
-            </h2>
+            <div className="flex items-end gap-3">
+              <h2 className="text-2xl font-bold">
+                Explorar obras {qParam && <span className="text-base text-gray-600">– "{qParam}"</span>}
+              </h2>
+
+              {qParam && (
+                <button
+                  onClick={() => handleFilterChange({ text: undefined })}
+                  className="text-sm text-violet-500 cursor-pointer hover:underline"
+                >
+                  Limpiar búsqueda
+                </button>
+              )}
+            </div>
 
             <div className="flex gap-4">
               <div>
@@ -160,7 +209,6 @@ export default function ExplorePage() {
             </div>
           </div>
 
-          {/* Grilla de obras */}
           {isLoading ? (
             <div>Cargando obras...</div>
           ) : (
@@ -171,7 +219,6 @@ export default function ExplorePage() {
                 ))}
               </div>
 
-              {/* Paginación */}
               <div className="flex justify-center gap-2 mt-6">
                 <button
                   disabled={page === 0}

@@ -145,7 +145,7 @@ function Header() {
           value={searchText}
           onChange={(e) => setSearchText(e.target.value)}
           onKeyDown={handleSearchKeyDown}
-          placeholder="Buscar obras, autores, tags..."
+          placeholder="Buscar por título, descripción, etiquetas..."
           className="w-full pl-10 pr-4 py-2 rounded-full bg-white focus:outline-none focus:ring-2 focus:ring-purple-400"
         />
         <svg
