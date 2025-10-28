@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
+ 
 import { useEffect, useState } from "react";
 import { getTop10Works} from "../../services/workService";
 import { useCategories } from "../../services/categoryService";
