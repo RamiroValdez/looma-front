@@ -4,7 +4,6 @@ import AdvancedTools from "../../components/addChapter/AdvancedTools";
 import ChapterEditor from "../../components/addChapter/ChapterEditor";
 import ChapterActions from "../../components/addChapter/ChapterActions";
 import PublishOptions from "../../components/addChapter/PublishOptions";
-//import InspirationBubble from "../../components/addChapter/InspirationBubble";
 import {updateChapter, deleteChapter, getChapterById, cancelScheduleChapter} from "../../../infrastructure/services/ChapterService.ts";
 import { handleError } from "../../../infrastructure/utils/errorHandler.ts";
 import type {ChapterWithContentDTO} from "../../../domain/dto/ChapterWithContentDTO.ts";
@@ -149,7 +148,6 @@ export default function AddChapter() {
         setSelectedLanguage(languageCode);
     };
 
-    //NUEVO
   const handlePreview = () => {
     if (!chapter) return;
 

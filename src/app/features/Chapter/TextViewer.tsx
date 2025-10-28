@@ -3,7 +3,6 @@ import { commonmark } from '@milkdown/kit/preset/commonmark';
 import { gfm } from '@milkdown/kit/preset/gfm';
 import { nord } from '@milkdown/theme-nord';
 import { Milkdown, useEditor } from '@milkdown/react';
-
 import '@milkdown/theme-nord/style.css';
 import '@milkdown/kit/prose/view/style/prosemirror.css';
 

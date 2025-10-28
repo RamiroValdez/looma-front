@@ -32,8 +32,6 @@ export default function CreateWork() {
     }));
     
     const firstGroup = allGroups.find(group => group.works.length > 0);
-
-
     return (
         <div className="min-h-screen bg-[#F0EEF6] p-4 sm:p-8">
             

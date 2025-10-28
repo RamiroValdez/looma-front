@@ -1,3 +1,7 @@
+import type { CategoryDTO } from "./CategoryDTO";
+import type { ChapterDTO } from "./ChapterDTO";
+import type { WorkFormatDTO } from "./WorkFormatDTO";
+
 export interface WorkDTO {
   id: number;
   title: string;
@@ -19,27 +23,6 @@ export interface WorkDTO {
 }
 
 export interface OriginalLanguageDTO {
-  id: number;
-  name: string;
-}
-
-export interface ChapterDTO {
-  id: number;
-  title: string;
-  description: string;
-  price: number;
-  likes: number;
-  lastModified: string;
-  publishedAt?: string;
-  publicationStatus: 'PUBLISHED' | 'DRAFT';
-}
-
-export interface CategoryDTO {
-  id: number;
-  name: string;
-}
-
-export interface WorkFormatDTO {
   id: number;
   name: string;
 }

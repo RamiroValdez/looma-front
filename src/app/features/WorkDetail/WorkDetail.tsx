@@ -34,10 +34,8 @@ export const WorkDetail: React.FC = () => {
           </p>
         </div>
       </div>
-
       <div className="max-w-6xl mx-auto mt-[-4rem] px-6 relative z-20">
         <div className="flex flex-col md:flex-row shadow-lg  overflow-hidden bg-white">
-
            <div className="w-full md:w-3/5 p-6">
             <ChapterList chapters={work.chapters} originalLanguage={work.originalLanguage.name} />
           </div>
@@ -46,7 +44,6 @@ export const WorkDetail: React.FC = () => {
           </div>
         </div>
       </div>
-
       <div className="h-16"></div>
     </div>
   );

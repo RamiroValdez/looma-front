@@ -8,12 +8,9 @@ import { WorkItemSearch } from '../../components/WorkItemSearch';
 export default function ExplorePage() {
   const [filters, setFilters] = useState<ExploreFiltersDto>({});
   const [page, setPage] = useState(0);
-
   const { formats, isLoading: loadingFormats } = useFormats();
   const { categories, isLoading: loadingCategories } = useCategories();
-
   const { data, isLoading, error } = useExploreWorks(filters, page, 20);
-
   const handleFilterChange = (newFilters: Partial<ExploreFiltersDto>) => {
     setFilters((prev) => ({ ...prev, ...newFilters }));
     setPage(0); 

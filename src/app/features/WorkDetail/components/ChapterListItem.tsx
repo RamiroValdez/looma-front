@@ -1,5 +1,5 @@
 import React from "react";
-import { type ChapterDTO } from "../../../../domain/dto/ChapterDTO";
+import  type {ChapterDTO } from "../../../../domain/dto/ChapterDTO";
 
 interface ChapterListItemProps {
   chapter: ChapterDTO;

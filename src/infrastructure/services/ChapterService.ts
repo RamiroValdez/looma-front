@@ -1,5 +1,3 @@
-import works from "../../../public/data/work-2.json";
-
 import { useAuthStore } from "../../domain/store/AuthStore.ts";
 import { handleError } from "../utils/errorHandler.ts";
 import type { WorkDTO } from "../../domain/dto/WorkDTO.ts";
@@ -51,17 +49,7 @@ export async function updateChapter(
   publishAt?: string
 ): Promise<{ fetchStatus: number }> {
   try {
-    const work = works.find((w) => w.id === workId);
-    if (!work) throw new Error("Obra no encontrada");
-
-    const chapter = work.chapters.find((c) => c.id === chapterId);
-    if (!chapter) throw new Error("Capítulo no encontrado");
-
-    chapter.title = titulo;
-    chapter.description = contenido;
-    chapter.lastModified = new Date().toISOString();
-    if (publishAt) chapter.publishedAt = publishAt;
-
+    
     const token = useAuthStore.getState().token;
 
     const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_API_MANAGE_WORK_URL}/update-chapter`, {

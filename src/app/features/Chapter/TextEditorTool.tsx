@@ -27,12 +27,12 @@ export default function TextEditorTool({chapterContent, onChange, setEditorRef}:
                 ctx.set(rootCtx, root);
                 ctx.set(defaultValueCtx, editorValue);
                 ctx.get(listenerCtx).markdownUpdated((_, markdown) => {
-                    setEditorValue(markdown); // actualiza estado local
-                    onChange(markdown);      // actualiza estado del padre
+                    setEditorValue(markdown); 
+                    onChange(markdown);     
                 });
             })
             .config(nord)
-            .use(commonmark) // Habilita Markdown internamente
+            .use(commonmark) 
             .use(history)
             .use(listener)
             .use(gfm)

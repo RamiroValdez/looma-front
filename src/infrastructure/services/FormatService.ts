@@ -1,6 +1,6 @@
-import { type WorkFormatDTO } from "../../domain/dto/WorkDTO.ts";
 import { useApiQuery } from "../api/useApiQuery.ts";
 import { useFormatStore } from "../../domain/store/FormatStore.ts";
+import type { WorkFormatDTO } from "../../domain/dto/WorkFormatDTO.ts"; 
 import { useEffect } from "react";
 
 export const useFormats = () => {

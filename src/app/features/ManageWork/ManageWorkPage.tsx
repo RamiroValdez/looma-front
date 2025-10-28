@@ -28,11 +28,8 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
   const [error, setError] = useState<string | null>(null);
   const defaultWorkId = 1; 
   const currentWorkId = Number(workId) || defaultWorkId;
-  
-  
   const [isCategoryMenuOpen, setIsCategoryMenuOpen] = useState(false);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-
   const [currentTags, setCurrentTags] = useState<string[]>([]);
   const [isAddingTag, setIsAddingTag] = useState(false);
   const [newTagText, setNewTagText] = useState('');
@@ -45,16 +42,13 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
   const suggestMutation = useSuggestTagsMutation();
   const [nameWork, setNameWork] = useState('');
   const [showBannerTooltip, setShowBannerTooltip] = useState(false);
-
   const [descriptionF, setDescriptionF] = useState('');
-
   const bannerInputRef = useRef<HTMLInputElement>(null);
   const coverInputRef = useRef<HTMLInputElement>(null);
   const suggestionMenuRef = useRef<HTMLDivElement | null>(null);
   const suggestionCategoryMenuRef = useRef<HTMLDivElement | null>(null);
   useClickOutside(suggestionMenuRef as React.RefObject<HTMLElement>, () => setIsSuggestionMenuOpen(false));
   useClickOutside(suggestionCategoryMenuRef as React.RefObject<HTMLElement>, () => setIsCategoryMenuOpen(false));
-  
   const [bannerPreview, setBannerPreview] = useState<string | null>(null);
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
   const [errorBanner, setErrorBanner] = useState<string | null>(null);
@@ -76,52 +70,54 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
 
   const handleBannerClick = () => bannerInputRef.current?.click();
 
-  const handleFileChange = useCallback(async (e: React.ChangeEvent<HTMLInputElement>, isCover: boolean = false) => {
+ const handleFileChange = useCallback(async (e: React.ChangeEvent<HTMLInputElement>, isCover: boolean = false) => {
     const file = e.target.files?.[0];
     if (!file) return;
-  
+
     const options = isCover
-      ? { maxSizeMB: 20, maxWidth: 500, maxHeight: 800 }
-      : { maxSizeMB: 20, maxWidth: 1345, maxHeight: 256 };
-  
+        ? { maxSizeMB: 20, maxWidth: 500, maxHeight: 800 }
+        : { maxSizeMB: 20, maxWidth: 1345, maxHeight: 256 };
     const result = await validateFile(file, options);
-  
+        const setFilePreview = isCover ? setCoverPreview : setBannerPreview;
+    const setError = isCover ? setErrorCover : setErrorBanner;
+    const inputRef = isCover ? coverInputRef : bannerInputRef;
+    const setPendingFile = isCover ? setPendingCoverFile : null; 
+
     if (!result.valid) {
-      const msg = result.error || 'Archivo inválido.';
-      if (isCover) {
-        setErrorCover(msg);
-        setCoverPreview(prev => { if (prev) URL.revokeObjectURL(prev); return null; });
-        setPendingCoverFile(null);
-        if (coverInputRef.current) coverInputRef.current.value = '';
-      } else {
-        setErrorBanner(msg);
-        setBannerPreview(prev => { if (prev) URL.revokeObjectURL(prev); return null; });
-        if (bannerInputRef.current) bannerInputRef.current.value = '';
-      }
-      return;
+        const msg = result.error || 'Archivo inválido.';
+        setError(msg);
+        
+        setFilePreview(prev => { if (prev) URL.revokeObjectURL(prev); return null; });
+        if (setPendingFile) setPendingFile(null);
+        
+        if (inputRef.current) inputRef.current.value = '';
+        return;
     }
-  
+
+    setError(null);
+    setFilePreview(prev => {
+        if (prev) URL.revokeObjectURL(prev);
+        return URL.createObjectURL(file);
+    });
+
+    if (inputRef.current) {
+        inputRef.current.value = '';
+    }
+
     if (isCover) {
-      setErrorCover(null);
-      setCoverPreview(prev => { if (prev) URL.revokeObjectURL(prev); return URL.createObjectURL(file); });
-      setPendingCoverFile(file);
-      notifySuccess("Portada actualizada con éxito.");
-      if (coverInputRef.current) coverInputRef.current.value = '';
+        setPendingFile!(file); 
+        notifySuccess("Portada lista para subir."); 
     } else {
-      setErrorBanner(null);
-      setBannerPreview(prev => { if (prev) URL.revokeObjectURL(prev); return URL.createObjectURL(file); });
-      if (bannerInputRef.current) bannerInputRef.current.value = '';
+        try {
+            await uploadBanner(currentWorkId, file);
+            notifySuccess("Banner actualizado con éxito.");
+        } catch (err) {
+            console.error('Error al subir el banner:', err);
+            setError('No se pudo subir el banner. Intenta nuevamente.');
+            setFilePreview(prev => { if (prev) URL.revokeObjectURL(prev); return null; }); 
+        }
     }
-    if (!isCover) {
-      try {
-        await uploadBanner(currentWorkId, file);
-        notifySuccess("Banner actualizado con éxito.");
-      } catch (err) {
-        console.error('Error al subir el banner:', err);
-        setErrorBanner('No se pudo subir el banner. Intenta nuevamente.');
-      }
-    }
-  }, [currentWorkId]);
+}, [currentWorkId]);
 
   const handleAISuggestion = () => {
     if (!isDescriptionValid) {
@@ -158,10 +154,10 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
         const workData = await getWorkById(currentWorkId);
         console.log(workData);
         setWork(workData);
-  setSelectedCategories(workData.categories.map((cat) => cat.name));
-  setCurrentTags(workData.tags.map((tag) => tag.name));
-  setNameWork(workData.title || '');
-  setDescriptionF(workData.description || '');
+        setSelectedCategories(workData.categories.map((cat) => cat.name));
+        setCurrentTags(workData.tags.map((tag) => tag.name));
+        setNameWork(workData.title || '');
+        setDescriptionF(workData.description || '');
       } catch (err) {
         setError('Error loading work');
         console.error('Error:', err);

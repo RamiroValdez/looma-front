@@ -23,7 +23,7 @@ import { useFormats } from "../../../infrastructure/services/FormatService.ts";
 import { useLanguages } from '../../../infrastructure/services/LanguageService.ts';
 import { useLanguageStore } from '../../../domain/store/LanguageStore';
 import type {TagSuggestionRequestDTO} from "../../../domain/dto/TagSuggestionDTO.ts";
-import { notifySuccess } from "../../../infrastructure/services/ToastProviderService.ts";
+import { notifySuccess, notifyError } from "../../../infrastructure/services/ToastProviderService.ts";
 
 
 export default function Create() {
@@ -47,30 +47,24 @@ export default function Create() {
     const [newTagText, setNewTagText] = useState('');
     const [isSuggestionMenuOpen, setIsSuggestionMenuOpen] = useState(false);
     const [showIATooltip, setShowIATooltip] = useState(false);
-
     const [nameWork, setNameWork] = useState('');
     const [descriptionF, setDescriptionF] = useState('');
-
     const bannerInputRef = useRef<HTMLInputElement>(null);
     const coverInputRef = useRef<HTMLInputElement>(null);
-
     const [bannerFile, setBannerFile] = useState<File | null>(null);
     const [coverFile, setCoverFile] = useState<File | null>(null);
     const [coverIaUrl, setCoverIaUrl] = useState<string | null>(null);
-
     const [errorBanner, setErrorBanner] = useState<string | null>(null);
     const [errorCover, setErrorCover] = useState<string | null>(null);
     const [showCoverPopup, setShowCoverPopup] = useState(false);
     const [showCoverIaPopup , setShowCoverIaPopup] = useState(false);
     const [bannerPreview, setBannerPreview] = useState<string | null>(null);
     const [coverPreview, setCoverPreview] = useState<string | null>(null);
-
     const [isAILoading, setIsAILoading] = useState(false);
     const [suggestedTags, setSuggestedTags] = useState<string[]>([]);
     const shortMessage = "Tags con IA: tu descripción tiene menos de 20 caracteres."; 
     const aiSuggestionMessage = "Sugerencias de la IA";
     const suggestMutation = useSuggestTagsMutation();
-
     const isDescriptionValid = descriptionF.trim().length > 20; 
 
     const isSubmitEnabled =
@@ -103,46 +97,43 @@ export default function Create() {
     };
 
     const handleFileChange = useCallback(async (e: React.ChangeEvent<HTMLInputElement>, isCover: boolean = false) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-        const options = isCover
-            ? { maxSizeMB: 20, maxWidth: 500, maxHeight: 800 }
-            : { maxSizeMB: 20, maxWidth: 1345, maxHeight: 256 };
+    const options = isCover
+        ? { maxSizeMB: 20, maxWidth: 500, maxHeight: 800 }
+        : { maxSizeMB: 20, maxWidth: 1345, maxHeight: 256 };
 
-        const result = await validateFile(file, options);
+    const setError = isCover ? setErrorCover : setErrorBanner;
+    const setFile = isCover ? setCoverFile : setBannerFile;
+    const setFilePreview = isCover ? setCoverPreview : setBannerPreview;
+    const inputRef = isCover ? coverInputRef : bannerInputRef;
+    const successMsg = isCover ? "Portada subida con éxito." : "Banner subido con éxito.";
 
-        if (!result.valid) {
-            const errorMessage = result.error || "Error de archivo desconocido.";
-            if (isCover) {
-                setErrorCover(errorMessage);
-                setCoverFile(null);
-                setCoverPreview(prev => { if (prev) URL.revokeObjectURL(prev); return null; });
-                if (coverInputRef.current) coverInputRef.current.value = '';
-            } else {
-                setErrorBanner(errorMessage);
-                setBannerFile(null);
-                setBannerPreview(prev => { if (prev) URL.revokeObjectURL(prev); return null; });
-                if (bannerInputRef.current) bannerInputRef.current.value = '';
-            }
-            return;
-        }
-
-        if (isCover) {
-            setErrorCover(null);
-            setCoverFile(file);
-            setCoverPreview(prev => { if (prev) URL.revokeObjectURL(prev); return URL.createObjectURL(file); });
-            if (coverInputRef.current) coverInputRef.current.value = '';
-            notifySuccess("Portada subida con éxito.");
-            setShowCoverPopup(false);
-        } else {
-            setErrorBanner(null);
-            setBannerFile(file);
-            setBannerPreview(prev => { if (prev) URL.revokeObjectURL(prev); return URL.createObjectURL(file); });
-            notifySuccess("Banner subido con éxito.");
-            if (bannerInputRef.current) bannerInputRef.current.value = '';
-        }
-    }, []);
+    const result = await validateFile(file, options);
+    
+    if (!result.valid) {
+        const errorMessage = result.error || "Error de archivo desconocido.";
+        setError(errorMessage);
+        setFile(null); 
+        setFilePreview(prev => { if (prev) URL.revokeObjectURL(prev); return null; });
+        
+        if (inputRef.current) inputRef.current.value = '';
+        return;
+    }
+    setError(null);
+    setFile(file);
+    notifySuccess(successMsg);
+    setFilePreview(prev => { 
+        if (prev) URL.revokeObjectURL(prev); 
+        return URL.createObjectURL(file); 
+    });
+    
+    if (inputRef.current) inputRef.current.value = '';
+    if (isCover) {
+        setShowCoverPopup(false); 
+    }
+}, []);
 
     useEffect(() => {
         return () => {
@@ -190,40 +181,33 @@ export default function Create() {
         }
     }
 
-     // --- FUNCIÓN QUE GESTIONA LA LLAMADA A LA IA ---
     const handleAISuggestion = () => {
-        if (!isDescriptionValid) {
-            alert("La descripción es demasiado corta. Proporciona más detalles.");
-            return;
-        }
-
-        const payload: TagSuggestionRequestDTO = {
-            description: descriptionF,
-            title: nameWork, 
-            existingTags: currentTags, 
-        };
-        
-        setIsAILoading(true);
-        
-        suggestMutation.mutate(payload, {
-            onSuccess: (data) => {
-                setSuggestedTags(data.suggestions); 
-                setIsSuggestionMenuOpen(true);      
-            },
-            onError: (error) => {
-                console.error("Error de IA:", error);
-            },
-            onSettled: () => {
-                setIsAILoading(false); 
-            }
-        });
+    if (!isDescriptionValid) {
+        notifyError("La descripción es demasiado corta. Proporciona más detalles.");
+        return;
+    }
+    const payload: TagSuggestionRequestDTO = {
+        description: descriptionF,
+        title: nameWork, 
+        existingTags: currentTags, 
     };
+    setIsAILoading(true);
+    suggestMutation.mutate(payload, {
+        onSuccess: (data) => {
+            setSuggestedTags(data.suggestions); 
+            setIsSuggestionMenuOpen(true);
+        },
+            onError: (error) => {
+            console.error("Error de IA:", error);
+            notifyError("Error: No se pudieron generar las etiquetas. Inténtalo más tarde.");
+        },
+    });
+};
 
     const suggestionMenuRef = useRef<HTMLDivElement>(null);
     const suggestionCategoryMenuRef = useRef<HTMLDivElement>(null);
     useClickOutside(suggestionMenuRef, () => setIsSuggestionMenuOpen(false));
     useClickOutside(suggestionCategoryMenuRef, () => setIsCategoryMenuOpen(false));
-
 
     return (
         <main>

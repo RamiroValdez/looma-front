@@ -101,8 +101,8 @@ export function validateFile(file: File, options: ValidationOptions): Promise<{ 
         
         img.src = URL.createObjectURL(file);
     }); 
-}
 
+}
 export const useCreateWork = () => {
     const { token } = useAuthStore();
 

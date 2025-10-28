@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import type { ChapterDTO } from '../../domain/dto/WorkDTO';
+import type {ChapterDTO } from '../../domain/dto/ChapterDTO';
 import Button from '../../app/components/Button';
 
 interface ChapterItemProps {

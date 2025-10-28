@@ -12,7 +12,6 @@ export const LoginPage = () => {
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
-
     const { setToken, isAuthenticated } = useAuthStore();
     const { setUser } = useUserStore();
     const navigate = useNavigate();

@@ -68,7 +68,8 @@ export const getTop10Works = () => {
             select: (data) => data.content,
             staleTime: 5 * 60 * 1000
         }
-    );
+         
+    ); 
 };
 
 export interface ExploreRequestDTO {
