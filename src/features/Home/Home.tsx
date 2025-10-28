@@ -85,9 +85,9 @@ const Home = () => {
       <Top10Section books={top10} />
 
       <div className="px-6 mb-12 grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-        <div className="w-full">
-          <Section title="SEGUIR LEYENDO" books={seguirLeyendo} /> 
-        </div>
+          {/*<div className="w-full">
+              <Section title="SEGUIR LEYENDO" books={seguirLeyendo}/>
+          </div>*/}
 
         <div className="w-full">
           <h2 className="text-2xl font-bold mb-4">CATEGORIAS</h2>
