@@ -24,6 +24,8 @@ const Home = () => {
   const [seguirLeyendo, setSeguirLeyendo] = useState<BookDTO[]>([]);
   const [loading, setLoading] = useState(true);
 
+  console.log("Top 10:", top10);
+  console.log("Seguir Leyendo:", seguirLeyendo);
   useEffect(() => {
     const userId = 1; 
 
