@@ -63,8 +63,8 @@ export const WorkInfo: React.FC<WorkInfoProps> = ({ work, manageFirstChapter, di
         if (paymentWindow && !paymentWindow.closed) paymentWindow.close();
         notifyError("No se recibió URL de pago");
       }
-    } catch (e: any) {
-      notifyError(e?.message || "No se pudo iniciar el pago");
+    } catch (e: unknown) {
+        notifyError(e instanceof Error ? e.message : "No se pudo iniciar el pago");
     } finally {
       setIsPaying(false);
     }

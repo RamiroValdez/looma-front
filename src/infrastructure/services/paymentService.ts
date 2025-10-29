@@ -1,6 +1,16 @@
 import { useAuthStore } from "../../domain/store/AuthStore.ts";
 import { handleError } from "../utils/errorHandler.ts";
 
+export interface PaymentRedirectResponse {
+    redirectUrl?: string;
+    url?: string;
+    redirect_url?: string;
+    init_point?: string;
+    sandbox_init_point?: string;
+    preference_url?: string;
+    checkout_url?: string;
+}
+
 export interface SubscribeRequestDTO {
   subscriptionType: "chapter";
   targetId: number; // chapter ID
@@ -22,7 +32,7 @@ export async function subscribeToWork(
     };
 
     const base = import.meta.env.VITE_API_BASE_URL || "";
-    const paymentsBase = (import.meta.env as any).VITE_API_PAYMENTS_URL || "/payments";
+    const paymentsBase = (import.meta.env as { VITE_API_PAYMENTS_URL?: string }).VITE_API_PAYMENTS_URL || "/payments";
     const response = await fetch(`${base}${paymentsBase}/subscribe`, {
       method: "POST",
       headers: {
@@ -37,7 +47,7 @@ export async function subscribeToWork(
       throw new Error(err?.message || `Error ${response.status}: ${response.statusText}`);
     }
 
-    const data = (await response.json().catch(() => ({}))) as any;
+    const data = (await response.json().catch(() => ({}))) as PaymentRedirectResponse;
     const redirectUrl: string | undefined =
       data?.redirectUrl ??
       data?.url ??
@@ -66,7 +76,7 @@ export async function subscribeToAuthor(
     };
 
     const base = import.meta.env.VITE_API_BASE_URL || "";
-    const paymentsBase = (import.meta.env as any).VITE_API_PAYMENTS_URL || "/payments";
+      const paymentsBase = (import.meta.env as { VITE_API_PAYMENTS_URL?: string }).VITE_API_PAYMENTS_URL || "/payments";
     const response = await fetch(`${base}${paymentsBase}/subscribe`, {
       method: "POST",
       headers: {
@@ -81,7 +91,7 @@ export async function subscribeToAuthor(
       throw new Error(err?.message || `Error ${response.status}: ${response.statusText}`);
     }
 
-    const data = (await response.json().catch(() => ({}))) as any;
+    const data = (await response.json().catch(() => ({}))) as PaymentRedirectResponse;
     const redirectUrl: string | undefined =
       data?.redirectUrl ??
       data?.url ??
@@ -114,7 +124,7 @@ export async function subscribeToChapter(
     };
 
     const base = import.meta.env.VITE_API_BASE_URL || "";
-    const paymentsBase = (import.meta.env as any).VITE_API_PAYMENTS_URL || "/payments";
+    const paymentsBase = (import.meta.env as { VITE_API_PAYMENTS_URL?: string }).VITE_API_PAYMENTS_URL || "/payments";
     const response = await fetch(
       `${base}${paymentsBase}/subscribe`,
       {
@@ -132,7 +142,7 @@ export async function subscribeToChapter(
       throw new Error(err?.message || `Error ${response.status}: ${response.statusText}`);
     }
 
-    const data = (await response.json().catch(() => ({}))) as any;
+      const data = (await response.json().catch(() => ({}))) as PaymentRedirectResponse;
     const redirectUrl: string | undefined =
       data?.redirectUrl ??
       data?.url ??

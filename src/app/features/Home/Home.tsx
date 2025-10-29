@@ -5,7 +5,6 @@ import { useCategories } from "../../../infrastructure/services/CategoryService"
 import { getUserReadingList } from "../../../infrastructure/services/UserService";
 import type { WorkDTO } from "../../../domain/dto/WorkDTO";
 import type { BookDTO } from "../../../domain/dto/BookDTO";
-import Section from "../../components/Section";
 import Top10Section from "../../components/Top10Section";
 import BannerHome from "../../components/BannerHome";
 
@@ -86,10 +85,6 @@ const Home = () => {
       <Top10Section />
 
       <div className="px-6 mb-12 grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-          {/*<div className="w-full">
-              <Section title="SEGUIR LEYENDO" books={seguirLeyendo}/>
-          </div>*/}
-
         <div className="w-full">
           <h2 className="text-2xl font-bold mb-4">CATEGORIAS</h2>
           <div className="flex flex-wrap gap-3">

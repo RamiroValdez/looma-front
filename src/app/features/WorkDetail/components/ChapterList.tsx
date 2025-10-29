@@ -74,9 +74,9 @@ export const ChapterList: React.FC<ChapterListProps> = ({ chapters, originalLang
         notifyError("No se recibió URL de pago");
       }
     } catch (e: any) {
-      notifyError(e?.message || "No se pudo iniciar el pago");
+        notifyError(e instanceof Error ? e.message : "No se pudo iniciar el pago");
     } finally {
-      setIsPaying(false);
+        setIsPaying(false);
     }
   };
 

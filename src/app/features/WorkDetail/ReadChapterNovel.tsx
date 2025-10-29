@@ -18,12 +18,18 @@ const ReadChapter = () => {
     const [currentLanguage, setCurrentLanguage] = useState<string>("");
     const [isTranslating, setIsTranslating] = useState(false);
 
+    const isStatusError = (err: unknown): err is { response: { status: number } } => {
+        if (typeof err !== "object" || err === null) return false;
+        const e = err as Record<string, unknown>;
+        if (!("response" in e)) return false;
+        const resp = e.response as Record<string, unknown> | undefined;
+        return typeof resp?.status === "number";
+    };
+
     useEffect(() => {
-        if (errorFetch) {
-            const status = (errorFetch as any)?.response?.status;
-            if (status === 403) {
-                navigate(-1);
-            }
+        if (!errorFetch) return;
+        if (isStatusError(errorFetch) && errorFetch.response.status === 403) {
+            navigate(-1);
         }
     }, [errorFetch, navigate]);
 
