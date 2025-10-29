@@ -4,5 +4,5 @@ export interface Work {
     description: string;
     cover: string;
     publication_date: string;
-    reator_id: number;
+    creator_id: number;
 }
