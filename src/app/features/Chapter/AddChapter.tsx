@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import AdvancedTools from "../../components/addChapter/AdvancedTools";
@@ -24,33 +25,25 @@ export default function AddChapter() {
     const [showCancelScheduleModal, setShowCancelScheduleModal] = useState(false);
     const [cancelScheduleInput, setCancelScheduleInput] = useState("");
 
+    useEffect(() => {
+        if (errorFetch) {
+            const status = (errorFetch as any)?.response?.status;
+            if (status === 403 && id) {
+                navigate(`/work/${id}`);
+            }
+        }
+    }, [errorFetch, id, navigate]);
 
     useEffect(() => {
         if (data) {
-            setChapter({
-                id: data.id,
-                title: data.title,
-                content: data.content,
-                price: data.price,
-                workName: data.workName,
-                workId: data.workId,
-                last_update: data.last_update,
-                likes: data.likes,
-                allowAiTranslation: data.allowAiTranslation,
-                languageDefaultCode: data.languageDefaultCode,
-                publicationStatus: data.publicationStatus,
-                scheduledPublicationDate: data.scheduledPublicationDate,
-                publishedAt: data.publishedAt,
-                availableLanguages: data.availableLanguages,
-                chapterNumber: data.chapterNumber
-            });
+            setChapter(data);
         }
     }, [data]);
+
 
     const handleFieldChange = (field: keyof ChapterWithContentDTO, value: any) => {
         setChapter((prev) => (prev ? { ...prev, [field]: value } : prev));
     };
-
     const handleSave = async () => {
         if (!chapter) return;
         setError("");

@@ -1,3 +1,4 @@
+ 
 import { useEffect, useState } from "react";
 import { getTop10Works} from "../../../infrastructure/services/WorkService";
 import { useCategories } from "../../../infrastructure/services/CategoryService";
@@ -22,6 +23,8 @@ const Home = () => {
   const [seguirLeyendo, setSeguirLeyendo] = useState<BookDTO[]>([]);
   const [loading, setLoading] = useState(true);
 
+  console.log("Top 10:", top10);
+  console.log("Seguir Leyendo:", seguirLeyendo);
   useEffect(() => {
     const userId = 1; 
 
@@ -31,12 +34,12 @@ const Home = () => {
 
         const top10Data = await getTop10Works();
         setTop10(
-          top10Data.map((work: WorkDTO, index: number) => ({
+          top10Data?.data?.map((work: WorkDTO, index: number) => ({
             id: work.id,
             title: work.title,
             cover: work.cover, 
             position: index + 1,
-          }))
+          })) || []
         );
 
         const readingList = await getUserReadingList(userId);
@@ -80,7 +83,7 @@ const Home = () => {
   ]}
 />
 
-      <Top10Section books={top10} />
+      <Top10Section />
 
       <div className="px-6 mb-12 grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
           {/*<div className="w-full">

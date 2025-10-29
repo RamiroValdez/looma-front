@@ -20,7 +20,6 @@ export const useExploreWorks = (filters: ExploreFiltersDto, page = 0, size = 20)
     queryFn: async () => {
       const qs = new URLSearchParams({ page: String(page), size: String(size) });
 
-      // Pedimos el AxiosResponse y devolvemos solo .data
       const response = await apiClient.request<PaginatedResponse<WorkCardDto>>({
         url: `${import.meta.env.VITE_API_EXPLORE_URL}?${qs}`,
         method: 'POST',

@@ -20,6 +20,9 @@ export interface WorkDTO {
   chapters: ChapterDTO[];
   categories: CategoryDTO[];
   tags: TagDTO[];
+  subscribedToAuthor?: boolean;
+  subscribedToWork?: boolean;
+  unlockedChapters?: number[];
 }
 
 export interface OriginalLanguageDTO {

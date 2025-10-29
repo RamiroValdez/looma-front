@@ -1,16 +1,22 @@
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 import React from "react";
 import  type {ChapterDTO } from "../../../../domain/dto/ChapterDTO";
+import Button from "../../../components/Button";
 
 interface ChapterListItemProps {
   chapter: ChapterDTO;
   index: number;
   onClick: () => void;
+  disabled?: boolean;
+  onAcquire?: () => void;
 }
 
 export const ChapterListItem: React.FC<ChapterListItemProps> = ({
   chapter,
   index,
   onClick,
+  disabled = false,
+  onAcquire,
 }) => {
   const dateOptions: Intl.DateTimeFormatOptions = {
     day: "2-digit",
@@ -24,8 +30,12 @@ export const ChapterListItem: React.FC<ChapterListItemProps> = ({
 
   return (
     <div
-      className="p-4 transition duration-150 border-b border-gray-200 last:border-b-0 cursor-pointer hover:bg-gray-50 flex items-center justify-between"
+      className={`p-4 transition duration-150 border-b border-gray-200 last:border-b-0 flex items-center justify-between ${
+        disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:bg-gray-50'
+      }`}
+      aria-disabled={disabled}
       onClick={() => {
+        if (disabled) return;
         console.log("Se hizo clic en el capítulo:", chapter);
         onClick();
       }}
@@ -52,6 +62,18 @@ export const ChapterListItem: React.FC<ChapterListItemProps> = ({
     </svg>
     <span className="text-sm">{chapter.likes.toLocaleString()}</span>
   </div>
+      {disabled && (
+        <div className="ml-4">
+          <Button
+            text="Adquirir Capitulo"
+            onClick={(e) => {
+              e.stopPropagation();
+              onAcquire && onAcquire();
+            }}
+            colorClass="bg-[#5c17a6] text-white px-3 py-1 rounded-md cursor-pointer"
+          />
+        </div>
+      )}
     </div>
   );
 };

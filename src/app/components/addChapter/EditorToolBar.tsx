@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useRef, useState } from "react";
 import { notifySuccess, notifyError } from "../../../infrastructure/services/ToastProviderService";
 import { toggleStrongCommand, toggleEmphasisCommand, wrapInHeadingCommand, wrapInOrderedListCommand, wrapInBulletListCommand } from '@milkdown/preset-commonmark';
