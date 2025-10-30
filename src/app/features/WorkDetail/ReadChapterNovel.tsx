@@ -24,6 +24,22 @@ const ReadChapter = () => {
     const [liked, setLiked] = useState<Record<number, boolean>>({});
     const [localLikes, setLocalLikes] = useState<Record<number, number>>({});
 
+    const isStatusError = (err: unknown): err is { response: { status: number } } => {
+        if (typeof err !== "object" || err === null) return false;
+        const e = err as Record<string, unknown>;
+        if (!("response" in e)) return false;
+        const resp = e.response as Record<string, unknown> | undefined;
+        return typeof resp?.status === "number";
+    };
+
+    useEffect(() => {
+        if (!errorFetch) return;
+        if (isStatusError(errorFetch) && errorFetch.response.status === 403) {
+            navigate(-1);
+        }
+    }, [errorFetch, navigate]);
+
+    // Establecer contenido original al cargar
     useEffect(() => {
         if (data?.content) {
             setTranslatedContent(data.content);
