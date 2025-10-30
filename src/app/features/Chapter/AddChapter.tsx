@@ -4,9 +4,10 @@ import AdvancedTools from "../../components/addChapter/AdvancedTools";
 import ChapterEditor from "../../components/addChapter/ChapterEditor";
 import ChapterActions from "../../components/addChapter/ChapterActions";
 import PublishOptions from "../../components/addChapter/PublishOptions";
-import { getChapterById } from "../../../infrastructure/services/ChapterService.ts";
-import type { ChapterWithContentDTO } from "../../../domain/dto/ChapterWithContentDTO.ts";
 import { useChapterActions } from "../../hooks/useChapterActions.ts";
+import {updateChapter, deleteChapter, getChapterById, cancelScheduleChapter} from "../../../infrastructure/services/ChapterService.ts";
+import type {ChapterWithContentDTO} from "../../../domain/dto/ChapterWithContentDTO.ts";
+import LoomiBubble from "../../components/Loomi-buble.tsx";
 
 export default function AddChapter() {
     const navigate = useNavigate();
@@ -310,6 +311,9 @@ export default function AddChapter() {
                     )}
                 </div>
             ) : null}
+            {chapter && (
+                <LoomiBubble chapterId={chapter.id} chapterContent={chapter.content} />
+            )}
         </div>
     );
 }
