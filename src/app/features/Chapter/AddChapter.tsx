@@ -1,13 +1,12 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import AdvancedTools from "../../components/addChapter/AdvancedTools";
 import ChapterEditor from "../../components/addChapter/ChapterEditor";
 import ChapterActions from "../../components/addChapter/ChapterActions";
 import PublishOptions from "../../components/addChapter/PublishOptions";
-import {updateChapter, deleteChapter, getChapterById, cancelScheduleChapter} from "../../../infrastructure/services/ChapterService.ts";
-import { handleError } from "../../../infrastructure/utils/errorHandler.ts";
-import type {ChapterWithContentDTO} from "../../../domain/dto/ChapterWithContentDTO.ts";
+import { getChapterById } from "../../../infrastructure/services/ChapterService.ts";
+import type { ChapterWithContentDTO } from "../../../domain/dto/ChapterWithContentDTO.ts";
+import { useChapterActions } from "../../hooks/useChapterActions.ts";
 
 export default function AddChapter() {
     const navigate = useNavigate();
@@ -15,15 +14,23 @@ export default function AddChapter() {
     const [selectedLanguage, setSelectedLanguage] = useState<string>("");
     const { data, isLoading: isLoadingFetch, error: errorFetch } = getChapterById(Number(chapterId), selectedLanguage);
     const [chapter, setChapter] = useState<ChapterWithContentDTO | null>(null);
-    const [error, setError] = useState("");
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [deleteInput, setDeleteInput] = useState("");
-    const [deleting, setDeleting] = useState(false);
-    const [deleteError, setDeleteError] = useState("");
-    const [cancelingSchedule, setCancelingSchedule] = useState(false);
-    const [cancelScheduleError, setCancelScheduleError] = useState("");
     const [showCancelScheduleModal, setShowCancelScheduleModal] = useState(false);
     const [cancelScheduleInput, setCancelScheduleInput] = useState("");
+
+   const {
+    handleSave,
+    error,
+    handleConfirmDelete,
+    deleting,
+    deleteError,
+    setDeleteError,
+    handleCancelSchedule,
+    cancelingSchedule,
+    cancelScheduleError,
+    setCancelScheduleError
+} = useChapterActions(id ?? "", chapter);
 
     useEffect(() => {
         if (errorFetch) {
@@ -40,43 +47,8 @@ export default function AddChapter() {
         }
     }, [data]);
 
-
     const handleFieldChange = (field: keyof ChapterWithContentDTO, value: any) => {
         setChapter((prev) => (prev ? { ...prev, [field]: value } : prev));
-    };
-    const handleSave = async () => {
-        if (!chapter) return;
-        setError("");
-
-        try {
-            if (!chapter?.title?.trim() || !chapter?.content?.trim()) {
-                setError("El título y el contenido son obligatorios.");
-                return;
-            }
-
-            const chapterData: ChapterWithContentDTO = {
-                ...chapter,
-                last_update: new Date().toISOString(),
-            };
-
-            const response = await updateChapter(
-                Number(id),
-                chapterData.id,
-                chapterData.title,
-                chapterData.content,
-                chapterData.publishedAt
-            );
-            console.log("Capítulo actualizado:", response);
-            if (response?.fetchStatus === 200) {
-                navigate(`/manage-work/${id}`);
-            }
-            else {
-                setError("Error al actualizar el capítulo.");
-            }
-        } catch (err) {
-            console.error(err);
-            setError(handleError(err));
-        }
     };
 
     const openDeleteModal = () => {
@@ -90,27 +62,6 @@ export default function AddChapter() {
         setShowDeleteModal(false);
     };
 
-    const handleConfirmDelete = async () => {
-        if (!chapter || !chapterId) return;
-        if (deleteInput !== "Eliminar Capitulo") {
-            setDeleteError("Debes escribir exactamente: Eliminar Capitulo");
-            return;
-        }
-        try {
-            setDeleting(true);
-            setDeleteError("");
-            const resp = await deleteChapter(Number(chapterId), Number(id));
-            if (resp.fetchStatus === 200 || resp.fetchStatus === 204 || resp.fetchStatus === 201) {
-                navigate(`/manage-work/${id}`);
-            } else {
-                setDeleteError("No se pudo eliminar el capítulo.");
-            }
-        } catch (err) {
-            setDeleteError(handleError(err));
-        } finally {
-            setDeleting(false);
-        }
-    };
 
     const handleChapterActions = () => {
         if (chapter) {
@@ -118,42 +69,23 @@ export default function AddChapter() {
         }
     };
 
-    const handleCancelSchedule = async () => {
-        if (!id || !chapterId) return;
-        try {
-            setCancelScheduleError("");
-            setCancelingSchedule(true);
-            const resp = await cancelScheduleChapter(Number(id), Number(chapterId));
-            if (resp.fetchStatus >= 200 && resp.fetchStatus < 300) {
-                navigate(`/manage-work/${id}`);
-            } else {
-                setCancelScheduleError("No se pudo deshacer la programación.");
-            }
-        } catch (e) {
-            setCancelScheduleError("Error al deshacer la programación.");
-            console.error(e);
-        } finally {
-            setCancelingSchedule(false);
-        }
-    };
-
     const handleLanguageSelect = (languageCode: string) => {
         setSelectedLanguage(languageCode);
     };
 
-  const handlePreview = () => {
-    if (!chapter) return;
+    const handlePreview = () => {
+        if (!chapter) return;
 
-    const previewData = {
-        content: chapter.content,
-        selectedLanguages: chapter.availableLanguages,
-        numberChapter: chapter.chapterNumber,
-        originalLanguage: chapter.languageDefaultCode.code,
+        const previewData = {
+            content: chapter.content,
+            selectedLanguages: chapter.availableLanguages,
+            numberChapter: chapter.chapterNumber,
+            originalLanguage: chapter.languageDefaultCode.code,
+        };
+
+        const previewUrl = `/preview?data=${encodeURIComponent(JSON.stringify(previewData))}`;
+        window.open(previewUrl, "_blank");
     };
-
-    const previewUrl = `/preview?data=${encodeURIComponent(JSON.stringify(previewData))}`;
-    window.open(previewUrl, "_blank");
-};
 
     return (
         <div>
@@ -178,7 +110,6 @@ export default function AddChapter() {
                                         ¿Tenés dudas? Dejanos darte algunos consejos
                                     </h2>
                                 </div>
-
                                 <a href="#" className="text-gray-400 hover:text-gray-600 underline text-sm">
                                     Normativas de contenido
                                 </a>
@@ -248,30 +179,32 @@ export default function AddChapter() {
                                 defaultLanguageCode={chapter.languageDefaultCode?.code}
                             />
 
-                    { chapter.publicationStatus === 'DRAFT' ? (
-                            <div className="mt-6">
-                                <div className="border border-red-300 bg-red-50 text-red-700 rounded-lg p-4">
-                                    <div className="flex items-center justify-between">
-                                        <div>
-                                            <h4 className="font-semibold">Eliminar capítulo</h4>
-                                            <p className="text-sm">Esta acción no se puede deshacer.</p>
+                            {chapter.publicationStatus === 'DRAFT' ? (
+                                <div className="mt-6">
+                                    <div className="border border-red-300 bg-red-50 text-red-700 rounded-lg p-4">
+                                        <div className="flex items-center justify-between">
+                                            <div>
+                                                <h4 className="font-semibold">Eliminar capítulo</h4>
+                                                <p className="text-sm">Esta acción no se puede deshacer.</p>
+                                            </div>
+                                            <button
+                                                onClick={openDeleteModal}
+                                                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+                                            >
+                                                Eliminar capítulo
+                                            </button>
                                         </div>
-                                        <button
-                                            onClick={openDeleteModal}
-                                            className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
-                                        >
-                                            Eliminar capítulo
-                                        </button>
                                     </div>
                                 </div>
-                            </div> ) : null}
+                            ) : null}
 
-                            { chapter.publicationStatus === 'DRAFT' ? (
-                            <PublishOptions
-                                workId={Number(id)}
-                                chapterId={Number(chapterId)}
-                                onScheduleChange={(isoDate) => handleFieldChange("publishedAt", isoDate)}
-                            /> ) : null}
+                            {chapter.publicationStatus === 'DRAFT' ? (
+                                <PublishOptions
+                                    workId={Number(id)}
+                                    chapterId={Number(chapterId)}
+                                    onScheduleChange={(isoDate) => handleFieldChange("publishedAt", isoDate)}
+                                />
+                            ) : null}
 
                             {error && <p className="mt-4 text-red-600 text-sm">{error}</p>}
                         </div>
@@ -297,8 +230,7 @@ export default function AddChapter() {
                         </div>
                     </div>
 
-
-                   {/* <InspirationBubble />  COMO AUN NO TIENE LOGICA NO LO MOSTRAMOS*/}
+                    {/* <InspirationBubble />  COMO AUN NO TIENE LOGICA NO LO MOSTRAMOS*/}
                     {showDeleteModal && (
                         <div className="fixed inset-0 z-50 flex items-center justify-center">
                             <div className="absolute inset-0 bg-black/40" onClick={closeDeleteModal} />
@@ -327,7 +259,7 @@ export default function AddChapter() {
                                         Cancelar
                                     </button>
                                     <button
-                                        onClick={handleConfirmDelete}
+                                        onClick={() => handleConfirmDelete(chapterId, deleteInput)}
                                         disabled={deleteInput !== "Eliminar Capitulo" || deleting}
                                         className="px-4 py-2 rounded-md bg-red-600 text-white hover:bg-red-700 disabled:opacity-50"
                                     >
@@ -364,7 +296,7 @@ export default function AddChapter() {
                                     <button
                                         onClick={async () => {
                                             if (cancelScheduleInput !== "Deshacer Programacion" || cancelingSchedule) return;
-                                            await handleCancelSchedule();
+                                            await handleCancelSchedule(chapterId);
                                             setShowCancelScheduleModal(false);
                                         }}
                                         disabled={cancelScheduleInput !== "Deshacer Programacion" || cancelingSchedule}
