@@ -13,17 +13,14 @@ export default function LoomiBubble({ chapterId, chapterContent }: LoomiBubblePr
   const [isSending, setIsSending] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Hook para cargar conversación
-  const { data: conversationData, isLoading: isLoadingHistory } = useChatConversation(chapterId, isOpen);
+  const { data: conversationData, isLoading: isLoadingHistory } = useChatConversation(chapterId);
 
-  // Cargar historial cuando llega data
   useEffect(() => {
     if (conversationData && messages.length === 0) {
       setMessages(conversationData);
     }
   }, [conversationData]);
 
-  // Auto-scroll al final
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
@@ -35,12 +32,11 @@ export default function LoomiBubble({ chapterId, chapterContent }: LoomiBubblePr
     setInputMessage('');
     setIsSending(true);
 
-    // Agregar mensaje del usuario inmediatamente
     const tempUserMsg: ChatMessageDto = {
       userId: 0,
       chapterId,
       content: userMessage,
-      isUserMessage: true,
+      userMessage: true,
       timestamp: new Date().toISOString(),
     };
     setMessages((prev) => [...prev, tempUserMsg]);
@@ -52,7 +48,6 @@ export default function LoomiBubble({ chapterId, chapterContent }: LoomiBubblePr
         chapterContent,
       });
 
-      // Agregar respuesta del asistente
       setMessages((prev) => [...prev, response]);
     } catch (error) {
       console.error('Error enviando mensaje:', error);
@@ -60,7 +55,7 @@ export default function LoomiBubble({ chapterId, chapterContent }: LoomiBubblePr
         userId: 0,
         chapterId,
         content: 'Lo siento, hubo un error al procesar tu mensaje. Intenta de nuevo.',
-        isUserMessage: false,
+        userMessage: false,
         timestamp: new Date().toISOString(),
       };
       setMessages((prev) => [...prev, errorMsg]);
@@ -78,42 +73,38 @@ export default function LoomiBubble({ chapterId, chapterContent }: LoomiBubblePr
 
   return (
     <>
-      {/* Botón flotante (burbuja) */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-6 right-6 z-50 w-16 h-16 rounded-full hover:transition-all flex items-center justify-center group hover:cursor-pointer hover:scale-103"
+        className="fixed bottom-6 right-6 z-50 w-40 h-40 rounded-full hover:transition-all flex items-center justify-center group hover:cursor-pointer"
         aria-label="Abrir chat con Loomi"
       >
         {isOpen ? (
-            <img src="/img/Loomi-Bubble.png" alt="Loomi" className="w-25 h-25 object-contain" />
+            <img src="/img/Loomi-Bubble.png" alt="Loomi" className="w-40 h-40 object-contain" />
         ) : (
-          <img src="/img/Loomi-Bubble.png" alt="Loomi" className="w-25 h-25 object-contain" />
+          <img src="/img/Loomi-Bubble.png" alt="Loomi" className="w-40 h-40 object-contain" />
         )}
       </button>
 
-      {/* Panel del chat */}
       {isOpen && (
-        <div className="fixed bottom-24 right-6 z-50 w-96 h-[32rem] bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-gray-200">
-          {/* Header */}
+        <div className="fixed bottom-24 right-6 z-50 w-100 h-[42rem] bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-gray-200">
           <div className="bg-[#1a2fa1] text-white p-4 flex items-center gap-3">
             <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center">
               <img src="/img/Loomi-Bubble.png" alt="Loomi" className="w-30 h-30 object-contain" />
             </div>
             <div className="flex-1">
-              <h3 className="font-semibold">Loomi</h3>
-              <p className="text-xs text-blue-100">Tu asistente de escritura</p>
+              <h3 className="font-semibold text-lg">Loomi</h3>
+              <p className="text-base text-blue-100">Tu asistente de escritura</p>
             </div>
-            <button
-              onClick={() => setIsOpen(false)}
-              className="text-white hover:bg-white/20 rounded-full p-1 transition"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
           </div>
 
-          {/* Mensajes */}
+          <button
+            className="w-5 h-5 absolute top-2 right-2 text-white hover:cursor-pointer text-xl font-bold"
+            onClick={() => setIsOpen(false)}
+            aria-label="Cerrar chat"
+          >
+            <p>X</p>
+          </button>
+
           <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50">
             {isLoadingHistory ? (
               <div className="flex items-center justify-center h-full">
@@ -133,11 +124,11 @@ export default function LoomiBubble({ chapterId, chapterContent }: LoomiBubblePr
                 {messages.map((msg, idx) => (
                   <div
                     key={idx}
-                    className={`flex ${msg.isUserMessage ? 'justify-end' : 'justify-start'}`}
+                    className={`flex ${msg.userMessage ? 'justify-end' : 'justify-start'}`}
                   >
                     <div
                       className={`max-w-[75%] rounded-2xl px-4 py-2 ${
-                        msg.isUserMessage
+                        msg.userMessage
                           ? 'bg-[#1a2fa1] text-white rounded-br-none'
                           : 'bg-white border border-gray-200 text-gray-800 rounded-bl-none'
                       }`}
@@ -157,15 +148,14 @@ export default function LoomiBubble({ chapterId, chapterContent }: LoomiBubblePr
             )}
           </div>
 
-          {/* Input */}
           <div className="p-4 bg-white border-t border-gray-200">
             <div className="flex gap-2">
               <textarea
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
                 onKeyPress={handleKeyPress}
-                placeholder="Escribe tu mensaje..."
-                rows={1}
+                placeholder="Escribe tu idea a Loomi..."
+                rows={2}
                 disabled={isSending}
                 className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[#1a2fa1] disabled:opacity-50"
               />

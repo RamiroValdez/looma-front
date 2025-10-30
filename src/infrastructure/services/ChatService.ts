@@ -6,7 +6,7 @@ export interface ChatMessageDto {
   userId: number;
   chapterId: number;
   content: string;
-  isUserMessage: boolean;
+  userMessage: boolean;
   timestamp: string;
 }
 
@@ -16,7 +16,7 @@ export interface ChatRequestDto {
   chapterContent: string;
 }
 
-export function useChatConversation(chapterId: number, enabled: boolean = false) {
+export function useChatConversation(chapterId: number) {
   const { token } = useAuthStore();
   
   return useApiQuery<ChatMessageDto[]>(
@@ -28,13 +28,6 @@ export function useChatConversation(chapterId: number, enabled: boolean = false)
         'Authorization': `Bearer ${token}`
       }
     },
-    {
-      enabled: !!chapterId && !!token && enabled,
-      refetchOnWindowFocus: false,
-      refetchOnReconnect: false,
-      refetchOnMount: false,
-      staleTime: 1000 * 60 * 5,
-    }
   );
 }
 
