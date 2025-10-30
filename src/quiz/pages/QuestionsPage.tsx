@@ -1,9 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import Background from '../components/Background';
 import AnswerOption from '../components/AnswerOption';
 import { useState, useEffect } from 'react';
 import { useQuiz } from '../hooks/UseQuiz';
 import LayeredCard from '../components/LayeredCard';
-import Button from '../../components/Button';
+import Button from '../../app/components/Button';
 
 export default function QuestionsPage() {
     const { quiz, currentIndex, disabled, onSelect } = useQuiz();

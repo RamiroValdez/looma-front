@@ -2,7 +2,7 @@ import Background from '../components/Background';
 import LayeredCard from '../components/LayeredCard';
 import CharacterAvatar from '../components/CharacterAvatar';
 import { useNavigate } from 'react-router-dom';
-import Button from '../../components/Button';
+import Button from '../../app/components/Button';
 import loomiImg from '../images/loomi-feliz.png';
 
 export default function StartPage() {

@@ -1,0 +1,80 @@
+import type { WorkDTO } from '../../domain/dto/WorkDTO.ts';
+import { getWorkById as getWorkByIdFromChapterService } from './ChapterService.ts';
+import {useApiQuery} from "../api/useApiQuery.ts";
+import { apiClient } from '../api/apiClient';
+import { useAuthStore } from '../../domain/store/AuthStore';
+
+export class WorkService {
+
+ static async getWorkDetail(id: number): Promise<WorkDTO> {
+    return getWorkByIdFromChapterService(id); 
+  }
+  static async getWorkById(id: number): Promise<WorkDTO> {
+    try {
+      const token = useAuthStore.getState().token;
+      const res = await apiClient.request<WorkDTO>({
+        url: `${import.meta.env.VITE_API_MANAGE_WORK_URL}/${id}`,
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      });
+      return res.data;
+    } catch (error) {
+      console.error('Error fetching work from API:', error);
+      throw new Error('Server connection error');
+    }
+  }
+}
+
+export const getTop10Works = () => {
+    const requestBody: ExploreRequestDTO = {
+        sortBy: 'likes',
+        asc: false
+    };
+
+    return useApiQuery<Page<WorkDTO>, WorkDTO[]>(
+        ['top10Works'],
+        {
+            url: '/explore?page=0&size=10&sort=likes',
+            method: 'POST',
+            data: requestBody
+        },
+        {
+            select: (data) => data.content,
+            staleTime: 5 * 60 * 1000
+        }
+         
+    ); 
+};
+
+export interface ExploreRequestDTO {
+    categoryIds?: number[];
+    formatIds?: number[];
+    state?: string;
+    minLikes?: number;
+    text?: string;
+    sortBy?: 'title' | 'likes' | 'publicationDate';
+    asc?: boolean;
+}
+
+
+export interface Page<T> {
+    content: T[];
+    pageable: {
+        pageNumber: number;
+        pageSize: number;
+        offset: number;
+        paged: boolean;
+        unpaged: boolean;
+    };
+    totalPages: number;
+    totalElements: number;
+    last: boolean;
+    size: number;
+    number: number;
+    numberOfElements: number;
+    first: boolean;
+    empty: boolean;
+}
