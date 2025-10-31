@@ -75,18 +75,18 @@ export default function LoomiBubble({ chapterId, chapterContent }: LoomiBubblePr
     <>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-6 right-6 z-50 w-40 h-40 rounded-full hover:transition-all flex items-center justify-center group hover:cursor-pointer"
+        className="fixed bottom-1 right-6 z-50 w-30 h-30 rounded-full hover:transition-all flex items-center justify-center group hover:cursor-pointer"
         aria-label="Abrir chat con Loomi"
       >
         {isOpen ? (
-            <img src="/img/Loomi-Bubble.png" alt="Loomi" className="w-40 h-40 object-contain" />
+            <img src="/img/Loomi-Bubble.png" alt="Loomi" className="w-30 h-30 object-contain" />
         ) : (
-          <img src="/img/Loomi-Bubble.png" alt="Loomi" className="w-40 h-40 object-contain" />
+          <img src="/img/Loomi-Bubble.png" alt="Loomi" className="w-30 h-30 object-contain" />
         )}
       </button>
 
       {isOpen && (
-        <div className="fixed bottom-24 right-6 z-50 w-100 h-[42rem] bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-gray-200">
+        <div className="fixed bottom-24 right-15 z-50 w-98 h-[42rem] bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-gray-200">
           <div className="bg-[#1a2fa1] text-white p-4 flex items-center gap-3">
             <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center">
               <img src="/img/Loomi-Bubble.png" alt="Loomi" className="w-30 h-30 object-contain" />
@@ -112,7 +112,7 @@ export default function LoomiBubble({ chapterId, chapterContent }: LoomiBubblePr
               </div>
             ) : messages.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full text-center px-4">
-                <img src="/img/Loomi-Bubble.png" alt="Loomi" className="w-20 h-25 mb-3 opacity-90" />
+                <img src="/img/Loomi-Bubble.png" alt="Loomi" className="w-18 h-25 mb-3 opacity-90" />
                 <p className="text-gray-600 text-sm">
                   ¡Hola! Soy Loomi, tu asistente de escritura creativa.
                   <br />
