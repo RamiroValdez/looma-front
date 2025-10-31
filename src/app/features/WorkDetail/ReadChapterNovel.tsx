@@ -122,7 +122,23 @@ const ReadChapter = () => {
     return (
         <div className="min-h-screen flex bg-white">
             <main className="flex-1 px-6 py-8 overflow-y-auto">
-                <div className="max-w-3xl mx-auto">
+                <button
+                    onClick={() => navigate(-1)}
+                    className="flex items-center gap-2 text-gray-600 hover:text-[#5C17A6] transition-colors duration-200 group mb-0"
+                >
+                    <svg 
+                        xmlns="http://www.w3.org/2000/svg" 
+                        className="h-5 w-5 transform group-hover:-translate-x-1 transition-transform duration-200" 
+                        fill="none" 
+                        viewBox="0 0 24 24" 
+                        stroke="currentColor"
+                    >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                    </svg>
+                    <span className="text-sm font-medium">Volver</span>
+                </button>
+
+                <div className="max-w-3xl mx-auto -mt-6">
                     <div className="mb-8">
                         <div className="text-center space-y-3">
                             <p className="text-sm font-semibold tracking-wider uppercase" style={{ color: '#5C17A6' }}>
