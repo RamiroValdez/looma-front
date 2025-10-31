@@ -123,8 +123,19 @@ const ReadChapter = () => {
         <div className="min-h-screen flex bg-white">
             <main className="flex-1 px-6 py-8 overflow-y-auto">
                 <div className="max-w-3xl mx-auto">
-                    <h1 className="text-xl mb-4 text-center">Capítulo {data.chapterNumber}</h1>
-                    <hr className="w-full border-t border-gray-300 mb-6" />
+                    <div className="mb-8">
+                        <div className="text-center space-y-3">
+                            <p className="text-sm font-semibold tracking-wider uppercase" style={{ color: '#5C17A6' }}>
+                                Capítulo {data.chapterNumber}
+                            </p>
+                            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 leading-tight">
+                                {data.title}
+                            </h1>
+                        </div>
+                        <div className="mt-6 flex items-center justify-center">
+                            <div className="h-0.5 w-200 bg-gray-200"></div>
+                        </div>
+                    </div>
 
                     <div className="prose max-w-none">
                         {isTranslating ? (
