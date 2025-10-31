@@ -3,6 +3,8 @@ import React, { useState } from "react";
 import { notifyError, notifySuccess } from "../../../../infrastructure/services/ToastProviderService.ts";
 import { subscribeToAuthor, subscribeToWork } from "../../../../infrastructure/services/paymentService.ts";
 import Button from "../../../components/Button";
+import LikeButton from "../../../components/LikeButton";
+import { useAuthStore } from "../../../../domain/store/AuthStore";
 
 interface WorkInfoProps {
   work: WorkDTO;
@@ -17,6 +19,7 @@ export const WorkInfo: React.FC<WorkInfoProps> = ({ work, manageFirstChapter, di
   const [modalMode, setModalMode] = useState<"author" | "work" | null>(null);
   const isAuthorSubscribed = Boolean(work.subscribedToAuthor);
   const isWorkSubscribed = Boolean(work.subscribedToWork);
+  const token = useAuthStore((state) => state.token);
 
   const handleSubscribeAuthor = () => {
     setModalMode("author");
@@ -87,19 +90,10 @@ export const WorkInfo: React.FC<WorkInfoProps> = ({ work, manageFirstChapter, di
 
       <div className="flex items-center gap-6 ">
         <div className="flex items-center gap-2 text-gray-700">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="#c026d3"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-          </svg>
+            <LikeButton workId={work.id}
+            initialLiked={false} // Cuando el backend devuelva el estado real cambiar
+            //initialCount={work.likes}
+            type="work"/>
           <span className="text-[16px] font-semibold text-gray-700">{likesFormatted}</span>
         </div>
 
