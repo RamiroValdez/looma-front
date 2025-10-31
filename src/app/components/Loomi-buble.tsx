@@ -4,13 +4,15 @@ import { useChatConversation, sendChatMessage, type ChatMessageDto } from '../..
 interface LoomiBubbleProps {
   chapterId: number;
   chapterContent: string;
+  publicationStatus: string;
 }
 
-export default function LoomiBubble({ chapterId, chapterContent }: LoomiBubbleProps) {
+export default function LoomiBubble({ chapterId, chapterContent, publicationStatus }: LoomiBubbleProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessageDto[]>([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isSending, setIsSending] = useState(false);
+  const isNotPublished = publicationStatus !== 'PUBLISHED';
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const { data: conversationData, isLoading: isLoadingHistory } = useChatConversation(chapterId);
@@ -73,6 +75,7 @@ export default function LoomiBubble({ chapterId, chapterContent }: LoomiBubblePr
 
   return (
     <>
+      {isNotPublished && (
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="fixed bottom-1 right-6 z-50 w-30 h-30 rounded-full hover:transition-all flex items-center justify-center group hover:cursor-pointer bg-gray-400"
@@ -84,6 +87,7 @@ export default function LoomiBubble({ chapterId, chapterContent }: LoomiBubblePr
           <img src="/img/Loomi-Bubble.png" alt="Loomi" className="w-30 h-30 object-contain" />
         )}
       </button>
+      )}
 
      {isOpen && (
         <div className="fixed bottom-32 right-6 z-50 w-98 h-[42rem]">

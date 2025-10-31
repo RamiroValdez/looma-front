@@ -312,7 +312,7 @@ export default function AddChapter() {
                 </div>
             ) : null}
             {chapter && (
-                <LoomiBubble chapterId={chapter.id} chapterContent={chapter.content} />
+                <LoomiBubble chapterId={chapter.id} chapterContent={chapter.content} publicationStatus={chapter.publicationStatus} />
             )}
         </div>
     );
