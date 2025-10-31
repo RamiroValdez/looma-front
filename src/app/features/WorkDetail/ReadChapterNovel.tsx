@@ -123,8 +123,8 @@ const ReadChapter = () => {
         <div className="min-h-screen flex bg-white">
             <main className="flex-1 px-6 py-8 overflow-y-auto">
                 <button
-                    onClick={() => navigate(-1)}
-                    className="flex items-center gap-2 text-gray-600 hover:text-[#5C17A6] transition-colors duration-200 group mb-0"
+                    onClick={() => data?.workId && navigate(`/work/${data.workId}`)}
+                    className="flex items-center gap-2 text-gray-600 hover:text-[#5C17A6] transition-colors duration-200 group mb-0 cursor-pointer"
                 >
                     <svg 
                         xmlns="http://www.w3.org/2000/svg" 
