@@ -195,10 +195,14 @@ const ReadChapter = () => {
                                             displayIndex: index + 1
                                         }))
                                         .filter((chapter: any) => chapter.publicationStatus === "PUBLISHED")
-                                        .map((chapter: any) => (
+                                        .map((chapter: any) => {
+                                            const isCurrentChapter = chapter.id === Number(chapterId);
+                                            return (
                                         <div
                                             key={chapter.id}
-                                            className="p-4 transition duration-150 border-b border-gray-200 last:border-b-0 cursor-pointer hover:bg-gray-50 flex items-center justify-between"
+                                            className={`p-4 transition duration-150 border-b border-gray-200 last:border-b-0 cursor-pointer flex items-center justify-between ${
+                                                isCurrentChapter ? 'bg-gray-300' : 'hover:bg-gray-100'
+                                            }`}
                                             onClick={() => handleChapterClick(chapter)}
                                         >
                                             <div className="flex items-center space-x-2">
@@ -208,7 +212,7 @@ const ReadChapter = () => {
                                                     </svg>
                                                 </span>
 
-                                                <span className="font-medium text-gray-800">{`Capítulo ${chapter.displayIndex}`}</span>
+                                                <span className={`font-medium ${isCurrentChapter ? 'text-gray-900' : 'text-gray-800'}`}>{`Capítulo ${chapter.displayIndex}`}</span>
                                             </div>
 
                                             <div className="flex items-center gap-3">
@@ -236,7 +240,8 @@ const ReadChapter = () => {
                                                 <span className="text-sm text-gray-500">{(localLikes[chapter.id] ?? chapter.likes ?? 0).toLocaleString()}</span>
                                             </div>
                                         </div>
-                                    ))}
+                                        );
+                                    })}
                                 </div>
                             </div>
                         </div>
