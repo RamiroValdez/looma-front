@@ -161,7 +161,14 @@ const ReadChapter = () => {
                                 <style>{`.chapter-list-compact .text-sm.text-gray-500{display:none !important;} .chapter-list-compact .flex.text-gray-500{display:none !important;}`}</style>
 
                                 <div className="bg-white rounded-xl overflow-hidden">
-                                    {[...chapters].sort((a, b) => a.id - b.id).map((chapter: any, index: number) => (
+                                    {[...chapters]
+                                        .sort((a, b) => a.id - b.id)
+                                        .map((chapter: any, index: number) => ({
+                                            ...chapter,
+                                            displayIndex: index + 1
+                                        }))
+                                        .filter((chapter: any) => chapter.publicationStatus === "PUBLISHED")
+                                        .map((chapter: any) => (
                                         <div
                                             key={chapter.id}
                                             className="p-4 transition duration-150 border-b border-gray-200 last:border-b-0 cursor-pointer hover:bg-gray-50 flex items-center justify-between"
@@ -174,7 +181,7 @@ const ReadChapter = () => {
                                                     </svg>
                                                 </span>
 
-                                                <span className="font-medium text-gray-800">{`Capítulo ${index + 1}`}</span>
+                                                <span className="font-medium text-gray-800">{`Capítulo ${chapter.displayIndex}`}</span>
                                             </div>
 
                                             <div className="flex items-center gap-3">
