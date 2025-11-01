@@ -78,7 +78,8 @@ export default function LoomiBubble({ chapterId, chapterContent, publicationStat
       {isNotPublished && (
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-1 right-6 z-50 w-30 h-30 rounded-full hover:transition-all flex items-center justify-center group hover:cursor-pointer bg-gray-400"
+        className="fixed bottom-1 right-6 z-50 w-30 h-30 rounded-full hover:transition-all flex items-center
+        justify-center group hover:cursor-pointer bg-[#4C3B63] hover:bg-[#3B2E4D] shadow-lg hover:shadow-2xl"
         aria-label="Abrir chat con Loomi"
       >
         {isOpen ? (
@@ -120,7 +121,7 @@ export default function LoomiBubble({ chapterId, chapterContent, publicationStat
                 </div>
               ) : messages.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-full text-center px-4">
-                  <img src="/img/Loomi-Bubble.png" alt="Loomi" className="w-20 h-20 mb-3 opacity-90" />
+                  <img src="/img/Loomi-Bubble.png" alt="Loomi" className="w-16 h-20 mb-3 opacity-90" />
                   <p className="text-gray-600 text-sm">
                     ¡Hola! Soy Loomi, tu asistente de escritura creativa.
                     <br />
