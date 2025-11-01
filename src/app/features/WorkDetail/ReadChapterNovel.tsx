@@ -1,277 +1,43 @@
 import FooterLector from "../../components/FooterLector.tsx";
-import { useState, useEffect } from "react";
-import { useLanguages } from "../../../infrastructure/services/LanguageService.ts";
-import { translateContent } from "../../../infrastructure/services/TranslateService";
 import TextViewer from "../Chapter/TextViewer.tsx";
 import { MilkdownProvider } from "@milkdown/react";
-import { WorkService } from "../../../infrastructure/services/WorkService";
 import { useParams, useNavigate } from "react-router-dom";
-import { notifyError, notifySuccess } from "../../../infrastructure/services/ToastProviderService";
-import { getChapterById } from "../../../infrastructure/services/ChapterService.ts";
-import { useUserStore } from "../../../domain/store/UserStorage.ts";
-import { subscribeToWork, subscribeToChapter } from "../../../infrastructure/services/paymentService.ts";
-
+import { useReadChapterData } from "./hooks/useReadChapterData";
 
 const ReadChapter = () => {
     const navigate = useNavigate();
     const { chapterId } = useParams<{ chapterId: string }>();
-    const { data, isLoading, error: errorFetch } = getChapterById(Number(chapterId), "");
-    const { user } = useUserStore();
-
-    const { languages } = useLanguages();
-    const [translatedContent, setTranslatedContent] = useState<string>("");
-    const [currentLanguage, setCurrentLanguage] = useState<string>("");
-    const [isTranslating, setIsTranslating] = useState(false);
-    const [work, setWork] = useState<any | null>(null);
-    const [chapters, setChapters] = useState<any[]>([]);
-    const [liked, setLiked] = useState<Record<number, boolean>>({});
-    const [localLikes, setLocalLikes] = useState<Record<number, number>>({});
-    const [isFullScreen, setIsFullScreen] = useState(false);
-    const [showFooter, setShowFooter] = useState(false);
-    const [isPaying, setIsPaying] = useState(false);
-
-    const isStatusError = (err: unknown): err is { response: { status: number } } => {
-        if (typeof err !== "object" || err === null) return false;
-        const e = err as Record<string, unknown>;
-        if (!("response" in e)) return false;
-        const resp = e.response as Record<string, unknown> | undefined;
-        return typeof resp?.status === "number";
-    };
-
-    useEffect(() => {
-        if (!errorFetch) return;
-        if (isStatusError(errorFetch) && errorFetch.response.status === 403) {
-            navigate(-1);
-        }
-    }, [errorFetch, navigate]);
-
-    useEffect(() => {
-        if (data?.content) {
-            setTranslatedContent(data.content);
-            setCurrentLanguage(data.languageDefaultCode.code);
-        }
-
-        const loadWork = async () => {
-            if (!data?.workId) return;
-            try {
-                const w = await WorkService.getWorkById(Number(data.workId));
-                setWork(w);
-                setChapters(w.chapters || []);
-            } catch (err: any) {
-                console.error('No se pudo cargar la obra:', err);
-                notifyError('No se pudo cargar información de la obra.');
-            }
-        };
-
-        loadWork();
-    }, [data]);
-
-    useEffect(() => {
-        const likesInit: Record<number, number> = {};
-        chapters.forEach((ch: any) => {
-            likesInit[ch.id] = ch.likes || 0;
-        });
-        setLocalLikes(likesInit);
-    }, [chapters]);
-
-    useEffect(() => {
-        const handleKeyDown = (e: KeyboardEvent) => {
-            if (e.key === 'Escape' && isFullScreen) {
-                setIsFullScreen(false);
-            }
-        };
-
-        const handleMouseMove = (e: MouseEvent) => {
-            if (isFullScreen) {
-                const windowHeight = window.innerHeight;
-                const mouseY = e.clientY;
-                
-                if (mouseY > windowHeight - 100) {
-                    setShowFooter(true);
-                } else {
-                    setShowFooter(false);
-                }
-            }
-        };
-
-        const handleFullscreenChange = () => {
-            if (!document.fullscreenElement) {
-                setIsFullScreen(false);
-                const header = document.querySelector('header');
-                if (header) {
-                    (header as HTMLElement).style.display = '';
-                }
-            }
-        };
-
-        document.addEventListener('keydown', handleKeyDown);
-        document.addEventListener('mousemove', handleMouseMove);
-        document.addEventListener('fullscreenchange', handleFullscreenChange);
-
-        return () => {
-            document.removeEventListener('keydown', handleKeyDown);
-            document.removeEventListener('mousemove', handleMouseMove);
-            document.removeEventListener('fullscreenchange', handleFullscreenChange);
-        };
-    }, [isFullScreen]);
-
-    const toggleFullScreen = async () => {
-        try {
-            if (!isFullScreen) {
-                await document.documentElement.requestFullscreen();
-                setIsFullScreen(true);
-                const header = document.querySelector('header');
-                if (header) {
-                    (header as HTMLElement).style.display = 'none';
-                }
-            } else {
-                if (document.fullscreenElement) {
-                    await document.exitFullscreen();
-                }
-                setIsFullScreen(false);
-                const header = document.querySelector('header');
-                if (header) {
-                    (header as HTMLElement).style.display = '';
-                }
-            }
-            setShowFooter(false);
-        } catch (error) {
-            console.error('Error al cambiar modo pantalla completa:', error);
-        }
-    };
-
-    const toggleLike = (id: number) => {
-        setLiked((prev) => {
-            const isLiked = !prev[id];
-            setLocalLikes((l) => ({ ...l, [id]: (l[id] || 0) + (isLiked ? 1 : -1) }));
-            return { ...prev, [id]: isLiked };
-        });
-    };
-
-    const handleChapterClick = (chapter: any) => {
-        const chapterData = {
-            ...chapter,
-            content: chapter.description || "Contenido no disponible",
-            originalLanguage: work?.originalLanguage?.name || "",
-        };
-
-        navigate(`/work/chapter/${encodeURIComponent(JSON.stringify(chapterData.id))}/read`);
-    };
-
-    const sortedLanguages = data?.languageDefaultCode
-        ? [
-            { code: data.languageDefaultCode.code, name: "Original" },
-            ...languages.filter((lang) => lang.code !== data.languageDefaultCode.code),
-        ]
-        : languages;
-
-    const handleLanguageChange = async (languageCode: string) => {
-        if (!data || languageCode === currentLanguage) return;
-
-        try {
-            setIsTranslating(true);
-            const source = data.languageDefaultCode?.code || currentLanguage;
-            const translated = await translateContent(source, languageCode, data.content);
-            setTranslatedContent(translated);
-            setCurrentLanguage(languageCode);
-        } catch (error: any) {
-            console.error("Error al traducir el contenido:", error);
-            notifyError(`No se pudo traducir el contenido.`);
-        } finally {
-            setIsTranslating(false);
-        }
-    };
-
-    const handleSubscribeWork = async () => {
-        if (!work || isPaying) return;
-        
-        try {
-            setIsPaying(true);
-            const paymentWindow = window.open("", "_blank");
-            const res = await subscribeToWork(work.id, "mercadopago");
-            let url = (res.redirectUrl || "").toString().trim();
-            
-            if (url && !/^https?:\/\//i.test(url)) {
-                url = `${window.location.origin}${url.startsWith('/') ? url : '/' + url}`;
-            }
-            
-            if (url) {
-                if (paymentWindow && !paymentWindow.closed) {
-                    try {
-                        paymentWindow.location.href = url;
-                    } catch {
-                        window.open(url, "_blank");
-                        if (paymentWindow) paymentWindow.close();
-                    }
-                } else {
-                    window.open(url, "_blank");
-                }
-                notifySuccess("Redirigiendo a MercadoPago...");
-            } else {
-                if (paymentWindow && !paymentWindow.closed) paymentWindow.close();
-                notifyError("No se recibió URL de pago");
-            }
-        } catch (e: unknown) {
-            notifyError(e instanceof Error ? e.message : "No se pudo iniciar el pago");
-        } finally {
-            setIsPaying(false);
-        }
-    };
-
-    const isAuthor = user?.userId === work?.creator?.id;
-    const isWorkSubscribed = Boolean(work?.subscribedToWork);
-    const isAuthorSubscribed = Boolean(work?.subscribedToAuthor);
-
-    const isChapterUnlocked = (chapterIdToCheck: number): boolean => {
-        if (isAuthor) return true;
-        
-        if (isWorkSubscribed || isAuthorSubscribed) return true;
-        
-        const unlockedChapters = work?.unlockedChapters || [];
-        return unlockedChapters.includes(chapterIdToCheck);
-    };
-
-    const handleChapterPayment = async (chapterId: number) => {
-        if (!work || isPaying) return;
-        
-        try {
-            setIsPaying(true);
-            const paymentWindow = window.open("", "_blank");
-            const res = await subscribeToChapter(chapterId, work.id, "mercadopago");
-            let url = (res.redirectUrl || "").toString().trim();
-            
-            if (url && !/^https?:\/\//i.test(url)) {
-                url = `${window.location.origin}${url.startsWith('/') ? url : '/' + url}`;
-            }
-            
-            if (url) {
-                if (paymentWindow && !paymentWindow.closed) {
-                    try {
-                        paymentWindow.location.href = url;
-                    } catch {
-                        window.open(url, "_blank");
-                        if (paymentWindow) paymentWindow.close();
-                    }
-                } else {
-                    window.open(url, "_blank");
-                }
-                notifySuccess("Redirigiendo a MercadoPago...");
-            } else {
-                if (paymentWindow && !paymentWindow.closed) paymentWindow.close();
-                notifyError("No se recibió URL de pago");
-            }
-        } catch (e: unknown) {
-            notifyError(e instanceof Error ? e.message : "No se pudo iniciar el pago");
-        } finally {
-            setIsPaying(false);
-        }
-    };
+    
+    const {
+        chapterData,
+        work,
+        chapters,
+        translatedContent,
+        isTranslating,
+        sortedLanguages,
+        liked,
+        localLikes,
+        isFullScreen,
+        showFooter,
+        isPaying,
+        isLoading,
+        isAuthor,
+        isWorkSubscribed,
+        isAuthorSubscribed,
+        toggleFullScreen,
+        toggleLike,
+        handleChapterClick,
+        handleLanguageChange,
+        handleSubscribeWork,
+        handleChapterPayment,
+        isChapterUnlocked,
+    } = useReadChapterData(chapterId || "");
 
     if (isLoading) {
         return <p className="text-center text-gray-500 mt-10">Cargando capítulo...</p>;
     }
 
-    if (!data) {
+    if (!chapterData) {
         return <p className="text-center text-red-500 mt-10">No se pudo cargar el capítulo.</p>;
     }
 
@@ -281,7 +47,7 @@ const ReadChapter = () => {
                 <div className={`px-6 pt-6 pb-28 flex flex-col ${!isFullScreen ? 'min-h-[calc(100vh-4rem)]' : 'min-h-screen'}`}>
                 {!isFullScreen && (
                     <button
-                        onClick={() => data?.workId && navigate(`/work/${data.workId}`)}
+                        onClick={() => chapterData?.workId && navigate(`/work/${chapterData.workId}`)}
                         className="flex items-center gap-2 text-gray-600 hover:text-[#5C17A6] transition-colors duration-200 group mb-3 cursor-pointer"
                     >
                         <svg 
@@ -301,10 +67,10 @@ const ReadChapter = () => {
                     <div className="mb-4">
                         <div className="text-center space-y-2">
                             <p className="text-sm font-semibold tracking-wider uppercase" style={{ color: '#5C17A6' }}>
-                                Capítulo {data.chapterNumber}
+                                Capítulo {chapterData.chapterNumber}
                             </p>
                             <h1 className="text-3xl md:text-4xl font-bold text-gray-900 leading-tight">
-                                {data.title}
+                                {chapterData.title}
                             </h1>
                         </div>
                         <div className="mt-3 flex items-center justify-center">
@@ -402,7 +168,7 @@ const ReadChapter = () => {
                         <div className="-mt-16 flex items-start gap-4">
                             <img src={work?.cover || '/img/portadas/banner1.jpg'} alt={work?.title} className="w-32 h-44 object-cover rounded-md shadow-lg border-4 border-white ml-2" />
                             <div className="flex-1 pt-4">
-                                <h2 className="text-lg font-semibold text-gray-800">{work?.title || data.workName}</h2>
+                                <h2 className="text-lg font-semibold text-gray-800">{work?.title || chapterData.workName}</h2>
                                 {!isAuthor && (
                                     <div className="mt-3 flex flex-col gap-2">
                                         <button 
@@ -505,7 +271,7 @@ const ReadChapter = () => {
             {(!isFullScreen || showFooter) && (
                 <FooterLector
                     selectedLanguages={sortedLanguages}
-                    chapterTitle={`Capítulo ${data.chapterNumber}`}
+                    chapterTitle={`Capítulo ${chapterData.chapterNumber}`}
                     onLanguageChange={handleLanguageChange}
                     onToggleFullScreen={toggleFullScreen}
                     isFullScreen={isFullScreen}
