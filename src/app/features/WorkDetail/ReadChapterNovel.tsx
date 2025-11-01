@@ -23,6 +23,8 @@ const ReadChapter = () => {
     const [chapters, setChapters] = useState<any[]>([]);
     const [liked, setLiked] = useState<Record<number, boolean>>({});
     const [localLikes, setLocalLikes] = useState<Record<number, number>>({});
+    const [isFullScreen, setIsFullScreen] = useState(false);
+    const [showFooter, setShowFooter] = useState(false);
 
     const isStatusError = (err: unknown): err is { response: { status: number } } => {
         if (typeof err !== "object" || err === null) return false;
@@ -39,7 +41,6 @@ const ReadChapter = () => {
         }
     }, [errorFetch, navigate]);
 
-    // Establecer contenido original al cargar
     useEffect(() => {
         if (data?.content) {
             setTranslatedContent(data.content);
@@ -68,6 +69,72 @@ const ReadChapter = () => {
         });
         setLocalLikes(likesInit);
     }, [chapters]);
+
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Escape' && isFullScreen) {
+                setIsFullScreen(false);
+            }
+        };
+
+        const handleMouseMove = (e: MouseEvent) => {
+            if (isFullScreen) {
+                const windowHeight = window.innerHeight;
+                const mouseY = e.clientY;
+                
+                if (mouseY > windowHeight - 100) {
+                    setShowFooter(true);
+                } else {
+                    setShowFooter(false);
+                }
+            }
+        };
+
+        const handleFullscreenChange = () => {
+            if (!document.fullscreenElement) {
+                setIsFullScreen(false);
+                const header = document.querySelector('header');
+                if (header) {
+                    (header as HTMLElement).style.display = '';
+                }
+            }
+        };
+
+        document.addEventListener('keydown', handleKeyDown);
+        document.addEventListener('mousemove', handleMouseMove);
+        document.addEventListener('fullscreenchange', handleFullscreenChange);
+
+        return () => {
+            document.removeEventListener('keydown', handleKeyDown);
+            document.removeEventListener('mousemove', handleMouseMove);
+            document.removeEventListener('fullscreenchange', handleFullscreenChange);
+        };
+    }, [isFullScreen]);
+
+    const toggleFullScreen = async () => {
+        try {
+            if (!isFullScreen) {
+                await document.documentElement.requestFullscreen();
+                setIsFullScreen(true);
+                const header = document.querySelector('header');
+                if (header) {
+                    (header as HTMLElement).style.display = 'none';
+                }
+            } else {
+                if (document.fullscreenElement) {
+                    await document.exitFullscreen();
+                }
+                setIsFullScreen(false);
+                const header = document.querySelector('header');
+                if (header) {
+                    (header as HTMLElement).style.display = '';
+                }
+            }
+            setShowFooter(false);
+        } catch (error) {
+            console.error('Error al cambiar modo pantalla completa:', error);
+        }
+    };
 
     const toggleLike = (id: number) => {
         setLiked((prev) => {
@@ -120,25 +187,28 @@ const ReadChapter = () => {
     }
 
     return (
-        <div className="h-full flex bg-white">
-            <div className="flex-1 px-6 pt-6 pb-28 overflow-y-auto flex flex-col">
-                <button
-                    onClick={() => data?.workId && navigate(`/work/${data.workId}`)}
-                    className="flex items-center gap-2 text-gray-600 hover:text-[#5C17A6] transition-colors duration-200 group mb-3 cursor-pointer"
-                >
-                    <svg 
-                        xmlns="http://www.w3.org/2000/svg" 
-                        className="h-5 w-5 transform group-hover:-translate-x-1 transition-transform duration-200" 
-                        fill="none" 
-                        viewBox="0 0 24 24" 
-                        stroke="currentColor"
+        <div className="h-full flex bg-white relative">
+            <div className="flex-1 overflow-y-auto">
+                <div className={`px-6 pt-6 pb-28 flex flex-col ${!isFullScreen ? 'min-h-[calc(100vh-4rem)]' : 'min-h-screen'}`}>
+                {!isFullScreen && (
+                    <button
+                        onClick={() => data?.workId && navigate(`/work/${data.workId}`)}
+                        className="flex items-center gap-2 text-gray-600 hover:text-[#5C17A6] transition-colors duration-200 group mb-3 cursor-pointer"
                     >
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                    </svg>
-                    <span className="text-sm font-medium">Volver</span>
-                </button>
+                        <svg 
+                            xmlns="http://www.w3.org/2000/svg" 
+                            className="h-5 w-5 transform group-hover:-translate-x-1 transition-transform duration-200" 
+                            fill="none" 
+                            viewBox="0 0 24 24" 
+                            stroke="currentColor"
+                        >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                        </svg>
+                        <span className="text-sm font-medium">Volver</span>
+                    </button>
+                )}
 
-                <div className="max-w-3xl mx-auto flex-1 flex flex-col w-full">
+                <div className={`mx-auto w-full flex-1 flex flex-col ${isFullScreen ? 'max-w-4xl' : 'max-w-3xl'}`}>
                     <div className="mb-4">
                         <div className="text-center space-y-2">
                             <p className="text-sm font-semibold tracking-wider uppercase" style={{ color: '#5C17A6' }}>
@@ -153,7 +223,7 @@ const ReadChapter = () => {
                         </div>
                     </div>
 
-                    <div className="prose max-w-none flex-1">
+                    <div className="prose max-w-none">
                         {isTranslating ? (
                             <p className="text-center text-gray-500">Traduciendo contenido...</p>
                         ) : (
@@ -163,8 +233,9 @@ const ReadChapter = () => {
                         )}
                     </div>
 
-                    <div className="mt-12 flex items-center justify-between border-t border-gray-200 pt-6">
-                        <button
+                    <div className="mt-auto">
+                        <div className="mt-12 flex items-center justify-between border-t border-gray-200 pt-6">
+                            <button
                             onClick={() => {
                                 const publishedChapters = chapters
                                     .filter(ch => ch.publicationStatus === "PUBLISHED")
@@ -229,10 +300,13 @@ const ReadChapter = () => {
                             </svg>
                         </button>
                     </div>
+                    </div>
+                </div>
                 </div>
             </div>
 
-            <aside className="w-80 bg-gray-50 border-l border-gray-200 hidden lg:block">
+            {!isFullScreen && (
+                <aside className="w-80 bg-gray-50 border-l border-gray-200 hidden lg:block">
                 <div className="p-4 space-y-4 sticky top-4">
                     <div className="relative">
                         <div className="w-full h-32 bg-cover bg-center rounded-md" style={{ backgroundImage: `url(${work?.banner || '/img/portadas/banner1.jpg'})` }} />
@@ -315,12 +389,17 @@ const ReadChapter = () => {
                     )}
                 </div>
             </aside>
+            )}
 
-            <FooterLector
-                selectedLanguages={sortedLanguages}
-                chapterTitle={`Capítulo ${data.chapterNumber}`}
-                onLanguageChange={handleLanguageChange}
-            />
+            {(!isFullScreen || showFooter) && (
+                <FooterLector
+                    selectedLanguages={sortedLanguages}
+                    chapterTitle={`Capítulo ${data.chapterNumber}`}
+                    onLanguageChange={handleLanguageChange}
+                    onToggleFullScreen={toggleFullScreen}
+                    isFullScreen={isFullScreen}
+                />
+            )}
         </div>
     );
 };
