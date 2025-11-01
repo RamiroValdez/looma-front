@@ -6,14 +6,17 @@ import TextViewer from "../Chapter/TextViewer.tsx";
 import { MilkdownProvider } from "@milkdown/react";
 import { WorkService } from "../../../infrastructure/services/WorkService";
 import { useParams, useNavigate } from "react-router-dom";
-import { notifyError } from "../../../infrastructure/services/ToastProviderService";
+import { notifyError, notifySuccess } from "../../../infrastructure/services/ToastProviderService";
 import { getChapterById } from "../../../infrastructure/services/ChapterService.ts";
+import { useUserStore } from "../../../domain/store/UserStorage.ts";
+import { subscribeToWork, subscribeToChapter } from "../../../infrastructure/services/paymentService.ts";
 
 
 const ReadChapter = () => {
     const navigate = useNavigate();
     const { chapterId } = useParams<{ chapterId: string }>();
     const { data, isLoading, error: errorFetch } = getChapterById(Number(chapterId), "");
+    const { user } = useUserStore();
 
     const { languages } = useLanguages();
     const [translatedContent, setTranslatedContent] = useState<string>("");
@@ -25,6 +28,7 @@ const ReadChapter = () => {
     const [localLikes, setLocalLikes] = useState<Record<number, number>>({});
     const [isFullScreen, setIsFullScreen] = useState(false);
     const [showFooter, setShowFooter] = useState(false);
+    const [isPaying, setIsPaying] = useState(false);
 
     const isStatusError = (err: unknown): err is { response: { status: number } } => {
         if (typeof err !== "object" || err === null) return false;
@@ -178,6 +182,91 @@ const ReadChapter = () => {
         }
     };
 
+    const handleSubscribeWork = async () => {
+        if (!work || isPaying) return;
+        
+        try {
+            setIsPaying(true);
+            const paymentWindow = window.open("", "_blank");
+            const res = await subscribeToWork(work.id, "mercadopago");
+            let url = (res.redirectUrl || "").toString().trim();
+            
+            if (url && !/^https?:\/\//i.test(url)) {
+                url = `${window.location.origin}${url.startsWith('/') ? url : '/' + url}`;
+            }
+            
+            if (url) {
+                if (paymentWindow && !paymentWindow.closed) {
+                    try {
+                        paymentWindow.location.href = url;
+                    } catch {
+                        window.open(url, "_blank");
+                        if (paymentWindow) paymentWindow.close();
+                    }
+                } else {
+                    window.open(url, "_blank");
+                }
+                notifySuccess("Redirigiendo a MercadoPago...");
+            } else {
+                if (paymentWindow && !paymentWindow.closed) paymentWindow.close();
+                notifyError("No se recibió URL de pago");
+            }
+        } catch (e: unknown) {
+            notifyError(e instanceof Error ? e.message : "No se pudo iniciar el pago");
+        } finally {
+            setIsPaying(false);
+        }
+    };
+
+    const isAuthor = user?.userId === work?.creator?.id;
+    const isWorkSubscribed = Boolean(work?.subscribedToWork);
+    const isAuthorSubscribed = Boolean(work?.subscribedToAuthor);
+
+    const isChapterUnlocked = (chapterIdToCheck: number): boolean => {
+        if (isAuthor) return true;
+        
+        if (isWorkSubscribed || isAuthorSubscribed) return true;
+        
+        const unlockedChapters = work?.unlockedChapters || [];
+        return unlockedChapters.includes(chapterIdToCheck);
+    };
+
+    const handleChapterPayment = async (chapterId: number) => {
+        if (!work || isPaying) return;
+        
+        try {
+            setIsPaying(true);
+            const paymentWindow = window.open("", "_blank");
+            const res = await subscribeToChapter(chapterId, work.id, "mercadopago");
+            let url = (res.redirectUrl || "").toString().trim();
+            
+            if (url && !/^https?:\/\//i.test(url)) {
+                url = `${window.location.origin}${url.startsWith('/') ? url : '/' + url}`;
+            }
+            
+            if (url) {
+                if (paymentWindow && !paymentWindow.closed) {
+                    try {
+                        paymentWindow.location.href = url;
+                    } catch {
+                        window.open(url, "_blank");
+                        if (paymentWindow) paymentWindow.close();
+                    }
+                } else {
+                    window.open(url, "_blank");
+                }
+                notifySuccess("Redirigiendo a MercadoPago...");
+            } else {
+                if (paymentWindow && !paymentWindow.closed) paymentWindow.close();
+                notifyError("No se recibió URL de pago");
+            }
+        } catch (e: unknown) {
+            notifyError(e instanceof Error ? e.message : "No se pudo iniciar el pago");
+        } finally {
+            setIsPaying(false);
+        }
+    };
+
     if (isLoading) {
         return <p className="text-center text-gray-500 mt-10">Cargando capítulo...</p>;
     }
@@ -314,10 +403,23 @@ const ReadChapter = () => {
                             <img src={work?.cover || '/img/portadas/banner1.jpg'} alt={work?.title} className="w-32 h-44 object-cover rounded-md shadow-lg border-4 border-white ml-2" />
                             <div className="flex-1 pt-4">
                                 <h2 className="text-lg font-semibold text-gray-800">{work?.title || data.workName}</h2>
-                                <div className="mt-3 flex flex-col gap-2">
-                                    <button className="px-3 py-1 rounded-md bg-[#C026D3] text-white font-medium cursor-pointer">Suscrito</button>
-                                    <button className="px-3 py-1 rounded-md border border-gray-300 text-gray-700 font-medium cursor-pointer">Guardado</button>
-                                </div>
+                                {!isAuthor && (
+                                    <div className="mt-3 flex flex-col gap-2">
+                                        <button 
+                                            onClick={handleSubscribeWork}
+                                            disabled={isPaying || isWorkSubscribed || isAuthorSubscribed}
+                                            className="px-3 py-1 rounded-md bg-[#C026D3] text-white font-medium cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
+                                        >
+                                            {isWorkSubscribed || isAuthorSubscribed ? "Suscrito" : "Suscribir"}
+                                        </button>
+                                        <button 
+                                            disabled={true}
+                                            className="px-3 py-1 rounded-md border border-gray-300 text-gray-700 font-medium cursor-not-allowed opacity-50"
+                                        >
+                                            Guardado
+                                        </button>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -338,20 +440,29 @@ const ReadChapter = () => {
                                         .filter((chapter: any) => chapter.publicationStatus === "PUBLISHED")
                                         .map((chapter: any) => {
                                             const isCurrentChapter = chapter.id === Number(chapterId);
+                                            const isUnlocked = isChapterUnlocked(chapter.id);
                                             return (
                                         <div
                                             key={chapter.id}
                                             className={`p-4 transition duration-150 border-b border-gray-200 last:border-b-0 cursor-pointer flex items-center justify-between ${
                                                 isCurrentChapter ? 'bg-gray-300' : 'hover:bg-gray-100'
                                             }`}
-                                            onClick={() => handleChapterClick(chapter)}
+                                            onClick={() => {
+                                                if (isUnlocked) {
+                                                    handleChapterClick(chapter);
+                                                } else {
+                                                    handleChapterPayment(chapter.id);
+                                                }
+                                            }}
                                         >
                                             <div className="flex items-center space-x-2">
-                                                <span className="text-gray-900 mr-2 flex items-center" aria-hidden>
-                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="currentColor" className="w-4 h-4">
-                                                        <path d="M144 144v48H304V144c0-44.2-35.8-80-80-80s-80 35.8-80 80zM80 192V144C80 64.5 144.5 0 224 0s144 64.5 144 144v48h16c35.3 0 64 28.7 64 64V448c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V256c0-35.3 28.7-64 64-64H80z"/>
-                                                    </svg>
-                                                </span>
+                                                {!isUnlocked && (
+                                                    <span className="text-gray-900 mr-2 flex items-center" aria-hidden>
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="currentColor" className="w-4 h-4 text-gray-500">
+                                                            <path d="M144 144v48H304V144c0-44.2-35.8-80-80-80s-80 35.8-80 80zM80 192V144C80 64.5 144.5 0 224 0s144 64.5 144 144v48h16c35.3 0 64 28.7 64 64V448c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V256c0-35.3 28.7-64 64-64H80z"/>
+                                                        </svg>
+                                                    </span>
+                                                )}
 
                                                 <span className={`font-medium ${isCurrentChapter ? 'text-gray-900' : 'text-gray-800'}`}>{`Capítulo ${chapter.displayIndex}`}</span>
                                             </div>
