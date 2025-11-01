@@ -120,11 +120,11 @@ const ReadChapter = () => {
     }
 
     return (
-        <div className="min-h-screen flex bg-white">
-            <main className="flex-1 px-6 py-8 overflow-y-auto">
+        <div className="h-full flex bg-white">
+            <div className="flex-1 px-6 pt-6 pb-28 overflow-y-auto flex flex-col">
                 <button
                     onClick={() => data?.workId && navigate(`/work/${data.workId}`)}
-                    className="flex items-center gap-2 text-gray-600 hover:text-[#5C17A6] transition-colors duration-200 group mb-0 cursor-pointer"
+                    className="flex items-center gap-2 text-gray-600 hover:text-[#5C17A6] transition-colors duration-200 group mb-3 cursor-pointer"
                 >
                     <svg 
                         xmlns="http://www.w3.org/2000/svg" 
@@ -138,9 +138,9 @@ const ReadChapter = () => {
                     <span className="text-sm font-medium">Volver</span>
                 </button>
 
-                <div className="max-w-3xl mx-auto -mt-6">
-                    <div className="mb-8">
-                        <div className="text-center space-y-3">
+                <div className="max-w-3xl mx-auto flex-1 flex flex-col w-full">
+                    <div className="mb-4">
+                        <div className="text-center space-y-2">
                             <p className="text-sm font-semibold tracking-wider uppercase" style={{ color: '#5C17A6' }}>
                                 Capítulo {data.chapterNumber}
                             </p>
@@ -148,12 +148,12 @@ const ReadChapter = () => {
                                 {data.title}
                             </h1>
                         </div>
-                        <div className="mt-6 flex items-center justify-center">
+                        <div className="mt-3 flex items-center justify-center">
                             <div className="h-0.5 w-200 bg-gray-200"></div>
                         </div>
                     </div>
 
-                    <div className="prose max-w-none">
+                    <div className="prose max-w-none flex-1">
                         {isTranslating ? (
                             <p className="text-center text-gray-500">Traduciendo contenido...</p>
                         ) : (
@@ -162,8 +162,75 @@ const ReadChapter = () => {
                             </MilkdownProvider>
                         )}
                     </div>
+
+                    <div className="mt-12 flex items-center justify-between border-t border-gray-200 pt-6">
+                        <button
+                            onClick={() => {
+                                const publishedChapters = chapters
+                                    .filter(ch => ch.publicationStatus === "PUBLISHED")
+                                    .sort((a, b) => a.id - b.id);
+                                const currentPublishedIndex = publishedChapters.findIndex(ch => ch.id === Number(chapterId));
+                                
+                                if (currentPublishedIndex > 0) {
+                                    const prevChapter = publishedChapters[currentPublishedIndex - 1];
+                                    navigate(`/work/chapter/${prevChapter.id}/read`);
+                                }
+                            }}
+                            disabled={
+                                chapters.filter(ch => ch.publicationStatus === "PUBLISHED")
+                                    .sort((a, b) => a.id - b.id)
+                                    .findIndex(ch => ch.id === Number(chapterId)) === 0
+                            }
+                            className="flex items-center gap-2 text-gray-600 hover:text-[#5C17A6] transition-colors duration-200 group disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:text-gray-600 cursor-pointer"
+                        >
+                            <svg 
+                                xmlns="http://www.w3.org/2000/svg" 
+                                className="h-5 w-5 transform group-hover:-translate-x-1 transition-transform duration-200" 
+                                fill="none" 
+                                viewBox="0 0 24 24" 
+                                stroke="currentColor"
+                            >
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                            </svg>
+                            <span className="text-sm font-medium">Capítulo anterior</span>
+                        </button>
+
+                        <button
+                            onClick={() => {
+                                const publishedChapters = chapters
+                                    .filter(ch => ch.publicationStatus === "PUBLISHED")
+                                    .sort((a, b) => a.id - b.id);
+                                const currentPublishedIndex = publishedChapters.findIndex(ch => ch.id === Number(chapterId));
+                                
+                                if (currentPublishedIndex < publishedChapters.length - 1) {
+                                    const nextChapter = publishedChapters[currentPublishedIndex + 1];
+                                    navigate(`/work/chapter/${nextChapter.id}/read`);
+                                }
+                            }}
+                            disabled={
+                                (() => {
+                                    const publishedChapters = chapters.filter(ch => ch.publicationStatus === "PUBLISHED")
+                                        .sort((a, b) => a.id - b.id);
+                                    const currentPublishedIndex = publishedChapters.findIndex(ch => ch.id === Number(chapterId));
+                                    return currentPublishedIndex === publishedChapters.length - 1;
+                                })()
+                            }
+                            className="flex items-center gap-2 text-gray-600 hover:text-[#5C17A6] transition-colors duration-200 group disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:text-gray-600 cursor-pointer"
+                        >
+                            <span className="text-sm font-medium">Capítulo siguiente</span>
+                            <svg 
+                                xmlns="http://www.w3.org/2000/svg" 
+                                className="h-5 w-5 transform group-hover:translate-x-1 transition-transform duration-200" 
+                                fill="none" 
+                                viewBox="0 0 24 24" 
+                                stroke="currentColor"
+                            >
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                            </svg>
+                        </button>
+                    </div>
                 </div>
-            </main>
+            </div>
 
             <aside className="w-80 bg-gray-50 border-l border-gray-200 hidden lg:block">
                 <div className="p-4 space-y-4 sticky top-4">
@@ -184,7 +251,7 @@ const ReadChapter = () => {
                     {chapters.length > 0 && (
                         <div>
                             <h3 className="text-sm font-semibold text-gray-600 mb-2">Capítulos</h3>
-                            <div className="chapter-list-compact">
+                            <div className="chapter-list-compact max-h-96 overflow-y-auto">
                                 <style>{`.chapter-list-compact .text-sm.text-gray-500{display:none !important;} .chapter-list-compact .flex.text-gray-500{display:none !important;}`}</style>
 
                                 <div className="bg-white rounded-xl overflow-hidden">
