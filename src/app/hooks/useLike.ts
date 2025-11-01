@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { likeWork, unlikeWork, likeChapter, unlikeChapter } from "../../infrastructure/services/LikeService";
 
 export function useLike({ 
@@ -18,6 +18,14 @@ export function useLike({
   const [count, setCount] = useState(initialCount);
   const [loading, setLoading] = useState(false);
 
+  useEffect(() => {
+    setLiked(initialLiked);
+  }, [initialLiked]);
+
+  useEffect(() => {
+    setCount(initialCount);
+  }, [initialCount]);
+
   const handleLike = async () => {
     setLoading(true);
     try {
@@ -33,7 +41,7 @@ export function useLike({
           : await unlikeChapter(workId, chapterId!);
         setLiked(false);
       }
-      setCount(response.likeCount); // <-- Actualiza con el valor real del backend
+      setCount(response.likeCount); 
     } finally {
       setLoading(false);
     }
