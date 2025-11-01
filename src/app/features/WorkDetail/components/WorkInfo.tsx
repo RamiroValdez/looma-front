@@ -4,7 +4,6 @@ import { notifyError, notifySuccess } from "../../../../infrastructure/services/
 import { subscribeToAuthor, subscribeToWork } from "../../../../infrastructure/services/paymentService.ts";
 import Button from "../../../components/Button";
 import LikeButton from "../../../components/LikeButton";
-import { useAuthStore } from "../../../../domain/store/AuthStore";
 
 interface WorkInfoProps {
   work: WorkDTO;
@@ -13,13 +12,11 @@ interface WorkInfoProps {
 }
 
 export const WorkInfo: React.FC<WorkInfoProps> = ({ work, manageFirstChapter, disableFirstChapter = false }) => {
-  const likesFormatted = work.likes >= 1000 ? (work.likes / 1000).toFixed(1) + "k" : work.likes;
   const [isPaying, setIsPaying] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<"author" | "work" | null>(null);
   const isAuthorSubscribed = Boolean(work.subscribedToAuthor);
   const isWorkSubscribed = Boolean(work.subscribedToWork);
-  const token = useAuthStore((state) => state.token);
 
   const handleSubscribeAuthor = () => {
     setModalMode("author");
@@ -91,10 +88,9 @@ export const WorkInfo: React.FC<WorkInfoProps> = ({ work, manageFirstChapter, di
       <div className="flex items-center gap-6 ">
         <div className="flex items-center gap-2 text-gray-700">
             <LikeButton workId={work.id}
-            initialLiked={false} // Cuando el backend devuelva el estado real cambiar
-            //initialCount={work.likes}
+            initialLiked={work.likedByUser}
+            initialCount={work.likes}
             type="work"/>
-          <span className="text-[16px] font-semibold text-gray-700">{likesFormatted}</span>
         </div>
 
         <div className="flex items-center gap-2 text-gray-700">

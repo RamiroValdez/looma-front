@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { likeWork, unlikeWork, likeChapter, unlikeChapter } from "../../infrastructure/services/LikeService";
 
 export function useLike({ 
   initialLiked = false, 
@@ -13,33 +14,26 @@ export function useLike({
   workId: number;
   chapterId?: number;
 }) {
-  const storageKey = type === "work"
-    ? `like-work-${workId}`
-    : `like-chapter-${workId}-${chapterId}`;
-
-  // Leer el estado inicial desde localStorage
-  const [liked, setLiked] = useState(() => {
-    const stored = localStorage.getItem(storageKey);
-    return stored ? stored === "true" : initialLiked;
-  });
+  const [liked, setLiked] = useState(initialLiked);
   const [count, setCount] = useState(initialCount);
   const [loading, setLoading] = useState(false);
 
   const handleLike = async () => {
     setLoading(true);
     try {
-      let newCount = count;
+      let response;
       if (!liked) {
-        // Aquí iría la llamada al servicio real
-        newCount = count + 1;
+        response = type === "work"
+          ? await likeWork(workId)
+          : await likeChapter(workId, chapterId!);
         setLiked(true);
-        localStorage.setItem(storageKey, "true");
       } else {
-        newCount = count - 1;
+        response = type === "work"
+          ? await unlikeWork(workId)
+          : await unlikeChapter(workId, chapterId!);
         setLiked(false);
-        localStorage.setItem(storageKey, "false");
       }
-      setCount(newCount);
+      setCount(response.likeCount); // <-- Actualiza con el valor real del backend
     } finally {
       setLoading(false);
     }
