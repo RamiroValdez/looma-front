@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { updateChapter, deleteChapter, cancelScheduleChapter } from "../../infrastructure/services/ChapterService";
-import { handleError } from "../../infrastructure/utils/errorHandler";
+import { handleError } from "../../infrastructure/errorHandler";
 import type { ChapterWithContentDTO } from "../../domain/dto/ChapterWithContentDTO";
 import { useNavigate } from "react-router-dom";
 

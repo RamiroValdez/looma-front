@@ -1,7 +1,7 @@
 import type { WorkDTO } from '../../domain/dto/WorkDTO.ts';
 import { useApiQuery } from "../api/useApiQuery.ts";
 import { useAuthStore } from "../../domain/store/AuthStore.ts";
-import {buildEndpoint} from "../utils/endpoints.ts";
+import {buildEndpoint} from "../api/endpoints.ts";
 
 export function useMyWorks(creatorId: number) {
     const { token } = useAuthStore();
