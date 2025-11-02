@@ -527,6 +527,7 @@ describe("useReadChapterData", () => {
 
       await waitFor(() => {
         expect(result.current.work).toBeDefined();
+        expect(result.current.work?.subscribedToWork).toBe(true);
       });
 
       expect(result.current.isChapterUnlocked(1)).toBe(true);
@@ -563,6 +564,7 @@ describe("useReadChapterData", () => {
 
       await waitFor(() => {
         expect(result.current.work).toBeDefined();
+        expect(result.current.work?.unlockedChapters).toEqual([1]);
       });
 
       expect(result.current.isChapterUnlocked(1)).toBe(true);
