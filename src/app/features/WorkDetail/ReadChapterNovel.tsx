@@ -132,17 +132,29 @@ const ReadChapter = () => {
                                         const publishedChapters = chapters
                                             .filter(ch => ch.publicationStatus === "PUBLISHED")
                                             .sort((a, b) => a.id - b.id);
-                                        const currentPublishedIndex = publishedChapters.findIndex(ch => ch.id === Number(chapterId));
+                                        const currentIndex = publishedChapters.findIndex(ch => ch.id === Number(chapterId));
 
-                                        if (currentPublishedIndex > 0) {
-                                            const prevChapter = publishedChapters[currentPublishedIndex - 1];
-                                            navigate(`/work/chapter/${prevChapter.id}/read`);
+                                        for (let i = currentIndex - 1; i >= 0; i--) {
+                                            if (isChapterUnlocked(publishedChapters[i].id)) {
+                                                navigate(`/work/chapter/${publishedChapters[i].id}/read`);
+                                                break;
+                                            }
                                         }
                                     }}
                                     disabled={
-                                        chapters.filter(ch => ch.publicationStatus === "PUBLISHED")
-                                            .sort((a, b) => a.id - b.id)
-                                            .findIndex(ch => ch.id === Number(chapterId)) === 0
+                                        (() => {
+                                            const publishedChapters = chapters
+                                                .filter(ch => ch.publicationStatus === "PUBLISHED")
+                                                .sort((a, b) => a.id - b.id);
+                                            const currentIndex = publishedChapters.findIndex(ch => ch.id === Number(chapterId));
+                                            
+                                            for (let i = currentIndex - 1; i >= 0; i--) {
+                                                if (isChapterUnlocked(publishedChapters[i].id)) {
+                                                    return false;
+                                                }
+                                            }
+                                            return true;
+                                        })()
                                     }
                                     className="flex items-center gap-2 text-gray-600 hover:text-[#5C17A6] transition-colors duration-200 group disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:text-gray-600 cursor-pointer"
                                 >
@@ -163,19 +175,28 @@ const ReadChapter = () => {
                                         const publishedChapters = chapters
                                             .filter(ch => ch.publicationStatus === "PUBLISHED")
                                             .sort((a, b) => a.id - b.id);
-                                        const currentPublishedIndex = publishedChapters.findIndex(ch => ch.id === Number(chapterId));
+                                        const currentIndex = publishedChapters.findIndex(ch => ch.id === Number(chapterId));
 
-                                        if (currentPublishedIndex < publishedChapters.length - 1) {
-                                            const nextChapter = publishedChapters[currentPublishedIndex + 1];
-                                            navigate(`/work/chapter/${nextChapter.id}/read`);
+                                        for (let i = currentIndex + 1; i < publishedChapters.length; i++) {
+                                            if (isChapterUnlocked(publishedChapters[i].id)) {
+                                                navigate(`/work/chapter/${publishedChapters[i].id}/read`);
+                                                break;
+                                            }
                                         }
                                     }}
                                     disabled={
                                         (() => {
-                                            const publishedChapters = chapters.filter(ch => ch.publicationStatus === "PUBLISHED")
+                                            const publishedChapters = chapters
+                                                .filter(ch => ch.publicationStatus === "PUBLISHED")
                                                 .sort((a, b) => a.id - b.id);
-                                            const currentPublishedIndex = publishedChapters.findIndex(ch => ch.id === Number(chapterId));
-                                            return currentPublishedIndex === publishedChapters.length - 1;
+                                            const currentIndex = publishedChapters.findIndex(ch => ch.id === Number(chapterId));
+                                            
+                                            for (let i = currentIndex + 1; i < publishedChapters.length; i++) {
+                                                if (isChapterUnlocked(publishedChapters[i].id)) {
+                                                    return false;
+                                                }
+                                            }
+                                            return true;
                                         })()
                                     }
                                     className="flex items-center gap-2 text-gray-600 hover:text-[#5C17A6] transition-colors duration-200 group disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:text-gray-600 cursor-pointer"
