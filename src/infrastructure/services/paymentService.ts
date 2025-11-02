@@ -1,5 +1,5 @@
 import { useAuthStore } from "../../domain/store/AuthStore.ts";
-import { handleError } from "../utils/errorHandler.ts";
+import { handleError } from "../errorHandler.ts";
 
 export interface PaymentRedirectResponse {
     redirectUrl?: string;

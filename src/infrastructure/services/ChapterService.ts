@@ -1,5 +1,5 @@
 import { useAuthStore } from "../../domain/store/AuthStore.ts";
-import { handleError } from "../utils/errorHandler.ts";
+import { handleError } from "../errorHandler.ts";
 import type { WorkDTO } from "../../domain/dto/WorkDTO.ts";
 import { useApiQuery } from "../api/useApiQuery.ts";
 import type { ChapterWithContentDTO } from "../../domain/dto/ChapterWithContentDTO.ts";
