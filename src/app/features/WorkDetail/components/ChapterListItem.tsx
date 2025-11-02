@@ -31,7 +31,7 @@ export const ChapterListItem: React.FC<ChapterListItemProps> = ({
   return (
     <div
       className={`p-4 transition duration-150 border-b border-gray-200 last:border-b-0 flex items-center justify-between ${
-        disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:bg-gray-50'
+        disabled ? 'cursor-not-allowed' : 'cursor-pointer hover:bg-gray-50'
       }`}
       aria-disabled={disabled}
       onClick={() => {
@@ -42,6 +42,12 @@ export const ChapterListItem: React.FC<ChapterListItemProps> = ({
     >
       <div className="flex items-center space-x-2">
         <span className="font-medium text-gray-800">{`Episodio ${index}`}</span>
+        
+        {disabled && (
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="currentColor" className="w-4 h-4 text-black">
+        <path d="M144 144v48H304V144c0-44.2-35.8-80-80-80s-80 35.8-80 80zM80 192V144C80 64.5 144.5 0 224 0s144 64.5 144 144v48h16c35.3 0 64 28.7 64 64V448c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V256c0-35.3 28.7-64 64-64H80z" />
+        </svg>
+          )}                                                          
       </div>
 
       <span className="text-sm text-gray-500">{formattedDate}</span>
@@ -62,18 +68,6 @@ export const ChapterListItem: React.FC<ChapterListItemProps> = ({
     </svg>
     <span className="text-sm">{chapter.likes.toLocaleString()}</span>
   </div>
-      {disabled && (
-        <div className="ml-4">
-          <Button
-            text="Adquirir Capitulo"
-            onClick={(e) => {
-              e.stopPropagation();
-              onAcquire && onAcquire();
-            }}
-            colorClass="bg-[#5c17a6] text-white px-3 py-1 rounded-md cursor-pointer"
-          />
-        </div>
-      )}
     </div>
   );
 };

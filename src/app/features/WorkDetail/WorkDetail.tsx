@@ -42,9 +42,9 @@ export const WorkDetail: React.FC = () => {
           </p>
         </div>
       </div>
-      <div className="max-w-6xl mx-auto mt-[-4rem] px-6 relative z-20">
-        <div className="flex flex-col md:flex-row shadow-lg  overflow-hidden bg-white">
-           <div className="w-full md:w-3/5 p-6">
+      <div className="max-w-6xl mx-auto mt-[-4rem] relative z-20">
+        <div className="flex flex-col md:flex-row shadow-lg overflow-hidden bg-white">
+           <div className="w-full md:w-2/3 border-r border-gray-300">
             <ChapterList
               chapters={work.chapters}
               originalLanguage={work.originalLanguage.name}
@@ -54,12 +54,11 @@ export const WorkDetail: React.FC = () => {
               workId={work.id}
             />
           </div>
-          <div className="w-full md:w-2/5 border-b md:border-b-0 md:border-r border-gray-200 p-6">
+          <div className="w-full md:w-1/3 border-b md:border-b-0 md:border-r border-gray-200 p-6">
             <WorkInfo work={work} manageFirstChapter={handleFirstChapter} disableFirstChapter={!firstUnlocked} />
           </div>
         </div>
       </div>
-      <div className="h-16"></div>
     </div>
   );
 };

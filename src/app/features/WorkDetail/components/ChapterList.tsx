@@ -81,12 +81,13 @@ export const ChapterList: React.FC<ChapterListProps> = ({ chapters, originalLang
   };
 
   return (
-    <div className="bg-white rounded-xl overflow-hidden">
+    <div className="bg-white rounded-xl overflow-hidden divide-y-2 divide-gray-300">
       {sortedChapters.map((chapter, index) => {
         const displayIndex = index + 1; 
         const isUnlocked = allUnlocked || unlockedSet.has(chapter.id);
         return (
           chapter.publicationStatus === "PUBLISHED" && (
+        <div key={chapter.id} className="py-0 px-2">
           <ChapterListItem
             key={chapter.id}
             chapter={chapter}
@@ -95,6 +96,7 @@ export const ChapterList: React.FC<ChapterListProps> = ({ chapters, originalLang
             onClick={() => handleChapterClick(chapter, isUnlocked)}
             onAcquire={() => openAcquireModal(chapter)}
           />
+        </div>
           )
         );
       })}
