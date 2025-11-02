@@ -3,10 +3,15 @@ import TextViewer from "../Chapter/TextViewer.tsx";
 import { MilkdownProvider } from "@milkdown/react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useReadChapterData } from "./hooks/useReadChapterData";
+import { useState } from "react";
+import Button from "../../components/Button";
 
 const ReadChapter = () => {
     const navigate = useNavigate();
     const { chapterId } = useParams<{ chapterId: string }>();
+    const [isWorkModalOpen, setIsWorkModalOpen] = useState(false);
+    const [isChapterModalOpen, setIsChapterModalOpen] = useState(false);
+    const [selectedChapterForPayment, setSelectedChapterForPayment] = useState<number | null>(null);
 
     const {
         chapterData,
@@ -32,6 +37,38 @@ const ReadChapter = () => {
         handleChapterPayment,
         isChapterUnlocked,
     } = useReadChapterData(chapterId || "");
+
+    const openWorkModal = () => {
+        setIsWorkModalOpen(true);
+    };
+
+    const closeWorkModal = () => {
+        if (isPaying) return;
+        setIsWorkModalOpen(false);
+    };
+
+    const openChapterModal = (chapterIdForPayment: number) => {
+        setSelectedChapterForPayment(chapterIdForPayment);
+        setIsChapterModalOpen(true);
+    };
+
+    const closeChapterModal = () => {
+        if (isPaying) return;
+        setIsChapterModalOpen(false);
+        setSelectedChapterForPayment(null);
+    };
+
+    const handleConfirmWorkSubscription = async () => {
+        await handleSubscribeWork();
+        closeWorkModal();
+    };
+
+    const handleConfirmChapterPayment = async () => {
+        if (selectedChapterForPayment) {
+            await handleChapterPayment(selectedChapterForPayment);
+            closeChapterModal();
+        }
+    };
 
     if (isLoading) {
         return <p className="text-center text-gray-500 mt-10">Cargando capítulo...</p>;
@@ -172,7 +209,7 @@ const ReadChapter = () => {
                                     {!isAuthor && (
                                         <div className="mt-3 flex flex-col gap-2">
                                             <button
-                                                onClick={handleSubscribeWork}
+                                                onClick={openWorkModal}
                                                 disabled={isPaying || isWorkSubscribed || isAuthorSubscribed}
                                                 className={`px-3 py-1 rounded-md font-medium transition-colors ${
                                                     isWorkSubscribed || isAuthorSubscribed
@@ -220,7 +257,7 @@ const ReadChapter = () => {
                                                             if (isUnlocked) {
                                                                 handleChapterClick(chapter);
                                                             } else {
-                                                                handleChapterPayment(chapter.id);
+                                                                openChapterModal(chapter.id);
                                                             }
                                                         }}
                                                     >
@@ -283,6 +320,62 @@ const ReadChapter = () => {
                     onToggleFullScreen={toggleFullScreen}
                     isFullScreen={isFullScreen}
                 />
+            )}
+
+            {isWorkModalOpen && (
+                <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/50">
+                    <div className="bg-white rounded-xl p-6 w-full max-w-md relative">
+                        <div className="absolute top-4 right-4">
+                            <Button text="" onClick={closeWorkModal} disabled={isPaying} colorClass="cursor-pointer">
+                                <img src="/img/PopUpCierre.png" className="w-6 h-6 hover:opacity-60" alt="Cerrar" />
+                            </Button>
+                        </div>
+                        <h3 className="text-2xl font-bold mb-4">Suscribirse a la Obra</h3>
+                        <p className="mb-4">Selecciona un método de pago</p>
+                        <div
+                            className={`border rounded-lg p-4 flex items-center justify-between hover:bg-gray-50 cursor-pointer ${isPaying ? 'opacity-50 pointer-events-none' : ''}`}
+                            onClick={handleConfirmWorkSubscription}
+                        >
+                            <div className="flex items-center gap-3">
+                                <img src="/img/mercadopago.png" alt="MercadoPago" className="w-8 h-8" />
+                                <div className="flex flex-col">
+                                    <span className="font-semibold">Pagar con MercadoPago</span>
+                                    <span className="text-sm text-gray-500">Tarjeta, débito, efectivo y más</span>
+                                </div>
+                            </div>
+                            <span className="text-[#5c17a6] font-semibold">Continuar</span>
+                        </div>
+                        {isPaying && <p className="mt-4 text-sm text-gray-500">Iniciando pago...</p>}
+                    </div>
+                </div>
+            )}
+
+            {isChapterModalOpen && (
+                <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/50">
+                    <div className="bg-white rounded-xl p-6 w-full max-w-md relative">
+                        <div className="absolute top-4 right-4">
+                            <Button text="" onClick={closeChapterModal} disabled={isPaying} colorClass="cursor-pointer">
+                                <img src="/img/PopUpCierre.png" className="w-6 h-6 hover:opacity-60" alt="Cerrar" />
+                            </Button>
+                        </div>
+                        <h3 className="text-2xl font-bold mb-4">Adquirir Capítulo</h3>
+                        <p className="mb-4">Selecciona un método de pago</p>
+                        <div
+                            className={`border rounded-lg p-4 flex items-center justify-between hover:bg-gray-50 cursor-pointer ${isPaying ? 'opacity-50 pointer-events-none' : ''}`}
+                            onClick={handleConfirmChapterPayment}
+                        >
+                            <div className="flex items-center gap-3">
+                                <img src="/img/mercadopago.png" alt="MercadoPago" className="w-8 h-8" />
+                                <div className="flex flex-col">
+                                    <span className="font-semibold">Pagar con MercadoPago</span>
+                                    <span className="text-sm text-gray-500">Tarjeta, débito, efectivo y más</span>
+                                </div>
+                            </div>
+                            <span className="text-[#5c17a6] font-semibold">Continuar</span>
+                        </div>
+                        {isPaying && <p className="mt-4 text-sm text-gray-500">Iniciando pago...</p>}
+                    </div>
+                </div>
             )}
         </div>
     );
