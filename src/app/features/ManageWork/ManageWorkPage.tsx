@@ -20,6 +20,8 @@ import { useAuthStore } from "../../../domain/store/AuthStore.ts";
 interface UpdateWorkDTO {
   categoryIds: number[];
   tagIds: string[];
+  price?: number;
+  state?: 'paused' | 'InProgress' | 'finished';
 }
 
 interface ManageWorkPageProps {
@@ -67,7 +69,11 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
   const [pendingCoverFile, setPendingCoverFile] = useState<File | null>(null);
   const [savingCover, setSavingCover] = useState(false);
   const navigate = useNavigate();
-  const isDescriptionValid = descriptionF.trim().length > 20; 
+  const isDescriptionValid = descriptionF.trim().length > 20;
+  
+  const [allowSubscription, setAllowSubscription] = useState(false);
+  const [price, setPrice] = useState('');
+  const [workStatus, setWorkStatus] = useState<'paused' | 'InProgress' | 'finished' | ''>('');
 
   const handleAddCategory = (category: CategoryDTO) => {
     if (!selectedCategories.some(c => c.id === category.id)) {
@@ -86,7 +92,9 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
       
       const updatePayload: UpdateWorkDTO = {
         categoryIds: selectedCategories.map(c => c.id),
-        tagIds: currentTags
+        tagIds: currentTags,
+        price: price ? parseFloat(price) : undefined,
+        state: workStatus || undefined
       };
 
       const response = await apiClient.request({
@@ -108,6 +116,12 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
     } finally {
       setIsSaving(false);
     }
+  };
+
+  const handleClearAdminPanel = () => {
+    setAllowSubscription(false);
+    setPrice('');
+    setWorkStatus('');
   };
 
   const handleCreateChapter = async (workId: number, languageId: number) => {
@@ -210,6 +224,9 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
         setCurrentTags(workData.tags.map((tag) => tag.name));
         setNameWork(workData.title || '');
         setDescriptionF(workData.description || '');
+        
+        setPrice(workData.price?.toString() || '');
+        setWorkStatus(workData.state || '');
       } catch (err) {
         setError('Error loading work');
         console.error('Error:', err);
@@ -556,8 +573,6 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
             </div>
           </div>
 
-
-          {/* COMENTADO POR MVP 
           <div className="lg:col-span-2 lg:pl-4"> 
             <div className="sticky top-8">
               <h2 className="text-3xl font-bold text-black mb-4 text-center">Administrar</h2>
@@ -606,7 +621,7 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
                           name="estado" 
                           value="paused"
                           checked={workStatus === 'paused'}
-                          onChange={(e) => setWorkStatus(e.target.value)}
+                          onChange={(e) => setWorkStatus(e.target.value as 'paused' | 'InProgress' | 'finished' | '')}
                           className="mr-2" 
                         />
                         <span>Marcar como pausado</span>
@@ -618,9 +633,9 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
                         <input 
                           type="radio" 
                           name="estado" 
-                          value="process"
-                          checked={workStatus === 'process'}
-                          onChange={(e) => setWorkStatus(e.target.value)}
+                          value="InProgress"
+                          checked={workStatus === 'InProgress'}
+                          onChange={(e) => setWorkStatus(e.target.value as 'paused' | 'InProgress' | 'finished' | '')}
                           className="mr-2" 
                         />
                         <span>Marcar como en proceso</span>
@@ -634,7 +649,7 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
                           name="estado" 
                           value="finished"
                           checked={workStatus === 'finished'}
-                          onChange={(e) => setWorkStatus(e.target.value)}
+                          onChange={(e) => setWorkStatus(e.target.value as 'paused' | 'InProgress' | 'finished' | '')}
                           className="mr-2" 
                         />
                         <span>Marcar como finalizado</span>
@@ -649,19 +664,19 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
                       onClick={handleClearAdminPanel}
                       className="text-red-600 hover:text-red-800 text-sm font-medium transition-colors duration-200 flex-1 cursor-pointer"
                     >
-                      Eliminar
+                      Limpiar
                     </button>
                     <Button 
-                      text="Guardar"
-                      onClick={() => console.log('Guardar cambios')}
-                      colorClass="bg-[#5C17A6] hover:bg-[#4A1285] focus:ring-[#5C17A6] flex-1 text-white cursor-pointer"
+                      text={isSaving ? "Guardando..." : "Guardar"}
+                      onClick={handleSaveChanges}
+                      disabled={isSaving || selectedCategories.length === 0 || currentTags.length === 0}
+                      colorClass="bg-[#5C17A6] hover:bg-[#4A1285] focus:ring-[#5C17A6] flex-1 text-white cursor-pointer disabled:bg-gray-400 disabled:cursor-not-allowed"
                     />
                   </div>
                 </div>
               </div>
             </div>
           </div>
-          */}
         </div>
       </div>
     </div>
