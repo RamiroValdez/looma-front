@@ -21,15 +21,19 @@ export default defineConfig([
             globals: globals.browser,
         },
         rules: {
-            // 🔧 Desactivar la restricción de hooks fuera de componentes
+            // 🔧 Hooks fuera de componentes → desactivado
             'react-hooks/rules-of-hooks': 'off',
 
-            // ⚠️ Mantener advertencia de dependencias de useEffect
+            // ⚠️ Dependencias de useEffect → advertencia
             'react-hooks/exhaustive-deps': 'warn',
 
-            // 🔧 Desactivar uso explícito de "any"
+            // 🔧 Uso de "any" → desactivado
             '@typescript-eslint/no-explicit-any': 'off',
+
+            // ⚠️ Variables declaradas pero no usadas → advertencia
+            '@typescript-eslint/no-unused-vars': ['warn'],
         },
     },
 ]);
+
 
