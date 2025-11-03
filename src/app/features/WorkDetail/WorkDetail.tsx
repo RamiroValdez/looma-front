@@ -3,10 +3,11 @@ import { useWorkDetailData } from "./hooks/useWorkDetailData";
 import { WorkInfo } from "./components/WorkInfo";
 import { ChapterList } from "./components/ChapterList";
 import { useNavigate } from "react-router-dom";
+import BackButton from "../../components/BackButton";
 
 export const WorkDetail: React.FC = () => {
   const { work, isLoading, error } = useWorkDetailData();
-    const navigate = useNavigate();
+  const navigate = useNavigate();
   if (isLoading)
     return <div className="text-center py-10">Cargando detalles de la obra...</div>;
   if (error)
@@ -34,6 +35,10 @@ export const WorkDetail: React.FC = () => {
         style={{ backgroundImage: `url(${work.banner})` }}
       >
         <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/60"></div>
+        <div className="absolute top-4 left-4 z-20">
+          <BackButton />
+        </div>
+
 
         <div className="relative z-10 text-center">
           <h1 className="text-5xl font-extrabold drop-shadow-md">{work.title}</h1>
@@ -44,7 +49,7 @@ export const WorkDetail: React.FC = () => {
       </div>
       <div className="max-w-6xl mx-auto mt-[-4rem] relative z-20">
         <div className="flex flex-col md:flex-row shadow-lg overflow-hidden bg-white">
-           <div className="w-full md:w-2/3 border-r border-gray-300">
+          <div className="w-full md:w-2/3 border-r border-gray-300">
             <ChapterList
               chapters={work.chapters}
               originalLanguage={work.originalLanguage.name}
