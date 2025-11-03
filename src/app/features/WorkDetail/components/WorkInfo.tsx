@@ -65,7 +65,7 @@ export const WorkInfo: React.FC<WorkInfoProps> = ({ work, manageFirstChapter, di
          <div className="flex flex-wrap gap-2">
         <button 
           disabled={isAuthorSubscribed}
-          className="cursor-pointer flex-1 bg-[#3c2a50] text-white py-2 rounded-lg text-base h-10 items-center justify-center flex w-1/2 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="cursor-pointer hover:bg-[#3c2a50]/85 flex-1 bg-[#3c2a50] text-white py-2 rounded-lg text-base h-10 items-center justify-center flex w-1/2 disabled:opacity-50 disabled:cursor-not-allowed"
           onClick={() => navigate('/saved')}        
         >
           {isAuthorSubscribed ? "Guardado" : "Guardar"}
@@ -75,7 +75,7 @@ export const WorkInfo: React.FC<WorkInfoProps> = ({ work, manageFirstChapter, di
               setIsModalOpen(true);
             }}
             disabled={isPaying || isAuthorSubscribed} 
-            className="w-1/2 flex-1 bg-[#5c17a6] text-white py-2 rounded-lg text-base disabled:opacity-50 h-10 cursor-pointer"
+            className="cursor-pointer hover:bg-[#5c17a6]/85 w-1/2 flex-1 bg-[#5c17a6] text-white py-2 rounded-lg text-base disabled:opacity-50 h-10 cursor-not-allowed disabled:cursor-not-allowed"
           >
             {isAuthorSubscribed ? "Ya suscripto" : "Suscribirse"}
           </button>
@@ -121,7 +121,7 @@ export const WorkInfo: React.FC<WorkInfoProps> = ({ work, manageFirstChapter, di
         {work.categories.map((category) => (
           <span
             key={category.id}
-            className="bg-white border border-gray-200 px-4 py-2 rounded-full shadow-sm hover:bg-gray-100 transition text-sm font-medium"
+            className="bg-[#172FA6] border border-gray-200 px-4 py-2 rounded-full shadow-sm transition text-sm font-base text-white"
           >
             {category.name}
           </span>
@@ -147,7 +147,7 @@ export const WorkInfo: React.FC<WorkInfoProps> = ({ work, manageFirstChapter, di
               {/* Opción Autor */}
               <div className="border-2 border-[#172FA6] rounded-xl p-6 transition text-center shadow-2xl bg-white">
                 <h3 className="font-bold text-2xl mb-2">Suscribirse al Autor</h3>
-                <h2 className="font-semibold text-2xl text-[#5C17A6] mb-4">Desde $20</h2>
+                <h2 className="font-semibold text-2xl text-[#5C17A6] mb-4">USD 20</h2>
                 <p className="text-gray-600 mb-6 min-h-[60px]">
                   Acceso total a todas las obras y capítulos del autor sin límite
                 </p>
@@ -164,7 +164,7 @@ export const WorkInfo: React.FC<WorkInfoProps> = ({ work, manageFirstChapter, di
               {/* Opción Obra */}
               <div className="border-2 border-[#172FA6] rounded-xl p-6 transition text-center bg-white shadow-2xl">
                 <h3 className="font-bold text-2xl mb-2">Suscribirse a la obra</h3>
-                <h2 className="font-semibold text-2xl text-[#5C17A6] mb-4">Desde $5</h2>
+                <h2 className="font-semibold text-2xl text-[#5C17A6] mb-4">USD {work.price}</h2>
                 <p className="text-gray-600 mb-6 min-h-[60px]">
                   Acceso completo a todos los capítulos de <span className="font-semibold">{work.title}</span>
                 </p>
