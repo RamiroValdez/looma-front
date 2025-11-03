@@ -30,12 +30,12 @@ export const ChapterListItem: React.FC<ChapterListItemProps> = ({
     ? new Date(chapter.publishedAt).toLocaleDateString("es-AR", dateOptions).replace(".", "")
     : "Sin fecha";
 
-  return (
+   return (
     <div
-     className={`p-4 transition duration-150 border-b border-gray-200 last:border-b-0 flex items-center justify-between cursor-pointer hover:bg-gray-50`}
+     className={`transition duration-150 border-b border-gray-200 last:border-b-0 flex items-center justify-between cursor-pointer hover:bg-gray-200`}
       onClick={onClick}
     >
-      <div className="flex items-center space-x-2">
+      <div className="flex items-center space-x-2 py-4 pl-4">
         
         {disabled && (
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="currentColor" className="w-4 h-4 text-black">
@@ -47,7 +47,7 @@ export const ChapterListItem: React.FC<ChapterListItemProps> = ({
                                                   
       </div>
 
-      <span className="text-sm text-gray-500">{formattedDate}</span>
+      <span className="text-sm text-gray-500 py-4">{formattedDate}</span>
 
        <div className="flex items-center gap-1 text-gray-500 min-w-[70px]">
 <div onClick={(e) => e.stopPropagation()}>

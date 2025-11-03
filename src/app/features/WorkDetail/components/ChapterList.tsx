@@ -90,7 +90,7 @@ export const ChapterList: React.FC<ChapterListProps> = ({ chapters, originalLang
         const isUnlocked = allUnlocked || unlockedSet.has(chapter.id);
         return (
           chapter.publicationStatus === "PUBLISHED" && (
-        <div key={chapter.id} className="py-0 px-2">
+        <div key={chapter.id} className="py-0">
           <ChapterListItem
             key={chapter.id}
             chapter={chapter}
