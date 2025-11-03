@@ -3,8 +3,7 @@ import type { WorkDTO } from '../../../domain/dto/WorkDTO.ts';
 import { ChapterItem } from '../../components/ChapterItem';
 import Button from '../../components/Button.tsx';
 import Tag from '../../components/Tag.tsx';
-import { MORE_CATEGORIES } from "../../../domain/types/CreateWork.types.ts";
-import { handleAddCategory, handleAddTag, validateFile, useClickOutside } from "../../../infrastructure/services/CreateWorkService.ts";
+import { handleAddTag, validateFile, useClickOutside } from "../../../infrastructure/services/CreateWorkService.ts";
 import { useSuggestTagsMutation } from "../../../infrastructure/services/TagSuggestionService.ts";
 import type { TagSuggestionRequestDTO } from "../../../domain/dto/TagSuggestionDTO.ts";
 import { useNavigate, useParams } from 'react-router-dom';
@@ -12,7 +11,16 @@ import { addChapter, getWorkById } from '../../../infrastructure/services/Chapte
 import { uploadCover, uploadBanner } from '../../../infrastructure/services/WorkAssetsService.ts';
 import CoverImageModal from '../../components/CoverImageModal';
 import CoverAiModal from "../../components/create/CoverAiModal.tsx";
-import { notifySuccess } from "../../../infrastructure/services/ToastProviderService.ts";
+import { notifySuccess, notifyError } from "../../../infrastructure/services/ToastProviderService.ts";
+import { useCategories } from "../../../infrastructure/services/CategoryService.ts";
+import type { CategoryDTO } from "../../../domain/dto/CategoryDTO.ts";
+import { apiClient } from "../../../infrastructure/api/apiClient.ts";
+import { useAuthStore } from "../../../domain/store/AuthStore.ts";
+
+interface UpdateWorkDTO {
+  categoryIds: number[];
+  tagIds: string[];
+}
 
 interface ManageWorkPageProps {
   workId?: number;
@@ -21,6 +29,7 @@ interface ManageWorkPageProps {
 export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
 
   const { id: workId } = useParams<{ id: string }>();
+  const { token } = useAuthStore();
   const [showCoverModal, setShowCoverModal] = useState(false);
   const [showCoverModalAi, setShowCoverModalAi] = useState(false);
   const [work, setWork] = useState<WorkDTO | null>(null);
@@ -29,7 +38,7 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
   const defaultWorkId = 1; 
   const currentWorkId = Number(workId) || defaultWorkId;
   const [isCategoryMenuOpen, setIsCategoryMenuOpen] = useState(false);
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [selectedCategories, setSelectedCategories] = useState<CategoryDTO[]>([]);
   const [currentTags, setCurrentTags] = useState<string[]>([]);
   const [isAddingTag, setIsAddingTag] = useState(false);
   const [newTagText, setNewTagText] = useState('');
@@ -37,9 +46,11 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
   const [showIATooltip, setShowIATooltip] = useState(false);
   const [isAILoading, setIsAILoading] = useState(false);
   const [suggestedTags, setSuggestedTags] = useState<string[]>([]);
+  const [isSaving, setIsSaving] = useState(false);
   const shortMessage = "Tags con IA: tu descripción tiene menos de 20 caracteres.";
   const aiSuggestionMessage = "Sugerencias de la IA";
   const suggestMutation = useSuggestTagsMutation();
+  const { categories, isLoading: isLoadingCategory, error: errorCategory } = useCategories();
   const [nameWork, setNameWork] = useState('');
   const [showBannerTooltip, setShowBannerTooltip] = useState(false);
   const [descriptionF, setDescriptionF] = useState('');
@@ -57,6 +68,47 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
   const [savingCover, setSavingCover] = useState(false);
   const navigate = useNavigate();
   const isDescriptionValid = descriptionF.trim().length > 20; 
+
+  const handleAddCategory = (category: CategoryDTO) => {
+    if (!selectedCategories.some(c => c.id === category.id)) {
+      setSelectedCategories([...selectedCategories, category]);
+    }
+    setIsCategoryMenuOpen(false);
+  };
+
+  const unselectCategory = (categoryId: number) => {
+    setSelectedCategories(selectedCategories.filter(c => c.id !== categoryId));
+  };
+
+  const handleSaveChanges = async () => {
+    try {
+      setIsSaving(true);
+      
+      const updatePayload: UpdateWorkDTO = {
+        categoryIds: selectedCategories.map(c => c.id),
+        tagIds: currentTags
+      };
+
+      const response = await apiClient.request({
+        url: `/api/works/${currentWorkId}`,
+        method: 'PUT',
+        data: updatePayload,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.status === 200) {
+        notifySuccess('Cambios guardados exitosamente');
+      }
+    } catch (err) {
+      console.error('Error al guardar cambios:', err);
+      notifyError('No se pudieron guardar los cambios');
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const handleCreateChapter = async (workId: number, languageId: number) => {
     const chapter = await addChapter(workId, languageId, 'TEXT');
@@ -154,7 +206,7 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
         const workData = await getWorkById(currentWorkId);
         console.log(workData);
         setWork(workData);
-        setSelectedCategories(workData.categories.map((cat) => cat.name));
+        setSelectedCategories(workData.categories || []);
         setCurrentTags(workData.tags.map((tag) => tag.name));
         setNameWork(workData.title || '');
         setDescriptionF(workData.description || '');
@@ -334,11 +386,9 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
                 <div className="flex flex-wrap gap-2 relative">
                   {selectedCategories.map((category) => (
                     <Tag
-                      key={category}
-                      text={category}
-                      onRemove={() =>
-                        setSelectedCategories(selectedCategories.filter(c => c !== category))
-                      }
+                      key={category.id}
+                      text={category.name}
+                      onRemove={() => unselectCategory(category.id)}
                       colorClass="bg-transparent text-[#172FA6] border-[#172FA6]"
                     />
                   ))}
@@ -349,18 +399,24 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
                   />
 
                   {isCategoryMenuOpen && (
-                    <div className="absolute z-20 top-10 mt-1 mr-[-10%] w-max max-w-sm lg:max-w-md">
+                    <div ref={suggestionCategoryMenuRef} className="absolute z-20 top-10 mt-1 mr-[-10%] w-max max-w-sm lg:max-w-md">
                       <div className="bg-white p-4 border border-gray-300 rounded-md shadow-lg flex flex-wrap gap-2">
-                        {MORE_CATEGORIES.filter((c) => !selectedCategories.includes(c)).map((category) => (
-                          <Tag
-                            key={category}
-                            text={category}
-                            colorClass="border border-gray-300 text-gray-600 bg-transparent hover:bg-gray-100"
-                            onClick={() =>
-                              handleAddCategory(category, selectedCategories, setSelectedCategories, setIsCategoryMenuOpen)
-                            }
-                          />
-                        ))}
+                        {isLoadingCategory ? (
+                          <p className="text-gray-500">Cargando categorías...</p>
+                        ) : errorCategory ? (
+                          <p className="text-red-500">Error al cargar categorías</p>
+                        ) : (
+                          categories
+                            .filter((c) => !selectedCategories.some(sc => sc.id === c.id))
+                            .map((category) => (
+                              <Tag
+                                key={category.id}
+                                text={category.name}
+                                colorClass="border border-gray-300 text-gray-600 bg-transparent hover:bg-gray-100"
+                                onClick={() => handleAddCategory(category)}
+                              />
+                            ))
+                        )}
                       </div>
                     </div>
                   )}
@@ -501,8 +557,8 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
           </div>
 
 
-          {/* COMENTADO POR MVP */}
-          {/* <div className="lg:col-span-2 lg:pl-4"> 
+          {/* COMENTADO POR MVP 
+          <div className="lg:col-span-2 lg:pl-4"> 
             <div className="sticky top-8">
               <h2 className="text-3xl font-bold text-black mb-4 text-center">Administrar</h2>
               
@@ -604,7 +660,8 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
                 </div>
               </div>
             </div>
-          </div>*/}
+          </div>
+          */}
         </div>
       </div>
     </div>
