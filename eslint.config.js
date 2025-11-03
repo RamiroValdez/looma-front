@@ -6,7 +6,6 @@ import tseslint from 'typescript-eslint'
 import { defineConfig, globalIgnores } from 'eslint/config'
 
 export default defineConfig([
-    // Ignorás la carpeta de build
     globalIgnores(['dist']),
 
     {
@@ -22,11 +21,15 @@ export default defineConfig([
             globals: globals.browser,
         },
         rules: {
-            // 🔧 Desactivamos la regla que prohíbe hooks fuera de componentes
+            // 🔧 Desactivar la restricción de hooks fuera de componentes
             'react-hooks/rules-of-hooks': 'off',
 
-            // (Opcional) mantené la de dependencias como advertencia
+            // ⚠️ Mantener advertencia de dependencias de useEffect
             'react-hooks/exhaustive-deps': 'warn',
+
+            // 🔧 Desactivar uso explícito de "any"
+            '@typescript-eslint/no-explicit-any': 'off',
         },
     },
 ]);
+
