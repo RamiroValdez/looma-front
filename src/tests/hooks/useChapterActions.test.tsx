@@ -34,6 +34,24 @@ const chapterMock = {
   chapterNumber: 1,
 };
 
+function thenErrorMessageIsShown(result: {
+    current: {
+        handleSave: () => Promise<void>;
+        error: string;
+        setError: (value: (((prevState: string) => string) | string)) => void;
+        handleConfirmDelete: (chapterId: (string | undefined), deleteInput: string) => Promise<void>;
+        deleting: boolean;
+        deleteError: string;
+        setDeleteError: (value: (((prevState: string) => string) | string)) => void;
+        handleCancelSchedule: (chapterId: (string | undefined)) => Promise<void>;
+        cancelingSchedule: boolean;
+        cancelScheduleError: string;
+        setCancelScheduleError: (value: (((prevState: string) => string) | string)) => void
+    }
+}, expectedMessage: string) {
+    expect(result.current.error).toBe(expectedMessage);
+}
+
 describe("useChapterActions", () => {
   it("muestra error si el título o contenido están vacíos", async () => {
     const { result } = renderHook(() =>
@@ -43,8 +61,7 @@ describe("useChapterActions", () => {
     await act(async () => {
       await result.current.handleSave();
     });
-
-    expect(result.current.error).toBe("El título y el contenido son obligatorios.");
+      thenErrorMessageIsShown(result,"El título y el contenido son obligatorios.");
   });
 
   it("llama a updateChapter si los datos son válidos", async () => {
