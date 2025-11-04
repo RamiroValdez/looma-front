@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { type ChapterDTO } from "../../../../domain/dto/ChapterDTO";
 import React, { useMemo, useState } from "react";
 import { ChapterListItem } from "./ChapterListItem";
@@ -50,28 +51,29 @@ export const ChapterList: React.FC<ChapterListProps> = ({ chapters, originalLang
     if (!selectedChapter) return;
     try {
       setIsPaying(true);
-      const paymentWindow = window.open("", "_blank");
       const res = await subscribeToChapter(selectedChapter.id, workId, "mercadopago");
       let url = (res.redirectUrl || "").toString().trim();
+      if (url.toLowerCase() === "about:blank") {
+        url = "";
+      }
       if (url && !/^https?:\/\//i.test(url)) {
         url = `${window.location.origin}${url.startsWith('/') ? url : '/' + url}`;
       }
       if (url) {
-        if (paymentWindow && !paymentWindow.closed) {
-          try {
-            paymentWindow.location.href = url;
-          } catch {
-            window.open(url, "_blank");
-            if (paymentWindow) paymentWindow.close();
-          }
-        } else {
-          window.open(url, "_blank");
+        const newWindow = window.open(url, "_blank");
+        if (!newWindow) {
+          window.location.href = url;
         }
         notifySuccess("Redirigiendo a MercadoPago...");
         closeModal();
       } else {
-        if (paymentWindow && !paymentWindow.closed) paymentWindow.close();
-        notifyError("No se recibió URL de pago");
+        if (res.fetchStatus === 201) {
+          notifySuccess("Capitulo adquirido con exito");
+          closeModal();
+          window.location.reload();
+        } else {
+          notifyError("No se recibió URL de pago. Intenta nuevamente.");
+        }
       }
     } catch (e: any) {
         notifyError(e instanceof Error ? e.message : "No se pudo iniciar el pago");
@@ -84,7 +86,7 @@ export const ChapterList: React.FC<ChapterListProps> = ({ chapters, originalLang
     <div className="bg-white rounded-xl overflow-hidden">
       {sortedChapters.map((chapter, index) => {
         const displayIndex = index + 1; 
-        const isUnlocked = allUnlocked || unlockedSet.has(displayIndex);
+        const isUnlocked = allUnlocked || unlockedSet.has(chapter.id);
         return (
           chapter.publicationStatus === "PUBLISHED" && (
           <ChapterListItem

@@ -38,30 +38,33 @@ export const WorkInfo: React.FC<WorkInfoProps> = ({ work, manageFirstChapter, di
     if (!modalMode) return;
     try {
       setIsPaying(true);
-      const paymentWindow = window.open("", "_blank");
       const res = modalMode === "author"
         ? await subscribeToAuthor(work.creator.id, "mercadopago")
         : await subscribeToWork(work.id, "mercadopago");
       let url = (res.redirectUrl || "").toString().trim();
+      if (url.toLowerCase() === "about:blank") {
+        url = "";
+      }
       if (url && !/^https?:\/\//i.test(url)) {
         url = `${window.location.origin}${url.startsWith('/') ? url : '/' + url}`;
       }
       if (url) {
-        if (paymentWindow && !paymentWindow.closed) {
-          try {
-            paymentWindow.location.href = url;
-          } catch {
-            window.open(url, "_blank");
-            if (paymentWindow) paymentWindow.close();
-          }
-        } else {
-          window.open(url, "_blank");
+        const newWindow = window.open(url, "_blank");
+        if (!newWindow) {
+          // Fallback if popup was blocked
+          window.location.href = url;
         }
         notifySuccess("Redirigiendo a MercadoPago...");
         closeModal();
       } else {
-        if (paymentWindow && !paymentWindow.closed) paymentWindow.close();
-        notifyError("No se recibió URL de pago");
+        if (res.fetchStatus === 201) {
+          const msg = modalMode === "work" ? "Obra adquirida con exito" : "Suscripción al autor realizada con exito";
+          notifySuccess(msg);
+          closeModal();
+          window.location.reload();
+        } else {
+          notifyError("No se recibió URL de pago. Intenta nuevamente.");
+        }
       }
     } catch (e: unknown) {
         notifyError(e instanceof Error ? e.message : "No se pudo iniciar el pago");
