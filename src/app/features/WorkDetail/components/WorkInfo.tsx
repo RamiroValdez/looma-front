@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { notifyError, notifySuccess } from "../../../../infrastructure/services/ToastProviderService.ts";
 import { subscribeToAuthor, subscribeToWork } from "../../../../infrastructure/services/paymentService.ts";
 import Button from "../../../components/Button";
+import { useNavigate } from "react-router-dom";
 
 interface WorkInfoProps {
   work: WorkDTO;
@@ -14,28 +15,16 @@ export const WorkInfo: React.FC<WorkInfoProps> = ({ work, manageFirstChapter, di
   const likesFormatted = work.likes >= 1000 ? (work.likes / 1000).toFixed(1) + "k" : work.likes;
   const [isPaying, setIsPaying] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalMode, setModalMode] = useState<"author" | "work" | null>(null);
   const isAuthorSubscribed = Boolean(work.subscribedToAuthor);
   const isWorkSubscribed = Boolean(work.subscribedToWork);
-
-  const handleSubscribeAuthor = () => {
-    setModalMode("author");
-    setIsModalOpen(true);
-  };
-
-  const handleBuyWork = () => {
-    setModalMode("work");
-    setIsModalOpen(true);
-  };
+  const navigate = useNavigate();
 
   const closeModal = () => {
     if (isPaying) return;
     setIsModalOpen(false);
-    setModalMode(null);
   };
 
-  const handleMercadoPagoClick = async () => {
-    if (!modalMode) return;
+    const handleMercadoPagoClick = async (type: "author" | "work") => {
     try {
       setIsPaying(true);
       const res = modalMode === "author"
@@ -74,57 +63,66 @@ export const WorkInfo: React.FC<WorkInfoProps> = ({ work, manageFirstChapter, di
   };
 
   return (
-    <div className="p-8 bg-white space-y-6 ">
-         <div className="flex flex-wrap gap-3">
-        <button disabled={true} className=" disabled:opacity-50 cursor-not-allowed flex-1 bg-[#3c2a50] text-white py-2 rounded-lg text-sm">
-          Guardar
+    <div className="bg-white space-y-6 ">
+         <div className="flex flex-wrap gap-2">
+        <button 
+          disabled={isAuthorSubscribed}
+          className="cursor-pointer flex-1 bg-[#3c2a50] text-white py-2 rounded-lg text-base h-10 items-center justify-center flex w-1/2 disabled:opacity-50 disabled:cursor-not-allowed"
+          onClick={() => navigate('/saved')}        
+        >
+          {isAuthorSubscribed ? "Guardado" : "Guardar"}
         </button>
-        <button onClick={handleSubscribeAuthor} disabled={isPaying || isAuthorSubscribed} className="flex-1 bg-[#5c17a6] text-white py-2 rounded-lg text-sm  disabled:opacity-50">
-          {isAuthorSubscribed ? "Ya suscripto" : "Suscribirse (Autor)"}
-        </button>
-        <button onClick={handleBuyWork} disabled={isPaying || isWorkSubscribed || isAuthorSubscribed} className="flex-1 bg-[#172fa6] text-white py-2 rounded-lg text-sm disabled:opacity-50">
-          {isWorkSubscribed || isAuthorSubscribed ? "Ya adquirido" : "Adquirir Obra"}
-        </button>
-  
+        <button 
+            onClick={() => {
+              setIsModalOpen(true);
+            }}
+            disabled={isPaying || isAuthorSubscribed} 
+            className="w-1/2 flex-1 bg-[#5c17a6] text-white py-2 rounded-lg text-base disabled:opacity-50 h-10 cursor-pointer"
+          >
+            {isAuthorSubscribed ? "Ya suscripto" : "Suscribirse"}
+          </button>
       </div>
 
-      <div className="flex items-center gap-6 ">
-        <div className="flex items-center gap-2 text-gray-700">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="#c026d3"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-          </svg>
-          <span className="text-[16px] font-semibold text-gray-700">{likesFormatted}</span>
-        </div>
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center gap-6 ml-5">
+          <div className="flex items-center gap-2 text-gray-700">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#c026d3"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+            </svg>
+            <span className="text-[16px] font-semibold text-gray-700">{likesFormatted}</span>
+          </div>
 
-        <div className="flex items-center gap-2 text-gray-700">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="#3b82f6"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-            <circle cx="8.5" cy="7" r="4" />
-            <path d="M20 8v6M23 11h-6" />
-          </svg>
-          <span className="text-[16px] font-semibold text-gray-700">1.7k</span>
+          <div className="flex items-center gap-2 text-gray-700">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#3b82f6"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+              <circle cx="8.5" cy="7" r="4" />
+              <path d="M20 8v6M23 11h-6" />
+            </svg>
+            <span className="text-[16px] font-semibold text-gray-700">1.7k</span>
+          </div>
         </div>
-         <button disabled={true} className="flex-1 bg-[#172fa6] text-white py-2 rounded-lg text-sm disabled:opacity-50 cursor-not-allowed">
+        
+      <button disabled={true} className="bg-[#172fa6] text-white py-2 px-4 sm:px-8 rounded-lg text-sm disabled:opacity-50 cursor-not-allowed w-full sm:w-auto sm:min-w-[162px]">
           Exportar EPUB
         </button>
       </div>
@@ -146,33 +144,61 @@ export const WorkInfo: React.FC<WorkInfoProps> = ({ work, manageFirstChapter, di
         Primer capítulo →
       </button>
 
-      {isModalOpen && (
+        {isModalOpen && (
         <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/50">
-          <div className="bg-white rounded-xl p-6 w-full max-w-md relative">
+          <div className="bg-[#E3E3E3] rounded-xl p-8 w-full max-w-3xl relative shadow-xl">
             <div className="absolute top-4 right-4">
               <Button text="" onClick={closeModal} disabled={isPaying} colorClass="cursor-pointer">
-                <img src="/img/PopUpCierre.png" className="w-6 h-6 hover:opacity-60" alt="Cerrar" />
+                <img src="/img/PopUpCierre.png" className="w-9 h-9 hover:opacity-60" alt="Cerrar" />
               </Button>
             </div>
-            <h3 className="text-2xl font-bold mb-4">{modalMode === 'author' ? 'Suscribirse al Autor' : 'Adquirir Obra'}</h3>
-            <p className="mb-4">Selecciona un método de pago</p>
-            <div
-              className={`border rounded-lg p-4 flex items-center justify-between hover:bg-gray-50 cursor-pointer ${isPaying ? 'opacity-50 pointer-events-none' : ''}`}
-              onClick={handleMercadoPagoClick}
-            >
-              <div className="flex items-center gap-3">
-                <img src="/img/mercadopago.png" alt="MercadoPago" className="w-8 h-8" />
-                <div className="flex flex-col">
-                  <span className="font-semibold">Pagar con MercadoPago</span>
-                  <span className="text-sm text-gray-500">Tarjeta, débito, efectivo y más</span>
-                </div>
+
+            <h3 className="text-3xl font-bold mb-8 text-center">Selecciona tu suscripción</h3>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Opción Autor */}
+              <div className="border-2 border-[#172FA6] rounded-xl p-6 transition text-center shadow-2xl bg-white">
+                <h3 className="font-bold text-2xl mb-2">Suscribirse al Autor</h3>
+                <h2 className="font-semibold text-2xl text-[#5C17A6] mb-4">Desde $20</h2>
+                <p className="text-gray-600 mb-6 min-h-[60px]">
+                  Acceso total a todas las obras y capítulos del autor sin límite
+                </p>
+                <Button 
+                  text="Adquirir" 
+                  colorClass="bg-[#172FA6] w-full text-white rounded-lg cursor-pointer hover:scale-103 py-3 font-semibold" 
+                  onClick={() => {
+                    handleMercadoPagoClick("author");
+                  }}
+                  disabled={isPaying || isAuthorSubscribed} 
+                />
               </div>
-              <span className="text-[#5c17a6] font-semibold">Continuar</span>
+
+              {/* Opción Obra */}
+              <div className="border-2 border-[#172FA6] rounded-xl p-6 transition text-center bg-white shadow-2xl">
+                <h3 className="font-bold text-2xl mb-2">Suscribirse a la obra</h3>
+                <h2 className="font-semibold text-2xl text-[#5C17A6] mb-4">Desde $5</h2>
+                <p className="text-gray-600 mb-6 min-h-[60px]">
+                  Acceso completo a todos los capítulos de <span className="font-semibold">{work.title}</span>
+                </p>
+                <Button 
+                  text="Adquirir" 
+                  colorClass="bg-[#172FA6] w-full text-white rounded-lg cursor-pointer hover:scale-103 py-3 font-semibold" 
+                  onClick={() => {
+                    handleMercadoPagoClick("work");
+                  }}
+                  disabled={isPaying || isWorkSubscribed} 
+                />
+              </div>
             </div>
-            {isPaying && <p className="mt-4 text-sm text-gray-500">Iniciando pago...</p>}
+
+            {isPaying && (
+              <div className="mt-6 text-center">
+                <p className="text-sm text-gray-500">Redirigiendo a MercadoPago...</p>
+              </div>
+            )}
           </div>
         </div>
-      )}
+      )}  
     </div>
   );
-};
+}

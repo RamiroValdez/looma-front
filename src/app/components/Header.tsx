@@ -13,21 +13,19 @@ function Header() {
   const [openMenu, setOpenMenu] = useState(false);
   const [user, setUser] = useState<UserDTO | null>(null);
   const [activeSection, setActiveSection] = useState<string | null>(null);
-  const secciones = ["Libros", "Comics", "Mangas"];
+  const secciones = ["Libros"];
   const formatos = ["Novela", "Cuento", "Poesía", "Ensayo"];
   const dropdownRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   const { categories, isLoading, error } = useCategories();
   const { token, logout } = useAuthStore();
 
-   const [searchText, setSearchText] = useState('');
-  // ...existing code...
+  const [searchText, setSearchText] = useState('');
 
   const handleSearchKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && searchText.trim()) {
-      // Navegar a explore con el texto de búsqueda
       navigate(`/explore?q=${encodeURIComponent(searchText.trim())}`);
-      setSearchText(''); // Limpiar el input después de buscar
+      setSearchText(''); 
     }
   };
 
@@ -86,9 +84,9 @@ function Header() {
     <header className="bg-[linear-gradient(to_right,#EBE4EC,#B597D2,#EDE4F9)] shadow relative z-[9999]">
       <div className="flex items-end justify-between px-4 py-3">
         <div className="flex items-end gap-2">
-          <img onClick={() => navigate("/home")} src="/img/loomaLogo.png" alt="LOOMA logo" className="h-8 w-auto object-contain" />
+          <img onClick={() => navigate("/home")} src="/img/loomaLogo.png" alt="LOOMA logo" className="h-8 w-auto object-contain cursor-pointer" />
           <nav className="flex items-end gap-4 ml-4">
-            <a onClick={() => navigate("/home")} className="text-[#686868] hover:text-[#5c17a6] transition">Inicio</a>
+            <a onClick={() => navigate("/home")} className="text-[#686868] hover:text-[#5c17a6] transition cursor-pointer">Inicio</a>
             {secciones.map((sec, i) => (
               <div
                 key={i}

@@ -2,9 +2,12 @@ interface FooterLectorProps {
   selectedLanguages: { code: string; name: string }[];
   chapterTitle: string;
   onLanguageChange: (languageCode: string) => void;
+  disableLanguageSelect?: boolean;
+  onToggleFullScreen?: () => void;
+  isFullScreen?: boolean;
 }
 
-const FooterLector = ({ selectedLanguages, chapterTitle, onLanguageChange }: FooterLectorProps) => {
+const FooterLector = ({ selectedLanguages, chapterTitle, onLanguageChange, disableLanguageSelect = false, onToggleFullScreen, isFullScreen = false }: FooterLectorProps) => {
   return (
     <footer className="fixed bottom-0 left-0 w-full bg-[#3b245a] text-white px-6 py-3 flex items-center justify-between flex-wrap z-50">
 
@@ -63,8 +66,10 @@ const FooterLector = ({ selectedLanguages, chapterTitle, onLanguageChange }: Foo
           <div className="flex flex-col items-center leading-tight text-white">
             <span className="text-[10px] uppercase mb-1">Idiomas</span>
             <select
-              className="bg-transparent text-white font-bold text-sm border border-gray-300 rounded-md px-2 py-1 focus:text-black focus:bg-white"
+              className={`bg-transparent text-white font-bold text-sm border border-gray-300 rounded-md px-2 py-1 focus:text-black focus:bg-white ${"disabled:opacity-60"
+                }`}
               onChange={(e) => onLanguageChange(e.target.value)}
+              disabled={disableLanguageSelect}
             >
               {selectedLanguages.map((lang) => (
                 <option key={lang.code} value={lang.code} className="text-black">
@@ -74,44 +79,41 @@ const FooterLector = ({ selectedLanguages, chapterTitle, onLanguageChange }: Foo
             </select>
 
           </div>
-
-          <button
-            className="text-white text-lg hover:opacity-80 transition-opacity"
-            title="Agregar a favoritos"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth="1.5"
-              stroke="currentColor"
-              className="w-5 h-5"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z"
-              />
-            </svg>
-          </button>
         </div>
       </div>
 
-      <div className="flex flex-col items-center text-gray-300 hover:text-white cursor-pointer text-xs mt-2 sm:mt-0">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="w-5 h-5 mb-[1px]"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          strokeWidth={2}
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M8 3H5a2 2 0 00-2 2v3m0 8v3a2 2 0 002 2h3m8-18h3a2 2 0 012 2v3m0 8v3a2 2 0 01-2 2h-3"
-          />
-        </svg>
+      <div className="flex flex-col items-center text-gray-300 hover:text-white cursor-pointer text-xs mt-2 sm:mt-0" onClick={onToggleFullScreen}>
+        {isFullScreen ? (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="w-5 h-5 mb-[1px]"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M9 9V4.5M9 9H4.5M9 9L3.75 3.75M9 15v4.5M9 15H4.5M9 15l-5.25 5.25M15 9h4.5M15 9V4.5M15 9l5.25-5.25M15 15h4.5M15 15v4.5m0-4.5l5.25 5.25"
+            />
+          </svg>
+        ) : (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="w-5 h-5 mb-[1px]"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M8 3H5a2 2 0 00-2 2v3m0 8v3a2 2 0 002 2h3m8-18h3a2 2 0 012 2v3m0 8v3a2 2 0 01-2 2h-3"
+            />
+          </svg>
+        )}
         <span>Screen</span>
       </div>
     </footer>

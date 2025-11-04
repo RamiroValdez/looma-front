@@ -18,3 +18,16 @@ Lo primero que se debe hacer una vez clonado es ejecutar `npm install` para que 
 - React Query
 - Zustand
 - React Router DOM
+
+### TEST !!!
+# Correr todos los test
+npm test // npm run test
+
+# Ver qué tests existen sin ejecutarlos
+npm test -- --list
+
+# Ejecutar solo tests que fallaron la última vez
+npm test -- --rerun-failures
+
+# Ejecutar con logs de consola
+npm test -- --silent=false

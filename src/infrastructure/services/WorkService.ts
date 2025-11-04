@@ -1,49 +1,26 @@
 import type { WorkDTO } from '../../domain/dto/WorkDTO.ts';
 import { getWorkById as getWorkByIdFromChapterService } from './ChapterService.ts';
 import {useApiQuery} from "../api/useApiQuery.ts";
+import { apiClient } from '../api/apiClient';
+import { useAuthStore } from '../../domain/store/AuthStore';
 
 export class WorkService {
 
  static async getWorkDetail(id: number): Promise<WorkDTO> {
     return getWorkByIdFromChapterService(id); 
   }
-
   static async getWorkById(id: number): Promise<WorkDTO> {
     try {
-      await new Promise(resolve => setTimeout(resolve, 300));
-      
-      const response = await fetch(`/data/work-${id}.json`);
-      
-      if (!response.ok) {
-        throw new Error(`Error ${response.status}: Could not load work`);
-      }
-      
-      const workData: WorkDTO = await response.json();
-      
-      return workData;
-      
-    } catch (error) {
-      console.error('Error fetching work:', error);
-      throw new Error('Could not load work information');
-    }
-  }
-  
-  static async getWorkByIdFromAPI(id: number): Promise<WorkDTO> {
-    try {
-      const response = await fetch(`/api/works/${id}`, {
+      const token = useAuthStore.getState().token;
+      const res = await apiClient.request<WorkDTO>({
+        url: `${import.meta.env.VITE_API_MANAGE_WORK_URL}/${id}`,
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
       });
-      
-      if (!response.ok) {
-        throw new Error(`Error ${response.status}: ${response.statusText}`);
-      }
-      
-      const workData: WorkDTO = await response.json();
-      return workData;
-      
+      return res.data;
     } catch (error) {
       console.error('Error fetching work from API:', error);
       throw new Error('Server connection error');

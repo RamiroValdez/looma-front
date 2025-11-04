@@ -31,6 +31,15 @@ function Shell({ children }: { children: React.ReactNode }) {
   );
 }
 
+function ShellWithoutFooter({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="min-h-screen flex flex-col">
+      <Header />
+      <main className="flex-1">{children}</main>
+    </div>
+  );
+}
+
 function App() {
     return (
         <BrowserRouter>
@@ -127,8 +136,10 @@ function App() {
                 </> } />
 
                 <Route path="/work/chapter/:chapterId/read" element={
-                  <ProtectedRoute>
-                    <ReadChapterNovel />
+                    <ProtectedRoute>
+                      <ShellWithoutFooter>
+                          <ReadChapterNovel />
+                      </ShellWithoutFooter>
                   </ProtectedRoute>
                 } />
 
