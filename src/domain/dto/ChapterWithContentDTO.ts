@@ -16,4 +16,5 @@ export interface ChapterWithContentDTO {
     publishedAt: string;
     availableLanguages: LanguageDTO[];
     chapterNumber: number;
+    isLiked: boolean;
 }
