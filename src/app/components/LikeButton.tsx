@@ -7,6 +7,7 @@ interface LikeButtonProps {
   initialLiked?: boolean;
   initialCount?: number;
   type?: "work" | "chapter";
+  disabled?: boolean;
 }
 
 const LikeButton: React.FC<LikeButtonProps> = ({
@@ -15,6 +16,7 @@ const LikeButton: React.FC<LikeButtonProps> = ({
   initialLiked = false,
   initialCount = 0,
   type = "work",
+  disabled=false,
 }) => {
   const { liked, count, loading, handleLike } = useLike({
     initialLiked,
@@ -29,7 +31,7 @@ const LikeButton: React.FC<LikeButtonProps> = ({
   return (
     <button
       onClick={handleLike}
-      disabled={loading}
+      disabled={loading || disabled}
       style={{
         background: "none",
         border: "none",
