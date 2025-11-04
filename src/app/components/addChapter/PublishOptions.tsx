@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { publishChapter, scheduleChapter } from "../../../infrastructure/services/ChapterService.ts";
+import { publishChapter,scheduleChapter} from "../../../infrastructure/services/ChapterService.ts";
 import { useNavigate } from "react-router-dom";
 
 interface Props {
