@@ -11,6 +11,7 @@ import { addChapter, getWorkById } from '../../../infrastructure/services/Chapte
 import { uploadCover, uploadBanner } from '../../../infrastructure/services/WorkAssetsService.ts';
 import CoverImageModal from '../../components/CoverImageModal';
 import CoverAiModal from "../../components/create/CoverAiModal.tsx";
+import BackButton from '../../components/BackButton';
 import { notifySuccess, notifyError } from "../../../infrastructure/services/ToastProviderService.ts";
 import { useCategories } from "../../../infrastructure/services/CategoryService.ts";
 import type { CategoryDTO } from "../../../domain/dto/CategoryDTO.ts";
@@ -34,7 +35,7 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
   const [work, setWork] = useState<WorkDTO | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const defaultWorkId = 1; 
+  const defaultWorkId = 1;
   const currentWorkId = Number(workId) || defaultWorkId;
   const [isCategoryMenuOpen, setIsCategoryMenuOpen] = useState(false);
   const [selectedCategories, setSelectedCategories] = useState<CategoryDTO[]>([]);
@@ -66,9 +67,7 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
   const [pendingCoverFile, setPendingCoverFile] = useState<File | null>(null);
   const [savingCover, setSavingCover] = useState(false);
   const navigate = useNavigate();
-  const isDescriptionValid = descriptionF.trim().length > 20;
-  
-  const [allowSubscription, setAllowSubscription] = useState(false);
+  const isDescriptionValid = descriptionF.trim().length > 20;const [allowSubscription, setAllowSubscription] = useState(false);
   const [price, setPrice] = useState('');
   const [workStatus, setWorkStatus] = useState<'paused' | 'InProgress' | 'finished' | ''>('');
 
@@ -86,7 +85,7 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
   /*const handleSaveChanges = async () => {
     try {
       setIsSaving(true);
-      
+
       const updatePayload: UpdateWorkDTO = {
         categoryIds: selectedCategories.map(c => c.id),
         tagIds: currentTags,
@@ -162,54 +161,54 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
 
   const handleBannerClick = () => bannerInputRef.current?.click();
 
- const handleFileChange = useCallback(async (e: React.ChangeEvent<HTMLInputElement>, isCover: boolean = false) => {
+  const handleFileChange = useCallback(async (e: React.ChangeEvent<HTMLInputElement>, isCover: boolean = false) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     const options = isCover
-        ? { maxSizeMB: 20, maxWidth: 500, maxHeight: 800 }
-        : { maxSizeMB: 20, maxWidth: 1345, maxHeight: 256 };
+      ? { maxSizeMB: 20, maxWidth: 500, maxHeight: 800 }
+      : { maxSizeMB: 20, maxWidth: 1345, maxHeight: 256 };
     const result = await validateFile(file, options);
-        const setFilePreview = isCover ? setCoverPreview : setBannerPreview;
+    const setFilePreview = isCover ? setCoverPreview : setBannerPreview;
     const setError = isCover ? setErrorCover : setErrorBanner;
     const inputRef = isCover ? coverInputRef : bannerInputRef;
-    const setPendingFile = isCover ? setPendingCoverFile : null; 
+    const setPendingFile = isCover ? setPendingCoverFile : null;
 
     if (!result.valid) {
-        const msg = result.error || 'Archivo inválido.';
-        setError(msg);
-        
-        setFilePreview(prev => { if (prev) URL.revokeObjectURL(prev); return null; });
-        if (setPendingFile) setPendingFile(null);
-        
-        if (inputRef.current) inputRef.current.value = '';
-        return;
+      const msg = result.error || 'Archivo inválido.';
+      setError(msg);
+
+      setFilePreview(prev => { if (prev) URL.revokeObjectURL(prev); return null; });
+      if (setPendingFile) setPendingFile(null);
+
+      if (inputRef.current) inputRef.current.value = '';
+      return;
     }
 
     setError(null);
     setFilePreview(prev => {
-        if (prev) URL.revokeObjectURL(prev);
-        return URL.createObjectURL(file);
+      if (prev) URL.revokeObjectURL(prev);
+      return URL.createObjectURL(file);
     });
 
     if (inputRef.current) {
-        inputRef.current.value = '';
+      inputRef.current.value = '';
     }
 
     if (isCover) {
-        setPendingFile!(file); 
-        notifySuccess("Portada lista para subir."); 
+      setPendingFile!(file);
+      notifySuccess("Portada lista para subir.");
     } else {
-        try {
-            await uploadBanner(currentWorkId, file);
-            notifySuccess("Banner actualizado con éxito.");
-        } catch (err) {
-            console.error('Error al subir el banner:', err);
-            setError('No se pudo subir el banner. Intenta nuevamente.');
-            setFilePreview(prev => { if (prev) URL.revokeObjectURL(prev); return null; }); 
-        }
+      try {
+        await uploadBanner(currentWorkId, file);
+        notifySuccess("Banner actualizado con éxito.");
+      } catch (err) {
+        console.error('Error al subir el banner:', err);
+        setError('No se pudo subir el banner. Intenta nuevamente.');
+        setFilePreview(prev => { if (prev) URL.revokeObjectURL(prev); return null; });
+      }
     }
-}, [currentWorkId]);
+  }, [currentWorkId]);
 
   const handleAISuggestion = () => {
     if (!isDescriptionValid) {
@@ -250,7 +249,7 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
         setCurrentTags(workData.tags.map((tag) => tag.name));
         setNameWork(workData.title || '');
         setDescriptionF(workData.description || '');
-        
+
         setPrice(workData.price?.toString() || '');
         setWorkStatus(workData.state || '');
       } catch (err) {
@@ -296,25 +295,28 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#F0EEF6' }}>
-      <div 
+      <div
         className="relative h-64 bg-cover bg-center"
         style={{ backgroundImage: `url(${bannerPreview || work.banner})` }}
-        >
+      >
         <div className="absolute inset-0 bg-opacity-40"></div>
+        <div className="absolute top-4 left-4 z-20">
+          <BackButton to={`/my-works`} />
+        </div>
         <div className="absolute top-4 right-4">
-          <div 
+          <div
             className="relative"
             onMouseEnter={() => setShowBannerTooltip(true)}
             onMouseLeave={() => setShowBannerTooltip(false)}
           >
-          <Button 
+            <Button
               text="Editar Banner"
               onClick={handleBannerClick}
               colorClass="bg-[#5C17A6] hover:bg-[#4A1285] focus:ring-[#5C17A6] text-white cursor-pointer"
             />
-            
+
             {showBannerTooltip && (
-              <div 
+              <div
                 className="absolute z-20 top-0 mt-1 mr-4 w-max max-w-sm right-full bg-gray-800 text-white px-3 py-2 rounded-md text-sm"
               >
                 *Se admiten PNG, JPG, JPEG, WEBP de máximo 20mb. (Max 1345x256px).
@@ -323,18 +325,18 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
           </div>
         </div>
       </div>
-        <input
-          type="file"
-          ref={bannerInputRef}
-          className="hidden"
-          accept="image/png,image/jpeg,image/jpg,image/webp"
-          onChange={(e) => handleFileChange(e, false)}
-        />
-        {errorBanner && (
-          <div className="flex justify-center">
-            <p className="text-red-600 text-sm mt-2">{errorBanner}</p>
-          </div>
-        )}
+      <input
+        type="file"
+        ref={bannerInputRef}
+        className="hidden"
+        accept="image/png,image/jpeg,image/jpg,image/webp"
+        onChange={(e) => handleFileChange(e, false)}
+      />
+      {errorBanner && (
+        <div className="flex justify-center">
+          <p className="text-red-600 text-sm mt-2">{errorBanner}</p>
+        </div>
+      )}
 
       <div className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-10 gap-6">
@@ -342,78 +344,78 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
           <div className="lg:col-span-2 lg:border-r lg:border-gray-300 lg:pr-6">
             <div className="sticky top-8">
               <div className="flex flex-col items-start">
-              <img 
-                src={coverPreview || work.cover}
-                alt={work.title}
-                className="w-48 h-64 object-cover rounded-lg shadow-md mb-3"
-              />
-              <Button 
-                text="Editar Portada"
-                onClick={() => setShowCoverModal(true)}
-                colorClass="bg-[#3C2A50] hover:bg-[#2A1C3A] focus:ring-[#3C2A50] text-sm mb-2 w-48 text-white cursor-pointer"
-              />
-              <input
-                type="file"
-                ref={coverInputRef}
-                className="hidden"
-                accept="image/png,image/jpeg,image/jpg,image/webp"
-                onChange={(e) => handleFileChange(e, true)}
-              />
-              <CoverImageModal
-                isOpen={showCoverModal}
-                onClose={() => {
-                  setShowCoverModal(false);
-                }}
-                onUploadClick={() => {
-                  coverInputRef.current?.click();
-                }}
-                onGenerateClick={() => {
-                  setShowCoverModal(false);
-                  setShowCoverModalAi(true);
-                }}
-                onSave={async () => {
-                  if (!pendingCoverFile) return;
-                  try {
-                    setSavingCover(true);
-                    await uploadCover(currentWorkId, pendingCoverFile, null);
-                    setSavingCover(false);
+                <img
+                  src={coverPreview || work.cover}
+                  alt={work.title}
+                  className="w-48 h-64 object-cover rounded-lg shadow-md mb-3"
+                />
+                <Button
+                  text="Editar Portada"
+                  onClick={() => setShowCoverModal(true)}
+                  colorClass="bg-[#3C2A50] hover:bg-[#2A1C3A] focus:ring-[#3C2A50] text-sm mb-2 w-48 text-white cursor-pointer"
+                />
+                <input
+                  type="file"
+                  ref={coverInputRef}
+                  className="hidden"
+                  accept="image/png,image/jpeg,image/jpg,image/webp"
+                  onChange={(e) => handleFileChange(e, true)}
+                />
+                <CoverImageModal
+                  isOpen={showCoverModal}
+                  onClose={() => {
                     setShowCoverModal(false);
-                    setPendingCoverFile(null);
-                  } catch (err) {
-                    console.error('Error al guardar portada:', err);
-                    setSavingCover(false);
-                    setErrorCover('No se pudo guardar la portada. Intenta nuevamente.');
-                  }
-                }}
-                saveDisabled={!pendingCoverFile}
-                saving={savingCover}
-                errorMessage={errorCover}
-              />
-              {errorCover && (
-                <p className="text-red-600 text-xs mt-1">{errorCover}</p>
-              )}
+                  }}
+                  onUploadClick={() => {
+                    coverInputRef.current?.click();
+                  }}
+                  onGenerateClick={() => {
+                    setShowCoverModal(false);
+                    setShowCoverModalAi(true);
+                  }}
+                  onSave={async () => {
+                    if (!pendingCoverFile) return;
+                    try {
+                      setSavingCover(true);
+                      await uploadCover(currentWorkId, pendingCoverFile, null);
+                      setSavingCover(false);
+                      setShowCoverModal(false);
+                      setPendingCoverFile(null);
+                    } catch (err) {
+                      console.error('Error al guardar portada:', err);
+                      setSavingCover(false);
+                      setErrorCover('No se pudo guardar la portada. Intenta nuevamente.');
+                    }
+                  }}
+                  saveDisabled={!pendingCoverFile}
+                  saving={savingCover}
+                  errorMessage={errorCover}
+                />
+                {errorCover && (
+                  <p className="text-red-600 text-xs mt-1">{errorCover}</p>
+                )}
                 <p className="text-xs text-gray-500 w-48 text-center">
                   *Se admiten PNG, JPG, JPEG, WEBP de máximo 20mb.
                 </p>
               </div>
             </div>
-              <CoverAiModal
-                  isOpen={showCoverModalAi}
-                  onClose={() => setShowCoverModalAi(false)}
-                  onSetIaCoverUrl={async (url: string) => {
-                      try {
-                      setSavingCover(true);
-                      await uploadCover(currentWorkId, null, url);
-                      setSavingCover(false);
-                      setShowCoverModalAi(false);
-                      setCoverPreview(url);
-                  } catch (err) {
-                      console.error('Error al guardar portada:', err);
-                      setSavingCover(false);
-                      setErrorCover('No se pudo guardar la portada. Intenta nuevamente.');
-                  }
-                  }}
-              />
+            <CoverAiModal
+              isOpen={showCoverModalAi}
+              onClose={() => setShowCoverModalAi(false)}
+              onSetIaCoverUrl={async (url: string) => {
+                try {
+                  setSavingCover(true);
+                  await uploadCover(currentWorkId, null, url);
+                  setSavingCover(false);
+                  setShowCoverModalAi(false);
+                  setCoverPreview(url);
+                } catch (err) {
+                  console.error('Error al guardar portada:', err);
+                  setSavingCover(false);
+                  setErrorCover('No se pudo guardar la portada. Intenta nuevamente.');
+                }
+              }}
+            />
           </div>
 
           <div className="lg:col-span-6 lg:border-r lg:border-gray-300 lg:pr-6 lg:pl-6">
@@ -435,7 +437,7 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
                       colorClass="bg-transparent text-[#172FA6] border-[#172FA6]"
                     />
                   ))}
-                  <Button 
+                  <Button
                     text={'+'}
                     onClick={() => setIsCategoryMenuOpen(!isCategoryMenuOpen)}
                     colorClass={`w-8 h-8 pt-0 flex justify-center rounded-full border-2 border-[#172FA6] text-[#172FA6] text-2xl font-medium leading-none cursor-pointer hover:bg-[#172FA6] hover:text-white z-10`}
@@ -468,7 +470,7 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
             </div>
 
             {selectedCategories.length === 0 && (
-                <p className="text-red-500 text-sm mt-1 ml-1/4 pt-1 pl-[25%]">Selecciona al menos una categoría.</p>
+              <p className="text-red-500 text-sm mt-1 ml-1/4 pt-1 pl-[25%]">Selecciona al menos una categoría.</p>
             )}
 
             <div className="mb-6">
@@ -514,61 +516,62 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
                     />
                   )}
 
-                  <div 
+                  <div
                     className="relative"
                     onMouseEnter={() => setShowIATooltip(true)}
                     onMouseLeave={() => setShowIATooltip(false)}
                   >
                     <Button
-                        type="button"
-                        onClick={handleAISuggestion} 
-                        disabled={isAILoading || !isDescriptionValid}
-                        colorClass={`w-8 h-8 flex items-center justify-center rounded-full border-2 border-[#5C17A6] !py-0 !px-0`}
+                      type="button"
+                      onClick={handleAISuggestion}
+                      disabled={isAILoading || !isDescriptionValid}
+                      colorClass={`w-8 h-8 flex items-center justify-center rounded-full border-2 border-[#5C17A6] !py-0 !px-0`}
                     >
-                        {isAILoading ? 
-                            <svg className="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">...</svg> 
-                            : 
-                            <img src="/img/magic.png"  className={`w-8 h-6 ${isDescriptionValid ? 'hover:cursor-pointer' : 'cursor-not-allowed'}`}
-                            />
-                        }
+                      {isAILoading ?
+                        <svg className="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">...</svg>
+                        :
+                        <img src="/img/magic.png" className={`w-8 h-6 ${isDescriptionValid ? 'hover:cursor-pointer' : 'cursor-not-allowed'}`}
+                        />
+                      }
                     </Button>
-                  
-                  {showIATooltip && !isAILoading && (
+
+                    {showIATooltip && !isAILoading && (
                       <div className="absolute z-30 top-[-30px] left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-2 py-1 rounded-md whitespace-nowrap">
-                          {isDescriptionValid ? aiSuggestionMessage : shortMessage}
+                        {isDescriptionValid ? aiSuggestionMessage : shortMessage}
                       </div>
-                  )}
+                    )}
                   </div>
 
                   {isSuggestionMenuOpen && (
-                      <div ref={suggestionMenuRef} className="absolute z-20 top-10 mt-1 mr-[-30%] w-max max-w-xs">
-                          <div className="bg-white p-4 border border-gray-300 rounded-md shadow-lg flex flex-wrap gap-2">
-                              {suggestedTags.map((tag) => (
-                                  <Tag
-                                      key={tag}
-                                      text={tag}
-                                      colorClass="border border-gray-300 text-gray-600 bg-transparent hover:bg-gray-100" 
-                                      onClick={() => {handleAddTag(tag, currentTags, setCurrentTags, setIsAddingTag, setNewTagText, setIsSuggestionMenuOpen, false);
-                                          setSuggestedTags((prev) => prev.filter((t) => t !== tag));
-                                          setSuggestedTags((prev) => {
-                                              const updated = prev.filter((t) => t !== tag);
-                                              if (updated.length === 0) {
-                                                  setIsSuggestionMenuOpen(false);
-                                              }
-                                              return updated;
-                                          });
-                                      }}
-                                  />
-                              ))}
-                          </div>
+                    <div ref={suggestionMenuRef} className="absolute z-20 top-10 mt-1 mr-[-30%] w-max max-w-xs">
+                      <div className="bg-white p-4 border border-gray-300 rounded-md shadow-lg flex flex-wrap gap-2">
+                        {suggestedTags.map((tag) => (
+                          <Tag
+                            key={tag}
+                            text={tag}
+                            colorClass="border border-gray-300 text-gray-600 bg-transparent hover:bg-gray-100"
+                            onClick={() => {
+                              handleAddTag(tag, currentTags, setCurrentTags, setIsAddingTag, setNewTagText, setIsSuggestionMenuOpen, false);
+                              setSuggestedTags((prev) => prev.filter((t) => t !== tag));
+                              setSuggestedTags((prev) => {
+                                const updated = prev.filter((t) => t !== tag);
+                                if (updated.length === 0) {
+                                  setIsSuggestionMenuOpen(false);
+                                }
+                                return updated;
+                              });
+                            }}
+                          />
+                        ))}
                       </div>
-                 )}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
 
             {currentTags.length === 0 && (
-                <p className="text-red-500 text-sm mt-1 ml-1/4 pt-1 pl-[25%]">Debes agregar al menos una etiqueta.</p>
+              <p className="text-red-500 text-sm mt-1 ml-1/4 pt-1 pl-[25%]">Debes agregar al menos una etiqueta.</p>
             )}
 
             <div className="mb-8">
@@ -579,7 +582,7 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
                 <div className="p-6">
                   <div className="space-y-2">
                     {work?.chapters?.map((chapter) => (
-                      <ChapterItem 
+                      <ChapterItem
                         key={chapter.id}
                         workId={currentWorkId}
                         chapter={chapter}
@@ -588,7 +591,7 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
                   </div>
 
                   <div className="flex justify-center mt-4">
-                    <Button 
+                    <Button
                       text="Agregar Capítulo"
                       onClick={() => handleCreateChapter(currentWorkId, work.originalLanguage.id)}
                       colorClass="bg-[#5C17A6] hover:bg-[#4A1285] focus:ring-[#5C17A6] text-white cursor-pointer"
@@ -599,7 +602,7 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
             </div>
           </div>
 
-          <div className="lg:col-span-2 lg:pl-4"> 
+          <div className="lg:col-span-2 lg:pl-4">
             <div className="sticky top-8">
               <h2 className="text-3xl font-bold text-black mb-4 text-center">Administrar</h2>
               

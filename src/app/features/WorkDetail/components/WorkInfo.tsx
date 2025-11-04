@@ -3,7 +3,9 @@ import React, { useState } from "react";
 import { notifyError, notifySuccess } from "../../../../infrastructure/services/ToastProviderService.ts";
 import { subscribeToAuthor, subscribeToWork } from "../../../../infrastructure/services/paymentService.ts";
 import Button from "../../../components/Button";
+import LikeButton from "../../../components/LikeButton";
 import { useNavigate } from "react-router-dom";
+import StarRating from "../../../components/StarRating.tsx";
 
 interface WorkInfoProps {
   work: WorkDTO;
@@ -12,7 +14,6 @@ interface WorkInfoProps {
 }
 
 export const WorkInfo: React.FC<WorkInfoProps> = ({ work, manageFirstChapter, disableFirstChapter = false }) => {
-  const likesFormatted = work.likes >= 1000 ? (work.likes / 1000).toFixed(1) + "k" : work.likes;
   const [isPaying, setIsPaying] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const isAuthorSubscribed = Boolean(work.subscribedToAuthor);
@@ -80,24 +81,13 @@ export const WorkInfo: React.FC<WorkInfoProps> = ({ work, manageFirstChapter, di
           </button>
       </div>
 
-      <div className="flex items-center justify-between gap-4">
-        <div className="flex items-center gap-6 ml-5">
-          <div className="flex items-center gap-2 text-gray-700">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="#c026d3"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-            </svg>
-            <span className="text-[16px] font-semibold text-gray-700">{likesFormatted}</span>
-          </div>
+      <div className="flex items-center gap-6 ">
+        <div className="flex items-center gap-2 text-gray-700">
+            <LikeButton workId={work.id}
+            initialLiked={work.likedByUser}
+            initialCount={work.likes}
+            type="work"/>
+        </div>
 
           <div className="flex items-center gap-2 text-gray-700">
             <svg
@@ -117,12 +107,13 @@ export const WorkInfo: React.FC<WorkInfoProps> = ({ work, manageFirstChapter, di
             </svg>
             <span className="text-[16px] font-semibold text-gray-700">1.7k</span>
           </div>
+      </div>
+        <div className="flex flex-col mt-4 items-center">
+            <StarRating workId={work.id} initialValue={work.averageRating} />
         </div>
-        
       <button disabled={true} className="bg-[#172fa6] text-white py-2 px-4 sm:px-8 rounded-lg text-sm disabled:opacity-50 cursor-not-allowed w-full sm:w-auto sm:min-w-[162px]">
           Exportar EPUB
         </button>
-      </div>
 
       <p className="text-gray-700 leading-relaxed text-[15px]">{work.description}</p>
 

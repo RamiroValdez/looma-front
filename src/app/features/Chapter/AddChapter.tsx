@@ -6,10 +6,12 @@ import ChapterActions from "../../components/addChapter/ChapterActions";
 import PublishOptions from "../../components/addChapter/PublishOptions";
 import { useChapterActions } from "../../hooks/useChapterActions.ts";
 import {getChapterById, updateChapterPrice} from "../../../infrastructure/services/ChapterService.ts";
-import type {ChapterWithContentDTO} from "../../../domain/dto/ChapterWithContentDTO.ts";
-import LoomiBubble from "../../components/Loomi-buble.tsx";
 import Button from "../../components/Button.tsx";
 import { notifySuccess, notifyError } from "../../../infrastructure/services/ToastProviderService.ts";
+import type { ChapterWithContentDTO } from "../../../domain/dto/ChapterWithContentDTO.ts";
+import LoomiBubble from "../../components/Loomi-buble.tsx";
+import BackButton from "../../components/BackButton";
+
 
 export default function AddChapter() {
     const navigate = useNavigate();
@@ -121,7 +123,9 @@ export default function AddChapter() {
                     <div className="w-screen relative left-1/2 right-1/2 -mx-[50vw] bg-white mb-8">
                         <div className="bg-white border-b border-[#e4e2eb] h-14 flex items-center ">
                             <div className="px-4 sm:px-8 md:px-16 mx-auto flex justify-between items-center w-full">
-                                <div className="flex items-center gap-3 p-6">
+
+                                <div className="flex items-center gap-4 p-6">
+
                                     <div className="w-8 h-8 bg-[#1a2fa1] rounded-full flex items-center justify-center">
                                         <span className="text-white text-lg font-bold">?</span>
                                     </div>
@@ -129,13 +133,14 @@ export default function AddChapter() {
                                         ¿Tenés dudas? Dejanos darte algunos consejos
                                     </h2>
                                 </div>
+
                                 <a href="#" className="text-gray-400 hover:text-gray-600 underline text-sm">
                                     Normativas de contenido
                                 </a>
                             </div>
                         </div>
                     </div>
-
+                    <BackButton to={`/manage-work/${id}`} />
                     <div className="flex flex-col lg:flex-row gap-8">
                         <div className="flex-[3] rounded-2xl p-6">
                             <h2 className="text-lg font-medium text-gray-700 mb-9">
