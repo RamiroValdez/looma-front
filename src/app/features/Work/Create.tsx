@@ -66,6 +66,8 @@ export default function Create() {
     const aiSuggestionMessage = "Sugerencias de la IA";
     const suggestMutation = useSuggestTagsMutation();
     const isDescriptionValid = descriptionF.trim().length > 20; 
+    const [isPaid , setIsPaid] = useState(false);
+    const [price, setPrice] = useState<number>(0);
 
     const isSubmitEnabled =
         nameWork.trim() !== '' &&
@@ -74,6 +76,7 @@ export default function Create() {
         selectedLanguage !== null &&
         selectedCategories.length > 0 &&
         currentTags.length > 0 &&
+        (!isPaid || (isPaid && price > 0)) && 
         bannerFile !== null &&
         (coverFile !== null)||(coverIaUrl !== null);
 
@@ -87,6 +90,10 @@ export default function Create() {
             handleAddTag(formattedText, currentTags, setCurrentTags, setIsAddingTag, setNewTagText, setIsSuggestionMenuOpen);
         }
     };
+
+  const handleToggle = () => {
+    setIsPaid(!isPaid);
+  };
 
     const handleBannerClick = () => {
         bannerInputRef.current?.click();
@@ -160,6 +167,7 @@ export default function Create() {
             originalLanguageId: selectedLanguage ? selectedLanguage.id : null,
             categoryIds: selectedCategories.map(cat => cat.id), 
             tagIds: currentTags,
+            price: isPaid ? price : 0,
             coverIaUrl: coverIaUrl || undefined
         };
         const formData = createFormDataForWork(workDTO, bannerFile, coverFile);
@@ -545,6 +553,59 @@ export default function Create() {
                             {hasTriedSubmit && currentTags.length === 0 && (
                                 <p className="text-red-500 text-sm mt-1 ml-1/4 pt-1 pl-[25%]">Debes agregar al menos una etiqueta.</p>
                             )}
+
+                    <div className="flex items-center gap-15 mt-8">
+                <label htmlFor="toggle-paga" className="text-gray-700 font-medium text-lg">
+                    ¿Tu obra va a ser paga?
+                </label>
+                
+                <div className="flex items-center gap-3">
+                    <span className={`text-sm font-semibold ${!isPaid ? 'text-gray-700' : 'text-gray-500'}`}>
+                    NO
+                    </span>
+                    
+                    <div className="relative inline-block w-12 align-middle select-none transition duration-200 ease-in">
+                    <input
+                        type="checkbox"
+                        name="toggle"
+                        id="toggle-paga"
+                        checked={isPaid}
+                        onChange={handleToggle}
+                        className="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer transition-transform duration-200 ease-in"
+                        style={{
+                        left: isPaid ? 'calc(100% - 1.5rem)' : '0',
+                        }}
+                    />
+                    <label 
+                        htmlFor="toggle-paga" 
+                        className={`block overflow-hidden h-6 rounded-full cursor-pointer transition-colors duration-200 ease-in ${isPaid ? 'bg-blue-600' : 'bg-gray-500'}`}
+                    />
+                    </div>
+
+                    <span className={`text-sm font-semibold ${!isPaid ? 'text-gray-600' : 'text-blue-700'}`}>
+                    SÍ
+                    </span>
+                </div>
+                </div>
+
+                {isPaid && (
+                    <div className="space-y-2 pt-4 text-left mt-2 flex gap-14">
+                        <label htmlFor="precio" className="block text-lg font-medium text-gray-700 mt-2">
+                            Precio de la obra (USD)
+                        </label>
+                        <input
+                            type="number"
+                            id="precio"
+                            name="precio"
+                            value={price === 0 ? '' : price}
+                            onChange={(e) => setPrice(e.target.value === '' ? 0 : Number(e.target.value))}
+                            placeholder="Ej: 19,99"
+                            min="0"
+                            step="0.01"
+                            className="block w-30 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                        />
+                    </div>
+                )}
 
                         </div>
 

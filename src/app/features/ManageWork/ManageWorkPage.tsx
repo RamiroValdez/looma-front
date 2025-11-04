@@ -19,10 +19,7 @@ import { apiClient } from "../../../infrastructure/api/apiClient.ts";
 import { useAuthStore } from "../../../domain/store/AuthStore.ts";
 
 interface UpdateWorkDTO {
-  categoryIds: number[];
-  tagIds: string[];
   price?: number;
-  state?: 'paused' | 'InProgress' | 'finished';
 }
 
 interface ManageWorkPageProps {
@@ -85,7 +82,7 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
     setSelectedCategories(selectedCategories.filter(c => c.id !== categoryId));
   };
 
-  const handleSaveChanges = async () => {
+  /*const handleSaveChanges = async () => {
     try {
       setIsSaving(true);
 
@@ -112,6 +109,35 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
     } catch (err) {
       console.error('Error al guardar cambios:', err);
       notifyError('No se pudieron guardar los cambios');
+    } finally {
+      setIsSaving(false);
+    }
+  };*/
+
+  const handleSavePrice = async () => {
+    try {
+      setIsSaving(true);
+
+      const updatePrice: UpdateWorkDTO = {
+        price: price ? parseFloat(price) : undefined
+      };
+
+      const response = await apiClient.request({
+        url: `/manage-work/${currentWorkId}/price`,
+        method: 'PATCH',
+        data: updatePrice,
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.status === 204) {
+        notifySuccess('Precio guardado exitosamente');
+        setPrice(price);
+      }
+    } catch (err) {
+      console.error('Error al guardar precio:', err);
+      notifyError('No se pudo guardar el precio');
     } finally {
       setIsSaving(false);
     }
@@ -582,6 +608,8 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
               
               <div className="bg-white rounded-lg shadow-lg p-4">
                 <div className="space-y-4">
+                  
+                  {/*
                   <div>
                     <label className="flex items-center text-base text-black">
                       <input 
@@ -594,27 +622,28 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
                     </label>
                   </div>
 
-                  <hr className="border-gray-300" />
+                  <hr className="border-gray-300" />*/}
                   
                   <div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center justify-center gap-2">
                       <label className="text-black font-medium text-base">Precio:</label>
                       <div className="flex items-center border rounded">
-                        <span className="px-2 py-2 bg-gray-50 border-r text-base text-black">$</span>
+                        <span className="px-2 py-2 bg-gray-50 border-r text-base text-black">USD</span>
                         <input 
                           type="number" 
                           placeholder="0.00"
                           value={price}
                           onChange={(e) => setPrice(e.target.value)}
-                          className="px-2 py-2 text-base text-black rounded-r focus:outline-none focus:ring-2 focus:ring-[#5C17A6] w-24"
+                          className="px-2 py-2 text-base text-black rounded-r focus:outline-none focus:ring-2 focus:ring-[#5C17A6] w-15"
                           min="0"
                           step="0.01"
                         />
                       </div>
                     </div>
                   </div>
+                  
 
-                  <hr className="border-gray-300" />
+                  {/*<hr className="border-gray-300" />
                   
                   <div className="space-y-2">
                     <div>
@@ -660,19 +689,20 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
                     </div>
                   </div>
 
-                  <hr className="border-gray-300" />
+                  <hr className="border-gray-300" />  */}
                   
                   <div className="flex gap-3 pt-2">
-                    <button 
+                    
+                    {/*<button 
                       onClick={handleClearAdminPanel}
                       className="text-red-600 hover:text-red-800 text-sm font-medium transition-colors duration-200 flex-1 cursor-pointer"
                     >
                       Limpiar
                     </button>
+                      */}
                     <Button 
                       text={isSaving ? "Guardando..." : "Guardar"}
-                      onClick={handleSaveChanges}
-                      disabled={isSaving || selectedCategories.length === 0 || currentTags.length === 0}
+                      onClick={handleSavePrice}
                       colorClass="bg-[#5C17A6] hover:bg-[#4A1285] focus:ring-[#5C17A6] flex-1 text-white cursor-pointer disabled:bg-gray-400 disabled:cursor-not-allowed"
                     />
                   </div>

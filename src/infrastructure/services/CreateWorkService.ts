@@ -12,6 +12,7 @@ export interface CreateWorkDTO {
     originalLanguageId: number | null;
     categoryIds: number[];
     tagIds: string[];
+    price: number;
     coverIaUrl?: string;
 }
 
@@ -78,7 +79,6 @@ export function useClickOutside(ref: React.RefObject<HTMLElement | null>, onClic
 export function validateFile(file: File, options: ValidationOptions): Promise<{ valid: boolean; error?: FileValidationError }> {
     const { maxSizeMB, maxWidth, maxHeight } = options;
 
-    // Validar peso 
     if (file.size > maxSizeMB * 1024 * 1024) {
         return Promise.resolve({ valid: false, error: `El archivo supera el tamaño máximo permitido (${maxSizeMB}MB).` });
     }
@@ -121,7 +121,7 @@ export const createFormDataForWork = (
     coverFile?: File | null
 ): FormData => {
     const formData = new FormData();
-
+    
     formData.append(
         'work',
         new Blob([JSON.stringify(workDTO)], { type: 'application/json' })

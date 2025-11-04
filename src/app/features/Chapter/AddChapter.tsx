@@ -5,7 +5,9 @@ import ChapterEditor from "../../components/addChapter/ChapterEditor";
 import ChapterActions from "../../components/addChapter/ChapterActions";
 import PublishOptions from "../../components/addChapter/PublishOptions";
 import { useChapterActions } from "../../hooks/useChapterActions.ts";
-import { getChapterById } from "../../../infrastructure/services/ChapterService.ts";
+import {getChapterById, updateChapterPrice} from "../../../infrastructure/services/ChapterService.ts";
+import Button from "../../components/Button.tsx";
+import { notifySuccess, notifyError } from "../../../infrastructure/services/ToastProviderService.ts";
 import type { ChapterWithContentDTO } from "../../../domain/dto/ChapterWithContentDTO.ts";
 import LoomiBubble from "../../components/Loomi-buble.tsx";
 import BackButton from "../../components/BackButton";
@@ -21,19 +23,20 @@ export default function AddChapter() {
     const [deleteInput, setDeleteInput] = useState("");
     const [showCancelScheduleModal, setShowCancelScheduleModal] = useState(false);
     const [cancelScheduleInput, setCancelScheduleInput] = useState("");
-
-    const {
-        handleSave,
-        error,
-        handleConfirmDelete,
-        deleting,
-        deleteError,
-        setDeleteError,
-        handleCancelSchedule,
-        cancelingSchedule,
-        cancelScheduleError,
-        setCancelScheduleError
-    } = useChapterActions(id ?? "", chapter);
+    const [isSaving, setIsSaving] = useState(false);
+    
+   const {
+    handleSave,
+    error,
+    handleConfirmDelete,
+    deleting,
+    deleteError,
+    setDeleteError,
+    handleCancelSchedule,
+    cancelingSchedule,
+    cancelScheduleError,
+    setCancelScheduleError
+} = useChapterActions(id ?? "", chapter);
 
     useEffect(() => {
         if (errorFetch) {
@@ -50,6 +53,7 @@ export default function AddChapter() {
         }
     }, [data]);
 
+   
     const handleFieldChange = (field: keyof ChapterWithContentDTO, value: any) => {
         setChapter((prev) => (prev ? { ...prev, [field]: value } : prev));
     };
@@ -65,6 +69,20 @@ export default function AddChapter() {
         setShowDeleteModal(false);
     };
 
+  const handleSavePrice = async () => {
+        try {
+            if (!chapter) return; 
+            setIsSaving(true);
+            await updateChapterPrice(chapter.id , chapter.price ?? 0);
+            notifySuccess("Precio guardado correctamente.");
+        } catch (error) {
+            console.error("Error al guardar el precio:", error);
+            notifyError("Error al guardar el precio.");
+        } finally {
+            setIsSaving(false);
+        }
+
+  }
 
     const handleChapterActions = () => {
         if (chapter) {
@@ -88,7 +106,7 @@ export default function AddChapter() {
 
         const previewUrl = `/preview?data=${encodeURIComponent(JSON.stringify(previewData))}`;
         window.open(previewUrl, "_blank");
-    };
+    };    
 
     return (
         <div>
@@ -233,10 +251,39 @@ export default function AddChapter() {
                                 defaultLanguageCode={chapter.languageDefaultCode}
                                 onLanguageSelect={handleLanguageSelect}
                             />
+                       <div>
+
+            <div className="flex justify-between items-center w-full mt-8">
+    
+                {/* ⬅️ LADO IZQUIERDO: Etiqueta y Input de Precio */}
+                <div className="flex items-center gap-2">
+                    <label className="text-black font-medium text-base">Precio:</label>
+                    <div className="flex items-center border rounded">
+                        <span className="px-2 py-2 bg-gray-50 border-r text-base text-black">USD</span>
+                        <input 
+                            type="number" 
+                            placeholder="0.00"
+                            value={chapter.price || ''}
+                            onChange={(e) => handleFieldChange("price", e.target.value)} 
+                            className="px-2 py-2 text-base text-black rounded-r focus:outline-none focus:ring-2 focus:ring-[#5C17A6] w-15"
+                            min="0"
+                            step="0.01"
+                        />
+                    </div>
+                </div>
+                <div className="flex gap-3">
+                    <Button 
+                        text={isSaving ? "Guardando..." : "Guardar"}
+                        onClick={handleSavePrice}
+                        colorClass={`bg-[#5C17A6] hover:bg-[#4A1285] focus:ring-[#5C17A6] text-white cursor-pointer`}
+                    />
+                </div>
+            </div>
+                
+                            </div>
                         </div>
                     </div>
 
-                    {/* <InspirationBubble />  COMO AUN NO TIENE LOGICA NO LO MOSTRAMOS*/}
                     {showDeleteModal && (
                         <div className="fixed inset-0 z-50 flex items-center justify-center">
                             <div className="absolute inset-0 bg-black/40" onClick={closeDeleteModal} />

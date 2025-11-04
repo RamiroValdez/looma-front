@@ -3,6 +3,7 @@ import { handleError } from "../errorHandler.ts";
 import type { WorkDTO } from "../../domain/dto/WorkDTO.ts";
 import { useApiQuery } from "../api/useApiQuery.ts";
 import type { ChapterWithContentDTO } from "../../domain/dto/ChapterWithContentDTO.ts";
+import { apiClient } from "../api/apiClient.ts";
 
 export async function addChapter(
   workId: number,
@@ -290,6 +291,27 @@ export async function importFileToText(file: File): Promise<string> {
 
     const data = (await response.json()) as { text: string };
     return data.text ?? "";
+  } catch (error) {
+    throw new Error(handleError(error));
+  }
+}
+
+export async function updateChapterPrice(chapterId: number, price: number): Promise<void> { 
+  try {
+    const token = useAuthStore.getState().token;
+    
+    const response = await apiClient.request({
+      url: `${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_API_EDIT_CHAPTER_URL}/price/${chapterId}`,
+      method: "PATCH",
+      headers: {
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      data: { price },
+    });
+    
+    if (response.status !== 204) {
+      throw new Error(`Error inesperado al actualizar el precio. Código: ${response.status}`);
+    }
   } catch (error) {
     throw new Error(handleError(error));
   }
