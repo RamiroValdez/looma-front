@@ -95,6 +95,7 @@ export const ChapterList: React.FC<ChapterListProps> = ({ chapters, originalLang
             disabled={!isUnlocked}
             onClick={() => handleChapterClick(chapter, isUnlocked)}
             onAcquire={() => openAcquireModal(chapter)}
+            workId={workId}
           />
         </div>
           )

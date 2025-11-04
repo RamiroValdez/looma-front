@@ -36,7 +36,7 @@ export const WorkDetail: React.FC = () => {
       >
         <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/60"></div>
         <div className="absolute top-4 left-4 z-20">
-          <BackButton />
+         <BackButton to={`/home`} />
         </div>
 
 
