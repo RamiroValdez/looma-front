@@ -23,6 +23,7 @@ export interface WorkDTO {
   subscribedToAuthor?: boolean;
   subscribedToWork?: boolean;
   unlockedChapters?: number[];
+  likedByUser?: boolean;
 }
 
 export interface OriginalLanguageDTO {

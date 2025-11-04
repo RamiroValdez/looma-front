@@ -26,6 +26,7 @@ export const useWorkDetailData = () => {
       setError(null);
       try {
         const workData = await WorkService.getWorkDetail(idAsNumber);
+          console.log(workData)
         setWork(workData);
       } catch (e) {
         setError("Ocurrió un error al cargar los detalles de la obra.");
