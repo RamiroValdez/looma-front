@@ -81,24 +81,25 @@ export const ChapterList: React.FC<ChapterListProps> = ({ chapters, originalLang
   };
 
   return (
-    <div className="bg-white rounded-xl overflow-hidden">
-{sortedChapters.map((chapter, index) => {
-  const displayIndex = index + 1; 
-  const isUnlocked = allUnlocked || unlockedSet.has(displayIndex);
-  return (
-    chapter.publicationStatus === "PUBLISHED" && (
-      <ChapterListItem
-        key={chapter.id}
-        chapter={chapter}
-        index={displayIndex}
-        disabled={!isUnlocked}
-        onClick={() => handleChapterClick(chapter, isUnlocked)}
-        onAcquire={() => openAcquireModal(chapter)}
-        workId={workId} 
-      />
-    )
-  );
-})}
+    <div className="bg-white rounded-xl overflow-hidden divide-y-2 divide-gray-300">
+      {sortedChapters.map((chapter, index) => {
+        const displayIndex = index + 1; 
+        const isUnlocked = allUnlocked || unlockedSet.has(chapter.id);
+        return (
+          chapter.publicationStatus === "PUBLISHED" && (
+        <div key={chapter.id} className="py-0 px-2">
+          <ChapterListItem
+            key={chapter.id}
+            chapter={chapter}
+            index={displayIndex}
+            disabled={!isUnlocked}
+            onClick={() => handleChapterClick(chapter, isUnlocked)}
+            onAcquire={() => openAcquireModal(chapter)}
+          />
+        </div>
+          )
+        );
+      })}
       {isModalOpen && (
         <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/50">
           <div className="bg-white rounded-xl p-6 w-full max-w-md relative">
