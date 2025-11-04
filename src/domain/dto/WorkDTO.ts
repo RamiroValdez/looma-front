@@ -24,6 +24,7 @@ export interface WorkDTO {
   subscribedToWork?: boolean;
   unlockedChapters?: number[];
   likedByUser?: boolean;
+  averageRating?: number;
 }
 
 export interface OriginalLanguageDTO {
