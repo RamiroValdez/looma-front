@@ -18,10 +18,7 @@ import { apiClient } from "../../../infrastructure/api/apiClient.ts";
 import { useAuthStore } from "../../../domain/store/AuthStore.ts";
 
 interface UpdateWorkDTO {
-  categoryIds: number[];
-  tagIds: string[];
   price?: number;
-  state?: 'paused' | 'InProgress' | 'finished';
 }
 
 interface ManageWorkPageProps {
@@ -86,7 +83,7 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
     setSelectedCategories(selectedCategories.filter(c => c.id !== categoryId));
   };
 
-  const handleSaveChanges = async () => {
+  /*const handleSaveChanges = async () => {
     try {
       setIsSaving(true);
       
@@ -113,6 +110,35 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
     } catch (err) {
       console.error('Error al guardar cambios:', err);
       notifyError('No se pudieron guardar los cambios');
+    } finally {
+      setIsSaving(false);
+    }
+  };*/
+
+  const handleSavePrice = async () => {
+    try {
+      setIsSaving(true);
+
+      const updatePrice: UpdateWorkDTO = {
+        price: price ? parseFloat(price) : undefined
+      };
+
+      const response = await apiClient.request({
+        url: `/api/manage-work/${currentWorkId}/price`,
+        method: 'PATCH',
+        data: updatePrice,
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.status === 204) {
+        notifySuccess('Precio guardado exitosamente');
+        setPrice(price);
+      }
+    } catch (err) {
+      console.error('Error al guardar precio:', err);
+      notifyError('No se pudo guardar el precio');
     } finally {
       setIsSaving(false);
     }
@@ -668,8 +694,7 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
                     </button>
                     <Button 
                       text={isSaving ? "Guardando..." : "Guardar"}
-                      onClick={handleSaveChanges}
-                      disabled={isSaving || selectedCategories.length === 0 || currentTags.length === 0}
+                      onClick={handleSavePrice}
                       colorClass="bg-[#5C17A6] hover:bg-[#4A1285] focus:ring-[#5C17A6] flex-1 text-white cursor-pointer disabled:bg-gray-400 disabled:cursor-not-allowed"
                     />
                   </div>
