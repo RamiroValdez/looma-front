@@ -67,7 +67,7 @@ export const ChapterListItem: React.FC<ChapterListItemProps> = ({
             text="Adquirir Capitulo"
             onClick={(e) => {
               e.stopPropagation();
-              onAcquire && onAcquire();
+              if (onAcquire) onAcquire();
             }}
             colorClass="bg-[#5c17a6] text-white px-3 py-1 rounded-md cursor-pointer"
           />
