@@ -1,6 +1,5 @@
 import React from "react";
 import  type {ChapterDTO } from "../../../../domain/dto/ChapterDTO";
-import Button from "../../../components/Button";
 import LikeButton from "../../../components/LikeButton";
 
 interface ChapterListItemProps {
@@ -17,7 +16,6 @@ export const ChapterListItem: React.FC<ChapterListItemProps> = ({
   index,
   onClick,
   disabled = false,
-  onAcquire,
   workId,
 }) => {
   const dateOptions: Intl.DateTimeFormatOptions = {

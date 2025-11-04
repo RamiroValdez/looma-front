@@ -112,9 +112,6 @@ export const WorkInfo: React.FC<WorkInfoProps> = ({ work, manageFirstChapter, di
         <div className="flex flex-col mt-4 items-center">
             <StarRating workId={work.id} initialValue={work.averageRating} />
         </div>
-      <button disabled={true} className="bg-[#172fa6] text-white py-2 px-4 sm:px-8 rounded-lg text-sm disabled:opacity-50 cursor-not-allowed w-full sm:w-auto sm:min-w-[162px]">
-          Exportar EPUB
-        </button>
       <div className="flex items-center justify-between gap-6 px-8">
         <div className="flex items-center gap-2 text-gray-700">
           <svg
