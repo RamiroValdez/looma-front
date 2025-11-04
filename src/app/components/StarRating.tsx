@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { sendRating, getWorkRatings } from "../../infrastructure/services/RatingService";
+import {getMyRatings, getRatingsCount, sendRating} from "../../infrastructure/services/RatingService";
 
 type StarRatingProps = {
   workId: number;
@@ -11,25 +11,35 @@ const StarRating: React.FC<StarRatingProps> = ({ workId, initialValue = 0 }) => 
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-
-
   const [average, setAverage] = useState<number | null>(null);
   const [total, setTotal] = useState<number>(0);
 
-  const fetchRatings = async () => {
-    try {
-      const data = await getWorkRatings(workId);
-      setAverage(data.averageRating);
-      setTotal(data.totalRatings);
-    } catch {
-      setAverage(null);
-      setTotal(0);
-    }
+  const fetchRatings = async (averageRating: number | undefined) => {
+      if(averageRating !== undefined) {
+          setAverage(averageRating);
+      }
+      setAverage(initialValue);
   };
 
+  const fetchTotalRatings = async () => {
+      const total = await getRatingsCount(workId);
+      setTotal(total);
+  };
+
+  const fetchMyRating = async () => {
+        const myRating = await getMyRatings(workId);
+        if (myRating !== null && myRating !== undefined) {
+          setRating(myRating);
+        } else {
+          setRating(initialValue);
+        }
+  }
+
   useEffect(() => {
-    fetchRatings();
-  }, [workId]);
+    fetchRatings(undefined);
+    fetchTotalRatings();
+    fetchMyRating();
+  }, [workId, initialValue]);
 
   const handleClick = (e: React.MouseEvent<HTMLDivElement>, starValue: number) => {
     const { left, width } = e.currentTarget.getBoundingClientRect();
@@ -44,9 +54,9 @@ const StarRating: React.FC<StarRatingProps> = ({ workId, initialValue = 0 }) => 
     setSuccess(false);
     setErrorMsg(null);
     try {
-      await sendRating(workId, rating);
-      setSuccess(true);
-      fetchRatings(); 
+        const response = await sendRating(workId, rating);
+        setSuccess(true);
+        fetchRatings(response.averageRating);
     } catch (e: any) {
       setErrorMsg("Error al enviar la valoración");
     }
@@ -60,20 +70,8 @@ const StarRating: React.FC<StarRatingProps> = ({ workId, initialValue = 0 }) => 
           {average !== null ? average.toFixed(1) : "—"}
         </span>
         <span className="text-gray-500 text-sm">
-          ({total} valoraciones)
+          ({total})
         </span>
-        <div className="flex">
-          {[1, 2, 3, 4, 5].map((star) => (
-            <svg
-              key={star}
-              viewBox="0 0 24 24"
-              fill={average && average >= star ? "#FFD700" : "#d3d3d3"}
-              className="w-5 h-5"
-            >
-              <path d="M12 .587l3.668 7.568L24 9.748l-6 5.85L19.335 24 12 19.897 4.665 24 6 15.598 0 9.748l8.332-1.593z" />
-            </svg>
-          ))}
-        </div>
       </div>
 
       <div className="flex items-center gap-2">

@@ -5,6 +5,7 @@ import { subscribeToAuthor, subscribeToWork } from "../../../../infrastructure/s
 import Button from "../../../components/Button";
 import LikeButton from "../../../components/LikeButton";
 import { useNavigate } from "react-router-dom";
+import StarRating from "../../../components/StarRating.tsx";
 
 interface WorkInfoProps {
   work: WorkDTO;
@@ -107,7 +108,9 @@ export const WorkInfo: React.FC<WorkInfoProps> = ({ work, manageFirstChapter, di
             <span className="text-[16px] font-semibold text-gray-700">1.7k</span>
           </div>
       </div>
-        
+        <div className="flex flex-col mt-4 items-center">
+            <StarRating workId={work.id} initialValue={work.averageRating} />
+        </div>
       <button disabled={true} className="bg-[#172fa6] text-white py-2 px-4 sm:px-8 rounded-lg text-sm disabled:opacity-50 cursor-not-allowed w-full sm:w-auto sm:min-w-[162px]">
           Exportar EPUB
         </button>
