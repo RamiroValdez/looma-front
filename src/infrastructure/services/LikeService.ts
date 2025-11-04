@@ -29,7 +29,7 @@ export async function unlikeWork(workId: number): Promise<{ likeCount: number }>
     const response = await fetch(
       `${import.meta.env.VITE_API_BASE_URL}/works/${workId}/like`,
       {
-        method: "DELETE",
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -73,7 +73,7 @@ export async function unlikeChapter(workId: number, chapterId: number): Promise<
     const response = await fetch(
       `${import.meta.env.VITE_API_BASE_URL}/work/${workId}/chapter/${chapterId}/like`,
       {
-        method: "DELETE",
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
