@@ -33,9 +33,7 @@ export default function TextViewer({ content }: TextViewerProps) {
     );
 
     return (
-        <div className="max-w-full bg-white">
             <Milkdown />
-        </div>
     );
 }
 

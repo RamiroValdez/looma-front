@@ -369,21 +369,22 @@ describe('ReadChapterNovel', () => {
       );
     });
 
-    it('click en capítulo bloqueado llama a handleChapterPayment', async () => {
-      const user = userEvent.setup();
-      const handleChapterPayment = vi.fn();
-      const isChapterUnlocked = vi.fn((id: number) => id !== 3);
-      mockUseReadChapterData.mockReturnValue(
-        createMockHookReturn({ handleChapterPayment, isChapterUnlocked })
-      );
+    it('click en capítulo bloqueado abre el modal de pago', async () => {
+  const user = userEvent.setup();
+  const isChapterUnlocked = vi.fn((id: number) => id !== 3);
+  mockUseReadChapterData.mockReturnValue(
+    createMockHookReturn({ isChapterUnlocked })
+  );
 
-      renderComponent('1');
+  renderComponent('1');
 
-      const chapter3 = getChapterInSidebar(3);
-      await user.click(chapter3);
+  const chapter3 = getChapterInSidebar(3);
+  await user.click(chapter3);
 
-      expect(handleChapterPayment).toHaveBeenCalledWith(3);
-    });
+  // Verifica que el modal se abre
+  expect(screen.getByText('Adquirir Capítulo')).toBeInTheDocument();
+  expect(screen.getByText('Selecciona un método de pago')).toBeInTheDocument();
+});
 
     it('el sidebar NO se muestra en modo fullscreen', () => {
       mockUseReadChapterData.mockReturnValue(
@@ -413,34 +414,47 @@ describe('ReadChapterNovel', () => {
     });
 
     it('el botón de like muestra el ícono de corazón lleno cuando está liked', () => {
-      mockUseReadChapterData.mockReturnValue(
-        createMockHookReturn({ liked: { 1: true } })
-      );
+  mockUseReadChapterData.mockReturnValue(
+    createMockHookReturn({ 
+      liked: { 1: true },
+      chapters: [
+        { id: 1, chapterNumber: 1, title: 'Cap 1', publicationStatus: 'PUBLISHED', likes: 10, likedByUser: true } // ⬅️ AGREGAR likedByUser
+      ]
+    })
+  );
 
-      renderComponent('1');
+  renderComponent('1');
 
-      const likeButton = screen.getByLabelText('Quitar like');
-      const svg = likeButton.querySelector('svg');
+  const likeButton = screen.getByLabelText('Quitar like');
+  const svg = likeButton.querySelector('svg');
 
-      expect(svg).toHaveAttribute('fill', 'currentColor');
-    });
+  expect(svg).toHaveAttribute('fill', 'currentColor'); 
+  expect(svg).toHaveClass('text-red-500');
+});
 
     it('click en like de capítulo desbloqueado llama a toggleLike', async () => {
-      const user = userEvent.setup();
-      const toggleLike = vi.fn();
-      mockUseReadChapterData.mockReturnValue(
-        createMockHookReturn({ toggleLike, liked: { 1: false } })
-      );
+        const user = userEvent.setup();
+        const toggleLike = vi.fn();
+        mockUseReadChapterData.mockReturnValue(
+          createMockHookReturn({ 
+            toggleLike, 
+            liked: { 1: false },
+            chapters: [
+              { id: 1, chapterNumber: 1, title: 'Cap 1', publicationStatus: 'PUBLISHED', likes: 10 }
+            ]
+          })
+        );
 
-      renderComponent('1');
+        renderComponent('1');
 
-      const allLikeButtons = screen.getAllByLabelText('Agregar like');
-      const likeButton = allLikeButtons[0];
+        const sidebar = screen.getByText('Capítulos').closest('aside');
+        const likeButtons = within(sidebar!).getAllByLabelText('Agregar like');
+        
+        await user.click(likeButtons[0]);
 
-      await user.click(likeButton);
-
-      expect(toggleLike).toHaveBeenCalledWith(1);
-    });
+        expect(toggleLike).toHaveBeenCalledTimes(1);
+        expect(toggleLike).toHaveBeenCalledWith(1);
+      });
 
     it('el like está deshabilitado para capítulos bloqueados', () => {
       const isChapterUnlocked = vi.fn((id: number) => id !== 3);
@@ -475,20 +489,21 @@ describe('ReadChapterNovel', () => {
   });
 
   describe('Suscripción a la Obra', () => {
-    it('el botón "Suscribir" llama a handleSubscribeWork', async () => {
-      const user = userEvent.setup();
-      const handleSubscribeWork = vi.fn();
-      mockUseReadChapterData.mockReturnValue(
-        createMockHookReturn({ handleSubscribeWork, isAuthor: false })
-      );
+    it('el botón "Suscribir" abre el modal de suscripción', async () => {
+  const user = userEvent.setup();
+  mockUseReadChapterData.mockReturnValue(
+    createMockHookReturn({ isAuthor: false })
+  );
 
-      renderComponent();
+  renderComponent();
 
-      const subscribeButton = screen.getByRole('button', { name: /suscribir/i });
-      await user.click(subscribeButton);
+  const subscribeButton = screen.getByRole('button', { name: /suscribir/i });
+  await user.click(subscribeButton);
 
-      expect(handleSubscribeWork).toHaveBeenCalledTimes(1);
-    });
+  // Verifica que el modal se abre
+  expect(screen.getByText('Suscribirse a la Obra')).toBeInTheDocument();
+  expect(screen.getByText('Selecciona un método de pago')).toBeInTheDocument();
+});
 
     it('el botón muestra "Suscrito" cuando isWorkSubscribed es true', () => {
       mockUseReadChapterData.mockReturnValue(

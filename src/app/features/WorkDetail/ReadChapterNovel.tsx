@@ -4,6 +4,8 @@ import { MilkdownProvider } from "@milkdown/react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useReadChapterData } from "./hooks/useReadChapterData";
 import { useState } from "react";
+import { useTheme } from "./hooks/useTheme";
+import ThemeSelector from "./components/ThemeSelector.tsx";
 import Button from "../../components/Button";
 
 const ReadChapter = () => {
@@ -12,6 +14,11 @@ const ReadChapter = () => {
     const [isWorkModalOpen, setIsWorkModalOpen] = useState(false);
     const [isChapterModalOpen, setIsChapterModalOpen] = useState(false);
     const [selectedChapterForPayment, setSelectedChapterForPayment] = useState<number | null>(null);
+    const { currentTheme, fontSize, changeTheme, changeFontSize, getTheme, getFontSize, themes } = useTheme();
+    const [isThemeSelectorOpen, setIsThemeSelectorOpen] = useState(false);
+    const theme = getTheme();
+    const currentFontSize = getFontSize(); 
+
 
     const {
         chapterData,
@@ -70,6 +77,35 @@ const ReadChapter = () => {
         }
     };
 
+    
+const handlePreviousChapter = () => {
+    const publishedChapters = chapters
+        .filter(ch => ch.publicationStatus === "PUBLISHED")
+        .sort((a, b) => a.id - b.id);
+    const currentIndex = publishedChapters.findIndex(ch => ch.id === Number(chapterId));
+
+    for (let i = currentIndex - 1; i >= 0; i--) {
+        if (isChapterUnlocked(publishedChapters[i].id)) {
+            navigate(`/work/chapter/${publishedChapters[i].id}/read`);
+            break;
+        }
+    }
+};
+
+const handleNextChapter = () => {
+    const publishedChapters = chapters
+        .filter(ch => ch.publicationStatus === "PUBLISHED")
+        .sort((a, b) => a.id - b.id);
+    const currentIndex = publishedChapters.findIndex(ch => ch.id === Number(chapterId));
+
+    for (let i = currentIndex + 1; i < publishedChapters.length; i++) {
+        if (isChapterUnlocked(publishedChapters[i].id)) {
+            navigate(`/work/chapter/${publishedChapters[i].id}/read`);
+            break;
+        }
+    }
+};
+   
     if (isLoading) {
         return <p className="text-center text-gray-500 mt-10">Cargando capítulo...</p>;
     }
@@ -80,11 +116,25 @@ const ReadChapter = () => {
 
     return (
         <div className="h-full flex bg-white relative">
-            <div className="flex-1 overflow-y-auto">
-                <div className={`px-6 pt-6 pb-28 flex flex-col ${!isFullScreen ? 'min-h-[calc(100vh-4rem)]' : 'min-h-screen'}`}>
+            <div 
+                className="flex-1 overflow-y-auto"
+                style={{ 
+                    backgroundColor: theme.bgColor,
+                    color: theme.textColor,
+                    fontSize: currentFontSize.size 
+                }}
+            >
+                <div 
+                className={`px-6 pt-6 pb-28 flex flex-col ${!isFullScreen ? 'min-h-[calc(100vh-4rem)]' : 'min-h-screen'}`}
+                style={{ 
+                    backgroundColor: theme.bgColor, 
+                    color: theme.textColor,
+                }}>
+
                     {!isFullScreen && (
                         <button
                             onClick={() => chapterData?.workId && navigate(`/work/${chapterData.workId}`)}
+                            style={{ color: theme.textColor }}
                             className="flex items-center gap-2 text-gray-600 hover:text-[#5C17A6] transition-colors duration-200 group mb-3 cursor-pointer"
                         >
                             <svg
@@ -103,15 +153,26 @@ const ReadChapter = () => {
                     <div className={`mx-auto w-full flex-1 flex flex-col ${isFullScreen ? 'max-w-4xl' : 'max-w-3xl'}`}>
                         <div className="mb-4">
                             <div className="text-center space-y-2">
-                                <p className="text-sm font-semibold tracking-wider uppercase" style={{ color: '#5C17A6' }}>
+                                <p className="text-sm font-semibold tracking-wider uppercase"            
+                                style={{ color: theme.textColor === '#f9fafb' ? '#a78bfa' : '#5C17A6' }}>
                                     Capítulo {chapterData.chapterNumber}
                                 </p>
-                                <h1 className="text-3xl md:text-4xl font-bold text-gray-900 leading-tight">
+                                <h1 className="text-3xl md:text-4xl font-bold text-gray-900 leading-tight"
+                                    style={{color: theme.textColor}}
+                                >
                                     {chapterData.title}
                                 </h1>
                             </div>
                             <div className="mt-3 flex items-center justify-center">
-                                <div className="h-0.5 w-200 bg-gray-200"></div>
+                                <div 
+                            className="h-0.5 w-200"
+                            style={{ 
+                                backgroundColor: currentTheme === 'dark' ? '#4b5563' : 
+                                                currentTheme === 'paper' ? '#d97706' :
+                                                currentTheme === 'sepia' ? '#78350f' :
+                                                '#e5e7eb' 
+                            }}
+                        ></div>
                             </div>
                         </div>
 
@@ -119,14 +180,35 @@ const ReadChapter = () => {
                             {isTranslating ? (
                                 <p className="text-center text-gray-500">Traduciendo contenido...</p>
                             ) : (
-                                <MilkdownProvider>
-                                    <TextViewer content={translatedContent} />
-                                </MilkdownProvider>
-                            )}
+                              <MilkdownProvider>
+                    <div 
+                        style={{
+                            color: theme.textColor,
+                            backgroundColor: 'transparent',
+                            fontSize: currentFontSize.size
+                        }}
+                    >
+                        <div style={{ 
+                            fontSize: currentFontSize.size,
+                            lineHeight: '1.8'
+                        }}>
+                            <TextViewer content={translatedContent} />
+                        </div>
+                    </div>
+                </MilkdownProvider>
+                        )}
                         </div>
 
-                        <div className="mt-auto">
-                            <div className="mt-12 flex items-center justify-between border-t border-gray-200 pt-6">
+                            <div className="mt-auto">
+                         <div 
+                        className="mt-12 flex items-center justify-between border-t pt-6"
+                        style={{ 
+                            borderColor: currentTheme === 'dark' ? '#4b5563' : 
+                                        currentTheme === 'paper' ? '#d97706' :
+                                        currentTheme === 'sepia' ? '#78350f' :
+                                        '#e5e7eb' 
+                        }}
+                    >
                                 <button
                                     onClick={() => {
                                         const publishedChapters = chapters
@@ -157,6 +239,7 @@ const ReadChapter = () => {
                                         })()
                                     }
                                     className="flex items-center gap-2 text-gray-600 hover:text-[#5C17A6] transition-colors duration-200 group disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:text-gray-600 cursor-pointer"
+                                    style={{ color: theme.textColor }} 
                                 >
                                     <svg
                                         xmlns="http://www.w3.org/2000/svg"
@@ -200,7 +283,7 @@ const ReadChapter = () => {
                                         })()
                                     }
                                     className="flex items-center gap-2 text-gray-600 hover:text-[#5C17A6] transition-colors duration-200 group disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:text-gray-600 cursor-pointer"
-                                >
+                                    style={{ color: theme.textColor }} >
                                     <span className="text-sm font-medium">Capítulo siguiente</span>
                                     <svg
                                         xmlns="http://www.w3.org/2000/svg"
@@ -218,43 +301,55 @@ const ReadChapter = () => {
                 </div>
             </div>
 
-            {!isFullScreen && (
-                <aside className="w-80 bg-gray-50 border-l border-gray-200 hidden lg:block">
-                    <div className="p-4 space-y-4 sticky top-4">
-                        <div className="relative">
-                            <div className="w-full h-32 bg-cover bg-center rounded-md" style={{ backgroundImage: `url(${work?.banner || '/img/portadas/banner1.jpg'})` }} />
-                            <div className="-mt-16 flex items-start gap-4">
-                                <img src={work?.cover || '/img/portadas/banner1.jpg'} alt={work?.title} className="w-32 h-44 object-cover rounded-md shadow-lg border-4 border-white ml-2" />
-                                <div className="flex-1 pt-4">
-                                    <h2 className="text-lg font-semibold text-gray-800">{work?.title || chapterData.workName}</h2>
-                                    {!isAuthor && (
-                                        <div className="mt-3 flex flex-col gap-2">
-                                            <button
-                                                onClick={openWorkModal}
-                                                disabled={isPaying || isWorkSubscribed || isAuthorSubscribed}
-                                                className={`px-3 py-1 rounded-md font-medium transition-colors ${
-                                                    isWorkSubscribed || isAuthorSubscribed
-                                                        ? 'text-[#5C17A6] cursor-default'
-                                                        : 'border border-[#5C17A6] text-[#5C17A6] cursor-pointer hover:bg-[#5C17A6] hover:text-white disabled:opacity-50 disabled:cursor-not-allowed'
-                                                }`}
-                                            >
-                                                {isWorkSubscribed || isAuthorSubscribed ? "Suscrito" : "Suscribir"}
-                                            </button>
-                                            <button
-                                                disabled={true}
-                                                className="px-3 py-1 rounded-md border border-gray-300 text-gray-700 font-medium cursor-not-allowed opacity-50"
-                                            >
-                                                Guardado
-                                            </button>
-                                        </div>
-                                    )}
-                                </div>
+           {!isFullScreen && (
+    <aside className="w-80 bg-gray-50 border-l border-gray-200 hidden lg:block">
+        <div className="p-4 space-y-4 sticky top-4">
+            <div className="relative">
+                <div 
+                    className="w-full h-32 bg-cover bg-center rounded-md" 
+                    style={{ backgroundImage: `url(${work?.banner || '/img/portadas/banner1.jpg'})` }} 
+                />
+                
+                <div className="-mt-12 flex items-start gap-4 px-2">
+                    <img 
+                        src={work?.cover || '/img/portadas/banner1.jpg'} 
+                        alt={work?.title} 
+                        className="w-28 h-40 object-cover rounded-md shadow-lg border-4 border-white flex-shrink-0" 
+                    />
+                    
+                    <div className="flex-1 mt-14"> 
+                        <h2 className="text-base font-semibold text-gray-800 line-clamp-2">
+                            {work?.title || chapterData.workName}
+                        </h2>
+                        
+                        {!isAuthor && (
+                            <div className="mt-2 flex flex-col gap-2"> 
+                                <button
+                                    onClick={openWorkModal}
+                                    disabled={isPaying || isWorkSubscribed || isAuthorSubscribed}
+                                    className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                                        isWorkSubscribed || isAuthorSubscribed
+                                            ? 'text-[#5C17A6] cursor-default'
+                                            : 'border border-[#5C17A6] text-[#5C17A6] cursor-pointer hover:bg-[#5C17A6] hover:text-white disabled:opacity-50 disabled:cursor-not-allowed'
+                                    }`}
+                                >
+                                    {isWorkSubscribed || isAuthorSubscribed ? "Suscrito" : "Suscribir"}
+                                </button>
+                                <button
+                                    disabled={true}
+                                    className="px-3 py-1.5 rounded-md text-sm border border-gray-300 text-gray-700 font-medium cursor-not-allowed opacity-50"
+                                >
+                                    Guardado
+                                </button>
                             </div>
-                        </div>
+                        )}
+                    </div>
+                </div>
+            </div>
 
-                        {chapters.length > 0 && (
-                            <div>
-                                <h3 className="text-sm font-semibold text-gray-600 mb-2">Capítulos</h3>
+            {chapters.length > 0 && (
+                <div className="mt-6">
+                    <h3 className="text-sm font-semibold text-gray-600 mb-2">Capítulos</h3>
                                 <div className="chapter-list-compact max-h-96 overflow-y-auto">
                                     <style>{`.chapter-list-compact .text-sm.text-gray-500{display:none !important;} .chapter-list-compact .flex.text-gray-500{display:none !important;}`}</style>
 
@@ -333,13 +428,18 @@ const ReadChapter = () => {
                 </aside>
             )}
 
-            {(!isFullScreen || showFooter) && (
-                <FooterLector
+  {((!isFullScreen || showFooter) || isThemeSelectorOpen) && (                
+    
+                    <FooterLector
                     selectedLanguages={sortedLanguages}
                     chapterTitle={`Capítulo ${chapterData.chapterNumber}`}
                     onLanguageChange={handleLanguageChange}
                     onToggleFullScreen={toggleFullScreen}
                     isFullScreen={isFullScreen}
+                    onThemeClick={() => setIsThemeSelectorOpen(true)}
+                    isThemeModalOpen={isThemeSelectorOpen}
+                    onPreviousChapter={handlePreviousChapter}
+                    onNextChapter={handleNextChapter}
                 />
             )}
 
@@ -398,6 +498,18 @@ const ReadChapter = () => {
                     </div>
                 </div>
             )}
+
+            {isThemeSelectorOpen && (
+                <ThemeSelector
+                    themes={themes}
+                    currentTheme={currentTheme}
+                    currentFontSize={fontSize} 
+                    onThemeChange={changeTheme}
+                    onFontSizeChange={changeFontSize} 
+                    onClose={() => setIsThemeSelectorOpen(false)}
+                />
+            )}
+
         </div>
     );
 };
