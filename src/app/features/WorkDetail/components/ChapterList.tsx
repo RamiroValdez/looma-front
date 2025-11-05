@@ -23,7 +23,10 @@ export const ChapterList: React.FC<ChapterListProps> = ({ chapters, originalLang
   const [isPaying, setIsPaying] = useState(false);
 
   const handleChapterClick = (chapter: ChapterDTO, isUnlocked: boolean) => {
-    if (!isUnlocked) return;
+     if (!isUnlocked) {
+      openAcquireModal(chapter);
+      return;
+    }
     const chapterData = {
       ...chapter,
       content: chapter.description || "Contenido no disponible",
@@ -87,7 +90,7 @@ export const ChapterList: React.FC<ChapterListProps> = ({ chapters, originalLang
         const isUnlocked = allUnlocked || unlockedSet.has(chapter.id);
         return (
           chapter.publicationStatus === "PUBLISHED" && (
-        <div key={chapter.id} className="py-0 px-2">
+        <div key={chapter.id} className="py-0">
           <ChapterListItem
             key={chapter.id}
             chapter={chapter}
@@ -101,33 +104,39 @@ export const ChapterList: React.FC<ChapterListProps> = ({ chapters, originalLang
           )
         );
       })}
-      {isModalOpen && (
-        <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/50">
-          <div className="bg-white rounded-xl p-6 w-full max-w-md relative">
-            <div className="absolute top-4 right-4">
-              <Button text="" onClick={closeModal} disabled={isPaying} colorClass="cursor-pointer">
-                <img src="/img/PopUpCierre.png" className="w-6 h-6 hover:opacity-60" alt="Cerrar" />
-              </Button>
-            </div>
-            <h3 className="text-2xl font-bold mb-4">Adquirir capítulo</h3>
-            <p className="mb-4">Selecciona un método de pago</p>
-            <div
-              className={`border rounded-lg p-4 flex items-center justify-between hover:bg-gray-50 cursor-pointer ${isPaying ? 'opacity-50 pointer-events-none' : ''}`}
-              onClick={handleMercadoPagoClick}
-            >
-              <div className="flex items-center gap-3">
-                <img src="/img/mercadopago.png" alt="MercadoPago" className="w-8 h-8" />
-                <div className="flex flex-col">
-                  <span className="font-semibold">Pagar con MercadoPago</span>
-                  <span className="text-sm text-gray-500">Tarjeta, débito, efectivo y más</span>
-                </div>
+        {isModalOpen && (
+          <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/50">
+            <div className="bg-white rounded-xl p-8 w-full max-w-md relative shadow-xl">
+              <div className="absolute top-4 right-4">
+                <Button text="" onClick={closeModal} disabled={isPaying} colorClass="cursor-pointer">
+                  <img src="/img/PopUpCierre.png" className="w-9 h-9 hover:opacity-60" alt="Cerrar" />
+                </Button>
               </div>
-              <span className="text-[#5c17a6] font-semibold">Continuar</span>
+
+              <h3 className="text-3xl font-bold mb-8 text-center text-[#5C17A6]">Comprar Capítulo</h3>
+
+              <div className="border-2 border-[#172FA6] rounded-xl p-6 text-center shadow-2xl bg-[#E8EDFC] min-h-[350px]">
+                <h3 className="font-bold text-3xl mb-15 text-[#172FA6]">Capítulo: {selectedChapter?.title}</h3>
+                <h2 className="font-semibold text-8xl text-[#172FA6] mb-15">${selectedChapter?.price}</h2>
+                <p className="text-gray-600 text-2xl mb-23 min-h-[60px]">
+                  Acceso permanente a este capítulo
+                </p>
+                <Button 
+                  text="Adquirir" 
+                  colorClass="bg-[#172FA6] w-full text-white rounded-lg cursor-pointer hover:scale-103 py-3 font-semibold" 
+                  onClick={handleMercadoPagoClick}
+                  disabled={isPaying} 
+                />
+              </div>
+
+              {isPaying && (
+                <div className="mt-6 text-center">
+                  <p className="text-sm text-gray-500">Redirigiendo a MercadoPago...</p>
+                </div>
+              )}
             </div>
-            {isPaying && <p className="mt-4 text-sm text-gray-500">Iniciando pago...</p>}
           </div>
-        </div>
-      )}
+        )}
     </div>
   );
-};
+}

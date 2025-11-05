@@ -62,22 +62,22 @@ const Home = () => {
       <BannerHome
   books={[
     {
-      title: "El Señor de los Anillos",
+      title: "El principito",
       cover: "/img/portadas/banner1.jpg",
-      categories: ["fantasía", "aventura"],
-      description: "Una épica aventura de fantasía."
+      categories: ["filosofía", "aventura"],
+      description: "Un cuento poético que explora la amistad, el amor y la esencia de la naturaleza humana a través de los ojos de un pequeño príncipe que viaja de planeta en planeta."
     },
     {
-      title: "Harry Potter",
+      title: "Fahrenheit 451",
       cover: "/img/portadas/banner2.jpg",
-      categories: ["fantasía", "juvenil"],
-      description: "La historia de un joven mago y sus amigos."
+      categories: ["ciencia ficción"],
+      description: "Un clásico distópico sobre la censura y el poder de la literatura en una sociedad que prohíbe los libros."
     },
     {
-      title: "Narnia",
+      title: "La odisea de Homero",
       cover: "/img/portadas/banner3.jpg",
-      categories: ["misterio"],
-      description: "Un mundo mágico lleno de criaturas fantásticas."
+      categories: ["aventura"],
+      description: "El épico viaje de Odiseo de regreso a Ítaca tras la guerra de Troya, repleto de dioses, monstruos y aventuras legendarias."
     },
   ]}
 />

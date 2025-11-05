@@ -259,13 +259,13 @@ export default function AddChapter() {
                 <div className="flex items-center gap-2">
                     <label className="text-black font-medium text-base">Precio:</label>
                     <div className="flex items-center border rounded">
-                        <span className="px-2 py-2 bg-gray-50 border-r text-base text-black">USD</span>
+                        <span className="px-2 py-2 bg-gray-50 border-r text-base text-black">$</span>
                         <input 
                             type="number" 
                             placeholder="0.00"
                             value={chapter.price || ''}
                             onChange={(e) => handleFieldChange("price", e.target.value)} 
-                            className="px-2 py-2 text-base text-black rounded-r focus:outline-none focus:ring-2 focus:ring-[#5C17A6] w-15"
+                            className="px-2 py-2 text-base text-black rounded-r focus:outline-none focus:ring-2 focus:ring-[#5C17A6] w-25"
                             min="0"
                             step="0.01"
                         />

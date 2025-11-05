@@ -591,7 +591,7 @@ export default function Create() {
                 {isPaid && (
                     <div className="space-y-2 pt-4 text-left mt-2 flex gap-14">
                         <label htmlFor="precio" className="block text-lg font-medium text-gray-700 mt-2">
-                            Precio de la obra (USD)
+                            Precio de la obra (ARS)
                         </label>
                         <input
                             type="number"
@@ -599,7 +599,7 @@ export default function Create() {
                             name="precio"
                             value={price === 0 ? '' : price}
                             onChange={(e) => setPrice(e.target.value === '' ? 0 : Number(e.target.value))}
-                            placeholder="Ej: 19,99"
+                            placeholder="Ej: 1000,00"
                             min="0"
                             step="0.01"
                             className="block w-30 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
