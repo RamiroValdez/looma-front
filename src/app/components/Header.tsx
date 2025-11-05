@@ -1,11 +1,9 @@
-import { useState, useEffect, useRef } from 'react';
-import { useCategories } from '../../infrastructure/services/CategoryService';
+import { useState, useEffect} from 'react';
 import { getCurrentUser } from '../../infrastructure/services/DataUserService';
 import { Link } from "react-router-dom";
 import { type UserDTO } from "../../domain/dto/UserDTO";
 import { useAuthStore } from '../../domain/store/AuthStore';
 import { useNavigate } from 'react-router-dom';
-import Button from './Button';
 import { type KeyboardEvent } from 'react';
 
 function Header() {
@@ -13,12 +11,7 @@ function Header() {
   const [openMenu, setOpenMenu] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [user, setUser] = useState<UserDTO | null>(null);
-  const [activeSection, setActiveSection] = useState<string | null>(null);
-  const secciones = ["Libros"];
-  const formatos = ["Novela", "Cuento", "Poesía", "Ensayo"];
-  const dropdownRefs = useRef<(HTMLDivElement | null)[]>([]);
 
-  const { categories, isLoading, error } = useCategories();
   const { token, logout } = useAuthStore();
 
   const [searchText, setSearchText] = useState('');
@@ -57,83 +50,15 @@ function Header() {
     };
   }, [token, logout]);
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        dropdownRefs.current.every(
-          (ref) => ref && !ref.contains(event.target as Node)
-        )
-      ) {
-        setActiveSection(null);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
-
-  const handleSectionClick = (section: string) => {
-    setActiveSection((prev) => (prev === section ? null : section));
-  };
 
   return (
     <header className="bg-[linear-gradient(to_right,#EBE4EC,#B597D2,#EDE4F9)] shadow relative z-[9999]">
-      <div className="hidden md:flex items-end justify-between px-4 py-3">
-        <div className="flex items-end gap-2">
+      <div className="hidden md:flex items-center justify-between px-4 py-3">
+        <div className="flex items-center gap-2">
           <img onClick={() => navigate("/home")} src="/img/loomaLogo.png" alt="LOOMA logo" className="h-8 w-auto object-contain cursor-pointer" />
-          <nav className="flex items-end gap-4 ml-4">
+          <nav className="flex items-center gap-4 ml-4">
             <a onClick={() => navigate("/home")} className="text-[#686868] hover:text-[#5c17a6] transition cursor-pointer">Inicio</a>
-            {secciones.map((sec, i) => (
-              <div
-                key={i}
-                className="relative"
-                ref={(el) => {
-                  dropdownRefs.current[i] = el;
-                }}
-              >
-                <button
-                  onClick={() => handleSectionClick(sec)}
-                  className="flex items-center gap-1 hover:text-[#5c17a6] transition text-[#686868] cursor-pointer"
-                >
-                  {sec}
-                </button>
-                {activeSection === sec && (
-                  <div className="absolute left-0 mt-2 w-80 bg-white border shadow-lg rounded-md p-4 grid grid-cols-2 gap-4">
-                    <div className="col-span-1">
-                      <h4 className="font-semibold text-gray-600 mb-2">FORMATOS</h4>
-                      {formatos.map((formato, index) => (
-                        <a
-                          key={index}
-                          href="#"
-                          className="text-sm text-gray-700 hover:text-purple-600 block"
-                        >
-                          {formato}
-                        </a>
-                      ))}
-                    </div>
-                    <div className="col-span-1">
-                      <h4 className="font-semibold text-gray-600 mb-2">CATEGORÍAS</h4>
-                      {isLoading ? (
-                        <p className="text-sm text-gray-500">Cargando...</p>
-                      ) : error ? (
-                        <p className="text-sm text-red-500">Error al cargar</p>
-                      ) : (
-                        categories.map((cat) => (
-                          <a
-                            key={cat.id}
-                            href="#"
-                            className="text-sm text-gray-700 hover:text-purple-600 block"
-                          >
-                            {cat.name}
-                          </a>
-                        ))
-                      )}
-                    </div>
-                  </div>
-                )}
-              </div>
-            ))}
+            <a onClick={() => navigate("/explore")} className="text-[#686868] hover:text-[#5c17a6] transition cursor-pointer">Explorar</a>
           </nav>
         </div>
         <div className="flex-1 mx-8 max-w-lg relative">
@@ -162,11 +87,7 @@ function Header() {
         <div className="flex items-center gap-6 relative">
           {user ? (
             <>
-              <Button
-                text="JUGAR!"
-                onClick={() => navigate('/quiz')}
-                colorClass="bg-[#172FA6] text-white w-30 px-4 !py-1 rounded-xl hover:bg-[#0F1E66] transition flex items-center justify-center cursor-pointer"
-              />
+          
               <Link to="/my-works" className="bg-[#5c17a6] text-white w-30 px-4 py-1 rounded-xl hover:bg-[#4b1387] transition flex items-center justify-center">
                 Publicar
               </Link>
@@ -260,43 +181,12 @@ function Header() {
         <div className="md:hidden bg-white border-t shadow-lg px-4 py-3">
           <nav className="flex flex-col gap-2">
             <a onClick={() => { navigate("/home"); setMobileNavOpen(false); }} className="text-[#686868] hover:text-[#5c17a6] transition cursor-pointer">Inicio</a>
-            {secciones.map((sec, i) => (
-              <div key={i} className="relative">
-                <button
-                  onClick={() => setActiveSection(activeSection === sec ? null : sec)}
-                  className="flex items-center gap-1 hover:text-[#5c17a6] transition text-[#686868] cursor-pointer"
-                >
-                  {sec}
-                </button>
-                {activeSection === sec && (
-                  <div className="mt-2 bg-white border shadow-lg rounded-md p-4 grid grid-cols-1 gap-4">
-                    <div>
-                      <h4 className="font-semibold text-gray-600 mb-2">FORMATOS</h4>
-                      {formatos.map((formato, index) => (
-                        <a key={index} href="#" className="text-sm text-gray-700 hover:text-purple-600 block">{formato}</a>
-                      ))}
-                    </div>
-                    <div>
-                      <h4 className="font-semibold text-gray-600 mb-2">CATEGORÍAS</h4>
-                      {isLoading ? (
-                        <p className="text-sm text-gray-500">Cargando...</p>
-                      ) : error ? (
-                        <p className="text-sm text-red-500">Error al cargar</p>
-                      ) : (
-                        categories.map((cat) => (
-                          <a key={cat.id} href="#" className="text-sm text-gray-700 hover:text-purple-600 block">{cat.name}</a>
-                        ))
-                      )}
-                    </div>
-                  </div>
-                )}
-              </div>
-            ))}
+            <a onClick={() => { navigate("/explore"); setMobileNavOpen(false); }} className="text-[#686868] hover:text-[#5c17a6] transition cursor-pointer">Explorar</a>
+
           </nav>
           <div className="mt-4 flex flex-col gap-2">
             {user ? (
               <>
-                <Button text="JUGAR!" onClick={() => { navigate('/quiz'); setMobileNavOpen(false); }} colorClass="bg-[#172FA6] text-white w-full px-4 !py-1 rounded-xl hover:bg-[#0F1E66] transition flex items-center justify-center cursor-pointer" />
                 <Link to="/my-works" className="bg-[#5c17a6] text-white w-full px-4 py-1 rounded-xl hover:bg-[#4b1387] transition flex items-center justify-center" onClick={() => setMobileNavOpen(false)}>
                   Publicar
                 </Link>

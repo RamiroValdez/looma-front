@@ -218,25 +218,27 @@ const handleFinishedChange = (isChecked: boolean) => {
                 ))}
               </div>
 
-              <div className="flex justify-center gap-2 mt-6">
-                <button
-                  disabled={page === 0}
-                  onClick={() => setPage((p) => p - 1)}
-                  className="px-4 py-2 border rounded disabled:opacity-50"
-                >
-                  Anterior
-                </button>
-                <span className="px-4 py-2">
-                  Página {page + 1} de {data?.totalPages ?? 1}
-                </span>
-                <button
-                  disabled={page + 1 >= (data?.totalPages ?? 1)}
-                  onClick={() => setPage((p) => p + 1)}
-                  className="px-4 py-2 border rounded disabled:opacity-50"
-                >
-                  Siguiente
-                </button>
-              </div>
+              {(data?.totalPages ?? 0) > 1 && (
+                <div className="flex justify-center gap-2 mt-6">
+                  <button
+                    disabled={page === 0}
+                    onClick={() => setPage((p) => p - 1)}
+                    className="px-4 py-2 border rounded disabled:opacity-50"
+                  >
+                    Anterior
+                  </button>
+                  <span className="px-4 py-2">
+                    Página {page + 1} de {data?.totalPages ?? 1}
+                  </span>
+                  <button
+                    disabled={page + 1 >= (data?.totalPages ?? 1)}
+                    onClick={() => setPage((p) => p + 1)}
+                    className="px-4 py-2 border rounded disabled:opacity-50"
+                  >
+                    Siguiente
+                  </button>
+                </div>
+              )}
             </>
           )}
         </div>
