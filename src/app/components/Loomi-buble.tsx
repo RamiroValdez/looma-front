@@ -78,8 +78,8 @@ export default function LoomiBubble({ chapterId, chapterContent, publicationStat
       {isNotPublished && (
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-1 right-6 z-50 w-30 h-30 rounded-full hover:transition-all flex items-center
-        justify-center group hover:cursor-pointer bg-[#4C3B63] hover:bg-[#3B2E4D] shadow-lg hover:shadow-2xl"
+        className="fixed bottom-1 right-6 z-50 w-28 h-28 rounded-full hover:transition-all flex items-center
+        justify-center group hover:cursor-pointer bg-[#ffffff] hover:bg-[#F3F4F6] shadow-lg hover:shadow-5xl"
         aria-label="Abrir chat con Loomi"
       >
         {isOpen ? (
