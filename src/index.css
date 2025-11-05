@@ -1,1 +1,13 @@
 @import "tailwindcss";
+
+.prose p,
+.prose div,
+.prose span,
+[data-milkdown-root] p,
+[data-milkdown-root] div,
+[data-milkdown-root] span,
+.ProseMirror p,
+.ProseMirror div,
+.ProseMirror span {
+  font-size: inherit !important;
+}
