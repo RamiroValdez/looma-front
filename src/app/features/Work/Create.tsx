@@ -345,14 +345,19 @@ export default function Create() {
                                             onRemove={() => unselectCategory(category.id)}
                                         />
                                     ))}
+                                    <div className="flex flex-col">
+                                        {selectedCategories.length < 2 && ( 
+                                            <Button
+                                                type="button"
+                                                data-testid="open-category-menu"
+                                                onClick={() => setIsCategoryMenuOpen(!isCategoryMenuOpen)}
+                                                colorClass="w-8 h-8 pt-0 flex justify-center rounded-full border-2 border-[#172FA6] text-[#172FA6] text-2xl font-medium leading-none hover:bg-[#172FA6] hover:text-white z-10 cursor-pointer"
+                                                text="+"
+                                            />
+                                        )}
+                                    </div>
 
-                                    <Button
-                                        type="button"
-                                        data-testid="open-category-menu"
-                                        onClick={() => setIsCategoryMenuOpen(!isCategoryMenuOpen)}
-                                        colorClass="w-8 h-8 pt-0 flex justify-center rounded-full border-2 border-[#172FA6] text-[#172FA6] text-2xl font-medium leading-none hover:bg-[#172FA6] hover:text-white z-10 cursor-pointer"
-                                        text="+"
-                                    />
+                                    <p className="text-sm text-gray-500 w-full">*Puedes agregar hasta 2 categorías</p>
 
                                     {isCategoryMenuOpen && (
                                         <div ref={suggestionCategoryMenuRef} className="absolute z-20 top-10 mt-1 mr-[-10%] w-max max-w-sm lg:max-w-md">
