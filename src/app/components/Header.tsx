@@ -87,9 +87,9 @@ function Header() {
         <div className="flex items-center gap-6 relative">
           {user ? (
             <>
-          
-              <Link to="/my-works" className="bg-[#5c17a6] text-white w-30 px-4 py-1 rounded-xl hover:bg-[#4b1387] transition flex items-center justify-center">
-                Publicar
+
+              <Link to="/my-works" className="bg-[#5c17a6] text-white font-semibold w-30 px-4 py-1 rounded-xl hover:bg-[#4b1387] transition flex items-center justify-center">
+                Escribir
               </Link>
               <div className="flex items-center gap-2">
                 <button
