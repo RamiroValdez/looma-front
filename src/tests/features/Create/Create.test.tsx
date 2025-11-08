@@ -47,7 +47,7 @@ vi.mock('../../../infrastructure/services/CreateWorkService.ts', () => ({
 
   createFormDataForWork: (dto: any, banner?: File | null, cover?: File | null) => {
     const fd = new FormData();
-    fd.append('work', JSON.stringify(dto)); // <-- string en vez de Blob
+    fd.append('work', JSON.stringify(dto)); 
     if (banner) fd.append('banner', banner);
     if (cover) fd.append('cover', cover);
     return fd;
@@ -81,9 +81,9 @@ describe('Create - envía correctamente los datos del formulario', () => {
   beforeEach(() => {
     mutateAsyncMock.mockClear();
     mockNavigate.mockClear();
-    // @ts-ignore
+    // @ts-expect-error
     if (!global.URL.createObjectURL) global.URL.createObjectURL = vi.fn(() => 'blob://test');
-    // @ts-ignore
+    // @ts-expect-error
     if (!global.URL.revokeObjectURL) global.URL.revokeObjectURL = vi.fn();
   });
 
