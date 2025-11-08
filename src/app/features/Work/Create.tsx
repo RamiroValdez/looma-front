@@ -353,6 +353,7 @@ export default function Create() {
                                                 onClick={() => setIsCategoryMenuOpen(!isCategoryMenuOpen)}
                                                 colorClass="w-8 h-8 pt-0 flex justify-center rounded-full border-2 border-[#172FA6] text-[#172FA6] text-2xl font-medium leading-none hover:bg-[#172FA6] hover:text-white z-10 cursor-pointer"
                                                 text="+"
+                                                name="+"
                                             />
                                         )}
                                     </div>
