@@ -81,9 +81,9 @@ describe('Create - envía correctamente los datos del formulario', () => {
   beforeEach(() => {
     mutateAsyncMock.mockClear();
     mockNavigate.mockClear();
-    // @ts-expect-error
+    // @ts-expect-error - Mock de URL.createObjectURL para entorno de testing Node.js
     if (!global.URL.createObjectURL) global.URL.createObjectURL = vi.fn(() => 'blob://test');
-    // @ts-expect-error
+    // @ts-expect-error - Mock de URL.revokeObjectURL para entorno de testing Node.js
     if (!global.URL.revokeObjectURL) global.URL.revokeObjectURL = vi.fn();
   });
 
