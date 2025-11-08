@@ -17,6 +17,7 @@ import PreviewChapter from "./app/features/Chapter/PreviewChapter.tsx";
 import { ToastProvider } from "./app/components/ToastProvider.tsx";
 import {MilkdownProvider} from "@milkdown/react";
 import Footer from "./app/components/Footer.tsx";
+import {RegisterPage} from "./app/features/Register/RegisterPage.tsx";
 
 import { WorkDetail } from './app/features/WorkDetail/WorkDetail.tsx';
 import ReadChapterNovel from "./app/features/WorkDetail/ReadChapterNovel.tsx";
@@ -47,6 +48,11 @@ function App() {
                 <Route path="/login" element={
                   <Shell>
                     <LoginPage />
+                  </Shell>
+                } />
+                <Route path="/register" element={
+                  <Shell>
+                    <RegisterPage />
                   </Shell>
                 } />
 
