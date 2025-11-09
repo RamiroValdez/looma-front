@@ -78,7 +78,7 @@ export const useRegister = () => {
       });
 
       notifySuccess("Cuenta creada con éxito 🎉");
-      navigate("/login");
+      navigate("/preferences");
     } catch (error: any) {
       notifyError(error.message || "Error al registrarse");
     } finally {
