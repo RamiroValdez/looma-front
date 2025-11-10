@@ -1,10 +1,12 @@
-import { useState, useEffect} from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { getCurrentUser } from '../../infrastructure/services/DataUserService';
 import { Link } from "react-router-dom";
 import { type UserDTO } from "../../domain/dto/UserDTO";
 import { useAuthStore } from '../../domain/store/AuthStore';
 import { useNavigate } from 'react-router-dom';
 import { type KeyboardEvent } from 'react';
+import NotificationPopup from "../components/NotificationPopup";
+import { useClickOutside } from '../hooks/useClickOutside';
 
 function Header() {
   const navigate = useNavigate();
@@ -15,6 +17,16 @@ function Header() {
   const { token, logout } = useAuthStore();
 
   const [searchText, setSearchText] = useState('');
+
+  const [showNotifications, setShowNotifications] = useState(false);
+  const notificationRefDesktop = useRef<HTMLDivElement>(null!);
+  const notificationRefMobile = useRef<HTMLDivElement>(null!);
+
+  useClickOutside(
+    [notificationRefDesktop, notificationRefMobile],
+    () => setShowNotifications(false),
+    showNotifications
+  );
 
   const handleSearchKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && searchText.trim()) {
@@ -92,14 +104,18 @@ function Header() {
                 Escribir
               </Link>
               <div className="flex items-center gap-2">
-                <button
-                  className="text-2xl text-[#5C14A6] hover:text-[#172fa6] transition mr-2 p-1"
-                  aria-label="Notificaciones"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.6" stroke="currentColor" className="w-7 h-7 text-[#5C14A6]">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0M3.124 7.5A8.969 8.969 0 0 1 5.292 3m13.416 0a8.969 8.969 0 0 1 2.168 4.5" />
-                  </svg>
-                </button>
+                <div className="relative" ref={notificationRefDesktop}>
+                  <button
+                    className="text-2xl text-[#5C14A6] hover:text-[#172fa6] transition mr-2 p-1"
+                    aria-label="Notificaciones"
+                    onMouseDown={e => { e.stopPropagation(); setShowNotifications((prev) => !prev); }}
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.6" stroke="currentColor" className="w-7 h-7 text-[#5C14A6]">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0M3.124 7.5A8.969 8.969 0 0 1 5.292 3m13.416 0a8.969 8.969 0 0 1 2.168 4.5" />
+                    </svg>
+                  </button>
+                  <NotificationPopup show={showNotifications} onClose={() => setShowNotifications(false)} />
+                </div>
                 <div className="relative">
                   <img
                     src={"/img/fotoPerfil.jpg"}
@@ -162,20 +178,24 @@ function Header() {
             />
           </svg>
         </div>
-        <button
-          className="text-2xl text-[#5C14A6] hover:text-[#172fa6] transition mr-2 p-1"
-          aria-label="Notificaciones"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.6" stroke="currentColor" className="w-7 h-7 text-[#5C14A6]">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0M3.124 7.5A8.969 8.969 0 0 1 5.292 3m13.416 0a8.969 8.969 0 0 1 2.168 4.5" />
-          </svg>
-        </button>
-        <button
-          className="text-3xl text-[#5c17a6] focus:outline-none ml-2"
-          onClick={() => setMobileNavOpen(!mobileNavOpen)}
-        >
-          ☰
-        </button>
+        <div className="relative" ref={notificationRefMobile}>
+          <button
+            className="text-2xl text-[#5C14A6] hover:text-[#172fa6] transition mr-2 p-1"
+            aria-label="Notificaciones"
+            onMouseDown={e => { e.stopPropagation(); setShowNotifications((prev) => !prev); }}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.6" stroke="currentColor" className="w-7 h-7 text-[#5C14A6]">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0M3.124 7.5A8.969 8.969 0 0 1 5.292 3m13.416 0a8.969 8.969 0 0 1 2.168 4.5" />
+            </svg>
+          </button>
+          <button
+            className="text-3xl text-[#5c17a6] focus:outline-none ml-2"
+            onClick={() => setMobileNavOpen(!mobileNavOpen)}
+          >
+            ☰
+          </button>
+          <NotificationPopup show={showNotifications} onClose={() => setShowNotifications(false)} />
+        </div>
       </div>
       {mobileNavOpen && (
         <div className="md:hidden bg-white border-t shadow-lg px-4 py-3">
