@@ -87,7 +87,6 @@ function Header() {
         <div className="flex items-center gap-6 relative">
           {user ? (
             <>
-
               <Link to="/my-works" className="bg-[#5c17a6] text-white font-semibold w-30 px-4 py-1 rounded-xl hover:bg-[#4b1387] transition flex items-center justify-center">
                 Escribir
               </Link>
@@ -109,7 +108,12 @@ function Header() {
                   />
                   {openMenu && (
                     <div className="absolute right-0 mt-2 w-40 bg-[#F0EEF6] border border-gray-200 rounded-lg shadow-lg text-sm z-10">
-                      <Link to="/" className="block px-4 py-2 hover:bg-[#D3CCDA] hover:text-[#5c17a6]">Mi Perfil</Link>
+                      <Link
+                        to={`/profile/${user.id}`}
+                        className="block px-4 py-2 hover:bg-[#D3CCDA] hover:text-[#5c17a6]"
+                      >
+                        Mi Perfil
+                      </Link>
                       <Link to="/" className="block px-4 py-2 hover:bg-[#D3CCDA] hover:text-[#5c17a6]">Suscripciones</Link>
                       <Link to="/" className="block px-4 py-2 hover:bg-[#D3CCDA] hover:text-[#5c17a6]">Guardados</Link>
                       <hr />

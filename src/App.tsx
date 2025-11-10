@@ -5,15 +5,12 @@ import ManageWorkPage from "./app/features/ManageWork/ManageWorkPage.tsx";
 import CreatePiece from "./app/features/Work/MyWorks.tsx";
 import Create from "./app/features/Work/Create.tsx";
 import Home from "./app/features/Home/Home.tsx";
-import StartPage from "./quiz/pages/StartPage";
-import QuestionsPage from "./quiz/pages/QuestionsPage";
-import CorrectPage from "./quiz/pages/CorrectPage";
-import IncorrectPage from "./quiz/pages/IncorrectPage";
 import { LoginPage } from "./app/features/Login/LoginPage.tsx";
 import { ProtectedRoute } from "./app/components/ProtectedRoute.tsx";
 import Header from "./app/components/Header.tsx";
 import AddChapter from "./app/features/Chapter/AddChapter.tsx";
 import PreviewChapter from "./app/features/Chapter/PreviewChapter.tsx";
+import ProfilePage from "./app/features/Profile/ProfilePage.tsx";
 import { ToastProvider } from "./app/components/ToastProvider.tsx";
 import {MilkdownProvider} from "@milkdown/react";
 import Footer from "./app/components/Footer.tsx";
@@ -109,31 +106,6 @@ function App() {
                     <PreviewChapter />
                   </ProtectedRoute>
                 } />
-                
-                {/* Rutas del quiz (inicio, preguntas, correct/incorrect) */}
-                <Route path="/quiz" element={ <>
-                    <Header />
-                    <StartPage />
-                    <Footer />
-                </> } />
-
-                <Route path="/quiz/questions" element={ <>
-                    <Header />
-                    <QuestionsPage />
-                    <Footer />
-                </> } />
-
-                <Route path="/quiz/correct" element={ <>
-                    <Header />
-                    <CorrectPage />
-                    <Footer />
-                </> } />
-
-                <Route path="/quiz/incorrect" element={ <>
-                    <Header />
-                    <IncorrectPage />
-                    <Footer />
-                </> } />
 
                 <Route path="/work/chapter/:chapterId/read" element={
                     <ProtectedRoute>
@@ -147,6 +119,14 @@ function App() {
                   <ProtectedRoute>
                     <Shell>
                       <WorkDetail />
+                    </Shell>
+                  </ProtectedRoute>
+                } />
+
+                <Route path="/profile/:id" element={
+                  <ProtectedRoute>
+                    <Shell>
+                      <ProfilePage />
                     </Shell>
                   </ProtectedRoute>
                 } />
