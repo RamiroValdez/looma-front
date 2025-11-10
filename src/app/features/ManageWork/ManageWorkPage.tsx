@@ -67,9 +67,8 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
   const [pendingCoverFile, setPendingCoverFile] = useState<File | null>(null);
   const [savingCover, setSavingCover] = useState(false);
   const navigate = useNavigate();
-  const isDescriptionValid = descriptionF.trim().length > 20;const [allowSubscription, setAllowSubscription] = useState(false);
+  const isDescriptionValid = descriptionF.trim().length > 20;
   const [price, setPrice] = useState('');
-  const [workStatus, setWorkStatus] = useState<'paused' | 'InProgress' | 'finished' | ''>('');
 
   const handleAddCategory = (category: CategoryDTO) => {
     if (!selectedCategories.some(c => c.id === category.id)) {
@@ -141,12 +140,6 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
     } finally {
       setIsSaving(false);
     }
-  };
-
-  const handleClearAdminPanel = () => {
-    setAllowSubscription(false);
-    setPrice('');
-    setWorkStatus('');
   };
 
   const handleCreateChapter = async (workId: number, languageId: number) => {
@@ -228,11 +221,10 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
       onSuccess: (data) => {
         setSuggestedTags(data.suggestions);
         setIsSuggestionMenuOpen(true);
+        setIsAILoading(false);
       },
       onError: (error) => {
         console.error("Error de IA:", error);
-      },
-      onSettled: () => {
         setIsAILoading(false);
       },
     });
@@ -251,7 +243,6 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
         setDescriptionF(workData.description || '');
 
         setPrice(workData.price?.toString() || '');
-        setWorkStatus(workData.state || '');
       } catch (err) {
         setError('Error loading work');
         console.error('Error:', err);
@@ -476,8 +467,6 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
               </div>
             </div>
 
-           
-
             <div className="mb-6">
               <div className="space-y-6 text-lg text-black">
                 <div><span className="font-semibold">Formato:</span> <span className="font-normal">{work.format.name}</span></div>
@@ -535,7 +524,7 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
                       {isAILoading ?
                         <svg className="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">...</svg>
                         :
-                        <img src="/img/magic.png" className={`w-8 h-6 ${isDescriptionValid ? 'hover:cursor-pointer' : 'cursor-not-allowed'}`}
+                        <img src="/img/magic.png" alt="Icono IA" className={`w-8 h-6 ${isDescriptionValid ? 'hover:cursor-pointer' : 'cursor-not-allowed'}`}
                         />
                       }
                     </Button>
