@@ -15,6 +15,14 @@ export interface LoginResponse {
     username: string;
 }
 
+export interface RegisterRequest {
+    name: string;
+    surname: string;
+    username: string;
+    email: string;
+    password: string;
+}
+
 export const useLogin = async (email: string, password: string): Promise<LoginResponse> => {
 
     const loginData: LoginRequest = {
@@ -26,6 +34,16 @@ export const useLogin = async (email: string, password: string): Promise<LoginRe
         url: import.meta.env.VITE_API_AUTH_URL + '/login',
         method: 'POST',
         data: loginData
+    });
+
+    return response;
+};
+
+export const useRegister = async (data: RegisterRequest): Promise<LoginResponse> => {
+    const response = await apiRequest<LoginResponse>({
+        url: import.meta.env.VITE_API_AUTH_URL + '/register',
+        method: 'POST',
+        data
     });
 
     return response;
