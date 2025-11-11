@@ -4,9 +4,9 @@ import { notifyError, notifySuccess } from "../../../../infrastructure/services/
 import { subscribeToAuthor, subscribeToWork } from "../../../../infrastructure/services/paymentService.ts";
 import Button from "../../../components/Button";
 import LikeButton from "../../../components/LikeButton";
-import { useNavigate } from "react-router-dom";
 import StarRating from "../../../components/StarRating.tsx";
 import Tag from "../../../components/Tag.tsx";
+import { useWorkData } from "../hooks/userWorkData.ts";
 
 interface WorkInfoProps {
   work: WorkDTO;
@@ -15,11 +15,12 @@ interface WorkInfoProps {
 }
 
 export const WorkInfo: React.FC<WorkInfoProps> = ({ work, manageFirstChapter, disableFirstChapter = false }) => {
+
   const [isPaying, setIsPaying] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const isAuthorSubscribed = Boolean(work.subscribedToAuthor);
   const isWorkSubscribed = Boolean(work.subscribedToWork);
-  const navigate = useNavigate();
+  const { isWorkSaved, handdleToggleSaveWork } = useWorkData(work.id);
 
   const closeModal = () => {
     if (isPaying) return;
@@ -63,27 +64,34 @@ export const WorkInfo: React.FC<WorkInfoProps> = ({ work, manageFirstChapter, di
 
   return (
     <div className="bg-white space-y-6 ">
-         <div className="flex flex-wrap gap-2">
-          <div className="w-full">
-            <StarRating workId={work.id} initialValue={work.averageRating} />
-        </div>
-        <button 
-            onClick={() => {
-              setIsModalOpen(true);
-            }}
-            disabled={isPaying || isAuthorSubscribed} 
-            className="font-semibold w-1/2 flex-1 bg-[#5c17a6] text-white py-2 rounded-lg text-base hover:bg-[#5c17a6]/85 disabled:opacity-50 h-10 cursor-pointer"
-          >
-            {isAuthorSubscribed ? "Ya suscripto" : "Suscribirse"}
-          </button>
-          <button 
-          disabled={isAuthorSubscribed}
-          className="font-semibold cursor-pointer flex-1 bg-[#3c2a50] hover:bg-[#3c2a50]/85 text-white py-2 rounded-lg text-base h-10 items-center justify-center flex w-1/2 disabled:opacity-50 disabled:cursor-not-allowed"
-          onClick={() => navigate('/saved')}        
-        >
-          {isAuthorSubscribed ? "Guardado" : "Guardar"}
-        </button>
-      </div>
+        <div className="flex flex-wrap gap-2">
+  <div className="w-full">
+    <StarRating workId={work.id} initialValue={work.averageRating} />
+  </div>
+  
+  <div className="flex gap-2 w-full">
+    <button 
+      onClick={() => {
+        setIsModalOpen(true);
+      }}
+      disabled={isPaying || isAuthorSubscribed} 
+      className="flex-1 bg-[#5c17a6] text-white py-2 rounded-lg text-base font-semibold hover:bg-[#5c17a6]/85 disabled:opacity-50 h-10 cursor-pointer"
+    >
+      {isAuthorSubscribed ? "Ya suscripto" : "Suscribirse"}
+    </button>
+
+    <button
+      onClick={handdleToggleSaveWork}
+      className={`flex-1 py-2 rounded-lg text-base font-semibold transition-colors h-10 ${
+        isWorkSaved
+          ? 'text-[#5C17A6] cursor-pointer border border-[#5C17A6]'
+          : 'text-white cursor-pointer bg-[#3b245a]/90 disabled:opacity-50 disabled:cursor-not-allowed'
+      }`}
+    >
+      {isWorkSaved ? "Guardado" : "Guardar"}
+    </button>
+  </div>
+</div>
 
       <div className="flex items-center mb-0 gap-6 ">
         <div className="flex items-center gap-2 text-gray-700">
@@ -166,7 +174,6 @@ export const WorkInfo: React.FC<WorkInfoProps> = ({ work, manageFirstChapter, di
               <h3 className="text-3xl font-bold mb-8 text-center text-[#5C17A6]">Selecciona tu suscripción</h3>
 
               <div className="grid grid-cols-1 md:grid-cols-2 justify-items-center">
-                {/* Opción Autor */}
                 <div className="border-1 border-[#6a5a8c] rounded-xl p-6 text-center shadow-2xl bg-[#e0d9f0] w-[350px] min-h-[350px]">
                   <h3 className="font-bold text-3xl mb-15 text-[#3c2a50]">Suscribirse al Autor</h3>
                   <h2 className="font-semibold text-8xl text-[#3c2a50] mb-15">$20</h2>
@@ -183,7 +190,6 @@ export const WorkInfo: React.FC<WorkInfoProps> = ({ work, manageFirstChapter, di
                   />
                 </div>
 
-                {/* Opción Obra */}
                 <div className="border-2 border-[#172FA6] rounded-xl p-6 text-center bg-[#E8EDFC] w-[350px] min-h-[350px] shadow-2xl">
                   <h3 className="font-bold text-3xl mb-15 text-[#172FA6]">Suscribirse a la obra</h3>
                   <h2 className="font-semibold text-8xl text-[#172FA6] mb-15">${work.price}</h2>

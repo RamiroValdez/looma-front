@@ -36,6 +36,7 @@ const ReadChapter = () => {
         isAuthor,
         isWorkSubscribed,
         isAuthorSubscribed,
+        isWorkSaved,
         toggleFullScreen,
         toggleLike,
         handleChapterClick,
@@ -43,6 +44,7 @@ const ReadChapter = () => {
         handleSubscribeWork,
         handleChapterPayment,
         isChapterUnlocked,
+        handdleToggleSaveWork,
     } = useReadChapterData(chapterId || "");
 
     const openWorkModal = () => {
@@ -330,17 +332,21 @@ const handleNextChapter = () => {
                                     className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
                                         isWorkSubscribed || isAuthorSubscribed
                                             ? 'text-[#5C17A6] cursor-default'
-                                            : 'border border-[#5C17A6] text-[#5C17A6] cursor-pointer hover:bg-[#5C17A6] hover:text-white disabled:opacity-50 disabled:cursor-not-allowed'
+                                            : 'border border-[#5C17A6] text-white cursor-pointer bg-[#5C17A6] disabled:opacity-50 disabled:cursor-not-allowed'
                                     }`}
                                 >
                                     {isWorkSubscribed || isAuthorSubscribed ? "Suscrito" : "Suscribir"}
                                 </button>
                                 <button
-                                    disabled={true}
-                                    className="px-3 py-1.5 rounded-md text-sm border border-gray-300 text-gray-700 font-medium cursor-not-allowed opacity-50"
-                                >
-                                    Guardado
-                                </button>
+                        onClick={handdleToggleSaveWork}
+                        className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                            isWorkSaved
+                                ? 'text-[#5C17A6] cursor-pointer border border-[#5C17A6]'
+                                : 'text-white cursor-pointer bg-[#3b245a]/90 disabled:opacity-50 disabled:cursor-not-allowed'
+                        }`}
+                    >
+                        {isWorkSaved ? "Guardado" : "Guardar"}
+                    </button>
                             </div>
                         )}
                     </div>
