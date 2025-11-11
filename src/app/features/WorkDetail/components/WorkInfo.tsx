@@ -6,7 +6,7 @@ import Button from "../../../components/Button";
 import LikeButton from "../../../components/LikeButton";
 import StarRating from "../../../components/StarRating.tsx";
 import Tag from "../../../components/Tag.tsx";
-import { useReadChapterData } from "../hooks/useReadChapterData.ts";
+import { useWorkData } from "../hooks/userWorkData.ts";
 
 interface WorkInfoProps {
   work: WorkDTO;
@@ -15,11 +15,12 @@ interface WorkInfoProps {
 }
 
 export const WorkInfo: React.FC<WorkInfoProps> = ({ work, manageFirstChapter, disableFirstChapter = false }) => {
+
   const [isPaying, setIsPaying] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const isAuthorSubscribed = Boolean(work.subscribedToAuthor);
   const isWorkSubscribed = Boolean(work.subscribedToWork);
-  const { isWorkSaved, handdleToggleSaveWork } = useReadChapterData(work.id?.toString() || "");
+  const { isWorkSaved, handdleToggleSaveWork } = useWorkData(work.id);
 
   const closeModal = () => {
     if (isPaying) return;
