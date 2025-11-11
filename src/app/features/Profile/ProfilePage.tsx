@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import ProfileMenu from './components/ProfileMenu';
 import { useUserProfile } from '../../hooks/useUserProfile';
@@ -14,6 +14,8 @@ const ProfilePage = () => {
     isAuthor: false,
     price: ''
   });
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [usernameValidation, setUsernameValidation] = useState<{
     isValid: boolean | null;
     isChecking: boolean;
@@ -75,7 +77,40 @@ const ProfilePage = () => {
       });
     }
     setUsernameValidation({ isValid: null, isChecking: false });
+    setSelectedImage(null);
     setIsEditing(false);
+  };
+
+  const handleImageClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      // Validar tipo de archivo
+      if (!file.type.startsWith('image/')) {
+        alert('Por favor selecciona un archivo de imagen válido (JPG, PNG, GIF, etc.)');
+        return;
+      }
+
+      // Validar tamaño (límite de 5MB)
+      const maxSize = 5 * 1024 * 1024; // 5MB en bytes
+      if (file.size > maxSize) {
+        alert('La imagen es demasiado grande. El tamaño máximo permitido es 5MB.');
+        return;
+      }
+
+      // Procesar la imagen
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setSelectedImage(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+    
+    // Limpiar el input para permitir seleccionar el mismo archivo nuevamente
+    event.target.value = '';
   };
 
   if (loading) {
@@ -182,17 +217,28 @@ const ProfilePage = () => {
             <div className="text-center mb-8">
               <div className="relative inline-block">
                 <img
-                  src={profile.profileImage || '/img/fotoPerfil.jpg'}
+                  src={selectedImage || profile.profileImage || '/img/fotoPerfil.jpg'}
                   alt="Foto de perfil"
                   className="w-28 h-28 rounded-full border-4 border-purple-200 object-cover shadow-lg mx-auto"
                 />
                 {isEditing && (
-                  <button className="absolute -bottom-1 -right-1 bg-[#5c17a6] text-white rounded-full p-2 hover:bg-[#4b1387] transition-colors shadow-md">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
-                  </button>
+                  <>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageChange}
+                      className="hidden"
+                    />
+                    <button 
+                      onClick={handleImageClick}
+                      className="absolute -bottom-1 -right-1 bg-[#5c17a6] text-white rounded-full p-2 hover:bg-[#4b1387] transition-colors shadow-md cursor-pointer"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                      </svg>
+                    </button>
+                  </>
                 )}
               </div>
             </div>
