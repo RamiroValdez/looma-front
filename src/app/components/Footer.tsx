@@ -4,7 +4,6 @@ export default function Footer() {
       <div className="bg-[#3C2A50] text-gray-300 py-3">
         <div className="max-w-6xl mx-auto px-4 md:px-8 flex flex-col items-center gap-6">
          
-          {/* Tres columnas centradas debajo del QR */}
           <div className="w-full">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
               <div>
@@ -33,7 +32,6 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Copyright debajo, centrado */}
           <div className="text-center text-gray-300 text-sm mt-2">
             <div>© Copyright 2025</div>
           </div>
