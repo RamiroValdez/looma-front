@@ -1,116 +1,50 @@
-import { useState, useEffect, useRef } from 'react';
+import { useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import ProfileMenu from './components/ProfileMenu';
+import Button from '../../components/Button';
 import { useUserProfile } from '../../hooks/useUserProfile';
+
+
+
+// Componente para secciones con gradiente
+interface GradientSectionProps {
+  title: string;
+  children: React.ReactNode;
+  gradientFrom: string;
+  gradientTo: string;
+  borderColor: string;
+}
+
+const GradientSection = ({ title, children, gradientFrom, gradientTo, borderColor }: GradientSectionProps) => (
+  <div className={`bg-gradient-to-r ${gradientFrom} ${gradientTo} p-4 rounded-lg border ${borderColor}`}>
+    <div className="flex items-center space-x-4">
+      <span className="font-medium text-gray-700">{title}</span>
+      {children}
+    </div>
+  </div>
+);
 
 const ProfilePage = () => {
   const { id } = useParams<{ id: string }>();
-  const { profile, loading, error } = useUserProfile(id);
-  const [isEditing, setIsEditing] = useState(false);
-  const [editedData, setEditedData] = useState({
-    firstName: '',
-    lastName: '',
-    username: '',
-    isAuthor: false,
-    price: ''
-  });
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const {
+    profile,
+    loading,
+    error,
+    isEditing,
+    editedData,
+    selectedImage,
+    usernameValidation,
+    setIsEditing,
+    handleInputChange,
+    handleImageChange,
+    handleSave,
+    handleCancel
+  } = useUserProfile(id);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [usernameValidation, setUsernameValidation] = useState<{
-    isValid: boolean | null;
-    isChecking: boolean;
-  }>({ isValid: null, isChecking: false });
-
-  // Inicializar datos editables cuando se carga el perfil
-  useEffect(() => {
-    if (profile) {
-      setEditedData({
-        firstName: profile.firstName,
-        lastName: profile.lastName,
-        username: profile.username,
-        isAuthor: profile.isAuthor,
-        price: profile.price?.toString() || ''
-      });
-    }
-  }, [profile]);
-
-  const handleInputChange = (field: string, value: string | boolean) => {
-    setEditedData(prev => ({ ...prev, [field]: value }));
-    
-    // Validar username cuando cambie
-    if (field === 'username' && typeof value === 'string' && value !== profile?.username) {
-      validateUsername(value);
-    }
-  };
-
-  const validateUsername = async (username: string) => {
-    if (username.length < 3) {
-      setUsernameValidation({ isValid: false, isChecking: false });
-      return;
-    }
-
-    setUsernameValidation({ isValid: null, isChecking: true });
-    
-    // Simular validación del backend
-    setTimeout(() => {
-      // Simulación: usernames que empiecen con 'test' están tomados
-      const isValid = !username.toLowerCase().startsWith('test');
-      setUsernameValidation({ isValid, isChecking: false });
-    }, 1000);
-  };
-
-  const handleSave = () => {
-    // Aquí iría la lógica para guardar los cambios
-    console.log('Guardando cambios:', editedData);
-    setIsEditing(false);
-  };
-
-  const handleCancel = () => {
-    // Restaurar datos originales
-    if (profile) {
-      setEditedData({
-        firstName: profile.firstName,
-        lastName: profile.lastName,
-        username: profile.username,
-        isAuthor: profile.isAuthor,
-        price: profile.price?.toString() || ''
-      });
-    }
-    setUsernameValidation({ isValid: null, isChecking: false });
-    setSelectedImage(null);
-    setIsEditing(false);
-  };
 
   const handleImageClick = () => {
     fileInputRef.current?.click();
-  };
-
-  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      // Validar tipo de archivo
-      if (!file.type.startsWith('image/')) {
-        alert('Por favor selecciona un archivo de imagen válido (JPG, PNG, GIF, etc.)');
-        return;
-      }
-
-      // Validar tamaño (límite de 5MB)
-      const maxSize = 5 * 1024 * 1024; // 5MB en bytes
-      if (file.size > maxSize) {
-        alert('La imagen es demasiado grande. El tamaño máximo permitido es 5MB.');
-        return;
-      }
-
-      // Procesar la imagen
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setSelectedImage(e.target?.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-    
-    // Limpiar el input para permitir seleccionar el mismo archivo nuevamente
-    event.target.value = '';
   };
 
   if (loading) {
@@ -190,30 +124,27 @@ const ProfilePage = () => {
       <ProfileMenu />
       <div className="flex-1 p-6">
         <div className="max-w-3xl mx-auto">
-          {/* Header */}
           <div className="flex justify-between items-center mb-8">
             <h1 className="text-3xl font-bold text-gray-800">Mi Perfil</h1>
             <div className="flex space-x-3">
               {isEditing && (
-                <button
+                <Button
                   onClick={handleSave}
-                  className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors shadow-md"
-                >
-                  Guardar
-                </button>
+                  colorClass="bg-green-600 text-white hover:bg-green-700 transition-colors shadow-md"
+                  className="px-6 py-2 rounded-lg"
+                  text="Guardar"
+                />
               )}
-              <button
+              <Button
                 onClick={isEditing ? handleCancel : () => setIsEditing(true)}
-                className="bg-[#5c17a6] text-white px-6 py-2 rounded-lg hover:bg-[#4b1387] transition-colors shadow-md cursor-pointer"
-              >
-                {isEditing ? 'Cancelar' : 'Editar Datos'}
-              </button>
+                colorClass="bg-[#5c17a6] text-white hover:bg-[#4b1387] transition-colors shadow-md"
+                className="px-6 py-2 rounded-lg"
+                text={isEditing ? 'Cancelar' : 'Editar Datos'}
+              />
             </div>
           </div>
 
-          {/* Profile Card */}
           <div className="bg-white rounded-xl shadow-lg p-8">
-            {/* Profile Image Section */}
             <div className="text-center mb-8">
               <div className="relative inline-block">
                 <img
@@ -243,10 +174,8 @@ const ProfilePage = () => {
               </div>
             </div>
 
-            {/* User Info Grid */}
             <div className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Nombre */}
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-gray-600">Nombre</label>
                   {isEditing ? (
@@ -264,7 +193,6 @@ const ProfilePage = () => {
                   )}
                 </div>
                 
-                {/* Apellido */}
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-gray-600">Apellido</label>
                   {isEditing ? (
@@ -283,7 +211,6 @@ const ProfilePage = () => {
                 </div>
               </div>
 
-              {/* Email */}
               <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-600">Correo electrónico</label>
                 <div className={`p-3 rounded-lg border font-medium ${isEditing ? 'bg-gray-100 text-gray-600' : 'bg-gray-50 text-gray-700'}`}>
@@ -299,7 +226,6 @@ const ProfilePage = () => {
                 )}
               </div>
 
-              {/* Username */}
               <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-600">Nombre de usuario</label>
                 {isEditing ? (
@@ -351,62 +277,64 @@ const ProfilePage = () => {
                 )}
               </div>
 
-              {/* Author Status */}
-              <div className="bg-gradient-to-r from-purple-50 to-indigo-50 p-4 rounded-lg border border-purple-200">
+              <GradientSection
+                title="¿Soy autor?"
+                gradientFrom="from-purple-50"
+                gradientTo="to-indigo-50"
+                borderColor="border-purple-200"
+              >
                 <div className="flex items-center space-x-4">
-                  <span className="font-medium text-gray-700">¿Soy autor?</span>
-                  <div className="flex items-center space-x-4">
-                    <label className={`flex items-center space-x-2 ${isEditing ? 'cursor-pointer' : 'cursor-default'}`}>
-                      <input
-                        type="radio"
-                        name={isEditing ? "isAuthorEdit" : "isAuthorView"}
-                        value="yes"
-                        checked={isEditing ? editedData.isAuthor : profile.isAuthor}
-                        onChange={() => isEditing && handleInputChange('isAuthor', true)}
-                        disabled={!isEditing}
-                        className={`w-4 h-4 text-[#5c17a6] focus:ring-[#5c17a6] focus:ring-2 ${!isEditing ? 'opacity-400' : 'disabled:opacity-50'}`}
-                        style={{ accentColor: '#5c17a6' }}
-                      />
-                      <span className="text-sm text-gray-700">Sí</span>
-                    </label>
-                    <label className={`flex items-center space-x-2 ${isEditing ? 'cursor-pointer' : 'cursor-default'}`}>
-                      <input
-                        type="radio"
-                        name={isEditing ? "isAuthorEdit" : "isAuthorView"}
-                        value="no"
-                        checked={isEditing ? !editedData.isAuthor : !profile.isAuthor}
-                        onChange={() => isEditing && handleInputChange('isAuthor', false)}
-                        disabled={!isEditing}
-                        className={`w-4 h-4 text-[#5c17a6] focus:ring-[#5c17a6] focus:ring-2 ${!isEditing ? 'opacity-400' : 'disabled:opacity-50'}`}
-                        style={{ accentColor: '#5c17a6' }}
-                      />
-                      <span className="text-sm text-gray-700">No</span>
-                    </label>
-                  </div>
+                  <label className={`flex items-center space-x-2 ${isEditing ? 'cursor-pointer' : 'cursor-default'}`}>
+                    <input
+                      type="radio"
+                      name={isEditing ? "isAuthorEdit" : "isAuthorView"}
+                      value="yes"
+                      checked={isEditing ? editedData.isAuthor : profile.isAuthor}
+                      onChange={() => isEditing && handleInputChange('isAuthor', true)}
+                      disabled={!isEditing}
+                      className={`w-4 h-4 text-[#5c17a6] focus:ring-[#5c17a6] focus:ring-2 ${!isEditing ? 'opacity-400' : 'disabled:opacity-50'}`}
+                      style={{ accentColor: '#5c17a6' }}
+                    />
+                    <span className="text-sm text-gray-700">Sí</span>
+                  </label>
+                  <label className={`flex items-center space-x-2 ${isEditing ? 'cursor-pointer' : 'cursor-default'}`}>
+                    <input
+                      type="radio"
+                      name={isEditing ? "isAuthorEdit" : "isAuthorView"}
+                      value="no"
+                      checked={isEditing ? !editedData.isAuthor : !profile.isAuthor}
+                      onChange={() => isEditing && handleInputChange('isAuthor', false)}
+                      disabled={!isEditing}
+                      className={`w-4 h-4 text-[#5c17a6] focus:ring-[#5c17a6] focus:ring-2 ${!isEditing ? 'opacity-400' : 'disabled:opacity-50'}`}
+                      style={{ accentColor: '#5c17a6' }}
+                    />
+                    <span className="text-sm text-gray-700">No</span>
+                  </label>
                 </div>
-              </div>
+              </GradientSection>
 
-              {/* Price Section */}
               {(isEditing ? editedData.isAuthor : profile.isAuthor) && (
                 <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-4 rounded-lg border border-green-200">
-                  <div className="space-y-3">
-                    <label className="text-sm font-medium text-gray-600">Precio por suscripción</label>
-                    {isEditing ? (
-                      <div className="flex items-center space-x-2">
-                        <span className="text-lg font-semibold text-gray-700">$</span>
-                        <input
-                          type="number"
-                          value={editedData.price}
-                          onChange={(e) => handleInputChange('price', e.target.value)}
-                          className="flex-1 p-2 text-lg font-bold text-[#5c17a6] bg-white rounded-lg border border-[#5c17a6] focus:border-[#5c17a6] focus:ring-2 focus:ring-[#5c17a6] focus:ring-opacity-50"
-                          placeholder="0.00"
-                          min="0"
-                          step="0.01"
-                        />
-                      </div>
-                    ) : (
-                      <div className="text-2xl font-bold text-[#5c17a6]">${profile.price || '0.00'}</div>
-                    )}
+                  <div className="flex items-center space-x-4">
+                    <span className="font-medium text-gray-700 whitespace-nowrap">Precio por suscripción</span>
+                    <div className="flex-1">
+                      {isEditing ? (
+                        <div className="flex items-center space-x-3">
+                          <span className="text-lg font-semibold text-gray-700">$</span>
+                          <input
+                            type="number"
+                            value={editedData.price}
+                            onChange={(e) => handleInputChange('price', e.target.value)}
+                            className="w-40 p-2 text-lg font-bold text-[#5c17a6] bg-white rounded-md border border-[#5c17a6] focus:border-[#5c17a6] focus:ring-2 focus:ring-[#5c17a6] focus:ring-opacity-50 text-left"
+                            placeholder="0.00"
+                            min="0"
+                            step="0.01"
+                          />
+                        </div>
+                      ) : (
+                        <div className="text-2xl font-bold text-[#5c17a6]">${profile.price || '0.00'}</div>
+                      )}
+                    </div>
                   </div>
                 </div>
               )}
