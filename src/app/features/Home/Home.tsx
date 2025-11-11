@@ -1,12 +1,10 @@
- 
-import { useEffect, useState } from "react";
-import { getTop10Works} from "../../../infrastructure/services/WorkService";
+ import { useEffect, useState } from "react";
 import { useCategories } from "../../../infrastructure/services/CategoryService";
-import { getUserReadingList } from "../../../infrastructure/services/UserService";
 import type { WorkDTO } from "../../../domain/dto/WorkDTO";
-import type { BookDTO } from "../../../domain/dto/BookDTO";
-import Top10Section from "../../components/Top10Section";
 import BannerHome from "../../components/BannerHome";
+import { getHomeWorkList } from "../../../infrastructure/services/HomeService";
+import { useUserStore } from "../../../domain/store/UserStorage";
+import WorkCarousel from "../../components/WorkCarousel";
 
 interface TopBook {
   id: number;
@@ -19,31 +17,30 @@ const Home = () => {
   const { categories, isLoading, error } = useCategories();
 
   const [top10, setTop10] = useState<TopBook[]>([]);
-  const [seguirLeyendo, setSeguirLeyendo] = useState<BookDTO[]>([]);
+  const [newReleases, setNewReleases] = useState<WorkDTO[]>([]);
+  const [recentlyUpdated, setRecentlyUpdated] = useState<WorkDTO[]>([]);
+  const [continueReading, setContinueReading] = useState<WorkDTO[]>([]);
   const [loading, setLoading] = useState(true);
+  const { user } = useUserStore();
 
-  console.log("Top 10:", top10);
-  console.log("Seguir Leyendo:", seguirLeyendo);
   useEffect(() => {
-    const userId = 1; 
-
     const fetchData = async () => {
       try {
         setLoading(true);
-
-        const top10Data = await getTop10Works();
+        const workList = await getHomeWorkList(user?.userId || 0);
         setTop10(
-          top10Data?.data?.map((work: WorkDTO, index: number) => ({
+          workList.topTen.map((work: WorkDTO, index: number) => ({
             id: work.id,
             title: work.title,
-            cover: work.cover, 
+            cover: work.cover,
             position: index + 1,
-          })) || []
+          }))
         );
-
-        const readingList = await getUserReadingList(userId);
-        setSeguirLeyendo(readingList);
-      } catch (error) {
+        setContinueReading(workList.currentlyReading);
+        setNewReleases(workList.newReleases);
+        setRecentlyUpdated(workList.recentlyUpdated);
+      }
+      catch (error) {
         console.error("Error al cargar los datos:", error);
       } finally {
         setLoading(false);
@@ -53,6 +50,9 @@ const Home = () => {
     fetchData();
   }, []);
 
+  console.log("Top 10:", top10);
+  console.log("Seguir Leyendo:", continueReading);
+ 
   if (loading) {
     return <div className="p-8 text-center text-lg">Cargando...</div>;
   }
@@ -82,7 +82,10 @@ const Home = () => {
   ]}
 />
 
-      <Top10Section />
+      <WorkCarousel title="Top 10 en Argentina" books={top10} showPosition={true} />
+      <WorkCarousel title="Nuevos lanzamientos" books={newReleases} />
+      <WorkCarousel title="Actualizados recientemente" books={recentlyUpdated} />
+      <WorkCarousel title="Continuar Leyendo" books={continueReading} />
 
       <div className="px-6 mb-12 grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
         <div className="w-full">

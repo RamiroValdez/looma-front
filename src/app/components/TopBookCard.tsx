@@ -2,7 +2,7 @@ import React from "react";
 import {useNavigate} from "react-router-dom";
 
 interface Props {
-  position: number;
+  position?: number;
   cover: string;
   title: string;
   idWork: number;

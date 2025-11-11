@@ -11,7 +11,7 @@ const ScrollArrow: React.FC<ScrollArrowProps> = ({ direction, onClick, isVisible
     <button
       onClick={onClick}
       aria-label={`Scroll hacia ${direction === "left" ? "la izquierda" : "la derecha"}`}
-      className={`absolute ${direction === "left" ? "left-2" : "right-2"} top-1/2 -translate-y-1/2 bg-white shadow-md rounded-full p-2 z-10 hover:scale-110 transition`}
+      className={`absolute ${direction === "left" ? "left-2" : "right-2"} top-1/2 -translate-y-1/2 bg-white shadow-md rounded-full p-2 z-10 hover:scale-110 transition cursor-pointer`}
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
