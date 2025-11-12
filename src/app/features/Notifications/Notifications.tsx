@@ -8,6 +8,7 @@ function Notifications() {
   const [notifications, setNotifications] = useState<NotificationDTO[]>([]);
   const [user, setUser] = useState<UserDTO | null>(null);
   const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState<"all" | "unread">("all");
 
   useEffect(() => {
     getCurrentUser()
@@ -24,11 +25,6 @@ function Notifications() {
       .finally(() => setLoading(false));
   }, [user]);
 
-  // Ordena por fecha descendente
-  const sorted = [...notifications].sort(
-    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-  );
-
   const handleMarkAsRead = async (notificationId: number) => {
     setNotifications(prev =>
       prev.map(n =>
@@ -38,14 +34,36 @@ function Notifications() {
     try {
       await markNotificationAsRead(notificationId);
       window.dispatchEvent(new Event("notifications-updated"));
-    } catch (err) {
-
-    }
+    } catch (err) {}
   };
+
+  // Aplica el filtro
+  const filtered = notifications.filter(n => filter === "all" || !n.read);
+  const sorted = [...filtered].sort(
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  );
 
   return (
     <div className="max-w-2xl mx-auto mt-8 px-4 min-h-screen pb-24">
       <h1 className="text-2xl font-bold mb-6">Notificaciones</h1>
+      <div className="flex gap-2 mb-4">
+        <button
+          className={`px-4 py-2 rounded-lg font-semibold transition ${
+            filter === "all" ? "bg-[#5c17a6] text-white" : "bg-gray-100 text-[#5c17a6] hover:bg-[#ede4f9]"
+          }`}
+          onClick={() => setFilter("all")}
+        >
+          Todas
+        </button>
+        <button
+          className={`px-4 py-2 rounded-lg font-semibold transition ${
+            filter === "unread" ? "bg-[#5c17a6] text-white" : "bg-gray-100 text-[#5c17a6] hover:bg-[#ede4f9]"
+          }`}
+          onClick={() => setFilter("unread")}
+        >
+          No leídas
+        </button>
+      </div>
       <div className="flex flex-col gap-4">
         {loading ? (
           <div className="flex justify-center items-center py-12">
