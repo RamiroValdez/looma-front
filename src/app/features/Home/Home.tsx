@@ -25,6 +25,8 @@ const Home = () => {
 
   useEffect(() => {
     const fetchData = async () => {
+      if (!user?.userId) return; 
+
       try {
         setLoading(true);
         const workList = await getHomeWorkList(user?.userId || 0);
@@ -48,7 +50,7 @@ const Home = () => {
     };
 
     fetchData();
-  }, []);
+  }, [user?.userId]);
 
   console.log("Top 10:", top10);
   console.log("Seguir Leyendo:", continueReading);

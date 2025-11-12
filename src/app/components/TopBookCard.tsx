@@ -17,7 +17,7 @@ const TopBookCard: React.FC<Props> = ({ position, cover, title, idWork }) => {
     }
 
     return (
-    <div className="relative flex flex-col items-center justify-start w-[190px] h-[240px] shrink-0" onClick={handleCoverNavigation}>
+    <div className="relative flex flex-col items-center justify-start w-[190px] h-[240px] shrink-0 overflow-hidden" onClick={handleCoverNavigation}>
 
       <span
         className="absolute font-extrabold text-transparent leading-[1] z-[1] select-none overflow-y-hidden"
