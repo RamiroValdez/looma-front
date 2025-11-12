@@ -7,6 +7,8 @@ import { useNavigate } from 'react-router-dom';
 import { type KeyboardEvent } from 'react';
 import NotificationPopup from "../components/NotificationPopup";
 import { useClickOutside } from '../hooks/useClickOutside';
+import { getUserNotifications } from "../../infrastructure/services/NotificationService";
+import type { NotificationDTO } from "../../domain/dto/NotificationDTO";
 
 function Header() {
   const navigate = useNavigate();
@@ -21,6 +23,7 @@ function Header() {
   const [showNotifications, setShowNotifications] = useState(false);
   const notificationRefDesktop = useRef<HTMLDivElement>(null!);
   const notificationRefMobile = useRef<HTMLDivElement>(null!);
+  const [notifications, setNotifications] = useState<NotificationDTO[]>([]);
 
   useClickOutside(
     [notificationRefDesktop, notificationRefMobile],
@@ -34,6 +37,14 @@ function Header() {
       setSearchText('');
     }
   };
+
+  const handleMarkAsReadLocal = (notificationId: number) => {
+  setNotifications(prev =>
+    prev.map(n =>
+      n.id === notificationId ? { ...n, read: true } : n
+    )
+  );
+};
 
   useEffect(() => {
     let alive = true;
@@ -62,6 +73,15 @@ function Header() {
     };
   }, [token, logout]);
 
+    useEffect(() => {
+    if (!user) {
+      setNotifications([]);
+      return;
+    }
+    getUserNotifications(Number(user.id))
+      .then(setNotifications)
+      .catch(() => setNotifications([]));
+  }, [user]);
 
   return (
     <header className="bg-[linear-gradient(to_right,#EBE4EC,#B597D2,#EDE4F9)] shadow relative z-[9999]">
@@ -114,7 +134,9 @@ function Header() {
                       <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0M3.124 7.5A8.969 8.969 0 0 1 5.292 3m13.416 0a8.969 8.969 0 0 1 2.168 4.5" />
                     </svg>
                   </button>
-                  <NotificationPopup show={showNotifications} onClose={() => setShowNotifications(false)} />
+                  <NotificationPopup show={showNotifications} onClose={() => setShowNotifications(false)} 
+                    notifications={notifications}
+                    onMarkAsReadLocal={handleMarkAsReadLocal} />
                 </div>
                 <div className="relative">
                   <img
@@ -194,7 +216,9 @@ function Header() {
           >
             ☰
           </button>
-          <NotificationPopup show={showNotifications} onClose={() => setShowNotifications(false)} />
+          <NotificationPopup show={showNotifications} onClose={() => setShowNotifications(false)}
+          notifications={notifications} 
+          onMarkAsReadLocal={handleMarkAsReadLocal} />
         </div>
       </div>
       {mobileNavOpen && (
