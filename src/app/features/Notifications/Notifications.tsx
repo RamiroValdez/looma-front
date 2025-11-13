@@ -37,7 +37,6 @@ function Notifications() {
     } catch (err) {}
   };
 
-  // Aplica el filtro
   const filtered = notifications.filter(n => filter === "all" || !n.read);
   const sorted = [...filtered].sort(
     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()

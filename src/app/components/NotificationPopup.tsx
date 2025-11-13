@@ -71,38 +71,46 @@ const NotificationPopup: React.FC<NotificationPopupProps> = ({
             {topFive.map((n, idx) => (
               <li
                 key={n.id}
-                className={`py-3 px-4 ${
-                  idx !== topFive.length - 1 ? "border-b border-[#ece6f6]" : ""
-                } hover:bg-[#f7f4fb] transition-colors cursor-pointer`}
+                className={`flex items-center py-3 px-4 transition-all duration-200 cursor-pointer
+                  ${idx !== topFive.length - 1 ? "border-b border-[#ece6f6]" : ""}
+                  ${!n.read ? "bg-gray-100 border-l-4 border-[#5c17a6]" : ""}
+                  hover:bg-[#f7f4fb] hover:shadow-lg`}
                 onMouseDown={async (e) => {
                   e.stopPropagation();
                   if (!n.read) {
                     try {
                       await markNotificationAsRead(n.id);
                       onMarkAsReadLocal(n.id);
-                    } catch (err) {
-                    }
+                    } catch (err) { }
                   }
                   onClose();
                   navigate("/notifications");
                 }}
               >
-                <span
-                  className={`text-[#3c2a50] font-medium ${
-                    n.read ? "opacity-60" : ""
-                  }`}
-                >
-                  {n.message}
-                </span>
-                <div className="text-xs text-gray-400">
-                  {new Date(n.createdAt).toLocaleString()}
+                <div className="flex flex-col flex-1">
+                  <span
+                    className={`text-[#3c2a50] font-medium ${n.read ? "opacity-60" : ""}`}
+                  >
+                    {n.message}
+                  </span>
+                  <div className="flex items-center gap-2 text-xs text-gray-400 mt-1">
+                    {new Date(n.createdAt).toLocaleString()}
+                    {n.read && (
+                      <span className="flex items-center gap-1 ml-auto text-gray font-semibold">
+                        <svg width="14" height="14" viewBox="0 0 20 20" fill="none">
+                          <path d="M5 10.5L9 14.5L15 7.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                        <span>leída</span>
+                      </span>
+                    )}
+                  </div>
                 </div>
               </li>
             ))}
           </ul>
           {notifications.length > 5 && (
             <button
-              className="w-full py-2 text-[#5c17a6] font-semibold hover:underline bg-[#f7f4fb] rounded-b-xl cursor-pointer"
+              className="w-full py-2 text-[#5c17a6] font-semibold hover:underline bg-[#f7f4fb] rounded-b-xl cursor-pointer border-t border-[#ece6f6]"
               onMouseDown={(e) => {
                 e.stopPropagation();
                 onClose();
