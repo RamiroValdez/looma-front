@@ -56,14 +56,14 @@ const WorkCarousel: React.FC<WorkCarouselProps> = ({
     }
 
     return (
-        <section className="my-10 relative px-6">
-            <h2 className="text-2xl font-bold mb-8">{title}</h2>
+        <section className="relative">
+            <h2 className="text-2xl font-bold mb-8 ml-10">{title}</h2>
 
             <ScrollArrow direction="left" onClick={() => scroll("left")} isVisible={showLeft} />
 
-            <div
+             <div
                 ref={scrollRef}
-                className="flex gap-10 overflow-x-auto scroll-smooth pl-12 pr-12 overflow-visible [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']"
+                className="flex justify-start max-w-[1800px] ml-12 gap-10 overflow-x-auto scroll-smooth pl-12 pr-12 pb-8 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']"
             >
                 {books.map((book, index) => (
                     <TopBookCard
