@@ -10,6 +10,23 @@ interface NotificationPopupProps {
   onMarkAsReadLocal: (notificationId: number) => void;
 }
 
+function getNotificationTitle(type: string) {
+  switch (type) {
+    case "WORK_UPDATED":
+      return "Obra actualizada";
+    case "NEW_WORK_PUBLISHED":
+      return "Nueva obra publicada";
+    case "NEW_WORK_SUBSCRIBER":
+      return "Nueva suscripción a tu obra";
+    case "NEW_AUTHOR_SUBSCRIBER":
+      return "Nuevo suscriptor de autor";
+    case "NEW_CHAPTER_SUBSCRIBER":
+      return "Nuevo suscriptor de capítulo";
+    default:
+      return "Notificación";
+  }
+}
+
 const NotificationPopup: React.FC<NotificationPopupProps> = ({
   show,
   onClose,
@@ -91,7 +108,7 @@ const NotificationPopup: React.FC<NotificationPopupProps> = ({
                   <span
                     className={`text-[#3c2a50] font-medium ${n.read ? "opacity-60" : ""}`}
                   >
-                    {n.message}
+                    {getNotificationTitle(n.type)}
                   </span>
                   <div className="flex items-center gap-2 text-xs text-gray-400 mt-1">
                     {new Date(n.createdAt).toLocaleString()}
