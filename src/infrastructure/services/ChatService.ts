@@ -7,7 +7,7 @@ export interface ChatMessageDto {
   chapterId: number;
   content: string;
   userMessage: boolean;
-  timestamp: string;
+  timestamp?: string;
 }
 
 export interface ChatRequestDto {

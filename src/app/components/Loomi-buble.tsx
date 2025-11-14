@@ -28,43 +28,35 @@ export default function LoomiBubble({ chapterId, chapterContent, publicationStat
   }, [messages]);
 
   const handleSendMessage = async () => {
-    if (!inputMessage.trim() || isSending) return;
+  if (!inputMessage.trim() || isSending) return;
 
-    const userMessage = inputMessage.trim();
-    setInputMessage('');
-    setIsSending(true);
+  const userMessage = inputMessage.trim();
+  setInputMessage('');
+  setIsSending(true);
 
-    const tempUserMsg: ChatMessageDto = {
-      userId: 0,
-      chapterId,
-      content: userMessage,
-      userMessage: true,
-      timestamp: new Date().toISOString(),
-    };
-    setMessages((prev) => [...prev, tempUserMsg]);
-
-    try {
-      const response = await sendChatMessage({
-        chapterId,
-        message: userMessage,
-        chapterContent,
-      });
-
-      setMessages((prev) => [...prev, response]);
-    } catch (error) {
-      console.error('Error enviando mensaje:', error);
-      const errorMsg: ChatMessageDto = {
-        userId: 0,
-        chapterId,
-        content: 'Lo siento, hubo un error al procesar tu mensaje. Intenta de nuevo.',
-        userMessage: false,
-        timestamp: new Date().toISOString(),
-      };
-      setMessages((prev) => [...prev, errorMsg]);
-    } finally {
-      setIsSending(false);
-    }
+  const tempUserMsg: ChatMessageDto = {
+    
+    userId: 0, 
+    chapterId,
+    content: userMessage,
+    userMessage: true,
+    timestamp: new Date().toISOString(), 
   };
+  setMessages((prev) => [...prev, tempUserMsg]);
+
+  try {
+    const response = await sendChatMessage({
+      chapterId,
+      message: userMessage,
+      chapterContent,
+    });
+    const responseArray = Array.isArray(response) ? response : [response];
+    setMessages((prev) => [...prev, ...responseArray]);
+  } catch (error) {
+  } finally {
+    setIsSending(false);
+  }
+};
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -92,7 +84,6 @@ export default function LoomiBubble({ chapterId, chapterContent, publicationStat
 
      {isOpen && (
         <div className="fixed bottom-32 right-6 z-50 w-105 h-[42rem]">
-          {/* Contenedor principal del chat */}
           <div className="relative bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-gray-200 h-full">
             
             <div className="bg-[#1a2fa1] text-white p-4 flex items-center gap-3 rounded-t-2xl">
@@ -144,8 +135,6 @@ export default function LoomiBubble({ chapterId, chapterContent, publicationStat
                           />
                         </div>
                       )}
-                      
-                      {/* Mensaje */}
                       <div
                         className={`max-w-[65%] rounded-2xl px-4 py-2 ${
                           msg.userMessage
@@ -155,14 +144,30 @@ export default function LoomiBubble({ chapterId, chapterContent, publicationStat
                       >
                         <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
                         <span className="text-xs opacity-70 mt-1 block">
-                          {new Date(msg.timestamp).toLocaleTimeString('es-AR', {
-                            hour: '2-digit',
-                            minute: '2-digit',
-                          })}
-                        </span>
+                      {msg.timestamp
+                        ? new Date(msg.timestamp).toLocaleTimeString(undefined, {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                          })
+                        : ""}
+                    </span>
                       </div>
                     </div>
                   ))}
+                  {isSending && (
+                <div className="flex gap-2 justify-start">
+                  <div className="w-12 h-12 rounded-full border border-gray-200 flex items-center justify-center flex-shrink-0 mt-1">
+                    <img 
+                      src="/img/Loomi-Bubble.png" 
+                      alt="Loomi" 
+                      className="w-12 h-12 object-contain"
+                    />
+                  </div>
+                  <div className="max-w-[65%] rounded-2xl px-4 py-2 bg-white border border-gray-200 text-gray-900 rounded-bl-none flex items-center">
+                    <span className="text-sm opacity-70">●●●</span>
+                  </div>
+                </div>
+              )}
                   <div ref={messagesEndRef} />
                 </>
               )}
@@ -182,7 +187,7 @@ export default function LoomiBubble({ chapterId, chapterContent, publicationStat
                 <button
                   onClick={handleSendMessage}
                   disabled={!inputMessage.trim() || isSending}
-                  className="bg-[#1a2fa1] text-white rounded-lg px-4 py-2 hover:bg-[#152580] disabled:opacity-50 disabled:cursor-not-allowed transition"
+                  className="bg-[#1a2fa1] text-white rounded-lg px-4 py-2 hover:bg-[#152580] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed transition"
                 >
                   {isSending ? (
                     <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
@@ -202,8 +207,6 @@ export default function LoomiBubble({ chapterId, chapterContent, publicationStat
               </div>
             </div>
           </div>
-
-          {/* Piquito que apunta a Loomi - FUERA del contenedor principal */}
           <div className="absolute -bottom-5 right-10 w-0 h-0 border-l-[24px] border-l-transparent border-r-[24px] border-r-transparent border-t-[24px] border-t-white filter drop-shadow-lg z-10"></div>
         </div>
       )}
