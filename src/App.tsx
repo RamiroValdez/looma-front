@@ -17,6 +17,8 @@ import PreviewChapter from "./app/features/Chapter/PreviewChapter.tsx";
 import { ToastProvider } from "./app/components/ToastProvider.tsx";
 import {MilkdownProvider} from "@milkdown/react";
 import Footer from "./app/components/Footer.tsx";
+import PaymentStatusPage from "./app/features/Payment/PaymentStatusPage.tsx";
+import TermsAndConditions from "./app/features/Legal/TermsAndConditions.tsx";
 
 import { WorkDetail } from './app/features/WorkDetail/WorkDetail.tsx';
 import ReadChapterNovel from "./app/features/WorkDetail/ReadChapterNovel.tsx";
@@ -149,6 +151,18 @@ function App() {
                       <WorkDetail />
                     </Shell>
                   </ProtectedRoute>
+                } />
+
+                <Route path="/payment/:uuid" element={
+                  <Shell>
+                    <PaymentStatusPage />
+                  </Shell>
+                } />
+
+                <Route path="/terms" element={
+                  <Shell>
+                    <TermsAndConditions />
+                  </Shell>
                 } />
             </Routes>
             <ToastProvider />
