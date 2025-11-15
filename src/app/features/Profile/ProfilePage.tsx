@@ -1,31 +1,10 @@
 import { useRef } from 'react';
-import { useParams } from 'react-router-dom';
 import ProfileMenu from './components/ProfileMenu';
 import Button from '../../components/Button';
+import GradientSection from '../../components/GradientSection';
 import { useUserProfile } from '../../hooks/useUserProfile';
 
-
-
-// Componente para secciones con gradiente
-interface GradientSectionProps {
-  title: string;
-  children: React.ReactNode;
-  gradientFrom: string;
-  gradientTo: string;
-  borderColor: string;
-}
-
-const GradientSection = ({ title, children, gradientFrom, gradientTo, borderColor }: GradientSectionProps) => (
-  <div className={`bg-gradient-to-r ${gradientFrom} ${gradientTo} p-4 rounded-lg border ${borderColor}`}>
-    <div className="flex items-center space-x-4">
-      <span className="font-medium text-gray-700">{title}</span>
-      {children}
-    </div>
-  </div>
-);
-
 const ProfilePage = () => {
-  const { id } = useParams<{ id: string }>();
   const {
     profile,
     loading,
@@ -39,7 +18,7 @@ const ProfilePage = () => {
     handleImageChange,
     handleSave,
     handleCancel
-  } = useUserProfile(id);
+  } = useUserProfile();
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -148,7 +127,7 @@ const ProfilePage = () => {
             <div className="text-center mb-8">
               <div className="relative inline-block">
                 <img
-                  src={selectedImage || profile.profileImage || '/img/fotoPerfil.jpg'}
+                  src={selectedImage || profile.image || '/img/fotoPerfil.jpg'}
                   alt="Foto de perfil"
                   className="w-28 h-28 rounded-full border-4 border-purple-200 object-cover shadow-lg mx-auto"
                 />
@@ -188,7 +167,7 @@ const ProfilePage = () => {
                     />
                   ) : (
                     <div className="bg-gray-50 p-3 rounded-lg border text-gray-800 font-medium">
-                      {profile.firstName}
+                      {profile.name}
                     </div>
                   )}
                 </div>
@@ -205,7 +184,7 @@ const ProfilePage = () => {
                     />
                   ) : (
                     <div className="bg-gray-50 p-3 rounded-lg border text-gray-800 font-medium">
-                      {profile.lastName}
+                      {profile.surname}
                     </div>
                   )}
                 </div>

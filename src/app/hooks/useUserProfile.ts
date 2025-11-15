@@ -1,12 +1,11 @@
 import { useState, useEffect } from 'react';
-import { 
-  useUserProfileQuery, 
-  useUpdateProfile, 
-  useValidateUsername,
-  type UpdateProfileRequest 
-} from '../../infrastructure/services/ProfileService';
+import { useUserProfileQuery, useUpdateProfile, useValidateUsername } from '../../infrastructure/services/ProfileService';
+import { useUserStore } from '../../domain/store/UserStorage';
+import { notifyError, notifySuccess } from '../../infrastructure/services/ToastProviderService';
 
-export const useUserProfile = (userId: string | undefined) => {
+export const useUserProfile = () => {
+  const { user } = useUserStore();
+  const userId = user?.userId?.toString();
   const { 
     data: profile, 
     isLoading: loading, 
@@ -25,9 +24,7 @@ export const useUserProfile = (userId: string | undefined) => {
     isAuthor: false,
     price: ''
   });
-
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
-
   const [usernameValidation, setUsernameValidation] = useState<{
     isValid: boolean | null;
     isChecking: boolean;
@@ -36,17 +33,29 @@ export const useUserProfile = (userId: string | undefined) => {
   useEffect(() => {
     if (profile) {
       setEditedData({
-        firstName: profile.firstName,
-        lastName: profile.lastName,
+        firstName: profile.name || '',        
+        lastName: profile.surname || '',      
         username: profile.username,
-        isAuthor: profile.isAuthor,
+        isAuthor: profile.isAuthor || false,  
         price: profile.price?.toString() || ''
       });
     }
   }, [profile]);
 
   const handleInputChange = (field: string, value: string | boolean) => {
-    setEditedData(prev => ({ ...prev, [field]: value }));
+    setEditedData(prev => {
+      const newData = { ...prev, [field]: value };
+      
+      if (field === 'isAuthor' && value === true && (!prev.price || prev.price === '')) {
+        newData.price = '0.00'; 
+      }
+      
+      if (field === 'isAuthor' && value === false) {
+        newData.price = '';
+      }
+      
+      return newData;
+    });
     
     if (field === 'username' && typeof value === 'string' && value !== profile?.username) {
       validateUsername(value);
@@ -100,35 +109,44 @@ export const useUserProfile = (userId: string | undefined) => {
     if (!userId || !profile) return;
 
     try {
-      const updateData: UpdateProfileRequest = {
-        firstName: editedData.firstName,
-        lastName: editedData.lastName,
+      const backendData = {
+        id: parseInt(userId),
+        name: editedData.firstName,
+        surname: editedData.lastName,
         username: editedData.username,
-        isAuthor: editedData.isAuthor,
-        price: editedData.price ? Number(editedData.price) : undefined,
-        profileImage: selectedImage || profile.profileImage
+        email: profile.email, 
+        photo: selectedImage || profile.image || '',
+        money: editedData.isAuthor && editedData.price ? editedData.price : '0',
+        newPassword: null 
       };
 
-      await updateProfileMutation.mutateAsync({ ...updateData, userId });
+      await updateProfileMutation.mutateAsync(backendData);
       
       refetch();
       setIsEditing(false);
-      console.log('Perfil actualizado exitosamente');
+      
+      notifySuccess("¡Perfil actualizado exitosamente!");
+      
     } catch (error) {
       console.error('Error al actualizar perfil:', error);
-      console.log('Guardando cambios (mock):', editedData);
-      console.log('Imagen seleccionada:', selectedImage);
       setIsEditing(false);
+      
+
+      if (error && typeof error === 'object' && 'message' in error) {
+        notifyError(`Error al actualizar el perfil: ${error.message}`);
+      } else {
+        notifyError("¡Error al actualizar el perfil! Por favor intenta nuevamente.");
+      }
     }
   };
 
   const handleCancel = () => {
     if (profile) {
       setEditedData({
-        firstName: profile.firstName,
-        lastName: profile.lastName,
+        firstName: profile.name || '',        
+        lastName: profile.surname || '',      
         username: profile.username,
-        isAuthor: profile.isAuthor,
+        isAuthor: profile.isAuthor || false,  
         price: profile.price?.toString() || ''
       });
     }
@@ -147,7 +165,7 @@ export const useUserProfile = (userId: string | undefined) => {
     selectedImage,
     usernameValidation,
     
-    isUpdating: updateProfileMutation.isLoading,
+    isUpdating: updateProfileMutation.isPending,
     updateError: updateProfileMutation.error,
     
     setIsEditing,
