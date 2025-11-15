@@ -6,15 +6,16 @@ import { notifyError, notifySuccess } from '../../infrastructure/services/ToastP
 export const useUserProfile = () => {
   const { user } = useUserStore();
   const userId = user?.userId?.toString();
-  const { 
-    data: profile, 
-    isLoading: loading, 
+  const {
+    data: profile,
+    isLoading: loading,
     error,
-    refetch 
+    refetch
   } = useUserProfileQuery(userId);
 
   const updateProfileMutation = useUpdateProfile();
   const validateUsernameMutation = useValidateUsername();
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const [isEditing, setIsEditing] = useState(false);
   const [editedData, setEditedData] = useState({
@@ -33,10 +34,10 @@ export const useUserProfile = () => {
   useEffect(() => {
     if (profile) {
       setEditedData({
-        firstName: profile.name || '',        
-        lastName: profile.surname || '',      
+        firstName: profile.name || '',
+        lastName: profile.surname || '',
         username: profile.username,
-        isAuthor: profile.isAuthor || false,  
+        isAuthor: profile.isAuthor || false,
         price: profile.price?.toString() || ''
       });
     }
@@ -45,18 +46,18 @@ export const useUserProfile = () => {
   const handleInputChange = (field: string, value: string | boolean) => {
     setEditedData(prev => {
       const newData = { ...prev, [field]: value };
-      
+
       if (field === 'isAuthor' && value === true && (!prev.price || prev.price === '')) {
-        newData.price = '0.00'; 
+        newData.price = '0.00';
       }
-      
+
       if (field === 'isAuthor' && value === false) {
         newData.price = '';
       }
-      
+
       return newData;
     });
-    
+
     if (field === 'username' && typeof value === 'string' && value !== profile?.username) {
       validateUsername(value);
     }
@@ -69,7 +70,7 @@ export const useUserProfile = () => {
     }
 
     setUsernameValidation({ isValid: null, isChecking: true });
-    
+
     try {
       const result = await validateUsernameMutation.mutateAsync({ username });
       setUsernameValidation({ isValid: result.isValid, isChecking: false });
@@ -89,19 +90,20 @@ export const useUserProfile = () => {
         return;
       }
 
-      const maxSize = 5 * 1024 * 1024; 
+      const maxSize = 5 * 1024 * 1024;
       if (file.size > maxSize) {
         alert('La imagen es demasiado grande. El tamaño máximo permitido es 5MB.');
         return;
       }
 
+      setSelectedFile(file);
       const reader = new FileReader();
       reader.onload = (e) => {
         setSelectedImage(e.target?.result as string);
       };
       reader.readAsDataURL(file);
     }
-    
+
     event.target.value = '';
   };
 
@@ -109,70 +111,75 @@ export const useUserProfile = () => {
     if (!userId || !profile) return;
 
     try {
-      const backendData = {
-        id: parseInt(userId),
-        name: editedData.firstName,
-        surname: editedData.lastName,
-        username: editedData.username,
-        email: profile.email, 
-        photo: selectedImage || profile.image || '',
-        money: editedData.isAuthor && editedData.price ? editedData.price : '0',
-        newPassword: null 
-      };
+      const formData = new FormData();
 
-      await updateProfileMutation.mutateAsync(backendData);
-      
+      formData.append("id", userId);
+      formData.append("name", editedData.firstName);
+      formData.append("surname", editedData.lastName);
+      formData.append("username", editedData.username);
+      formData.append("email", profile.email);
+      formData.append(
+        "money",
+        editedData.isAuthor && editedData.price ? editedData.price : "0"
+      );
+      formData.append("newPassword", "");
+
+      // Si hay archivo seleccionado, lo enviamos
+      if (selectedFile) {
+        formData.append("file", selectedFile);
+      }
+
+      await updateProfileMutation.mutateAsync(formData);
+
       refetch();
       setIsEditing(false);
-      
       notifySuccess("¡Perfil actualizado exitosamente!");
-      
+
     } catch (error) {
-      console.error('Error al actualizar perfil:', error);
+      console.error(error);
       setIsEditing(false);
-      
 
-      if (error && typeof error === 'object' && 'message' in error) {
-        notifyError(`Error al actualizar el perfil: ${error.message}`);
-      } else {
-        notifyError("¡Error al actualizar el perfil! Por favor intenta nuevamente.");
-      }
-    }
-  };
+      notifyError(
+        error && typeof error === "object" && "message" in error
+          ? `Error al actualizar el perfil: ${error.message}`
+        : "¡Error al actualizar el perfil!"
+    );
+  }
+};
 
-  const handleCancel = () => {
-    if (profile) {
-      setEditedData({
-        firstName: profile.name || '',        
-        lastName: profile.surname || '',      
-        username: profile.username,
-        isAuthor: profile.isAuthor || false,  
-        price: profile.price?.toString() || ''
-      });
-    }
-    setUsernameValidation({ isValid: null, isChecking: false });
-    setSelectedImage(null);
-    setIsEditing(false);
-  };
+const handleCancel = () => {
+  if (profile) {
+    setEditedData({
+      firstName: profile.name || '',
+      lastName: profile.surname || '',
+      username: profile.username,
+      isAuthor: profile.isAuthor || false,
+      price: profile.price?.toString() || ''
+    });
+  }
+  setUsernameValidation({ isValid: null, isChecking: false });
+  setSelectedImage(null);
+  setIsEditing(false);
+};
 
-  return {
-    profile,
-    loading,
-    error: error ? String(error) : null,
-    
-    isEditing,
-    editedData,
-    selectedImage,
-    usernameValidation,
-    
-    isUpdating: updateProfileMutation.isPending,
-    updateError: updateProfileMutation.error,
-    
-    setIsEditing,
-    handleInputChange,
-    handleImageChange,
-    handleSave,
-    handleCancel,
-    refetch
-  };
+return {
+  profile,
+  loading,
+  error: error ? String(error) : null,
+
+  isEditing,
+  editedData,
+  selectedImage,
+  usernameValidation,
+
+  isUpdating: updateProfileMutation.isPending,
+  updateError: updateProfileMutation.error,
+
+  setIsEditing,
+  handleInputChange,
+  handleImageChange,
+  handleSave,
+  handleCancel,
+  refetch
+};
 };

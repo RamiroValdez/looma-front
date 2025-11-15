@@ -56,12 +56,11 @@ export const useUserProfileQuery = (userId: string | undefined) => {
 
 export const useUpdateProfile = () => {
   const { token } = useAuthStore();
-  
-  return useApiMutation<any, Error, any>({
+
+  return useApiMutation<any, Error, FormData>({
     url: '/users/update',
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json',
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     }
   });
