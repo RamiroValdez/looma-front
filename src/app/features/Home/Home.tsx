@@ -63,7 +63,7 @@ const Home = () => {
   books={[
     {
       title: "El principito",
-      cover: "/img/portadas/banner1.jpg",
+      cover: "/img/banner2.jpg",
       categories: ["filosofía", "aventura"],
       description: "Un cuento poético que explora la amistad, el amor y la esencia de la naturaleza humana a través de los ojos de un pequeño príncipe que viaja de planeta en planeta."
     },

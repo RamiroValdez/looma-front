@@ -17,10 +17,10 @@ import PreviewChapter from "./app/features/Chapter/PreviewChapter.tsx";
 import { ToastProvider } from "./app/components/ToastProvider.tsx";
 import { MilkdownProvider } from "@milkdown/react";
 import Footer from "./app/components/Footer.tsx";
-
 import { WorkDetail } from './app/features/WorkDetail/WorkDetail.tsx';
 import ReadChapterNovel from "./app/features/WorkDetail/ReadChapterNovel.tsx";
 import Notifications from "./app/features/Notifications/Notifications.tsx";
+import { MySaves } from "./app/features/MySaves.tsx";
 
 function Shell({ children }: { children: React.ReactNode }) {
   return (
@@ -151,7 +151,14 @@ function App() {
             </Shell>
           </ProtectedRoute>
         } />
-        <Route path="/notifications" element={
+<Route path="/mySaves" element={
+                  <ProtectedRoute>
+                    <Shell>
+                      <MySaves />
+                    </Shell>
+                  </ProtectedRoute>
+                } />
+            <Route path="/notifications" element={
           <Shell>
             <Notifications />
           </Shell>
