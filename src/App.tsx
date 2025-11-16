@@ -14,6 +14,9 @@ import ProfilePage from "./app/features/Profile/ProfilePage.tsx";
 import { ToastProvider } from "./app/components/ToastProvider.tsx";
 import { MilkdownProvider } from "@milkdown/react";
 import Footer from "./app/components/Footer.tsx";
+import PaymentStatusPage from "./app/features/Payment/PaymentStatusPage.tsx";
+import TermsAndConditions from "./app/features/Legal/TermsAndConditions.tsx";
+
 import { WorkDetail } from './app/features/WorkDetail/WorkDetail.tsx';
 import ReadChapterNovel from "./app/features/WorkDetail/ReadChapterNovel.tsx";
 import Notifications from "./app/features/Notifications/Notifications.tsx";
@@ -143,10 +146,22 @@ function App() {
             <Notifications />
           </Shell>
         } />
-      </Routes>
-      <ToastProvider />
-    </BrowserRouter>
-  )
+
+                <Route path="/payment/:uuid" element={
+                  <Shell>
+                    <PaymentStatusPage />
+                  </Shell>
+                } />
+
+                <Route path="/terms" element={
+                  <Shell>
+                    <TermsAndConditions />
+                  </Shell>
+                } />
+            </Routes>
+            <ToastProvider />
+        </BrowserRouter>
+    )
 }
 
 export default App
