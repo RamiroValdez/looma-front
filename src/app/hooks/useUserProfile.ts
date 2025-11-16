@@ -117,6 +117,7 @@ export const useUserProfile = () => {
       formData.append("name", editedData.firstName);
       formData.append("surname", editedData.lastName);
       formData.append("username", editedData.username);
+      formData.append("photo", profile.image);
       formData.append("email", profile.email);
       formData.append(
         "money",
