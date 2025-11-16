@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect} from 'react';
 import { useNavigate } from 'react-router-dom';
 import { WorkService } from '../../../../infrastructure/services/WorkService';
 import { getChapterById } from '../../../../infrastructure/services/ChapterService';
@@ -7,6 +7,7 @@ import { translateContent } from '../../../../infrastructure/services/TranslateS
 import { subscribeToWork, subscribeToChapter } from '../../../../infrastructure/services/paymentService';
 import { notifyError, notifySuccess } from '../../../../infrastructure/services/ToastProviderService';
 import { useUserStore } from '../../../../domain/store/UserStorage';
+import { SaveWork, IsWorkSaved } from '../../../../infrastructure/services/MySavesService';
 
 export const useReadChapterData = (chapterId: string) => {
   const navigate = useNavigate();
@@ -27,6 +28,7 @@ export const useReadChapterData = (chapterId: string) => {
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [showFooter, setShowFooter] = useState(false);
   const [isPaying, setIsPaying] = useState(false);
+  const [isWorkSaved, setIsWorkSaved] = useState(false);
 
   const isStatusError = (err: unknown): err is { response: { status: number } } => {
     if (typeof err !== "object" || err === null) return false;
@@ -248,6 +250,30 @@ export const useReadChapterData = (chapterId: string) => {
   const isAuthor = user?.userId === work?.creator?.id;
   const isWorkSubscribed = Boolean(work?.subscribedToWork);
   const isAuthorSubscribed = Boolean(work?.subscribedToAuthor);
+  
+  useEffect(() => {
+    const checkIfWorkSaved = async () => {
+      if(work?.id) {
+        const isSaved = await IsWorkSaved(work.id);
+        setIsWorkSaved(isSaved);
+      }
+    };
+    checkIfWorkSaved();
+  }, [work?.id]);
+
+
+  const handdleToggleSaveWork = async () => {
+    if (!work?.id) return;
+    try {
+      await SaveWork(work.id);
+      setIsWorkSaved((prev) => !prev);
+      notifySuccess(isWorkSaved ? "Obra eliminada de tus guardados." : "Obra guardada exitosamente.");
+
+    } catch (error) {
+      notifyError("No se pudo actualizar el estado de guardado de la obra.");
+    }
+  };
+
 
   const isChapterUnlocked = (chapterIdToCheck: number): boolean => {
     if (isAuthor) return true;
@@ -287,7 +313,8 @@ export const useReadChapterData = (chapterId: string) => {
     isAuthor,
     isWorkSubscribed,
     isAuthorSubscribed,
-    
+    isWorkSaved,
+
     toggleFullScreen,
     toggleLike,
     handleChapterClick,
@@ -295,5 +322,6 @@ export const useReadChapterData = (chapterId: string) => {
     handleSubscribeWork,
     handleChapterPayment,
     isChapterUnlocked,
+    handdleToggleSaveWork,
   };
 };
