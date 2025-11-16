@@ -20,6 +20,19 @@ export interface UsernameValidationResponse {
   message?: string;
 }
 
+export interface PasswordChangeRequest {
+  currentPassword: string;
+  newPassword: string;
+  userId?: string;
+}
+
+export interface PasswordChangeResponse {
+  success: boolean;
+  message: string;
+}
+
+
+
 export const useUserProfileQuery = (userId: string | undefined) => {
   const { token } = useAuthStore();
   
@@ -66,13 +79,10 @@ export const useUpdateProfile = () => {
   });
 };
 
-// Hook para validar username (POST) - Versión mock temporal
 export const useValidateUsername = () => {
-  // TEMPORAL: Mutation mock hasta tener backend
   return {
     mutate: (data: { username: string }) => {
       console.log('Mock: Validando username:', data.username);
-      // Simular validación (ejemplo: rechazar usernames con menos de 3 caracteres)
       const isValid = data.username.length >= 3;
       return Promise.resolve({ isValid, message: isValid ? 'Username disponible' : 'Username debe tener al menos 3 caracteres' });
     },
@@ -87,4 +97,17 @@ export const useValidateUsername = () => {
     isError: false
   };
   
+};
+
+export const useChangePassword = () => {
+  const { token } = useAuthStore();
+
+  return useApiMutation<PasswordChangeResponse, Error, FormData>({
+    url: buildEndpoint('/users/update'),
+    method: 'POST',
+    headers: {
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      // No Content-Type header for FormData, browser sets it automatically
+    }
+  });
 };

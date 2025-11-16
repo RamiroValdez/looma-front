@@ -1,7 +1,8 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import ProfileMenu from './components/ProfileMenu';
 import Button from '../../components/Button';
 import GradientSection from '../../components/GradientSection';
+import PasswordChangeModal from './components/PasswordChangeModal';
 import { useUserProfile } from '../../hooks/useUserProfile';
 
 const ProfilePage = () => {
@@ -17,10 +18,12 @@ const ProfilePage = () => {
     handleInputChange,
     handleImageChange,
     handleSave,
-    handleCancel
+    handleCancel,
+    handlePasswordChange
   } = useUserProfile();
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
 
   const handleImageClick = () => {
     fileInputRef.current?.click();
@@ -109,14 +112,14 @@ const ProfilePage = () => {
               {isEditing && (
                 <Button
                   onClick={handleSave}
-                  colorClass="bg-green-600 text-white hover:bg-green-700 transition-colors shadow-md"
+                  colorClass="bg-green-600 text-white hover:bg-green-700 transition-colors shadow-md cursor-pointer"
                   className="px-6 py-2 rounded-lg"
                   text="Guardar"
                 />
               )}
               <Button
                 onClick={isEditing ? handleCancel : () => setIsEditing(true)}
-                colorClass="bg-[#5c17a6] text-white hover:bg-[#4b1387] transition-colors shadow-md"
+                colorClass="bg-[#5c17a6] text-white hover:bg-[#4b1387] transition-colors shadow-md cursor-pointer"
                 className="px-6 py-2 rounded-lg"
                 text={isEditing ? 'Cancelar' : 'Editar Datos'}
               />
@@ -256,6 +259,32 @@ const ProfilePage = () => {
                 )}
               </div>
 
+              {isEditing && (
+                <div className="mt-8">
+                  <GradientSection
+                    title="Seguridad"
+                    gradientFrom="from-purple-50"
+                    gradientTo="to-indigo-50"
+                    borderColor="border-purple-200"
+                  >
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-gray-700 mb-1">Contraseña</p>
+                        <p className="text-xs text-gray-500">Mantén tu cuenta segura actualizando tu contraseña regularmente</p>
+                      </div>
+                      <div className="flex-shrink-0">
+                        <Button
+                          onClick={() => setIsPasswordModalOpen(true)}
+                          colorClass="bg-[#5c17a6] text-white hover:bg-[#4b1387] transition-colors cursor-pointer shadow-sm"
+                          className="px-6 py-2 rounded-lg text-sm font-medium"
+                          text="Cambiar Contraseña"
+                        />
+                      </div>
+                    </div>
+                  </GradientSection>
+                </div>
+              )}
+
               <GradientSection
                 title="¿Soy autor?"
                 gradientFrom="from-purple-50"
@@ -321,6 +350,12 @@ const ProfilePage = () => {
           </div>
         </div>
       </div>
+
+      <PasswordChangeModal
+        isOpen={isPasswordModalOpen}
+        onClose={() => setIsPasswordModalOpen(false)}
+        onPasswordChange={handlePasswordChange}
+      />
     </div>
   );
 };

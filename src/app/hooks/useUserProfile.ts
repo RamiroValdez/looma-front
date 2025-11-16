@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useUserProfileQuery, useUpdateProfile, useValidateUsername } from '../../infrastructure/services/ProfileService';
+import { useUserProfileQuery, useUpdateProfile, useValidateUsername, useChangePassword } from '../../infrastructure/services/ProfileService';
 import { useUserStore } from '../../domain/store/UserStorage';
 import { notifyError, notifySuccess } from '../../infrastructure/services/ToastProviderService';
 
@@ -15,6 +15,7 @@ export const useUserProfile = () => {
 
   const updateProfileMutation = useUpdateProfile();
   const validateUsernameMutation = useValidateUsername();
+  const changePasswordMutation = useChangePassword();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const [isEditing, setIsEditing] = useState(false);
@@ -148,39 +149,79 @@ export const useUserProfile = () => {
   }
 };
 
-const handleCancel = () => {
-  if (profile) {
-    setEditedData({
-      firstName: profile.name || '',
-      lastName: profile.surname || '',
-      username: profile.username,
-      isAuthor: profile.isAuthor || false,
-      price: profile.price?.toString() || ''
-    });
-  }
-  setUsernameValidation({ isValid: null, isChecking: false });
-  setSelectedImage(null);
-  setIsEditing(false);
-};
+  const handleCancel = () => {
+    if (profile) {
+      setEditedData({
+        firstName: profile.name || '',
+        lastName: profile.surname || '',
+        username: profile.username,
+        isAuthor: profile.isAuthor || false,
+        price: profile.price?.toString() || ''
+      });
+    }
+    setUsernameValidation({ isValid: null, isChecking: false });
+    setSelectedImage(null);
+    setIsEditing(false);
+  };
 
-return {
-  profile,
-  loading,
-  error: error ? String(error) : null,
+  const handlePasswordChange = async (newPassword: string) => {
+    if (!userId || !profile) return;
 
-  isEditing,
-  editedData,
-  selectedImage,
-  usernameValidation,
+    try {
+      const formData = new FormData();
+      
+      // Usar los datos actuales del perfil para mantener todo igual excepto la contraseña
+      formData.append("id", userId);
+      formData.append("name", profile.name || '');
+      formData.append("surname", profile.surname || '');
+      formData.append("username", profile.username);
+      formData.append("photo", profile.image || '');
+      formData.append("email", profile.email);
+      formData.append("money", (profile.price || 0).toString());
+      formData.append("newPassword", newPassword);
+      
+      // Nota: El backend validará la autorización vía JWT token
 
-  isUpdating: updateProfileMutation.isPending,
-  updateError: updateProfileMutation.error,
+      await changePasswordMutation.mutateAsync(formData);
+      
+      notifySuccess("¡Contraseña cambiada exitosamente!");
+    } catch (error: any) {
+      // Manejo mejorado de errores específicos del backend
+      let errorMessage = "Error al cambiar la contraseña";
+      
+      if (error?.response?.status === 400) {
+        errorMessage = "Error en los datos proporcionados. Verifica tu contraseña actual.";
+      } else if (error?.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error?.message) {
+        errorMessage = error.message;
+      }
+      
+      notifyError(errorMessage);
+      throw error; // Re-throw para que el modal pueda manejarlo
+    }
+  };
 
-  setIsEditing,
-  handleInputChange,
-  handleImageChange,
-  handleSave,
-  handleCancel,
-  refetch
-};
+  return {
+    profile,
+    loading,
+    error: error ? String(error) : null,
+
+    isEditing,
+    editedData,
+    selectedImage,
+    usernameValidation,
+
+    isUpdating: updateProfileMutation.isPending,
+    updateError: updateProfileMutation.error,
+    isChangingPassword: changePasswordMutation.isPending,
+
+    setIsEditing,
+    handleInputChange,
+    handleImageChange,
+    handleSave,
+    handleCancel,
+    handlePasswordChange,
+    refetch
+  };
 };
