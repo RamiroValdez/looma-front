@@ -3,10 +3,11 @@ import TextViewer from "../Chapter/TextViewer.tsx";
 import { MilkdownProvider } from "@milkdown/react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useReadChapterData } from "./hooks/useReadChapterData";
-import { useState } from "react";
+import { useState , useEffect } from "react";
 import { useTheme } from "./hooks/useTheme";
 import ThemeSelector from "./components/ThemeSelector.tsx";
 import Button from "../../components/Button";
+import { updateReadingProgress } from "../../../infrastructure/services/HomeService.ts";
 
 const ReadChapter = () => {
     const navigate = useNavigate();
@@ -18,7 +19,6 @@ const ReadChapter = () => {
     const [isThemeSelectorOpen, setIsThemeSelectorOpen] = useState(false);
     const theme = getTheme();
     const currentFontSize = getFontSize(); 
-
 
     const {
         chapterData,
@@ -107,7 +107,23 @@ const handleNextChapter = () => {
         }
     }
 };
+
+ useEffect(() => {
+        const saveProgress = async () => {
+            if (!chapterData?.workId || !chapterId) return;
+
+            try {
+                await updateReadingProgress(Number(chapterData.workId), Number(chapterId));
+                console.log('Progreso guardado');
+            } catch (error) {
+                console.error('Error guardando progreso:', error);
+            }
+        };
+
+        saveProgress();
+    }, [chapterData?.workId, chapterId])
    
+    
     if (isLoading) {
         return <p className="text-center text-gray-500 mt-10">Cargando capítulo...</p>;
     }
