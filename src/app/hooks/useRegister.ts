@@ -63,24 +63,40 @@ export const useRegister = () => {
     return valid;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!validateForm()) return;
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  if (!validateForm()) return;
 
-    setLoading(true);
-    try {
-      await registerUser({
-        name: formData.name,
-        surname: formData.surname,
-        username: formData.username,
-        email: formData.email,
-        password: formData.password,
-      });
+  setLoading(true);
+  try {
+    const response = await registerUser({
+      name: formData.name,
+      surname: formData.surname,
+      username: formData.username,
+      email: formData.email,
+      password: formData.password,
+      confirmPassword: formData.confirmPassword
+    });
 
-      notifySuccess("Cuenta creada con éxito 🎉");
-      navigate("/preferences");
+      if (response.status === 202) {
+        notifySuccess("¡Revisa tu correo para el código de verificación!");
+        navigate("/verify-code", { state: { email: formData.email } });
+      } else {
+        notifyError("Error al registrarse. Verifica los datos.");
+      }
     } catch (error: any) {
-      notifyError(error.message || "Error al registrarse");
+
+      let msg = error.message || "Error al registrarse";
+      if (error.response && error.response.data && error.response.data.message) {
+        msg = error.response.data.message;
+      }
+      if (msg.toLowerCase().includes("email")) {
+        setErrors((prev) => ({ ...prev, email: "El correo ya está registrado" }));
+      } else if (msg.toLowerCase().includes("username")) {
+        setErrors((prev) => ({ ...prev, username: "El usuario ya existe" }));
+      } else {
+        notifyError(msg);
+      }
     } finally {
       setLoading(false);
     }
@@ -88,4 +104,3 @@ export const useRegister = () => {
 
   return { formData, errors, loading, handleChange, handleSubmit };
 };
-

@@ -42,10 +42,10 @@ export const RegisterPage = () => {
                       onChange={handleChange}
                       disabled={loading}
                       className="w-full pl-10 pr-3 py-2 border border-gray-200 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#5C17A6] focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
-                      placeholder="Tu nombre"
+                      placeholder="Nombre"
                     />
                   </div>
-                    {errors.name && <p className="text-red-600 text-xs mt-1">{errors.name}</p>}
+                  {errors.name && <p className="text-red-600 text-xs mt-1">{errors.name}</p>}
                 </div>
 
                 <div>
@@ -57,10 +57,10 @@ export const RegisterPage = () => {
                     onChange={handleChange}
                     disabled={loading}
                     className="w-full px-3 py-2 border border-gray-200 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#5C17A6] focus:border-transparent disabled:bg-gray-100"
-                    placeholder="Tu apellido"
+                    placeholder="Apellido"
                   />
                 </div>
-                  {errors.surname && <p className="text-red-600 text-xs mt-1">{errors.surname}</p>}
+                {errors.surname && <p className="text-red-600 text-xs mt-1">{errors.surname}</p>}
                 <div>
                   <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">Nombre de usuario</label>
                   <div className="relative">
@@ -80,7 +80,7 @@ export const RegisterPage = () => {
                       placeholder="Ej: usuario1"
                     />
                   </div>
-                    {errors.username && <p className="text-red-600 text-xs mt-1">{errors.username}</p>}
+                  {errors.username && <p className="text-red-600 text-xs mt-1">{errors.username}</p>}
                 </div>
 
                 <div>
@@ -100,10 +100,10 @@ export const RegisterPage = () => {
                       onChange={handleChange}
                       disabled={loading}
                       className="w-full pl-10 pr-3 py-2 border border-gray-200 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#5C17A6] focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
-                      placeholder="tu@ejemplo.com"
+                      placeholder="usuario@ejemplo.com"
                     />
                   </div>
-                    {errors.email && <p className="text-red-600 text-xs mt-1">{errors.email}</p>}
+                  {errors.email && <p className="text-red-600 text-xs mt-1">{errors.email}</p>}
                 </div>
 
                 <div>
@@ -125,11 +125,12 @@ export const RegisterPage = () => {
                       placeholder="••••••••"
                     />
                   </div>
-                    {errors.password && <p className="text-red-600 text-xs mt-1">{errors.password}</p>}
+                  {errors.password && <p className="text-red-600 text-xs mt-1">{errors.password}</p>}
                 </div>
 
                 <div>
                   <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">Confirmar contraseña</label>
+
                   <input
                     type="password"
                     id="confirmPassword"
@@ -142,13 +143,13 @@ export const RegisterPage = () => {
                   />
                 </div>
 
-                 {errors.confirmPassword && <p className="text-red-600 text-xs mt-1">{errors.confirmPassword}</p>}
+                {errors.confirmPassword && <p className="text-red-600 text-xs mt-1">{errors.confirmPassword}</p>}
 
                 <div className="text-center mt-2 text-xs text-gray-400">Al registrarte aceptás nuestras políticas de uso.</div>
 
                 <Button
                   type="submit"
-                  onClick={() => {}}
+                  onClick={() => { }}
                   disabled={loading}
                   colorClass={`w-full flex items-center justify-center gap-2 py-3 px-4 rounded-lg text-sm font-semibold text-white bg-gradient-to-r from-[#5C17A6] to-[#761ED4] hover:from-[#521594] hover:to-[#6a2ad1] focus:outline-none focus:ring-4 focus:ring-[#5C17A6]/30 disabled:opacity-60 disabled:cursor-not-allowed transition-colors duration-150 cursor-pointer`}
                 >

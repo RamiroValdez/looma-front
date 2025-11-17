@@ -18,7 +18,7 @@ import { ToastProvider } from "./app/components/ToastProvider.tsx";
 import {MilkdownProvider} from "@milkdown/react";
 import Footer from "./app/components/Footer.tsx";
 import {RegisterPage} from "./app/features/Register/RegisterPage.tsx";
-
+import {VerifyCodePage} from "./app/features/Register/VerifyCodePage.tsx";
 import { WorkDetail } from './app/features/WorkDetail/WorkDetail.tsx';
 import ReadChapterNovel from "./app/features/WorkDetail/ReadChapterNovel.tsx";
 
@@ -156,6 +156,12 @@ function App() {
                     </Shell>
                   </ProtectedRoute>
                 } />
+
+                <Route path="/verify-code" element={
+                    <Shell>
+                  <VerifyCodePage />
+                  </Shell>
+                  } />
             </Routes>
             <ToastProvider />
         </BrowserRouter>
