@@ -16,7 +16,8 @@ import { MilkdownProvider } from "@milkdown/react";
 import Footer from "./app/components/Footer.tsx";
 import PaymentStatusPage from "./app/features/Payment/PaymentStatusPage.tsx";
 import TermsAndConditions from "./app/features/Legal/TermsAndConditions.tsx";
-
+import {RegisterPage} from "./app/features/Register/RegisterPage.tsx";
+import {VerifyCodePage} from "./app/features/Register/VerifyCodePage.tsx";
 import { WorkDetail } from './app/features/WorkDetail/WorkDetail.tsx';
 import ReadChapterNovel from "./app/features/WorkDetail/ReadChapterNovel.tsx";
 import Notifications from "./app/features/Notifications/Notifications.tsx";
@@ -50,6 +51,11 @@ function App() {
             <LoginPage />
           </Shell>
         } />
+                <Route path="/register" element={
+                  <Shell>
+                    <RegisterPage />
+                  </Shell>
+                } />
 
         <Route path="/" element={
           <Shell>
@@ -141,6 +147,12 @@ function App() {
                     </Shell>
                   </ProtectedRoute>
                 } />
+
+                <Route path="/verify-code" element={
+                    <Shell>
+                  <VerifyCodePage />
+                  </Shell>
+                  } />
             <Route path="/notifications" element={
           <Shell>
             <Notifications />
