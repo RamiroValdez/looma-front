@@ -7,6 +7,7 @@ import LikeButton from "../../../components/LikeButton";
 import StarRating from "../../../components/StarRating.tsx";
 import Tag from "../../../components/Tag.tsx";
 import { useWorkData } from "../hooks/userWorkData.ts";
+import { downloadEpub } from "../../../../infrastructure/services/WorkService.ts";
 
 interface WorkInfoProps {
   work: WorkDTO;
@@ -61,6 +62,27 @@ export const WorkInfo: React.FC<WorkInfoProps> = ({ work, manageFirstChapter, di
       setIsPaying(false);
     }
   };
+
+  const handleDownloadEpub = async () => {
+  if (!work) return;
+  try {
+    const epubFile = await downloadEpub(work.id);
+    if (epubFile?.url) {
+      const link = document.createElement('a');
+      link.href = epubFile.url;
+      link.download = `${work.title}.epub`; 
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      notifySuccess("Descarga iniciada.");
+    } else {
+      notifyError("No se ha podido completar la descargar EPUB.");
+    }
+  } catch (e) {
+    notifyError("Error al descargar el ePub.");
+  }
+};
+  
 
   return (
     <div className="bg-white space-y-6 ">
@@ -121,7 +143,8 @@ export const WorkInfo: React.FC<WorkInfoProps> = ({ work, manageFirstChapter, di
           </div>
 
           <div className="flex items-center gap-2 text-gray-700">
-          <svg 
+            <button className="cursor-pointer" onClick={handleDownloadEpub}>
+        <svg 
             xmlns="http://www.w3.org/2000/svg" 
             width="20" 
             height="20" 
@@ -136,6 +159,7 @@ export const WorkInfo: React.FC<WorkInfoProps> = ({ work, manageFirstChapter, di
             <polyline points="7 10 12 15 17 10"/>
             <line x1="12" y1="15" x2="12" y2="3"/>
           </svg>
+          </button>
           <span className="text-[16px] font-semibold text-gray-700"></span>
         </div>
       </div>
