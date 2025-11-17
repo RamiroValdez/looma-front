@@ -1,29 +1,28 @@
 import { useRef, useState, useEffect } from "react";
 import TopBookCard from "./TopBookCard";
 import ScrollArrow from "./ScrollArrow";
-import { getTop10Works } from "../../infrastructure/services/WorkService";
-import type { WorkDTO } from "../../domain/dto/WorkDTO";
 
-interface TopBook {
+interface Book {
     id: number;
     title: string;
     cover: string;
-    position: number;
+    position?: number; 
 }
 
-const Top10Section: React.FC = () => {
+interface WorkCarouselProps {
+    title: string;         
+    books: Book[];
+    showPosition?: boolean; 
+}
+
+const WorkCarousel: React.FC<WorkCarouselProps> = ({ 
+    title, 
+    books, 
+    showPosition = false 
+}) => {
     const scrollRef = useRef<HTMLDivElement>(null);
     const [showLeft, setShowLeft] = useState(false);
     const [showRight, setShowRight] = useState(false);
-
-    const { data: works, isLoading, isError } = getTop10Works();
-
-    const books: TopBook[] = works?.map((work: WorkDTO, index: number) => ({
-        id: work.id,
-        title: work.title,
-        cover: work.cover || '/default-cover.png',
-        position: index + 1
-    })) || [];
 
     const checkScroll = () => {
         if (scrollRef.current) {
@@ -50,30 +49,26 @@ const Top10Section: React.FC = () => {
         return () => {
             if (el) el.removeEventListener("scroll", checkScroll);
         };
-    }, []);
+    }, [books]);
 
-    if (isLoading) {
-        return <div className="my-10 px-6">Cargando...</div>;
-    }
-
-    if (isError || books.length === 0) {
+    if (books.length === 0) {
         return null;
     }
 
     return (
-        <section className="my-10 relative px-6">
-            <h2 className="text-2xl font-bold mb-8">TOP 10 EN ARGENTINA</h2>
+        <section className="relative">
+            <h2 className="text-2xl font-bold mb-8 ml-10">{title}</h2>
 
             <ScrollArrow direction="left" onClick={() => scroll("left")} isVisible={showLeft} />
 
-            <div
+             <div
                 ref={scrollRef}
-                className="flex gap-10 overflow-x-auto scroll-smooth pl-12 pr-12 overflow-visible [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']"
+                className="flex justify-start max-w-[1800px] ml-12 gap-10 overflow-x-auto scroll-smooth pl-12 pr-12 pb-8 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']"
             >
-                {books.map((book) => (
+                {books.map((book, index) => (
                     <TopBookCard
                         key={book.id}
-                        position={book.position}
+                        position={showPosition ? (book.position || index + 1) : undefined}
                         cover={book.cover}
                         title={book.title}
                         idWork={book.id}
@@ -86,4 +81,4 @@ const Top10Section: React.FC = () => {
     );
 };
 
-export default Top10Section;
+export default WorkCarousel;

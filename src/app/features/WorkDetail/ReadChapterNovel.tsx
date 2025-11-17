@@ -3,10 +3,11 @@ import TextViewer from "../Chapter/TextViewer.tsx";
 import { MilkdownProvider } from "@milkdown/react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useReadChapterData } from "./hooks/useReadChapterData";
-import { useState } from "react";
+import { useState , useEffect } from "react";
 import { useTheme } from "./hooks/useTheme";
 import ThemeSelector from "./components/ThemeSelector.tsx";
 import Button from "../../components/Button";
+import { updateReadingProgress } from "../../../infrastructure/services/HomeService.ts";
 
 const ReadChapter = () => {
     const navigate = useNavigate();
@@ -18,7 +19,6 @@ const ReadChapter = () => {
     const [isThemeSelectorOpen, setIsThemeSelectorOpen] = useState(false);
     const theme = getTheme();
     const currentFontSize = getFontSize(); 
-
 
     const {
         chapterData,
@@ -36,6 +36,7 @@ const ReadChapter = () => {
         isAuthor,
         isWorkSubscribed,
         isAuthorSubscribed,
+        isWorkSaved,
         toggleFullScreen,
         toggleLike,
         handleChapterClick,
@@ -43,6 +44,7 @@ const ReadChapter = () => {
         handleSubscribeWork,
         handleChapterPayment,
         isChapterUnlocked,
+        handdleToggleSaveWork,
     } = useReadChapterData(chapterId || "");
 
     const openWorkModal = () => {
@@ -105,7 +107,23 @@ const handleNextChapter = () => {
         }
     }
 };
+
+ useEffect(() => {
+        const saveProgress = async () => {
+            if (!chapterData?.workId || !chapterId) return;
+
+            try {
+                await updateReadingProgress(Number(chapterData.workId), Number(chapterId));
+                console.log('Progreso guardado');
+            } catch (error) {
+                console.error('Error guardando progreso:', error);
+            }
+        };
+
+        saveProgress();
+    }, [chapterData?.workId, chapterId])
    
+    
     if (isLoading) {
         return <p className="text-center text-gray-500 mt-10">Cargando capítulo...</p>;
     }
@@ -330,17 +348,21 @@ const handleNextChapter = () => {
                                     className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
                                         isWorkSubscribed || isAuthorSubscribed
                                             ? 'text-[#5C17A6] cursor-default'
-                                            : 'border border-[#5C17A6] text-[#5C17A6] cursor-pointer hover:bg-[#5C17A6] hover:text-white disabled:opacity-50 disabled:cursor-not-allowed'
+                                            : 'border border-[#5C17A6] text-white cursor-pointer bg-[#5C17A6] disabled:opacity-50 disabled:cursor-not-allowed'
                                     }`}
                                 >
                                     {isWorkSubscribed || isAuthorSubscribed ? "Suscrito" : "Suscribir"}
                                 </button>
                                 <button
-                                    disabled={true}
-                                    className="px-3 py-1.5 rounded-md text-sm border border-gray-300 text-gray-700 font-medium cursor-not-allowed opacity-50"
-                                >
-                                    Guardado
-                                </button>
+                        onClick={handdleToggleSaveWork}
+                        className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                            isWorkSaved
+                                ? 'text-[#5C17A6] cursor-pointer border border-[#5C17A6]'
+                                : 'text-white cursor-pointer bg-[#3b245a]/90 disabled:opacity-50 disabled:cursor-not-allowed'
+                        }`}
+                    >
+                        {isWorkSaved ? "Guardado" : "Guardar"}
+                    </button>
                             </div>
                         )}
                     </div>

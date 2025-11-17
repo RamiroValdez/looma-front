@@ -437,11 +437,18 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
                       colorClass="bg-transparent text-[#172FA6] border-[#172FA6]"
                     />
                   ))}
+
+                  {selectedCategories.length < 2 && (
                   <Button
                     text={'+'}
                     onClick={() => setIsCategoryMenuOpen(!isCategoryMenuOpen)}
                     colorClass={`w-8 h-8 pt-0 flex justify-center rounded-full border-2 border-[#172FA6] text-[#172FA6] text-2xl font-medium leading-none cursor-pointer hover:bg-[#172FA6] hover:text-white z-10`}
                   />
+                  )}
+
+                   {selectedCategories.length === 0 && (
+              <p className="text-red-500 text-sm mt-1 ml-1/4 pt-1">Selecciona al menos una categoría.</p>
+            )}
 
                   {isCategoryMenuOpen && (
                     <div ref={suggestionCategoryMenuRef} className="absolute z-20 top-10 mt-1 mr-[-10%] w-max max-w-sm lg:max-w-md">
@@ -469,9 +476,7 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
               </div>
             </div>
 
-            {selectedCategories.length === 0 && (
-              <p className="text-red-500 text-sm mt-1 ml-1/4 pt-1 pl-[25%]">Selecciona al menos una categoría.</p>
-            )}
+           
 
             <div className="mb-6">
               <div className="space-y-6 text-lg text-black">

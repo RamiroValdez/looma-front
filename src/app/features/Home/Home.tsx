@@ -1,12 +1,12 @@
- 
-import { useEffect, useState } from "react";
-import { getTop10Works} from "../../../infrastructure/services/WorkService";
+import { useEffect, useState, useRef } from "react";
 import { useCategories } from "../../../infrastructure/services/CategoryService";
-import { getUserReadingList } from "../../../infrastructure/services/UserService";
 import type { WorkDTO } from "../../../domain/dto/WorkDTO";
-import type { BookDTO } from "../../../domain/dto/BookDTO";
-import Top10Section from "../../components/Top10Section";
 import BannerHome from "../../components/BannerHome";
+import { getHomeWorkList } from "../../../infrastructure/services/HomeService";
+import { useUserStore } from "../../../domain/store/UserStorage";
+import WorkCarousel from "../../components/WorkCarousel";
+import ScrollArrow from "../../components/ScrollArrow";
+import { useNavigate } from "react-router-dom";
 
 interface TopBook {
   id: number;
@@ -19,31 +19,41 @@ const Home = () => {
   const { categories, isLoading, error } = useCategories();
 
   const [top10, setTop10] = useState<TopBook[]>([]);
-  const [seguirLeyendo, setSeguirLeyendo] = useState<BookDTO[]>([]);
+  const [top10Works, setTop10Works] = useState<WorkDTO[]>([]);
+  const [newReleases, setNewReleases] = useState<WorkDTO[]>([]);
+  const [recentlyUpdated, setRecentlyUpdated] = useState<WorkDTO[]>([]);
+  const [continueReading, setContinueReading] = useState<WorkDTO[]>([]);
   const [loading, setLoading] = useState(true);
+  const { user } = useUserStore();
+  
+  const [showLeft, setShowLeft] = useState(false);
+  const [showRight, setShowRight] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
 
-  console.log("Top 10:", top10);
-  console.log("Seguir Leyendo:", seguirLeyendo);
   useEffect(() => {
-    const userId = 1; 
-
     const fetchData = async () => {
+      if (!user?.userId) return; 
+
       try {
         setLoading(true);
-
-        const top10Data = await getTop10Works();
+        const workList = await getHomeWorkList(user?.userId || 0);
+        
+        setTop10Works(workList.topTen);
+        
         setTop10(
-          top10Data?.data?.map((work: WorkDTO, index: number) => ({
+          workList.topTen.map((work: WorkDTO, index: number) => ({
             id: work.id,
             title: work.title,
-            cover: work.cover, 
+            cover: work.cover,
             position: index + 1,
-          })) || []
+          }))
         );
-
-        const readingList = await getUserReadingList(userId);
-        setSeguirLeyendo(readingList);
-      } catch (error) {
+        setContinueReading(workList.currentlyReading);
+        setNewReleases(workList.newReleases);
+        setRecentlyUpdated(workList.recentlyUpdated);
+      }
+      catch (error) {
         console.error("Error al cargar los datos:", error);
       } finally {
         setLoading(false);
@@ -51,43 +61,91 @@ const Home = () => {
     };
 
     fetchData();
-  }, []);
+  }, [user?.userId]);
+
+  
+useEffect(() => {
+  const checkInitialScroll = () => {
+    if (scrollRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
+      setShowLeft(scrollLeft > 20);
+      setShowRight(scrollLeft + clientWidth < scrollWidth - 20);
+    }
+  };
+
+  const timer = setTimeout(checkInitialScroll, 100);
+  
+  return () => clearTimeout(timer);
+}, [categories, isLoading]);
+
+  const scroll = (direction: "left" | "right") => {
+    if (!scrollRef.current) return;
+    
+    const container = scrollRef.current;
+    const buttons = container.querySelectorAll('button');
+    
+    if (buttons.length === 0) return;
+    
+    const containerRect = container.getBoundingClientRect();
+    const padding = 48; 
+    
+    if (direction === "right") {
+      for (let i = 0; i < buttons.length; i++) {
+        const buttonRect = buttons[i].getBoundingClientRect();
+        if (buttonRect.left >= containerRect.right - padding) {
+          buttons[i].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
+          return;
+        }
+      }
+    } else {
+      for (let i = buttons.length - 1; i >= 0; i--) {
+        const buttonRect = buttons[i].getBoundingClientRect();
+        if (buttonRect.right <= containerRect.left + padding) {
+          buttons[i].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'end' });
+          return;
+        }
+      }
+    }
+  };
 
   if (loading) {
     return <div className="p-8 text-center text-lg">Cargando...</div>;
   }
 
+  const bannerBooks = top10Works
+    .filter((work) => work.banner && work.banner.trim() !== '') 
+    .slice(0, 3)
+    .map((work) => ({
+      id: work.id,
+      title: work.title,
+      banner: work.banner,
+      categories: work.categories?.map(cat => cat.name) || [],
+      description: work.description,
+    }));
+
   return (
     <div className="flex flex-col min-h-screen bg-[#f4f0f7]">
-      <BannerHome
-  books={[
-    {
-      title: "El principito",
-      cover: "/img/portadas/banner1.jpg",
-      categories: ["filosofía", "aventura"],
-      description: "Un cuento poético que explora la amistad, el amor y la esencia de la naturaleza humana a través de los ojos de un pequeño príncipe que viaja de planeta en planeta."
-    },
-    {
-      title: "Fahrenheit 451",
-      cover: "/img/portadas/banner2.jpg",
-      categories: ["ciencia ficción"],
-      description: "Un clásico distópico sobre la censura y el poder de la literatura en una sociedad que prohíbe los libros."
-    },
-    {
-      title: "La odisea de Homero",
-      cover: "/img/portadas/banner3.jpg",
-      categories: ["aventura"],
-      description: "El épico viaje de Odiseo de regreso a Ítaca tras la guerra de Troya, repleto de dioses, monstruos y aventuras legendarias."
-    },
-  ]}
-/>
+      {bannerBooks.length > 0 && <BannerHome books={bannerBooks} />}
 
-      <Top10Section />
-
-      <div className="px-6 mb-12 grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-        <div className="w-full">
-          <h2 className="text-2xl font-bold mb-4">CATEGORIAS</h2>
-          <div className="flex flex-wrap gap-3">
+      <div className="relative mt-10 mb-12">                
+        <div className="relative px-12">
+          {showLeft && (
+            <div className="absolute left-0 top-1/2 -translate-y-1/2 z-20">
+              <ScrollArrow direction="left" onClick={() => scroll("left")} isVisible={true} />
+            </div>
+          )}
+          
+          <div 
+            ref={scrollRef}
+            className="flex gap-3 overflow-x-auto scroll-smooth px-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']"
+            onScroll={() => {
+              if (scrollRef.current) {
+                const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
+                setShowLeft(scrollLeft > 20);
+                setShowRight(scrollLeft + clientWidth < scrollWidth - 20);
+              }
+            }}
+          >
             {isLoading ? (
               <p className="text-gray-500">Cargando categorías...</p>
             ) : error ? (
@@ -96,18 +154,29 @@ const Home = () => {
               categories.map((category) => (
                 <button
                   key={category.id}
-                  className="bg-white border border-gray-200 px-4 py-2 rounded-full shadow-sm hover:bg-gray-100 transition text-sm font-medium"
+                  onClick={() => navigate(`/explore?categoryIds=${category.id}`)}
+                  className="flex-shrink-0 bg-[#5C17A6] text-white hover:bg-[#4a186f] cursor-pointer px-6 py-3 rounded-full shadow-sm transition font-medium min-w-[140px]"
                 >
                   {category.name}
                 </button>
               ))
             )}
           </div>
+          
+          {showRight && (
+            <div className="absolute right-0 top-1/2 -translate-y-1/2 z-20">
+              <ScrollArrow direction="right" onClick={() => scroll("right")} isVisible={true} />
+            </div>
+          )}
         </div>
       </div>
+
+      <WorkCarousel title="Top 10 en Argentina" books={top10} showPosition={true} />
+      <WorkCarousel title="Seguir Leyendo" books={continueReading} />
+      <WorkCarousel title="Nuevos lanzamientos" books={newReleases} />
+      <WorkCarousel title="Actualizados recientemente" books={recentlyUpdated} />
     </div>
   );
 };
 
 export default Home;
-

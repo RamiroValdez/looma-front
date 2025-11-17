@@ -9,6 +9,7 @@ import { useSearchParams } from 'react-router-dom';
 export default function ExplorePage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const qParam = searchParams.get('q') || undefined;
+  const categoryIdsParam = searchParams.get('categoryIds'); 
 
   const [filters, setFilters] = useState<ExploreFiltersDto>({ text: qParam });
   const [page, setPage] = useState(0);
@@ -37,7 +38,11 @@ export default function ExplorePage() {
       setFilters((prev) => ({ ...prev, text: qParam }));
       setPage(0);
     }
-  }, [qParam]);
+      if (categoryIdsParam) {
+      setFilters((prev) => ({ ...prev, categoryIds: [Number(categoryIdsParam)] }));
+      setPage(0);
+    }
+  }, [qParam, categoryIdsParam]);
 
   const handleFilterChange = (newFilters: Partial<ExploreFiltersDto>) => {
     setFilters((prev) => ({ ...prev, ...newFilters }));
@@ -49,8 +54,18 @@ export default function ExplorePage() {
       } else {
         searchParams.delete('q');
       }
-      setSearchParams(searchParams, { replace: true });
+
     }
+    if ('categoryIds' in newFilters) {
+      if (newFilters.categoryIds && newFilters.categoryIds.length > 0) {
+        searchParams.set('categoryIds', String(newFilters.categoryIds[0]));
+      } else {
+        searchParams.delete('categoryIds');
+      }
+    
+  }
+      setSearchParams(searchParams, { replace: true });
+    
   };
 
   const handleEpisodeRangeChange = (rangeValue: string, isChecked: boolean) => {
