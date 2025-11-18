@@ -3,6 +3,7 @@ import { getWorkById as getWorkByIdFromChapterService } from './ChapterService.t
 import {useApiQuery} from "../api/useApiQuery.ts";
 import { apiClient } from '../api/apiClient';
 import { useAuthStore } from '../../domain/store/AuthStore';
+import type { ExportEpubResponseDto } from '../../domain/dto/ExportEpubResponseDto.ts';
 
 export class WorkService {
 
@@ -49,6 +50,24 @@ export const getTop10Works = () => {
     ); 
 };
 
+export const downloadEpub = async (workId: number): Promise<ExportEpubResponseDto> => {
+    try {
+        const token = useAuthStore.getState().token;
+        const response = await apiClient.request<ExportEpubResponseDto>({
+            url: `${import.meta.env.VITE_API_EXPORT_URL}/epub/${workId}`,
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                ...(token ? { Authorization: `Bearer ${token}` } : {}),
+            },
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error downloading ePub:', error);
+        throw new Error('Failed to download ePub');
+    }
+};
+    
 export interface ExploreRequestDTO {
     categoryIds?: number[];
     formatIds?: number[];
