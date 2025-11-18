@@ -5,21 +5,23 @@ import ManageWorkPage from "./app/features/ManageWork/ManageWorkPage.tsx";
 import CreatePiece from "./app/features/Work/MyWorks.tsx";
 import Create from "./app/features/Work/Create.tsx";
 import Home from "./app/features/Home/Home.tsx";
-import StartPage from "./quiz/pages/StartPage";
-import QuestionsPage from "./quiz/pages/QuestionsPage";
-import CorrectPage from "./quiz/pages/CorrectPage";
-import IncorrectPage from "./quiz/pages/IncorrectPage";
 import { LoginPage } from "./app/features/Login/LoginPage.tsx";
 import { ProtectedRoute } from "./app/components/ProtectedRoute.tsx";
 import Header from "./app/components/Header.tsx";
 import AddChapter from "./app/features/Chapter/AddChapter.tsx";
 import PreviewChapter from "./app/features/Chapter/PreviewChapter.tsx";
+import ProfilePage from "./app/features/Profile/ProfilePage.tsx";
 import { ToastProvider } from "./app/components/ToastProvider.tsx";
 import { MilkdownProvider } from "@milkdown/react";
 import Footer from "./app/components/Footer.tsx";
-
+import PaymentStatusPage from "./app/features/Payment/PaymentStatusPage.tsx";
+import TermsAndConditions from "./app/features/Legal/TermsAndConditions.tsx";
+import { RegisterPage } from "./app/features/Register/RegisterPage.tsx";
+import { VerifyCodePage } from "./app/features/Register/VerifyCodePage.tsx";
 import { WorkDetail } from './app/features/WorkDetail/WorkDetail.tsx';
 import ReadChapterNovel from "./app/features/WorkDetail/ReadChapterNovel.tsx";
+import Notifications from "./app/features/Notifications/Notifications.tsx";
+import { MySaves } from "./app/features/MySaves.tsx";
 import PreferencesPage from "./app/features/PreferencesUser/PreferencesPage.tsx";
 
 function Shell({ children }: { children: React.ReactNode }) {
@@ -50,6 +52,19 @@ function App() {
             <LoginPage />
           </Shell>
         } />
+        <Route path="/register" element={
+          <Shell>
+            <RegisterPage />
+          </Shell>
+        } />
+
+        <Route path="/preferences" element={
+          <ProtectedRoute>
+            <Shell>
+              <PreferencesPage />
+            </Shell>
+          </ProtectedRoute>
+        } />
 
         <Route path="/" element={
           <Shell>
@@ -57,16 +72,12 @@ function App() {
           </Shell>
         } />
 
-        <Route path="/preferences" element={
-          <Shell>
-            <PreferencesPage />
-          </Shell>
-        } />
         <Route path="/home" element={
           <Shell>
             <Home />
           </Shell>
         } />
+
         <Route path="/explore" element={
           <ProtectedRoute>
             <Shell>
@@ -115,31 +126,6 @@ function App() {
           </ProtectedRoute>
         } />
 
-        {/* Rutas del quiz (inicio, preguntas, correct/incorrect) */}
-        <Route path="/quiz" element={<>
-          <Header />
-          <StartPage />
-          <Footer />
-        </>} />
-
-        <Route path="/quiz/questions" element={<>
-          <Header />
-          <QuestionsPage />
-          <Footer />
-        </>} />
-
-        <Route path="/quiz/correct" element={<>
-          <Header />
-          <CorrectPage />
-          <Footer />
-        </>} />
-
-        <Route path="/quiz/incorrect" element={<>
-          <Header />
-          <IncorrectPage />
-          <Footer />
-        </>} />
-
         <Route path="/work/chapter/:chapterId/read" element={
           <ProtectedRoute>
             <ShellWithoutFooter>
@@ -154,6 +140,44 @@ function App() {
               <WorkDetail />
             </Shell>
           </ProtectedRoute>
+        } />
+        <Route path="/mySaves" element={
+          <ProtectedRoute>
+            <Shell>
+              <MySaves />
+            </Shell>
+          </ProtectedRoute>
+        } />
+
+        <Route path="/profile/:id" element={
+          <ProtectedRoute>
+            <Shell>
+              <ProfilePage />
+            </Shell>
+          </ProtectedRoute>
+        } />
+
+        <Route path="/verify-code" element={
+          <Shell>
+            <VerifyCodePage />
+          </Shell>
+        } />
+        <Route path="/notifications" element={
+          <Shell>
+            <Notifications />
+          </Shell>
+        } />
+
+        <Route path="/payment/:uuid" element={
+          <Shell>
+            <PaymentStatusPage />
+          </Shell>
+        } />
+
+        <Route path="/terms" element={
+          <Shell>
+            <TermsAndConditions />
+          </Shell>
         } />
       </Routes>
       <ToastProvider />

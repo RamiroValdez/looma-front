@@ -15,6 +15,15 @@ export interface LoginResponse {
     username: string;
 }
 
+export interface RegisterRequest {
+    name: string;
+    surname: string;
+    username: string;
+    email: string;
+    password: string;
+    confirmPassword: string;
+}
+
 export const useLogin = async (email: string, password: string): Promise<LoginResponse> => {
 
     const loginData: LoginRequest = {
@@ -28,5 +37,24 @@ export const useLogin = async (email: string, password: string): Promise<LoginRe
         data: loginData
     });
 
-    return response;
+    return response; 
+};
+
+export const useRegister = async (data: RegisterRequest): Promise<{ status: number; data: any }> => {
+    const response = await fetch(
+        import.meta.env.VITE_API_BASE_URL + '/auth/register',
+        {
+            method: 'POST',
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data)
+        }
+    );
+    const responseData = await response.json().catch(() => ({}));
+    if (!response.ok) {
+        const error: any = new Error(responseData.message || "Error al registrarse");
+        error.status = response.status;
+        error.data = responseData;
+        throw error;
+    }
+    return { status: response.status, data: responseData };
 };
