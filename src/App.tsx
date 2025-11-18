@@ -14,6 +14,7 @@ import { ProtectedRoute } from "./app/components/ProtectedRoute.tsx";
 import Header from "./app/components/Header.tsx";
 import AddChapter from "./app/features/Chapter/AddChapter.tsx";
 import PreviewChapter from "./app/features/Chapter/PreviewChapter.tsx";
+import PreferencesPage from "./app/features/Preferences/PreferencesPage.tsx";
 import { ToastProvider } from "./app/components/ToastProvider.tsx";
 import { MilkdownProvider } from "@milkdown/react";
 import Footer from "./app/components/Footer.tsx";
@@ -151,17 +152,24 @@ function App() {
             </Shell>
           </ProtectedRoute>
         } />
-<Route path="/mySaves" element={
-                  <ProtectedRoute>
-                    <Shell>
-                      <MySaves />
-                    </Shell>
-                  </ProtectedRoute>
-                } />
-            <Route path="/notifications" element={
+        <Route path="/mySaves" element={
+          <ProtectedRoute>
+            <Shell>
+              <MySaves />
+            </Shell>
+          </ProtectedRoute>
+        } />
+        <Route path="/notifications" element={
           <Shell>
             <Notifications />
           </Shell>
+        } />
+        <Route path="/preferences" element={
+          <ProtectedRoute>
+            <Shell>
+              <PreferencesPage />
+            </Shell>
+          </ProtectedRoute>
         } />
       </Routes>
       <ToastProvider />
