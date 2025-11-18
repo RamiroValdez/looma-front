@@ -1,4 +1,4 @@
-import type { UserPreference, PreferenceCategoryInfo } from '../types';
+import type { UserPreference, PreferenceCategoryInfo } from '../../../hooks/useUserPreferences';
 
 interface PreferenceCategoryProps {
   category: PreferenceCategoryInfo;

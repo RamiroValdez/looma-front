@@ -1,6 +1,10 @@
+import ProfileMenu from './components/ProfileMenu';
+
 export default function TermsAndConditions() {
   return (
-    <div className="mx-auto max-w-3xl px-4 py-10 text-[#2B2B2B]">
+    <div className="flex min-h-screen">
+      <ProfileMenu />
+      <div className="flex-1 mx-auto max-w-3xl px-4 py-10 text-[#2B2B2B]">
       <article className="space-y-6">
         <header className="space-y-2">
           <h1 className="text-3xl font-extrabold">TÉRMINOS Y CONDICIONES DE USO – LOOMA</h1>
@@ -189,6 +193,7 @@ export default function TermsAndConditions() {
           </p>
         </section>
       </article>
+      </div>
     </div>
   );
 }

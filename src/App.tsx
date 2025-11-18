@@ -11,18 +11,18 @@ import Header from "./app/components/Header.tsx";
 import AddChapter from "./app/features/Chapter/AddChapter.tsx";
 import PreviewChapter from "./app/features/Chapter/PreviewChapter.tsx";
 import ProfilePage from "./app/features/Profile/ProfilePage.tsx";
-import PreferencesPage from "./app/features/Preferences/PreferencesPage.tsx";
+import PreferencesPage from "./app/features/Profile/PreferencesPage.tsx";
 import { ToastProvider } from "./app/components/ToastProvider.tsx";
 import { MilkdownProvider } from "@milkdown/react";
 import Footer from "./app/components/Footer.tsx";
 import PaymentStatusPage from "./app/features/Payment/PaymentStatusPage.tsx";
-import TermsAndConditions from "./app/features/Legal/TermsAndConditions.tsx";
+import TermsAndConditions from "./app/features/Profile/TermsAndConditions.tsx";
 import { RegisterPage } from "./app/features/Register/RegisterPage.tsx";
 import { VerifyCodePage } from "./app/features/Register/VerifyCodePage.tsx";
 import { WorkDetail } from './app/features/WorkDetail/WorkDetail.tsx';
 import ReadChapterNovel from "./app/features/WorkDetail/ReadChapterNovel.tsx";
 import Notifications from "./app/features/Notifications/Notifications.tsx";
-import { MySaves } from "./app/features/MySaves.tsx";
+import { MySaves } from "./app/features/Profile/MySaves.tsx";
 
 function Shell({ children }: { children: React.ReactNode }) {
   return (
