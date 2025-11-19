@@ -23,8 +23,8 @@ export const RegisterPage = () => {
       <div className="w-full max-w-5xl mx-auto">
         <div className="bg-white/60 backdrop-blur-lg rounded-3xl shadow-2xl overflow-hidden md:flex md:items-stretch">
           <div className="hidden md:flex md:w-1/2 bg-gradient-to-br from-[#f3e9fb] to-[#efe6ff] p-8">
-            <div className="z-10 px-6 flex flex-col justify-center items-start h-full">
-              <div className="flex items-center justify-center gap-4 w-full">
+            <div className="z-10 px-6 pl-16 flex flex-col justify-center items-center h-full">
+              <div className="flex items-center justify-center gap-4 ">
                 <h2 className="text-3xl font-extrabold text-[#3C2A50]">Únete a</h2>
                 <div className="mb-0">
                   <img src="/img/loomaLogo-.png" alt="LOOMA" className="h-35 w-35 object-contain mb-7" />
