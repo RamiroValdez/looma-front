@@ -1,50 +1,22 @@
-import React, { useState } from "react";
+import React from "react";
 import { useCategories } from "../../../infrastructure/services/CategoryService";
-import { useFormats } from "../../../infrastructure/services/FormatService";
-import { sendPreferences } from "../../../infrastructure/services/PreferencesService";
-import { useNavigate } from "react-router-dom"; 
+import { usePreferences } from "../../hooks/usePreferences";
 
 const PreferencesPage: React.FC = () => {
   const { categories, isLoading: loadingCategories } = useCategories();
-  const { formats, isLoading: loadingFormats } = useFormats();
 
-  const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
-  const [selectedFormats, setSelectedFormats] = useState<string[]>([]);
-  const [sending, setSending] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const navigate = useNavigate();
-
-  const toggleSelection = (
-    value: string,
-    list: string[],
-    setList: React.Dispatch<React.SetStateAction<string[]>>
-  ) => {
-    if (list.includes(value)) {
-      setList(list.filter((item) => item !== value));
-    } else {
-      setList([...list, value]);
-    }
-  };
-
-  const handleSubmit = async () => {
-    setSending(true);
-    setError(null);
-    try {
-      await sendPreferences(selectedGenres, selectedFormats);
-      navigate("/home");
-    } catch (err: any) {
-      setError(err.message || "Error desconocido");
-    } finally {
-      setSending(false);
-    }
-  };
+  const {
+    selectedGenres,
+    sending,
+    error,
+    toggleSelection,
+    handleSubmit,
+  } = usePreferences();
 
   return (
     <div className="relative min-h-screen flex items-center justify-center bg-[#f4f2f9] p-6 overflow-hidden">
 
       <div className="bg-white shadow-[0_0_25px_5px_rgba(92,23,166,0.4)] rounded-2xl p-10 w-full max-w-[720px] z-10">
-
 
         <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-2">
           ¿Cuáles son tus géneros favoritos para leer?
@@ -61,10 +33,8 @@ const PreferencesPage: React.FC = () => {
               <button
                 key={genre.id || genre.name}
                 type="button"
-                onClick={() =>
-                  toggleSelection(genre.name, selectedGenres, setSelectedGenres)
-                }
-                className={`px-4 py-1 rounded-full border text-sm transition-all ${selectedGenres.includes(genre.name)
+                onClick={() => toggleSelection(genre.id)}
+                className={`px-4 py-1 rounded-full border text-sm transition-all ${selectedGenres.includes(genre.id)
                   ? "bg-[#5c17a6] text-white border-[#5c17a6]"
                   : "bg-white text-black border-[#5c17a6] hover:bg-gray-100"
                   }`}
@@ -75,33 +45,8 @@ const PreferencesPage: React.FC = () => {
           )}
         </div>
 
-        <h3 className="text-lg font-semibold text-gray-900 mb-3">
-          Selecciona tus preferencias
-        </h3>
-        <div className="flex flex-wrap gap-2 mb-6">
-          {loadingFormats ? (
-            <span className="text-gray-400">Cargando formatos...</span>
-          ) : (
-            formats.map((format: any) => (
-              <button
-                key={format.id || format.name}
-                type="button"
-                onClick={() =>
-                  toggleSelection(format.name, selectedFormats, setSelectedFormats)
-                }
-                className={`px-4 py-1 rounded-full border text-sm transition-all ${selectedFormats.includes(format.name)
-                  ? "bg-[#3c2a50] text-white border-[#3c2a50]"
-                  : "bg-white text-black border-[#172FA6] hover:bg-gray-100"
-                  }`}
-              >
-                {format.name}
-              </button>
-            ))
-          )}
-        </div>
-
         {error && (
-          <div className="mb-4 text-red-600 text-sm">{error}</div>
+          <div className="text-red-500 text-sm mb-4">{error}</div>
         )}
 
         <button

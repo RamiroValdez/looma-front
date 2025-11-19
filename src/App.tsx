@@ -23,6 +23,7 @@ import ReadChapterNovel from "./app/features/WorkDetail/ReadChapterNovel.tsx";
 import Notifications from "./app/features/Notifications/Notifications.tsx";
 import { MySaves } from "./app/features/MySaves.tsx";
 import PreferencesPage from "./app/features/PreferencesUser/PreferencesPage.tsx";
+import WelcomePage from "./app/features/Register/WelcomePage.tsx";
 
 function Shell({ children }: { children: React.ReactNode }) {
   return (
@@ -63,6 +64,14 @@ function App() {
             <Shell>
               <PreferencesPage />
             </Shell>
+          </ProtectedRoute>
+        } />
+
+        <Route path="/welcome" element={
+          <ProtectedRoute>
+          <Shell>
+            <WelcomePage />
+          </Shell>
           </ProtectedRoute>
         } />
 
