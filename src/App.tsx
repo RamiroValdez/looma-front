@@ -11,7 +11,6 @@ import Header from "./app/components/Header.tsx";
 import AddChapter from "./app/features/Chapter/AddChapter.tsx";
 import PreviewChapter from "./app/features/Chapter/PreviewChapter.tsx";
 import ProfilePage from "./app/features/Profile/ProfilePage.tsx";
-import PreferencesPage from "./app/features/Profile/PreferencesPage.tsx";
 import { ToastProvider } from "./app/components/ToastProvider.tsx";
 import { MilkdownProvider } from "@milkdown/react";
 import Footer from "./app/components/Footer.tsx";
@@ -170,14 +169,6 @@ function App() {
           <Shell>
             <TermsAndConditions />
           </Shell>
-        } />
-
-        <Route path="/preferences" element={
-          <ProtectedRoute>
-            <Shell>
-              <PreferencesPage />
-            </Shell>
-          </ProtectedRoute>
         } />
       </Routes>
       <ToastProvider />

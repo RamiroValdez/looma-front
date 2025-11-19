@@ -56,17 +56,6 @@ const ProfileMenu = () => {
         >
           Mis Obras
         </li>
-        
-        <li 
-          className={`cursor-pointer p-4 rounded text-lg border-b border-gray-300 ${
-            location.pathname === '/preferences'
-              ? 'bg-gray-300 text-black' 
-              : 'hover:bg-gray-200 hover:shadow-md'
-          }`}
-          onClick={() => navigate('/preferences')}
-        >
-          Preferencias
-        </li>
 
         <li className="hover:bg-gray-200 hover:shadow-md cursor-pointer p-4 rounded text-lg border-b border-gray-300">Estadísticas</li>
         
