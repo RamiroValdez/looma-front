@@ -21,9 +21,9 @@ const ProfileMenu = () => {
       }
     };
     fetchUser();
-  }, []);
+  }, [user]);
 
-  return (
+  return user ? (
     <div className="profile-menu w-64 h-screen bg-gray-100 p-4 sticky top-0">
       <ul className="space-y-2">
         <li 
@@ -80,7 +80,7 @@ const ProfileMenu = () => {
         </li>
       </ul>
     </div>
-  );
+  ) : null;
 };
 
 export default ProfileMenu;
