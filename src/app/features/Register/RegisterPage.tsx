@@ -1,10 +1,22 @@
 import Button from "../../components/Button.tsx";
 import { useRegister } from "../..//hooks/useRegister.ts";
+import { useState } from "react";
 
 export const RegisterPage = () => {
   const { formData, handleChange, handleSubmit, loading, errors } = useRegister();
 
   const { name, surname, username, email, password, confirmPassword } = formData;
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
+
+  const isFormComplete =
+    name &&
+    surname &&
+    username &&
+    email &&
+    password &&
+    confirmPassword &&
+    acceptedTerms;
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-white to-gray-50 py-12 px-4 sm:px-6 lg:px-8">
@@ -145,12 +157,32 @@ export const RegisterPage = () => {
 
                 {errors.confirmPassword && <p className="text-red-600 text-xs mt-1">{errors.confirmPassword}</p>}
 
-                <div className="text-center mt-2 text-xs text-gray-400">Al registrarte aceptás nuestras políticas de uso.</div>
-
+                <div className="flex items-center mt-2">
+                  <input
+                    id="terms"
+                    type="checkbox"
+                    checked={acceptedTerms}
+                    onChange={(e) => setAcceptedTerms(e.target.checked)}
+                    disabled={loading}
+                    className="h-4 w-4 accent-[#5C17A6] border-gray-300 rounded focus:ring-[#5C17A6]"
+                  />
+                  <label htmlFor="terms" className="ml-2 block text-xs text-gray-600 select-none">
+                    He leído y acepto los{" "}
+                    <a
+                      href="/terms"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="underline text-[#5C17A6] hover:text-[#761ED4]"
+                    >
+                      Términos y Condiciones
+                    </a>
+                    .
+                  </label>
+                </div>
                 <Button
                   type="submit"
                   onClick={() => { }}
-                  disabled={loading}
+                  disabled={loading || !isFormComplete}
                   colorClass={`w-full flex items-center justify-center gap-2 py-3 px-4 rounded-lg text-sm font-semibold text-white bg-gradient-to-r from-[#5C17A6] to-[#761ED4] hover:from-[#521594] hover:to-[#6a2ad1] focus:outline-none focus:ring-4 focus:ring-[#5C17A6]/30 disabled:opacity-60 disabled:cursor-not-allowed transition-colors duration-150 cursor-pointer`}
                 >
                   {loading ? (
