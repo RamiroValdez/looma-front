@@ -8,6 +8,7 @@ import StarRating from "../../../components/StarRating.tsx";
 import Tag from "../../../components/Tag.tsx";
 import { useWorkData } from "../hooks/userWorkData.ts";
 import { downloadEpub } from "../../../../infrastructure/services/WorkService.ts";
+import { downloadPdf } from "../../../../infrastructure/services/WorkService.ts";
 
 interface WorkInfoProps {
   work: WorkDTO;
@@ -22,6 +23,11 @@ export const WorkInfo: React.FC<WorkInfoProps> = ({ work, manageFirstChapter, di
   const isAuthorSubscribed = Boolean(work.subscribedToAuthor);
   const isWorkSubscribed = Boolean(work.subscribedToWork);
   const { isWorkSaved, handdleToggleSaveWork } = useWorkData(work.id);
+  const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
+
+  const openDownloadModal = () => setIsDownloadModalOpen(true);
+  const closeDownloadModal = () => setIsDownloadModalOpen(false);
+
 
   const closeModal = () => {
     if (isPaying) return;
@@ -74,7 +80,7 @@ export const WorkInfo: React.FC<WorkInfoProps> = ({ work, manageFirstChapter, di
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      notifySuccess("Descarga iniciada.");
+      notifySuccess("Descarga de EPUB iniciada.");
     } else {
       notifyError("No se ha podido completar la descargar EPUB.");
     }
@@ -82,8 +88,22 @@ export const WorkInfo: React.FC<WorkInfoProps> = ({ work, manageFirstChapter, di
     notifyError("Error al descargar el ePub.");
   }
 };
-  
 
+ const handleDownloadPdf = async () => {
+  if (!work) return;
+  try {
+    const pdfFile = await downloadPdf(work.id);
+    if (pdfFile?.url) {
+      window.open(pdfFile.url, "_blank");
+      notifySuccess("PDF listo para descargar.");
+    } else {
+      notifyError("No se ha podido completar la descarga PDF.");
+    }
+  } catch (e) {
+    notifyError("Error al descargar el PDF.");
+  }
+};
+  
   return (
     <div className="bg-white space-y-6 ">
         <div className="flex flex-wrap gap-2">
@@ -141,27 +161,61 @@ export const WorkInfo: React.FC<WorkInfoProps> = ({ work, manageFirstChapter, di
             </svg>
             <span className="text-[16px] font-semibold text-gray-700">1.7k</span>
           </div>
+  <button
+    className="flex items-center gap-2 rounded-lg text-base font-semibold cursor-pointer" 
+    onClick={openDownloadModal}
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      fill="none"
+      stroke="#172FA6"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      viewBox="0 0 24 24"
+    >
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+      <polyline points="7 10 12 15 17 10"/>
+      <line x1="12" y1="15" x2="12" y2="3"/>
+    </svg>
 
-          <div className="flex items-center gap-2 text-gray-700">
-            <button className="cursor-pointer" onClick={handleDownloadEpub}>
-        <svg 
-            xmlns="http://www.w3.org/2000/svg" 
-            width="20" 
-            height="20" 
-            viewBox="0 0 24 24" 
-            fill="none" 
-            stroke="currentColor" 
-            strokeWidth="2" 
-            strokeLinecap="round" 
-            strokeLinejoin="round"
+  </button>
+
+  {isDownloadModalOpen && (
+    <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/50">
+      <div className="bg-white rounded-xl p-8 w-full max-w-md relative shadow-xl flex flex-col items-center">
+        <button
+          className="absolute top-4 right-4 cursor-pointer"
+          onClick={closeDownloadModal}
+        >
+          <img src="/img/PopUpCierre.png" className="w-8 h-8 hover:opacity-60" alt="Cerrar" />
+        </button>
+        <h3 className="text-2xl font-bold mb-8 text-center text-[#172FA6]">Descargar {work.title}</h3>
+        <div className="flex gap-6 justify-center">
+          <div className="flex flex-col items-center border border-[#172FA6] rounded-lg p-6 shadow hover:scale-103 transition cursor-pointer"
+            onClick={() => {
+              handleDownloadEpub();
+              closeDownloadModal();
+            }}
           >
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-            <polyline points="7 10 12 15 17 10"/>
-            <line x1="12" y1="15" x2="12" y2="3"/>
-          </svg>
-          </button>
-          <span className="text-[16px] font-semibold text-gray-700"></span>
+            <img src="/img/epub.png" alt="EPUB" className="w-12 h-12 mb-2" />
+            <span className="font-semibold text-[#172FA6]">Exportar EPUB</span>
+          </div>
+          <div className="flex flex-col items-center border border-[#5C17A6] rounded-lg p-6 shadow hover:scale-103 transition cursor-pointer"
+            onClick={() => {
+              handleDownloadPdf();
+              closeDownloadModal();
+            }}
+          >
+            <img src="/img/pdf.png" alt="PDF" className="w-12 h-12 mb-2" />
+            <span className="font-semibold text-[#5C17A6]">Exportar PDF</span>
+          </div>
         </div>
+      </div>
+    </div>
+  )}
       </div>
 
       <div className="flex items-center justify-between gap-6 px-8">
