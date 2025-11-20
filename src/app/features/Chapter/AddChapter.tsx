@@ -186,7 +186,9 @@ export default function AddChapter() {
                             </div>
                         </div>
                     </div>
-                    <BackButton to={`/manage-work/${id}`} />
+                    <div className="pl-5">
+                        <BackButton to={`/manage-work/${id}`} />
+                    </div>
                     <div className="flex flex-col lg:flex-row gap-8">
                         <div className="flex-[3] rounded-2xl p-6">
                             <h2 className="text-lg font-medium text-gray-700 mb-4">
@@ -256,7 +258,7 @@ export default function AddChapter() {
                                                 <h4 className="font-semibold">Eliminar capítulo</h4>
                                                 <p className="text-sm">Esta acción no se puede deshacer.</p>
                                             </div>
-                                            <button onClick={openDeleteModal} className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">Eliminar capítulo</button>
+                                            <button onClick={openDeleteModal} className="px-4 py-2 bg-red-600 cursor-pointer text-white rounded-full font-semibold hover:bg-red-700">Eliminar capítulo</button>
                                         </div>
                                     </div>
                                 </div>
@@ -270,7 +272,7 @@ export default function AddChapter() {
                             )}
                             {error && <p className="mt-4 text-red-600 text-sm">{error}</p>}
                         </div>
-                        <div className="flex-[2] lg:max-w-[400px]">
+                        <div className="flex-[2] lg:max-w-[400px] mt-4">
                             <h3 className="text-center font-semibold mb-4 text-xl">Herramientas avanzadas</h3>
                             <label className="flex items-center space-x-2 mb-6">
                                 <span>Permitir traducción con IA</span>
@@ -293,13 +295,13 @@ export default function AddChapter() {
                                     <div className="flex items-center gap-2">
                                         <label className="text-black font-medium text-base">Precio:</label>
                                         <div className="flex items-center border rounded">
-                                            <span className="px-2 py-2 bg-gray-50 border-r text-base text-black">$</span>
+                                            <span className="px-2 py-2 bg-gray-50 border-r border border-[#172fa6] text-base text-black">$</span>
                                             <input
                                                 type="number"
                                                 placeholder="0.00"
                                                 value={chapter.price || ''}
                                                 onChange={(e) => handleFieldChange("price", e.target.value)}
-                                                className="px-2 py-2 text-base text-black rounded-r focus:outline-none focus:ring-2 focus:ring-[#5C17A6] w-25"
+                                                className="px-2 py-2 border border-[#172fa6] text-base text-black rounded-r focus:outline-none focus:ring-2 focus:ring-[#5C17A6] w-25"
                                                 min="0"
                                                 step="0.01"
                                             />
@@ -309,7 +311,7 @@ export default function AddChapter() {
                                         <Button
                                             text={isSaving ? "Guardando..." : "Guardar"}
                                             onClick={handleSavePrice}
-                                            colorClass={`bg-[#5C17A6] hover:bg-[#4A1285] focus:ring-[#5C17A6] text-white cursor-pointer`}
+                                            colorClass={`px-4 py-2 bg-[#591b9b] font-semibold text-white rounded-full shadow hover:bg-purple-800 cursor-pointer`}
                                         />
                                     </div>
                                 </div>

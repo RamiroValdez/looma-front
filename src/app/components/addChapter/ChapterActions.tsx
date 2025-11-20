@@ -83,14 +83,14 @@ export default function ChapterActions({ onPreview, workId, formData, chapterId,
       <div className="flex flex-wrap gap-4">
         <button
           onClick={handlePreview}
-          className="px-4 py-2 bg-[#591b9b] text-white rounded-lg shadow hover:bg-purple-800"
+          className="px-4 py-2 bg-[#591b9b] text-white rounded-full font-semibold shadow hover:bg-purple-800 cursor-pointer"
         >
           Vista previa
         </button>
         <button
           onClick={handleSaveDraft}
           disabled={!isDraft || saving}
-          className="px-4 py-2 bg-[#4C3B63] text-white rounded-lg shadow hover:bg-[#3b2c4e] disabled:opacity-60"
+          className="px-4 py-2 bg-[#4C3B63] text-white rounded-full font-semibold shadow hover:bg-[#3b2c4e] disabled:opacity-60 cursor-pointer"
         >
           {saving ? 'Guardando...' : 'Guardar borrador'}
         </button>

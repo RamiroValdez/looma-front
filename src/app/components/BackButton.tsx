@@ -15,11 +15,11 @@ const BackButton = ({ to }: BackButtonProps) => {
   return (
     <button
       onClick={handleClick}
-      className="flex items-center gap-2 text-gray-600 hover:text-[#5C17A6] transition-colors duration-200 group mb-3 cursor-pointer"
+      className="flex items-center gap-2 bg-[#5c17a6] text-white backdrop-blur-sm px-4 py-1.5 rounded-full hover:text-white hover:border-[#172fa6] hover:shadow-md transition-all duration-200 group mb-3 cursor-pointer"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        className="h-5 w-5 transform group-hover:-translate-x-1 transition-transform duration-200"
+        className="h-4 w-4 transform group-hover:-translate-x-0.5 transition-transform duration-200"
         fill="none"
         viewBox="0 0 24 24"
         stroke="currentColor"
