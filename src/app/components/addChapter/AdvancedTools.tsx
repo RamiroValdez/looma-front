@@ -1,45 +1,108 @@
 import type {LanguageDTO} from "../../../domain/dto/LanguageDTO.ts";
+import { useState, useMemo } from "react";
+import { useLanguages } from "../../../infrastructure/services/LanguageService.ts"; // cambio: usar hook que hace fetch
 
 interface Props {
     availableLanguages: LanguageDTO[];
     defaultLanguageCode: LanguageDTO;
     onLanguageSelect?: (languageCode: string) => void;
+    activeLanguageCode?: string;
+    disabled?: boolean;
+    onAddLanguage?: (language: LanguageDTO) => void;
 }
 
-export default function AdvancedTools({ availableLanguages, defaultLanguageCode, onLanguageSelect }: Props) {
+export default function AdvancedTools({ availableLanguages, defaultLanguageCode, onLanguageSelect, activeLanguageCode, disabled, onAddLanguage }: Props) {
+  const { languages, isLoading: isLoadingLanguages, error: languagesError } = useLanguages(); // usar hook de carga
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [selectedCode, setSelectedCode] = useState<string>("");
+
+  // Códigos ya disponibles para filtrar candidatos
+  const availableCodes = useMemo(() => new Set(availableLanguages.map(l => l.code)), [availableLanguages]);
+
+  // Idiomas disponibles en el store que aún no están agregados
+  const candidateLanguages = useMemo(() => (languages || []).filter(l => !availableCodes.has(l.code)), [languages, availableCodes]);
+  const canAddMore = candidateLanguages.length > 0;
+
+  const handleConfirmAdd = () => {
+    if (!onAddLanguage) return;
+    const lang = candidateLanguages.find(l => l.code === selectedCode) || candidateLanguages[0];
+    if (!lang) return;
+    onAddLanguage(lang);
+    setShowAddModal(false);
+    setSelectedCode("");
+  };
+
   return (
     <div className="w-full max-w-full rounded-t-2xl overflow-hidden border border-gray-300 bg-[#E8E4EF]">
-  
-      <div className="bg-[#3B2C56] text-white text-center font-semibold py-2 rounded-t-2xl">
-        Versiones
-      </div>
-
+      {/* Header */}
+      <div className="bg-[#3B2C56] text-white text-center font-semibold py-2 rounded-t-2xl">Versiones</div>
+      {/* Lista de idiomas */}
       <div className="divide-y divide-gray-300 bg-[#F0EEF6]">
-
-          {availableLanguages.map(language => (
-              <div key={language.id} className="py-2 px-4 flex justify-between items-center hover:bg-[#E0DEE8] cursor-pointer" onClick={onLanguageSelect ? () => onLanguageSelect(language.code) : undefined}>
-                  {language.name}
-                  <div>
-                      {language.id === defaultLanguageCode.id && (
-                          <span className="bg-[#172FA6] text-white text-xs px-3 py-1 rounded-full font-semibold">
-                            Original
-                      </span>
-                      )}
-                  </div>
+        {availableLanguages.map(language => {
+          const isActive = activeLanguageCode === language.code || (!activeLanguageCode && language.id === defaultLanguageCode.id);
+          const isDisabledBtn = disabled || isActive || isLoadingLanguages; // deshabilitar mientras cargan idiomas
+          return (
+            <button
+              key={language.id}
+              type="button"
+              className={`w-full text-left py-2 px-4 flex justify-between items-center hover:bg-[#E0DEE8] ${isDisabledBtn ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}`}
+              onClick={isDisabledBtn || !onLanguageSelect ? undefined : () => onLanguageSelect(language.code)}
+              disabled={isDisabledBtn}
+            >
+              <span>{language.name}</span>
+              <div>
+                {language.id === defaultLanguageCode.id && (
+                  <span className="bg-[#172FA6] text-white text-xs px-3 py-1 rounded-full font-semibold">Original</span>
+                )}
               </div>
-          ))}
-
-        <div className="flex justify-center py-3 bg-white">
-
-          <button className="bg-[#172FA6] hover:bg-[#0e1c80] text-white font-semibold text-sm px-4 py-1.5 rounded-md disabled:bg-[#A0A0A0]"
-          disabled
-          >
-            Agregar versión
-          </button>
+            </button>
+          );
+        })}
+        <div className="flex justify-center py-3 bg-white flex-col items-center gap-2">
+          <button
+            className={`bg-[#172FA6] hover:bg-[#0e1c80] text-white font-semibold text-sm px-4 py-1.5 rounded-md disabled:bg-[#A0A0A0]`}
+            disabled={disabled || isLoadingLanguages}
+            onClick={() => setShowAddModal(true)}
+          >Agregar versión</button>
+          {isLoadingLanguages && <p className="text-xs text-gray-500">Cargando idiomas...</p>}
+          {languagesError && !isLoadingLanguages && <p className="text-xs text-red-600">Error al cargar idiomas.</p>}
         </div>
-
       </div>
+      {/* Modal agregar idioma */}
+      {showAddModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/40" onClick={() => setShowAddModal(false)} />
+          <div className="relative z-10 w-full max-w-md bg-white rounded-xl shadow-lg p-6">
+            <h3 className="text-lg font-semibold mb-3">Agregar versión</h3>
+            {isLoadingLanguages ? (
+              <p className="text-sm text-gray-600">Cargando idiomas...</p>
+            ) : languagesError ? (
+              <p className="text-sm text-red-600">No se pudieron cargar los idiomas.</p>
+            ) : canAddMore ? (
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm text-gray-700 mb-1">Seleccioná un idioma</label>
+                  <select
+                    className="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#5C17A6]"
+                    value={selectedCode || (candidateLanguages[0]?.code ?? '')}
+                    onChange={(e) => setSelectedCode(e.target.value)}
+                  >
+                    {candidateLanguages.map(l => (
+                      <option key={l.id} value={l.code}>{l.name}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="flex justify-end gap-2">
+                  <button type="button" className="px-4 py-2 rounded-md border border-gray-300 text-gray-700 hover:bg-gray-100" onClick={() => setShowAddModal(false)}>Cancelar</button>
+                  <button type="button" className="px-4 py-2 rounded-md bg-[#172FA6] text-white hover:bg-[#0e1c80]" onClick={handleConfirmAdd}>Agregar</button>
+                </div>
+              </div>
+            ) : (
+              <p className="text-sm text-gray-600">No hay más idiomas disponibles para agregar.</p>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
-
