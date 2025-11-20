@@ -67,9 +67,8 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
   const [pendingCoverFile, setPendingCoverFile] = useState<File | null>(null);
   const [savingCover, setSavingCover] = useState(false);
   const navigate = useNavigate();
-  const isDescriptionValid = descriptionF.trim().length > 20;const [allowSubscription, setAllowSubscription] = useState(false);
+  const isDescriptionValid = descriptionF.trim().length > 20;
   const [price, setPrice] = useState('');
-  const [workStatus, setWorkStatus] = useState<'paused' | 'InProgress' | 'finished' | ''>('');
 
   const handleAddCategory = (category: CategoryDTO) => {
     if (!selectedCategories.some(c => c.id === category.id)) {
@@ -82,7 +81,7 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
     setSelectedCategories(selectedCategories.filter(c => c.id !== categoryId));
   };
 
-  /*const handleSaveChanges = async () => {
+  /* const handleSaveChanges = async () => {
     try {
       setIsSaving(true);
 
@@ -143,11 +142,11 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
     }
   };
 
-  const handleClearAdminPanel = () => {
+  /* const handleClearAdminPanel = () => {
     setAllowSubscription(false);
     setPrice('');
     setWorkStatus('');
-  };
+  }; */
 
   const handleCreateChapter = async (workId: number, languageId: number) => {
     const chapter = await addChapter(workId, languageId, 'TEXT');
@@ -251,7 +250,7 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
         setDescriptionF(workData.description || '');
 
         setPrice(workData.price?.toString() || '');
-        setWorkStatus(workData.state || '');
+        // setWorkStatus(workData.state || '');
       } catch (err) {
         setError('Error loading work');
         console.error('Error:', err);
@@ -722,3 +721,4 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
 };
 
 export default ManageWorkPage;
+

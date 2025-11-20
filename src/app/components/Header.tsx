@@ -9,6 +9,7 @@ import NotificationPopup from "../components/NotificationPopup";
 import { useClickOutside } from '../hooks/useClickOutside';
 import { getUserNotifications } from "../../infrastructure/services/NotificationService";
 import type { NotificationDTO } from "../../domain/dto/NotificationDTO";
+import { useUserStore } from '../../domain/store/UserStorage';
 
 function Header() {
   const navigate = useNavigate();
@@ -25,6 +26,8 @@ function Header() {
   const notificationRefMobile = useRef<HTMLDivElement>(null!);
   const [notifications, setNotifications] = useState<NotificationDTO[]>([]);
   const unreadCount = notifications.filter(n => !n.read).length;
+
+  const { clearUser } = useUserStore();
 
   useClickOutside(
     [notificationRefDesktop, notificationRefMobile],
@@ -176,7 +179,7 @@ useEffect(() => {
                       <hr />
                       <button
                         className="w-full text-left px-4 py-2 hover:bg-gray-100 text-red-500 cursor-pointer"
-                        onClick={() => { logout(); setUser(null); }}
+                        onClick={() => { logout(); setUser(null); clearUser(); }}
                       >
                         Cerrar sesión
                       </button>
@@ -260,7 +263,7 @@ useEffect(() => {
                 <Link to="/" className="block px-4 py-2 hover:bg-[#D3CCDA] hover:text-[#5c17a6]">Mi Perfil</Link>
                 <Link to="/" className="block px-4 py-2 hover:bg-[#D3CCDA] hover:text-[#5c17a6]">Suscripciones</Link>
                 <Link to="/mySaves" className="block px-4 py-2 hover:bg-[#D3CCDA] hover:text-[#5c17a6]">Guardados</Link>
-                <button className="w-full text-left px-4 py-2 hover:bg-gray-100 text-red-500" onClick={() => { logout(); setUser(null); setMobileNavOpen(false); }}>Cerrar sesión</button>
+                <button className="w-full text-left px-4 py-2 hover:bg-gray-100 text-red-500" onClick={() => { logout(); setUser(null); setMobileNavOpen(false); clearUser(); }}>Cerrar sesión</button>
               </>
             ) : (
               <>
@@ -280,3 +283,4 @@ useEffect(() => {
 }
 
 export default Header;
+
