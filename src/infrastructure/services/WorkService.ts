@@ -67,6 +67,27 @@ export const downloadEpub = async (workId: number): Promise<ExportEpubResponseDt
         throw new Error('Failed to download ePub');
     }
 };
+
+export const getTotalSubscribersPerWork = async (workId: number): Promise<number> => {
+    try {
+        const token = useAuthStore.getState().token;
+        console.log("Fetching subscriber count for work ID:", workId);
+        const response = await apiClient.request<number>({
+            url: `/analytics/totalSuscribersPerWork/${workId}`,
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                ...(token ? { Authorization: `Bearer ${token}` } : {}),
+            },
+        });
+        console.log("Subscriber count fetched:", response.data);
+        return response.data;
+    }
+    catch (error) {
+        console.error('Error fetching subscription count:', error);
+        throw new Error('Failed to fetch subscription count');
+    }
+};
     
 export interface ExploreRequestDTO {
     categoryIds?: number[];

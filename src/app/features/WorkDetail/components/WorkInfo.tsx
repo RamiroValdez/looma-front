@@ -1,5 +1,5 @@
 import { type WorkDTO } from "../../../../domain/dto/WorkDTO";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { notifyError, notifySuccess } from "../../../../infrastructure/services/ToastProviderService.ts";
 import { subscribeToAuthor, subscribeToWork } from "../../../../infrastructure/services/paymentService.ts";
 import Button from "../../../components/Button";
@@ -7,7 +7,8 @@ import LikeButton from "../../../components/LikeButton";
 import StarRating from "../../../components/StarRating.tsx";
 import Tag from "../../../components/Tag.tsx";
 import { useWorkData } from "../hooks/userWorkData.ts";
-import { downloadEpub } from "../../../../infrastructure/services/WorkService.ts";
+import { downloadEpub} from "../../../../infrastructure/services/WorkService.ts";
+import { getTotalSubscribersPerWork } from "../../../../infrastructure/services/WorkService.ts";
 
 interface WorkInfoProps {
   work: WorkDTO;
@@ -22,6 +23,7 @@ export const WorkInfo: React.FC<WorkInfoProps> = ({ work, manageFirstChapter, di
   const isAuthorSubscribed = Boolean(work.subscribedToAuthor);
   const isWorkSubscribed = Boolean(work.subscribedToWork);
   const { isWorkSaved, handdleToggleSaveWork } = useWorkData(work.id);
+  const [subscriberCount, setSubscriberCount] = useState<number>(0);
 
   const closeModal = () => {
     if (isPaying) return;
@@ -83,6 +85,11 @@ export const WorkInfo: React.FC<WorkInfoProps> = ({ work, manageFirstChapter, di
   }
 };
   
+  useEffect(() => {
+  getTotalSubscribersPerWork(work.id)
+    .then(setSubscriberCount)
+    .catch(() => setSubscriberCount(0));
+}, [work.id]);
 
   return (
     <div className="bg-white space-y-6 ">
@@ -139,7 +146,7 @@ export const WorkInfo: React.FC<WorkInfoProps> = ({ work, manageFirstChapter, di
               <circle cx="8.5" cy="7" r="4" />
               <path d="M20 8v6M23 11h-6" />
             </svg>
-            <span className="text-[16px] font-semibold text-gray-700">1.7k</span>
+            <span className="text-[16px] font-semibold text-gray-700">{subscriberCount}</span>
           </div>
 
           <div className="flex items-center gap-2 text-gray-700">
@@ -197,10 +204,12 @@ export const WorkInfo: React.FC<WorkInfoProps> = ({ work, manageFirstChapter, di
             <div className="max-w-[800px] mx-auto">
               <h3 className="text-3xl font-bold mb-8 text-center text-[#5C17A6]">Selecciona tu suscripción</h3>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 justify-items-center">
+              <div className={work.price > 0
+              ? "grid grid-cols-1 md:grid-cols-2 justify-items-center"
+              : "flex justify-center"}>
                 <div className="border-1 border-[#6a5a8c] rounded-xl p-6 text-center shadow-2xl bg-[#e0d9f0] w-[350px] min-h-[350px]">
                   <h3 className="font-bold text-3xl mb-15 text-[#3c2a50]">Suscribirse al Autor</h3>
-                  <h2 className="font-semibold text-8xl text-[#3c2a50] mb-15">$20</h2>
+                  <h2 className="font-semibold text-8xl text-[#3c2a50] mb-15">${work.creator.money}</h2>
                   <p className="text-gray-600 text-2xl mb-15 min-h-[60px]">
                     Acceso total a todas las obras y capítulos del autor sin límite
                   </p>
@@ -214,10 +223,11 @@ export const WorkInfo: React.FC<WorkInfoProps> = ({ work, manageFirstChapter, di
                   />
                 </div>
 
+                {work.price > 0 && (
                 <div className="border-2 border-[#172FA6] rounded-xl p-6 text-center bg-[#E8EDFC] w-[350px] min-h-[350px] shadow-2xl">
                   <h3 className="font-bold text-3xl mb-15 text-[#172FA6]">Suscribirse a la obra</h3>
                   <h2 className="font-semibold text-8xl text-[#172FA6] mb-15">${work.price}</h2>
-                  <p className="text-gray-600 text-2xl mb-23 min-h-[60px]">
+                  <p className="text-gray-600 text-2xl mb-15 min-h-[60px]">
                     Acceso completo a todos los capítulos de <span className="font-semibold">{work.title}</span>
                   </p>
                   <Button 
@@ -229,6 +239,7 @@ export const WorkInfo: React.FC<WorkInfoProps> = ({ work, manageFirstChapter, di
                     disabled={isPaying || isWorkSubscribed} 
                   />
                 </div>
+                )}
               </div>
             </div>
           </div>
