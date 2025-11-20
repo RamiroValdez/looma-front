@@ -35,7 +35,7 @@ export default function AdvancedTools({ availableLanguages, defaultLanguageCode,
   return (
     <div className="w-full max-w-full rounded-t-2xl overflow-hidden border border-gray-300 bg-[#E8E4EF]">
       {/* Header */}
-      <div className="bg-[#3B2C56] text-white text-center font-semibold py-2 rounded-t-2xl">Versiones</div>
+      <div className="bg-[#3B2C56] text-white text-center font-semibold py-4 rounded-t-2xl">Versiones</div>
       {/* Lista de idiomas */}
       <div className="divide-y divide-gray-300 bg-[#F0EEF6]">
         {availableLanguages.map(language => {
@@ -60,7 +60,7 @@ export default function AdvancedTools({ availableLanguages, defaultLanguageCode,
         })}
         <div className="flex justify-center py-3 bg-white flex-col items-center gap-2">
           <button
-            className={`bg-[#172FA6] hover:bg-[#0e1c80] text-white font-semibold text-sm px-4 py-1.5 rounded-md disabled:bg-[#A0A0A0]`}
+            className={`px-4 py-2 bg-[#172fa6] font-semibold text-white rounded-full shadow hover:bg-[#0e1c80] cursor-pointer`}
             disabled={disabled || isLoadingLanguages}
             onClick={() => setShowAddModal(true)}
           >Agregar versión</button>

@@ -113,14 +113,14 @@ const ProfilePage = () => {
                 <Button
                   onClick={handleSave}
                   colorClass="bg-green-600 text-white hover:bg-green-700 transition-colors shadow-md cursor-pointer"
-                  className="px-6 py-2 rounded-lg"
+                  className="px-6 py-2 rounded-full"
                   text="Guardar"
                 />
               )}
               <Button
                 onClick={isEditing ? handleCancel : () => setIsEditing(true)}
                 colorClass="bg-[#5c17a6] text-white hover:bg-[#4b1387] transition-colors shadow-md cursor-pointer"
-                className="px-6 py-2 rounded-lg"
+                className="px-6 py-2 rounded-full font-semibold"
                 text={isEditing ? 'Cancelar' : 'Editar Datos'}
               />
             </div>

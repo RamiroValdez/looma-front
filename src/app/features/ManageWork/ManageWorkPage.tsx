@@ -312,7 +312,7 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
             <Button
               text="Editar Banner"
               onClick={handleBannerClick}
-              colorClass="bg-[#5C17A6] hover:bg-[#4A1285] focus:ring-[#5C17A6] text-white cursor-pointer"
+              colorClass="bg-[#5C17A6] font-semibold rounded-full hover:bg-[#4A1285] focus:ring-[#5C17A6] text-white cursor-pointer"
             />
 
             {showBannerTooltip && (
@@ -352,7 +352,7 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
                 <Button
                   text="Editar Portada"
                   onClick={() => setShowCoverModal(true)}
-                  colorClass="bg-[#3C2A50] hover:bg-[#2A1C3A] focus:ring-[#3C2A50] text-sm mb-2 w-48 text-white cursor-pointer"
+                  colorClass="bg-[#3C2A50] hover:bg-[#2A1C3A] font-semibold rounded-full px-4 py-2 focus:ring-[#3C2A50]  mb-2 w-48 text-white cursor-pointer"
                 />
                 <input
                   type="file"
@@ -599,7 +599,7 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
                     <Button
                       text="Agregar Capítulo"
                       onClick={() => handleCreateChapter(currentWorkId, work.originalLanguage.id)}
-                      colorClass="bg-[#5C17A6] hover:bg-[#4A1285] focus:ring-[#5C17A6] text-white cursor-pointer"
+                      colorClass="bg-[#5C17A6] hover:bg-[#4A1285] focus:ring-[#5C17A6] font-semibold rounded-full px-8 py-2 text-white cursor-pointer"
                     />
                   </div>
                 </div>
@@ -632,8 +632,8 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
                   <div>
                     <div className="flex items-center justify-center gap-2">
                       <label className="text-black font-medium text-base">Precio:</label>
-                      <div className="flex items-center border rounded">
-                        <span className="px-2 py-2 bg-gray-50 border-r text-base text-black">$</span>
+                      <div className="flex items-center border rounded border-2 border-[#172fa6]">
+                        <span className="px-2 py-2 bg-gray-50 border-r text-base text-black border-[#172fa6]">$</span>
                         <input 
                           type="number" 
                           placeholder="0.00"
@@ -708,7 +708,7 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
                     <Button 
                       text={isSaving ? "Guardando..." : "Guardar"}
                       onClick={handleSavePrice}
-                      colorClass="bg-[#5C17A6] hover:bg-[#4A1285] focus:ring-[#5C17A6] flex-1 text-white cursor-pointer disabled:bg-gray-400 disabled:cursor-not-allowed"
+                      colorClass="bg-[#5C17A6] hover:bg-[#4A1285] focus:ring-[#5C17A6] flex-1 text-white font-semibold rounded-full px-4 py-2 cursor-pointer disabled:bg-gray-400 disabled:cursor-not-allowed"
                     />
                   </div>
                 </div>

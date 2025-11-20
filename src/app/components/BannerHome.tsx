@@ -47,7 +47,7 @@ const FeaturedBookBanner: React.FC<FeaturedBookBannerProps> = ({ books}) => {
       <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
 
       <div className="relative z-10 p-6 text-white max-w-2xl mb-8 ml-4">
-        <h1 className="text-2xl md:text-6xl font-bold mb-2">
+        <h1 className="text-2xl md:text-6xl font-bold mb-4">
           {currentBook.title}
         </h1>
         <div className="flex flex-wrap gap-2 mb-2">
@@ -66,7 +66,7 @@ const FeaturedBookBanner: React.FC<FeaturedBookBannerProps> = ({ books}) => {
         <div className="flex gap-4 mt-8">
           <button 
           onClick={() => navigate(`/work/${currentBook.id}`)}
-          className="bg-white text-black px-4 py-2 rounded-2xl font-semibold hover:bg-gray-300 transition text-lg cursor-pointer">
+          className="bg-white text-black px-4 py-2 rounded-3xl font-semibold hover:bg-gray-300 transition text-lg cursor-pointer">
             Leer Ahora
           </button>
         </div>

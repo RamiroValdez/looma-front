@@ -50,7 +50,7 @@ export const ChapterItem: React.FC<ChapterItemProps> = ({ chapter, workId }) => 
         <Button 
           text="Editar"
           onClick={handleEdit}
-          colorClass="bg-white border border-[#5C17A6] !text-[#5C17A6] text-sm px-3 py-1 hover:bg-purple-50 focus:ring-2 focus:ring-[#5C17A6] cursor-pointer"
+          colorClass="bg-white rounded-full border border-[#5C17A6] !text-[#5C17A6] text-sm px-3 py-1 hover:bg-purple-50 focus:ring-2 focus:ring-[#5C17A6] cursor-pointer"
         />
       </div>
     </div>

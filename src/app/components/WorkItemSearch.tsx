@@ -32,26 +32,21 @@ export const WorkItemSearch = ({ work }: { work: WorkCardDto }) => {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {/* Imagen de fondo */}
       <img
         src={work.cover}
         alt={work.title}
         className="absolute inset-0 w-full h-full object-cover"
       />
 
-      {/* Overlay base: gradiente sutil desde abajo (solo sin hover) */}
       {!isHovered && (
         <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-black/80 to-transparent" />
       )}
 
-      {/* Overlay hover: oscurecimiento uniforme sin gradiente */}
       {isHovered && (
         <div className="absolute inset-0 pointer-events-none bg-black/90" />
       )}
 
-      {/* Contenido superpuesto */}
       <div className="relative z-10 flex flex-col justify-end h-full p-3 text-white">
-        {/* Descripción (visible solo en hover) */}
         {isHovered && (
           <div className="absolute top-0 left-0 right-0 p-3">
             <p className="leading-relaxed line-clamp-6 drop-shadow-md">
@@ -60,12 +55,10 @@ export const WorkItemSearch = ({ work }: { work: WorkCardDto }) => {
           </div>
         )}
 
-        {/* Título centrado (siempre visible, abajo) */}
         <h3 className="font-semibold text-xl leading-tight text-center mb-2 drop-shadow-md line-clamp-2">
           {work.title}
         </h3>
 
-        {/* Metadata debajo del título con altura fija */}
         <div className="min-h-[28px]">
           {!isHovered ? (
             <div className="flex items-center justify-between text-sm">
@@ -86,16 +79,16 @@ export const WorkItemSearch = ({ work }: { work: WorkCardDto }) => {
                 </svg>
                 <span className="font-semibold drop-shadow-md text-base text-white">{work.likes}</span>
               </div>
-              <span className={`px-2 py-1 rounded-full font-semibold ${getFormatBgByName(work.format?.name)}`}>
+              <span className={`px-3 py-1 text-sm font-semibold text-white rounded-full whitespace-nowrap ${getFormatBgByName(work.format?.name)}`}>
                 {work.format.name}
               </span>
             </div>
           ) : (
-            <div className="flex flex-wrap justify-center gap-1">
+            <div className="flex flex-wrap justify-center gap-2">
               {work.categories.map((cat) => (
                 <span
                   key={cat.id}
-                  className="text-xs font-semibold bg-[#172FA6] backdrop-blur-sm text-white px-2 py-0.5 rounded"
+                  className="px-3 py-1 text-sm font-semibold text-white bg-blue-600/80 rounded-full whitespace-nowrap"
                 >
                   {cat.name}
                 </span>
