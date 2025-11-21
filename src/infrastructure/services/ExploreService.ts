@@ -12,11 +12,11 @@ export interface PaginatedResponse<T> {
   number: number;
 }
 
-export const useExploreWorks = (filters: ExploreFiltersDto, page = 0, size = 20) => {
+export const useExploreWorks = (filters: ExploreFiltersDto, page = 0, size = 20, refreshKey = 0) => {
   const { token } = useAuthStore();
 
   return useQuery<PaginatedResponse<WorkCardDto>>({
-    queryKey: ['explore', filters, page, size, !!token],
+    queryKey: ['explore', filters, page, size, !!token, refreshKey],
     queryFn: async () => {
       const qs = new URLSearchParams({ page: String(page), size: String(size) });
 
@@ -29,6 +29,6 @@ export const useExploreWorks = (filters: ExploreFiltersDto, page = 0, size = 20)
 
       return response.data;
     },
-    staleTime: 5 * 60_000,
+    staleTime: 0,
   });
 };
