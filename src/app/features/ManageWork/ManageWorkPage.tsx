@@ -122,15 +122,15 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
       };
 
       const response = await apiClient.request({
-        url: `/manage-work/${currentWorkId}/price`,
-        method: 'PATCH',
+        url: `/manage-work/${currentWorkId}`,
+        method: 'PUT',
         data: updatePrice,
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
 
-      if (response.status === 204) {
+      if (response.status === 200) {
         notifySuccess('Precio guardado exitosamente');
         setPrice(price);
       }
