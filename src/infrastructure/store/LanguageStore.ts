@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { type LanguageDTO } from '../../domain/dto/LanguageDTO';
+import { type LanguageDTO } from '../../domain/dto/LanguageDTO.ts';
 
 interface LanguageState {
     languages: LanguageDTO[];

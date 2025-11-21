@@ -21,7 +21,7 @@ vi.mock("../../infrastructure/services/ToastProviderService", () => ({
 }));
 
 import * as profileService from "../../infrastructure/services/ProfileService";
-import * as userStore from "../../domain/store/UserStorage";
+import * as userStore from "../../infrastructure/store/UserStorage";
 import * as toastService from "../../infrastructure/services/ToastProviderService";
 
 const mockProfile = {

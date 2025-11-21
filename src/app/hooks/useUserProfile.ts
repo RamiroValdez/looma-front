@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useUserProfileQuery, useUpdateProfile, useValidateUsername, useChangePassword } from '../../infrastructure/services/ProfileService';
-import { useUserStore } from '../../domain/store/UserStorage';
+import { useUserStore } from '../../infrastructure/store/UserStorage';
 import { notifyError, notifySuccess } from '../../infrastructure/services/ToastProviderService';
 
 export const useUserProfile = () => {

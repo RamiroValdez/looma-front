@@ -2,7 +2,7 @@ import type { WorkDTO } from '../../domain/dto/WorkDTO.ts';
 import { getWorkById as getWorkByIdFromChapterService } from './ChapterService.ts';
 import {useApiQuery} from "../api/useApiQuery.ts";
 import { apiClient } from '../api/apiClient';
-import { useAuthStore } from '../../domain/store/AuthStore';
+import { useAuthStore } from '../store/AuthStore';
 import type { ExportEpubResponseDto } from '../../domain/dto/ExportEpubResponseDto.ts';
 import type { ExportPdfResponseDto } from '../../domain/dto/ExportPdfResponseDto.ts';
 
