@@ -6,7 +6,7 @@ import { listener, listenerCtx } from '@milkdown/kit/plugin/listener'
 import { Milkdown, useEditor } from '@milkdown/react';
 import '@milkdown/theme-nord/style.css';
 import '@milkdown/kit/prose/view/style/prosemirror.css';
-import {useEffect, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import { gfm } from '@milkdown/kit/preset/gfm';
 import { editorViewCtx, parserCtx } from '@milkdown/kit/core';
 
@@ -20,6 +20,7 @@ interface TextEditorToolProps {
 export default function TextEditorTool({chapterContent, onChange, setEditorRef}: TextEditorToolProps) {
 
     const [editorValue, setEditorValue] = useState(chapterContent);
+    const scheduledUpdateRef = useRef<number | null>(null);
 
     const { get } = useEditor((root) =>
         Editor.make()
@@ -41,16 +42,34 @@ export default function TextEditorTool({chapterContent, onChange, setEditorRef}:
     useEffect(() => {
         setEditorValue(chapterContent);
         const editor = get();
-        if (editor && chapterContent !== editorValue) {
-            editor.action((ctx) => {
-                const view = ctx.get(editorViewCtx);
-                const parser = ctx.get(parserCtx);
-                const doc = parser(chapterContent);
-                if (doc) {
-                    view.dispatch(view.state.tr.replaceWith(0, view.state.doc.content.size, doc));
-                }
-            });
+        if (!editor) return;
+        if (chapterContent === editorValue) return;
+
+        // Programar una actualización para el próximo frame, cuando el editor ya debería estar montado.
+        if (scheduledUpdateRef.current) {
+            cancelAnimationFrame(scheduledUpdateRef.current);
         }
+        scheduledUpdateRef.current = requestAnimationFrame(() => {
+            try {
+                editor.action((ctx) => {
+                    const view = ctx.get(editorViewCtx);
+                    const parser = ctx.get(parserCtx);
+                    const doc = parser(chapterContent);
+                    if (doc) {
+                        view.dispatch(view.state.tr.replaceWith(0, view.state.doc.content.size, doc));
+                    }
+                });
+            } catch (_) {
+                // Si aún no está inyectado editorView, omitimos silenciosamente.
+            }
+        });
+
+        return () => {
+            if (scheduledUpdateRef.current) {
+                cancelAnimationFrame(scheduledUpdateRef.current);
+                scheduledUpdateRef.current = null;
+            }
+        };
     }, [chapterContent, get, editorValue]);
 
     useEffect(() => {

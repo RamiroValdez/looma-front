@@ -26,6 +26,7 @@ const chapterMock = {
   workId: "1",
   last_update: "",
   likes: 0,
+  isLiked: false,
   allowAiTranslation: false,
   languageDefaultCode: { id: 1, code: "es", name: "Español" },
   publicationStatus: "DRAFT",

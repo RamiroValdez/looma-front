@@ -38,7 +38,7 @@ export default function CreateWork() {
             
             <header className={`mx-auto ${MAX_WIDTH_CLASS} flex justify-between items-start mb-10`}>
                 <div>
-                    <h1 className="text-[#2B2B2B] text-3xl font-bold">
+                    <h1 className="text-[#2B2B2B] text-3xl font-bold text-[#172fa6]">
                         {isLoading ? 'Cargando...' : 'Mis Obras'}
                     </h1>
                     <p className="text-[#474747]">Gestiona y organiza tu contenido literario.</p>
@@ -61,7 +61,7 @@ export default function CreateWork() {
                                     className="mb-8 w-full"
                                 >
                                     <div className="flex justify-between items-center mb-4">
-                                        <h2 className="text-[#2B2B2B] text-2xl font-bold">
+                                        <h2 className="text-[#172fa6] text-2xl font-bold">
                                             {group.name} ({group.works.length})
                                         </h2>
                                         
@@ -69,7 +69,7 @@ export default function CreateWork() {
                                             <Button
                                                 text="Crear +"
                                                 onClick={() => navigate(CREATE_PATH)}
-                                                colorClass={`${PURPLE_BG_CLASS} text-white font-semibold cursor-pointer hover:scale-105`}
+                                                colorClass={`${PURPLE_BG_CLASS} text-white rounded-full font-semibold cursor-pointer hover:scale-105`}
                                             />
                                         )}
                                     </div>
@@ -95,7 +95,7 @@ export default function CreateWork() {
                             <Button
                                 text="Crear +"
                                 onClick={() => navigate(CREATE_PATH)}
-                                colorClass={`${PURPLE_BG_CLASS} text-white font-semibold cursor-pointer hover:scale-105 w-90`}
+                                colorClass={`${PURPLE_BG_CLASS} text-white rounded-full font-semibold cursor-pointer hover:scale-105 w-90`}
                             />
                         </div>
                     </div>

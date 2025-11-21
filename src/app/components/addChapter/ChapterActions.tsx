@@ -1,27 +1,38 @@
 import { useState } from "react";
 import { saveDraftChapter } from "../../../infrastructure/services/ChapterService.ts";
 import { useNavigate } from "react-router-dom";
+import { notifyError } from "../../../infrastructure/services/ToastProviderService.ts";
 
 interface Props {
   onPreview?: () => void;
-  onSaveDraft?: (data: { titulo: string; contenido: string }) => void;
   formData: { titulo: string; contenido: string };
   chapterId: number;
   publicationStatus: string;
   price: number;
   allowAiTranslation: boolean;
   defaultLanguageCode: string;
+  activeLanguageCode: string;
   workId: string;
 }
 
-export default function ChapterActions({ onPreview, workId, onSaveDraft, formData, chapterId, publicationStatus, price, allowAiTranslation, defaultLanguageCode }: Props) {
+export default function ChapterActions({ onPreview, workId, formData, chapterId, publicationStatus, price, allowAiTranslation, defaultLanguageCode, activeLanguageCode }: Props) {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
   const handleSaveDraft = async () => {
     if (publicationStatus !== 'DRAFT') {
-      setError('Este capítulo no es un borrador y no puede ser editado.');
+      const msg = 'Este capítulo no es un borrador y no puede ser editado.';
+      setError(msg);
+      notifyError(msg);
+      return;
+    }
+    const targetLang = activeLanguageCode || defaultLanguageCode;
+    const contentToSave = formData.contenido?.trim() ?? '';
+    if (!contentToSave) {
+      const msg = 'El contenido está vacío. Escribe algo antes de guardar este idioma.';
+      setError(msg);
+      notifyError(msg);
       return;
     }
     try {
@@ -32,24 +43,25 @@ export default function ChapterActions({ onPreview, workId, onSaveDraft, formDat
         status: 'DRAFT',
         last_update: new Date().toISOString(),
         price: Number(price) || 0,
-        allow_ai_translation: !!allowAiTranslation,
+        allow_ai_translation: allowAiTranslation,
         versions: {
-          [defaultLanguageCode]: formData.contenido || ''
+          // Guardar sobre el idioma activo realmente editado, no siempre el original
+          [targetLang]: contentToSave
         }
       };
       const resp = await saveDraftChapter(Number(chapterId), payload);
       if (!(resp.fetchStatus >= 200 && resp.fetchStatus < 300)) {
-        setError('No se pudo guardar el borrador.');
+        const msg = 'No se pudo guardar el borrador.';
+        setError(msg);
+        notifyError(msg);
         return;
       }
-      // enviar al manage-work/:idWork
-      if (onSaveDraft) {
-        onSaveDraft(formData);
-        navigate(`/manage-work/${workId}`);
-      }
+      navigate(`/manage-work/${workId}`);
     } catch (e) {
       console.error(e);
-      setError('Error al guardar el borrador.');
+      const msg = 'Error al guardar el borrador.';
+      setError(msg);
+      notifyError(msg);
     } finally {
       setSaving(false);
     }
@@ -71,14 +83,14 @@ export default function ChapterActions({ onPreview, workId, onSaveDraft, formDat
       <div className="flex flex-wrap gap-4">
         <button
           onClick={handlePreview}
-          className="px-4 py-2 bg-[#591b9b] text-white rounded-lg shadow hover:bg-purple-800"
+          className="px-4 py-2 bg-[#591b9b] text-white rounded-full font-semibold shadow hover:bg-purple-800 cursor-pointer"
         >
           Vista previa
         </button>
         <button
           onClick={handleSaveDraft}
           disabled={!isDraft || saving}
-          className="px-4 py-2 bg-[#4C3B63] text-white rounded-lg shadow hover:bg-[#3b2c4e] disabled:opacity-60"
+          className="px-4 py-2 bg-[#4C3B63] text-white rounded-full font-semibold shadow hover:bg-[#3b2c4e] disabled:opacity-60 cursor-pointer"
         >
           {saving ? 'Guardando...' : 'Guardar borrador'}
         </button>
