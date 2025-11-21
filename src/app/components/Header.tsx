@@ -47,6 +47,16 @@ function Header() {
     );
   };
 
+  const [haveImage, setHaveImage] = useState<Boolean>(false);
+
+  const validateImage = () => {
+    console.log(haveImage);
+    console.log(user?.image?.endsWith("/none"))
+    if (user?.image?.endsWith("/none") == false) {
+      setHaveImage(true);
+    }
+  }
+
   useEffect(() => {
     let alive = true;
     const run = async () => {
@@ -75,6 +85,7 @@ function Header() {
   }, [token, logout]);
 
   useEffect(() => {
+    validateImage();
     if (!user) {
       setNotifications([]);
       return;
@@ -157,12 +168,24 @@ useEffect(() => {
                     onMarkAsReadLocal={handleMarkAsReadLocal} />
                 </div>
                 <div className="relative">
-                  <img
-                    src={"/img/fotoPerfil.jpg"}
-                    alt="perfil"
-                    className="w-8 h-8 rounded-full border border-gray-300 object-cover cursor-pointer"
-                    onClick={() => setOpenMenu(!openMenu)}
+                  {
+                    haveImage ? (
+                      <img
+                        src={user.image}
+                        alt="perfil"
+                        className="w-8 h-8 rounded-full border border-gray-300 object-cover cursor-pointer"
+                        onClick={() => setOpenMenu(!openMenu)}
                   />
+                    ) : 
+                    (
+                      <img
+                        src={"/img/perfil.png"}
+                        alt="perfil"
+                        className="w-8 h-8 rounded-full border border-gray-300 object-cover cursor-pointer"
+                        onClick={() => setOpenMenu(!openMenu)}
+                      />
+                    )
+                  } 
                   {openMenu && (
                     <div className="absolute right-0 mt-2 w-40 bg-[#F0EEF6] border border-gray-200 rounded-lg shadow-lg text-sm z-10">
                       <Link
