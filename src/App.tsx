@@ -21,6 +21,7 @@ import { VerifyCodePage } from "./app/features/Register/VerifyCodePage.tsx";
 import { WorkDetail } from './app/features/WorkDetail/WorkDetail.tsx';
 import ReadChapterNovel from "./app/features/WorkDetail/ReadChapterNovel.tsx";
 import Notifications from "./app/features/Notifications/Notifications.tsx";
+import { SubscriptionsPage } from "./app/features/Profile/SubscriptionsPage.tsx";
 import { MySaves } from "./app/features/Profile/MySaves.tsx";
 
 function Shell({ children }: { children: React.ReactNode }) {
@@ -51,6 +52,7 @@ function App() {
             <LoginPage />
           </Shell>
         } />
+
         <Route path="/register" element={
           <Shell>
             <RegisterPage />
@@ -132,6 +134,7 @@ function App() {
             </Shell>
           </ProtectedRoute>
         } />
+
         <Route path="/mySaves" element={
           <ProtectedRoute>
             <Shell>
@@ -153,6 +156,7 @@ function App() {
             <VerifyCodePage />
           </Shell>
         } />
+
         <Route path="/notifications" element={
           <Shell>
             <Notifications />
@@ -169,6 +173,14 @@ function App() {
           <Shell>
             <TermsAndConditions />
           </Shell>
+        } />
+
+        <Route path="/subscriptions" element={
+          <ProtectedRoute>
+            <Shell>
+              <SubscriptionsPage />
+            </Shell>
+          </ProtectedRoute>
         } />
       </Routes>
       <ToastProvider />
