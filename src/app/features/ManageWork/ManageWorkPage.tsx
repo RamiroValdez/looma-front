@@ -197,11 +197,10 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
       onSuccess: (data) => {
         setSuggestedTags(data.suggestions);
         setIsSuggestionMenuOpen(true);
+        setIsAILoading(false);
       },
       onError: (error) => {
         console.error("Error de IA:", error);
-      },
-      onSettled: () => {
         setIsAILoading(false);
       },
     });
@@ -502,7 +501,7 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
                       {isAILoading ?
                         <svg className="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">...</svg>
                         :
-                        <img src="/img/magic.png" className={`w-8 h-6 ${isDescriptionValid ? 'hover:cursor-pointer' : 'cursor-not-allowed'}`}
+                        <img src="/img/magic.png" alt="Icono IA" className={`w-8 h-6 ${isDescriptionValid ? 'hover:cursor-pointer' : 'cursor-not-allowed'}`}
                         />
                       }
                     </Button>
