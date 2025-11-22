@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { type CompositionDTO } from '../../domain/dto/CompositionDTO';
+import { type CompositionDTO } from '../../domain/dto/CompositionDTO.ts';
 
 interface CompositionState {
     compositions: CompositionDTO[];

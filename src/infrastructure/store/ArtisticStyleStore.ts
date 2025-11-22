@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { type ArtisticStyleDTO } from '../../domain/dto/ArtisticStyleDTO';
+import { type ArtisticStyleDTO } from '../../domain/dto/ArtisticStyleDTO.ts';
 
 interface ArtisticStyleState {
     artisticStyles: ArtisticStyleDTO[];

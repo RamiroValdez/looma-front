@@ -1,5 +1,5 @@
 import { useApiQuery } from "../api/useApiQuery.ts";
-import { useAuthStore } from "../../domain/store/AuthStore.ts";
+import { useAuthStore } from "../store/AuthStore.ts";
 import { apiClient } from '../api/apiClient';
 
 export interface ChatMessageDto {

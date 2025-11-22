@@ -1,4 +1,4 @@
-import { useAuthStore } from "../../domain/store/AuthStore";
+import { useAuthStore } from "../store/AuthStore";
 import type { NotificationDTO } from "../../domain/dto/NotificationDTO";
 
 export async function getUserNotifications(userId: number): Promise<NotificationDTO[]> {

@@ -16,12 +16,12 @@ import {
     useClickOutside
 } from "../../../infrastructure/services/CreateWorkService.ts";
 import {useCategories} from "../../../infrastructure/services/CategoryService.ts";
-import { useCategoryStore } from "../../../domain/store/CategoryStore.ts";
+import { useCategoryStore } from "../../../infrastructure/store/CategoryStore.ts";
 import type { CategoryDTO } from "../../../domain/dto/CategoryDTO.ts";
-import { useFormatStore} from "../../../domain/store/FormatStore.ts";
+import { useFormatStore} from "../../../infrastructure/store/FormatStore.ts";
 import { useFormats } from "../../../infrastructure/services/FormatService.ts";
 import { useLanguages } from '../../../infrastructure/services/LanguageService.ts';
-import { useLanguageStore } from '../../../domain/store/LanguageStore';
+import { useLanguageStore } from '../../../infrastructure/store/LanguageStore';
 import type {TagSuggestionRequestDTO} from "../../../domain/dto/TagSuggestionDTO.ts";
 import { notifySuccess, notifyError } from "../../../infrastructure/services/ToastProviderService.ts";
 

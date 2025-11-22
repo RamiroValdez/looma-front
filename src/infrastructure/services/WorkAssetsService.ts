@@ -1,4 +1,4 @@
-import { useAuthStore } from "../../domain/store/AuthStore";
+import { useAuthStore } from "../store/AuthStore";
 
 export async function uploadCover(workId: number, coverFile: File | null, coverIaUrl: string | null): Promise<{ fetchStatus: number }> {
   const token = useAuthStore.getState().token;

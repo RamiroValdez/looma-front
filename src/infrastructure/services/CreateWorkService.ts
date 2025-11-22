@@ -1,6 +1,6 @@
 import type { FileValidationError } from "../../domain/types/CreateWork.types.ts";
 import {useApiMutation} from "../api/useApiMutation.ts";
-import {useAuthStore} from "../../domain/store/AuthStore.ts";
+import {useAuthStore} from "../store/AuthStore.ts";
 import React from "react";
 import type { CoverIaFormDTO } from "../../domain/dto/FormCoverIaDTO.ts";
 import { useEffect } from "react";

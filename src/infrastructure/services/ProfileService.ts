@@ -1,6 +1,6 @@
 import { useApiQuery } from '../api/useApiQuery';
 import { useApiMutation } from '../api/useApiMutation';
-import { useAuthStore } from '../../domain/store/AuthStore';
+import { useAuthStore } from '../store/AuthStore';
 import { buildEndpoint } from '../api/endpoints';
 import { type UserDTO } from '../../domain/dto/UserDTO';
 

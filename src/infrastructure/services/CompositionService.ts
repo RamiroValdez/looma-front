@@ -1,8 +1,8 @@
 import { type CompositionDTO } from "../../domain/dto/CompositionDTO.ts";
 import { useApiQuery } from "../api/useApiQuery.ts";
-import { useCompositionStore } from "../../domain/store/CompositionStore";
+import { useCompositionStore } from "../store/CompositionStore";
 import { useEffect } from "react";
-import {useAuthStore} from "../../domain/store/AuthStore.ts";
+import {useAuthStore} from "../store/AuthStore.ts";
 
 export const useCompositions = () => {
     const {

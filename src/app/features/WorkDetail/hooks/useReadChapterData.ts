@@ -6,7 +6,7 @@ import { useLanguages } from '../../../../infrastructure/services/LanguageServic
 import { translateContent } from '../../../../infrastructure/services/TranslateService';
 import { subscribeToWork, subscribeToChapter } from '../../../../infrastructure/services/paymentService';
 import { notifyError, notifySuccess } from '../../../../infrastructure/services/ToastProviderService';
-import { useUserStore } from '../../../../domain/store/UserStorage';
+import { useUserStore } from '../../../../infrastructure/store/UserStorage';
 import { SaveWork, IsWorkSaved } from '../../../../infrastructure/services/MySavesService';
 
 export const useReadChapterData = (chapterId: string) => {

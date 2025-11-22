@@ -1,5 +1,5 @@
 import { useApiQuery } from "../api/useApiQuery.ts";
-import { useFormatStore } from "../../domain/store/FormatStore.ts";
+import { useFormatStore } from "../store/FormatStore.ts";
 import type { WorkFormatDTO } from "../../domain/dto/WorkFormatDTO.ts"; 
 import { useEffect } from "react";
 

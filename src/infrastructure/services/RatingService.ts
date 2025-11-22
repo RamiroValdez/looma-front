@@ -1,4 +1,4 @@
-import { useAuthStore } from "../../domain/store/AuthStore"; 
+import { useAuthStore } from "../store/AuthStore";
 
 export async function sendRating(workId: number, rating: number) {
   const token = useAuthStore.getState().token;

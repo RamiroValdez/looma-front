@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { apiClient } from '../../infrastructure/api/apiClient';
-import { useAuthStore } from '../../domain/store/AuthStore';
+import { useAuthStore } from '../store/AuthStore';
 import type { ExploreFiltersDto } from '../../domain/dto/ExploreFiltrersDTO';
 import type { WorkCardDto } from '../../domain/dto/WorkCardDTO';
 

@@ -2,14 +2,14 @@ import { useState, useEffect, useRef } from 'react';
 import { getCurrentUser } from '../../infrastructure/services/DataUserService';
 import { Link } from "react-router-dom";
 import { type UserDTO } from "../../domain/dto/UserDTO";
-import { useAuthStore } from '../../domain/store/AuthStore';
+import { useAuthStore } from '../../infrastructure/store/AuthStore';
 import { useNavigate } from 'react-router-dom';
 import { type KeyboardEvent } from 'react';
 import NotificationPopup from "../components/NotificationPopup";
 import { useClickOutside } from '../hooks/useClickOutside';
 import { getUserNotifications } from "../../infrastructure/services/NotificationService";
 import type { NotificationDTO } from "../../domain/dto/NotificationDTO";
-import { useUserStore } from '../../domain/store/UserStorage';
+import { useUserStore } from '../../infrastructure/store/UserStorage';
 
 function Header() {
   const navigate = useNavigate();

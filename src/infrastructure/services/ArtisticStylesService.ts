@@ -1,8 +1,8 @@
 import { type ArtisticStyleDTO } from "../../domain/dto/ArtisticStyleDTO.ts";
 import { useApiQuery } from "../api/useApiQuery.ts";
-import { useArtisticStyleStore } from "../../domain/store/ArtisticStyleStore";
+import { useArtisticStyleStore } from "../store/ArtisticStyleStore";
 import { useEffect } from "react";
-import {useAuthStore} from "../../domain/store/AuthStore.ts";
+import {useAuthStore} from "../store/AuthStore.ts";
 
 export const useArtisticStyles = () => {
     const {

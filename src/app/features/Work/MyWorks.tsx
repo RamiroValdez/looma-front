@@ -2,7 +2,7 @@ import Button from "../../../app/components/Button.tsx";
 import { useNavigate } from 'react-router-dom';
 import { WorkItem } from '../../../app/components/WorkItem.tsx';
 import { useMyWorks } from '../../../infrastructure/services/MyWorksService.ts';
-import { useUserStore } from "../../../domain/store/UserStorage.ts";
+import { useUserStore } from "../../../infrastructure/store/UserStorage.ts";
 import type {WorkDTO} from "../../../domain/dto/WorkDTO.ts";
 
 const PURPLE_BG_CLASS = "bg-[#5C17A6]";

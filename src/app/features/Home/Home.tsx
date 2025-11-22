@@ -3,7 +3,7 @@ import { useCategories } from "../../../infrastructure/services/CategoryService"
 import type { WorkDTO } from "../../../domain/dto/WorkDTO";
 import BannerHome from "../../components/BannerHome";
 import { getHomeWorkList } from "../../../infrastructure/services/HomeService";
-import { useUserStore } from "../../../domain/store/UserStorage";
+import { useUserStore } from "../../../infrastructure/store/UserStorage";
 import WorkCarousel from "../../components/WorkCarousel";
 import ScrollArrow from "../../components/ScrollArrow";
 import { useNavigate } from "react-router-dom";

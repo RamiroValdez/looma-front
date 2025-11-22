@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 import React, { useEffect, useState } from "react";
-import { useAuthStore } from "../../../domain/store/AuthStore.ts";
-import { useUserStore } from "../../../domain/store/UserStorage.ts";
+import { useAuthStore } from "../../../infrastructure/store/AuthStore.ts";
+import { useUserStore } from "../../../infrastructure/store/UserStorage.ts";
 import { useNavigate } from "react-router-dom";
 import { useLogin } from "../../../infrastructure/services/AuthService";
 import Button from "../../components/Button.tsx";

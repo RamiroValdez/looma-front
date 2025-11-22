@@ -1,7 +1,7 @@
-import { useAuthStore } from "../../domain/store/AuthStore";
+import { useAuthStore } from "../store/AuthStore";
 import type { WorkListDTO } from "../../domain/dto/WorkListDTO";
 import { apiClient } from "../api/apiClient";
-import { useUserStore } from '../../domain/store/UserStorage';
+import { useUserStore } from '../store/UserStorage';
 
 export interface ReadingProgressDto {
   userId: number;
