@@ -1,4 +1,4 @@
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../../../../domain/store/AuthStore';
 import { useState, useEffect } from 'react';
 import { getCurrentUser } from '../../../../infrastructure/services/DataUserService';
@@ -8,6 +8,7 @@ const ProfileMenu = () => {
   const navigate = useNavigate();
   const { logout } = useAuthStore();
   const { id } = useParams<{ id: string }>();
+  const location = useLocation();
   const [user, setUser] = useState<UserDTO | null>(null);
 
   useEffect(() => {
@@ -36,7 +37,16 @@ const ProfileMenu = () => {
           Mi Perfil
         </li>
 
-        <li className="hover:bg-gray-200 hover:shadow-md cursor-pointer p-4 rounded text-lg border-b border-gray-300">Suscripciones</li>
+        <li 
+          className={`cursor-pointer p-4 rounded text-lg border-b border-gray-300 ${
+            location.pathname === '/subscriptions'
+              ? 'bg-gray-300 text-black' 
+              : 'hover:bg-gray-200 hover:shadow-md'
+          }`}
+          onClick={() => navigate('/subscriptions')}
+        >
+          Suscripciones
+        </li>
         <li className="hover:bg-gray-200 hover:shadow-md cursor-pointer p-4 rounded text-lg border-b border-gray-300">Guardados</li>
         
         <li

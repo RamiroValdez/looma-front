@@ -16,12 +16,13 @@ import { MilkdownProvider } from "@milkdown/react";
 import Footer from "./app/components/Footer.tsx";
 import PaymentStatusPage from "./app/features/Payment/PaymentStatusPage.tsx";
 import TermsAndConditions from "./app/features/Legal/TermsAndConditions.tsx";
-import {RegisterPage} from "./app/features/Register/RegisterPage.tsx";
-import {VerifyCodePage} from "./app/features/Register/VerifyCodePage.tsx";
+import { RegisterPage } from "./app/features/Register/RegisterPage.tsx";
+import { VerifyCodePage } from "./app/features/Register/VerifyCodePage.tsx";
 import { WorkDetail } from './app/features/WorkDetail/WorkDetail.tsx';
 import ReadChapterNovel from "./app/features/WorkDetail/ReadChapterNovel.tsx";
 import Notifications from "./app/features/Notifications/Notifications.tsx";
 import { MySaves } from "./app/features/MySaves.tsx";
+import { SubscriptionsPage } from "./app/features/Profile/SubscriptionsPage.tsx";
 
 function Shell({ children }: { children: React.ReactNode }) {
   return (
@@ -51,11 +52,12 @@ function App() {
             <LoginPage />
           </Shell>
         } />
-                <Route path="/register" element={
-                  <Shell>
-                    <RegisterPage />
-                  </Shell>
-                } />
+
+        <Route path="/register" element={
+          <Shell>
+            <RegisterPage />
+          </Shell>
+        } />
 
         <Route path="/" element={
           <Shell>
@@ -111,11 +113,11 @@ function App() {
           </ProtectedRoute>
         } />
 
-                <Route path="/preview" element={
-                  <ProtectedRoute>
-                    <PreviewChapter />
-                  </ProtectedRoute>
-                } />
+        <Route path="/preview" element={
+          <ProtectedRoute>
+            <PreviewChapter />
+          </ProtectedRoute>
+        } />
 
         <Route path="/work/chapter/:chapterId/read" element={
           <ProtectedRoute>
@@ -132,48 +134,58 @@ function App() {
             </Shell>
           </ProtectedRoute>
         } />
-<Route path="/mySaves" element={
-                  <ProtectedRoute>
-                    <Shell>
-                      <MySaves />
-                    </Shell>
-                  </ProtectedRoute>
-                } />
 
-                <Route path="/profile/:id" element={
-                  <ProtectedRoute>
-                    <Shell>
-                      <ProfilePage />
-                    </Shell>
-                  </ProtectedRoute>
-                } />
+        <Route path="/mySaves" element={
+          <ProtectedRoute>
+            <Shell>
+              <MySaves />
+            </Shell>
+          </ProtectedRoute>
+        } />
 
-                <Route path="/verify-code" element={
-                    <Shell>
-                  <VerifyCodePage />
-                  </Shell>
-                  } />
-            <Route path="/notifications" element={
+        <Route path="/profile/:id" element={
+          <ProtectedRoute>
+            <Shell>
+              <ProfilePage />
+            </Shell>
+          </ProtectedRoute>
+        } />
+
+        <Route path="/verify-code" element={
+          <Shell>
+            <VerifyCodePage />
+          </Shell>
+        } />
+
+        <Route path="/notifications" element={
           <Shell>
             <Notifications />
           </Shell>
         } />
 
-                <Route path="/payment/:uuid" element={
-                  <Shell>
-                    <PaymentStatusPage />
-                  </Shell>
-                } />
+        <Route path="/payment/:uuid" element={
+          <Shell>
+            <PaymentStatusPage />
+          </Shell>
+        } />
 
-                <Route path="/terms" element={
-                  <Shell>
-                    <TermsAndConditions />
-                  </Shell>
-                } />
-            </Routes>
-            <ToastProvider />
-        </BrowserRouter>
-    )
+        <Route path="/terms" element={
+          <Shell>
+            <TermsAndConditions />
+          </Shell>
+        } />
+
+        <Route path="/subscriptions" element={
+          <ProtectedRoute>
+            <Shell>
+              <SubscriptionsPage />
+            </Shell>
+          </ProtectedRoute>
+        } />
+      </Routes>
+      <ToastProvider />
+    </BrowserRouter>
+  )
 }
 
 export default App
