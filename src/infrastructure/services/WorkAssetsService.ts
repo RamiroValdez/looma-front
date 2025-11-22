@@ -1,5 +1,4 @@
 import { useAuthStore } from "../../domain/store/AuthStore";
-
 export async function uploadCover(workId: number, coverFile: File | null, coverIaUrl: string | null): Promise<{ fetchStatus: number }> {
   const token = useAuthStore.getState().token;
   if (!token) throw new Error("No auth token available");

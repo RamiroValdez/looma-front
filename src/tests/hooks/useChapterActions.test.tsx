@@ -32,6 +32,7 @@ const chapterMock = {
   scheduledPublicationDate: "",
   availableLanguages: [],
   chapterNumber: 1,
+  isLiked: false,
 };
 
 function thenErrorMessageIsShown(result: {

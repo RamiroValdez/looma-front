@@ -76,7 +76,7 @@ export default function Create() {
         selectedLanguage !== null &&
         selectedCategories.length > 0 &&
         currentTags.length > 0 &&
-        (!isPaid || (isPaid && price > 0)) && 
+        (!isPaid || (isPaid && price > 0)) &&
         bannerFile !== null &&
         (coverFile !== null)||(coverIaUrl !== null);
 
@@ -118,27 +118,27 @@ export default function Create() {
     const successMsg = isCover ? "Portada subida con éxito." : "Banner subido con éxito.";
 
     const result = await validateFile(file, options);
-    
+
     if (!result.valid) {
         const errorMessage = result.error || "Error de archivo desconocido.";
         setError(errorMessage);
-        setFile(null); 
+        setFile(null);
         setFilePreview(prev => { if (prev) URL.revokeObjectURL(prev); return null; });
-        
+
         if (inputRef.current) inputRef.current.value = '';
         return;
     }
     setError(null);
     setFile(file);
     notifySuccess(successMsg);
-    setFilePreview(prev => { 
-        if (prev) URL.revokeObjectURL(prev); 
-        return URL.createObjectURL(file); 
+    setFilePreview(prev => {
+        if (prev) URL.revokeObjectURL(prev);
+        return URL.createObjectURL(file);
     });
-    
+
     if (inputRef.current) inputRef.current.value = '';
     if (isCover) {
-        setShowCoverPopup(false); 
+        setShowCoverPopup(false);
     }
 }, []);
 
@@ -196,13 +196,13 @@ export default function Create() {
     }
     const payload: TagSuggestionRequestDTO = {
         description: descriptionF,
-        title: nameWork, 
-        existingTags: currentTags, 
+        title: nameWork,
+        existingTags: currentTags,
     };
     setIsAILoading(true);
     suggestMutation.mutate(payload, {
         onSuccess: (data) => {
-            setSuggestedTags(data.suggestions); 
+            setSuggestedTags(data.suggestions);
             setIsSuggestionMenuOpen(true);
             setIsAILoading(false);
         },
@@ -348,7 +348,7 @@ export default function Create() {
                                         />
                                     ))}
                                     <div className="flex flex-col">
-                                        {selectedCategories.length < 2 && ( 
+                                        {selectedCategories.length < 2 && (
                                             <Button
                                                 type="button"
                                                 data-testid="open-category-menu"
@@ -566,12 +566,12 @@ export default function Create() {
                 <label htmlFor="toggle-paga" className="text-gray-700 font-medium text-lg">
                     ¿Tu obra va a ser paga?
                 </label>
-                
+
                 <div className="flex items-center gap-3">
                     <span className={`text-sm font-semibold ${!isPaid ? 'text-gray-700' : 'text-gray-500'}`}>
                     NO
                     </span>
-                    
+
                     <div className="relative inline-block w-12 align-middle select-none transition duration-200 ease-in">
                     <input
                         type="checkbox"
@@ -584,8 +584,8 @@ export default function Create() {
                         left: isPaid ? 'calc(100% - 1.5rem)' : '0',
                         }}
                     />
-                    <label 
-                        htmlFor="toggle-paga" 
+                    <label
+                        htmlFor="toggle-paga"
                         className={`block overflow-hidden h-6 rounded-full cursor-pointer transition-colors duration-200 ease-in ${isPaid ? 'bg-blue-600' : 'bg-gray-500'}`}
                     />
                     </div>
