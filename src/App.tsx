@@ -15,15 +15,13 @@ import { ToastProvider } from "./app/components/ToastProvider.tsx";
 import { MilkdownProvider } from "@milkdown/react";
 import Footer from "./app/components/Footer.tsx";
 import PaymentStatusPage from "./app/features/Payment/PaymentStatusPage.tsx";
-import TermsAndConditions from "./app/features/Legal/TermsAndConditions.tsx";
+import TermsAndConditions from "./app/features/Profile/TermsAndConditions.tsx";
 import { RegisterPage } from "./app/features/Register/RegisterPage.tsx";
 import { VerifyCodePage } from "./app/features/Register/VerifyCodePage.tsx";
 import { WorkDetail } from './app/features/WorkDetail/WorkDetail.tsx';
 import ReadChapterNovel from "./app/features/WorkDetail/ReadChapterNovel.tsx";
 import Notifications from "./app/features/Notifications/Notifications.tsx";
 import { MySaves } from "./app/features/Profile/MySaves.tsx";
-import PreferencesPage from "./app/features/PreferencesUser/PreferencesPage.tsx";
-import WelcomePage from "./app/features/Register/WelcomePage.tsx";
 
 function Shell({ children }: { children: React.ReactNode }) {
   return (
