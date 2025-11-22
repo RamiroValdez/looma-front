@@ -1,5 +1,6 @@
-import { useAuthStore } from "../../domain/store/AuthStore.ts";
+import { useAuthStore } from "../store/AuthStore.ts";
 import { handleError } from "../errorHandler.ts";
+import { v4 as uuidv4 } from "uuid";
 
 export interface PaymentRedirectResponse {
     redirectUrl?: string;
@@ -28,7 +29,7 @@ export async function subscribeToWork(
       subscriptionType: "work" as const,
       targetId: workId,
       provider,
-      returnUrl: `https://www.youtube.com/watch?v=v1uJyYf6KR8`, // agregar URL de looma
+      returnUrl: `https://looma-front-production-0b1e.up.railway.app/payment/${uuidv4()}`,
     };
 
     const base = import.meta.env.VITE_API_BASE_URL || "";
@@ -72,7 +73,7 @@ export async function subscribeToAuthor(
       subscriptionType: "author" as const,
       targetId: authorId,
       provider,
-      returnUrl: `https://www.youtube.com/watch?v=v1uJyYf6KR8`,  // agregar URL de looma
+      returnUrl: `https://looma-front-production-0b1e.up.railway.app/payment/${uuidv4()}`,
     };
 
     const base = import.meta.env.VITE_API_BASE_URL || "";
@@ -113,14 +114,13 @@ export async function subscribeToChapter(
 ): Promise<{ fetchStatus: number; redirectUrl?: string }> {
   try {
     const token = useAuthStore.getState().token;
+    const paymentUUID = uuidv4();
     const body: SubscribeRequestDTO & { returnUrl: string } = {
       subscriptionType: "chapter",
       targetId: chapterId,
       workId,
       provider,
-        // agregar URL de looma, la idea es tomar el paymentId que venga de MP para redirigir al usuario a la pantalla de confirmación
-        // de pago, haciendo una pegada al backend trayendo los datos de ese paymentId y verificando que el pago haya sido exitoso
-      returnUrl: `https://looma-front-production.up.railway.app/`,
+      returnUrl: `https://looma-front-production-0b1e.up.railway.app/payment/${paymentUUID}`,
     };
 
     const base = import.meta.env.VITE_API_BASE_URL || "";

@@ -1,6 +1,6 @@
 import type {CategoryDTO } from "../../domain/dto/CategoryDTO.ts";
 import { useApiQuery } from "../api/useApiQuery.ts";
-import { useCategoryStore } from "../../domain/store/CategoryStore.ts";
+import { useCategoryStore } from "../store/CategoryStore.ts";
 import { useEffect } from "react";
 
 export const useCategories = () => {

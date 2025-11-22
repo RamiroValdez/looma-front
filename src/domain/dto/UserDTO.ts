@@ -5,4 +5,6 @@ export interface UserDTO {
   username: string;
   email: string;
   image: string;
+  isAuthor?: boolean;
+  price?: number;
 }

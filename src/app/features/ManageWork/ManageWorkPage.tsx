@@ -16,9 +16,12 @@ import { notifySuccess, notifyError } from "../../../infrastructure/services/Toa
 import { useCategories } from "../../../infrastructure/services/CategoryService.ts";
 import type { CategoryDTO } from "../../../domain/dto/CategoryDTO.ts";
 import { apiClient } from "../../../infrastructure/api/apiClient.ts";
-import { useAuthStore } from "../../../domain/store/AuthStore.ts";
+import { useAuthStore } from "../../../infrastructure/store/AuthStore.ts";
 
 interface UpdateWorkDTO {
+  categoryIds?: number[];
+  tagIds?: string[];
+  state?: 'paused' | 'InProgress' | 'finished';
   price?: number;
 }
 
@@ -69,6 +72,8 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
   const navigate = useNavigate();
   const isDescriptionValid = descriptionF.trim().length > 20;
   const [price, setPrice] = useState('');
+  const [workStatus, setWorkStatus] = useState<'paused' | 'InProgress' | 'finished' | ''>('');
+  const [allowSubscription, setAllowSubscription] = useState(false);
 
   const handleAddCategory = (category: CategoryDTO) => {
     if (!selectedCategories.some(c => c.id === category.id)) {
@@ -81,66 +86,37 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
     setSelectedCategories(selectedCategories.filter(c => c.id !== categoryId));
   };
 
-  /*const handleSaveChanges = async () => {
-    try {
-      setIsSaving(true);
+  const handleSaveChanges= async () => {
+  try {
+    setIsSaving(true);
 
-      const updatePayload: UpdateWorkDTO = {
-        categoryIds: selectedCategories.map(c => c.id),
-        tagIds: currentTags,
-        price: price ? parseFloat(price) : undefined,
-        state: workStatus || undefined
-      };
-
-      const response = await apiClient.request({
-        url: `/api/works/${currentWorkId}`,
-        method: 'PUT',
-        data: updatePayload,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      if (response.status === 200) {
-        notifySuccess('Cambios guardados exitosamente');
+    const updatePrice: UpdateWorkDTO = {
+      price: allowSubscription ? (price ? parseFloat(price) : 0) : 0,
+      categoryIds: selectedCategories.map(c => c.id),
+      tagIds: currentTags,
+      state: workStatus || undefined
+    };
+    
+    const response = await apiClient.request({
+      url: `/manage-work/${currentWorkId}`,
+      method: 'PUT',
+      data: updatePrice,
+      headers: {
+        'Authorization': `Bearer ${token}`
       }
-    } catch (err) {
-      console.error('Error al guardar cambios:', err);
-      notifyError('No se pudieron guardar los cambios');
-    } finally {
-      setIsSaving(false);
+    });
+
+    if (response.status === 200) {
+      notifySuccess('Datos actualizados exitosamente');
+      setPrice(allowSubscription ? price : '0');
     }
-  };*/
-
-  const handleSavePrice = async () => {
-    try {
-      setIsSaving(true);
-
-      const updatePrice: UpdateWorkDTO = {
-        price: price ? parseFloat(price) : undefined
-      };
-
-      const response = await apiClient.request({
-        url: `/manage-work/${currentWorkId}/price`,
-        method: 'PATCH',
-        data: updatePrice,
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      if (response.status === 204) {
-        notifySuccess('Precio guardado exitosamente');
-        setPrice(price);
-      }
-    } catch (err) {
-      console.error('Error al guardar precio:', err);
-      notifyError('No se pudo guardar el precio');
-    } finally {
-      setIsSaving(false);
-    }
-  };
+  } catch (err) {
+    console.error('Error al guardar precio:', err);
+    notifyError('No se pudo guardar el precio');
+  } finally {
+    setIsSaving(false);
+  }
+};
 
   const handleCreateChapter = async (workId: number, languageId: number) => {
     const chapter = await addChapter(workId, languageId, 'TEXT');
@@ -241,8 +217,9 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
         setCurrentTags(workData.tags.map((tag) => tag.name));
         setNameWork(workData.title || '');
         setDescriptionF(workData.description || '');
-
         setPrice(workData.price?.toString() || '');
+        setAllowSubscription(!!workData.price && workData.price > 0); 
+        setWorkStatus(workData.state || '');
       } catch (err) {
         setError('Error loading work');
         console.error('Error:', err);
@@ -303,7 +280,7 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
             <Button
               text="Editar Banner"
               onClick={handleBannerClick}
-              colorClass="bg-[#5C17A6] hover:bg-[#4A1285] focus:ring-[#5C17A6] text-white cursor-pointer"
+              colorClass="bg-[#5C17A6] font-semibold rounded-full hover:bg-[#4A1285] focus:ring-[#5C17A6] text-white cursor-pointer"
             />
 
             {showBannerTooltip && (
@@ -343,7 +320,7 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
                 <Button
                   text="Editar Portada"
                   onClick={() => setShowCoverModal(true)}
-                  colorClass="bg-[#3C2A50] hover:bg-[#2A1C3A] focus:ring-[#3C2A50] text-sm mb-2 w-48 text-white cursor-pointer"
+                  colorClass="bg-[#3C2A50] hover:bg-[#2A1C3A] font-semibold rounded-full px-4 py-2 focus:ring-[#3C2A50]  mb-2 w-48 text-white cursor-pointer"
                 />
                 <input
                   type="file"
@@ -588,7 +565,7 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
                     <Button
                       text="Agregar Capítulo"
                       onClick={() => handleCreateChapter(currentWorkId, work.originalLanguage.id)}
-                      colorClass="bg-[#5C17A6] hover:bg-[#4A1285] focus:ring-[#5C17A6] text-white cursor-pointer"
+                      colorClass="bg-[#5C17A6] hover:bg-[#4A1285] focus:ring-[#5C17A6] font-semibold rounded-full px-8 py-2 text-white cursor-pointer"
                     />
                   </div>
                 </div>
@@ -603,7 +580,7 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
               <div className="bg-white rounded-lg shadow-lg p-4">
                 <div className="space-y-4">
                   
-                  {/*
+                  
                   <div>
                     <label className="flex items-center text-base text-black">
                       <input 
@@ -616,29 +593,30 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
                     </label>
                   </div>
 
-                  <hr className="border-gray-300" />*/}
-                  
                   <div>
+                      {allowSubscription && 
                     <div className="flex items-center justify-center gap-2">
                       <label className="text-black font-medium text-base">Precio:</label>
-                      <div className="flex items-center border rounded">
-                        <span className="px-2 py-2 bg-gray-50 border-r text-base text-black">$</span>
+                      <div className="flex items-center border rounded border-2 border-[#172fa6]">
+                        <span className="px-2 py-2 bg-gray-50 border-r text-base text-black border-[#172fa6]">$</span>
                         <input 
                           type="number" 
                           placeholder="0.00"
-                          value={price}
+                          disabled={!allowSubscription}
+                          value={allowSubscription ? price : 0}
                           onChange={(e) => setPrice(e.target.value)}
                           className="px-2 py-2 text-base text-black rounded-r focus:outline-none focus:ring-2 focus:ring-[#5C17A6] w-20"
                           min="0"
                           step="0.01"
                         />
+                        
                       </div>
                     </div>
+              }
                   </div>
-                  
 
-                  {/*<hr className="border-gray-300" />
-                  
+                  <hr className="border-gray-300" />
+    
                   <div className="space-y-2">
                     <div>
                       <label className="flex items-center text-base text-black">
@@ -683,21 +661,13 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
                     </div>
                   </div>
 
-                  <hr className="border-gray-300" />  */}
+                  <hr className="border-gray-300" />  
                   
-                  <div className="flex gap-3 pt-2">
-                    
-                    {/*<button 
-                      onClick={handleClearAdminPanel}
-                      className="text-red-600 hover:text-red-800 text-sm font-medium transition-colors duration-200 flex-1 cursor-pointer"
-                    >
-                      Limpiar
-                    </button>
-                      */}
+                  <div className="flex gap-3 pt-2">                
                     <Button 
                       text={isSaving ? "Guardando..." : "Guardar"}
-                      onClick={handleSavePrice}
-                      colorClass="bg-[#5C17A6] hover:bg-[#4A1285] focus:ring-[#5C17A6] flex-1 text-white cursor-pointer disabled:bg-gray-400 disabled:cursor-not-allowed"
+                      onClick={handleSaveChanges}
+                      colorClass="bg-[#5C17A6] hover:bg-[#4A1285] focus:ring-[#5C17A6] flex-1 text-white font-semibold rounded-full px-4 py-2 cursor-pointer disabled:bg-gray-400 disabled:cursor-not-allowed"
                     />
                   </div>
                 </div>

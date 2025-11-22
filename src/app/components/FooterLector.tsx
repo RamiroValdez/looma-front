@@ -45,7 +45,7 @@ const FooterLector = ({
 
         <div className="flex flex-col items-center leading-tight text-white">
           <select
-            className={`bg-transparent text-white font-bold text-sm border border-gray-300 rounded-md px-2 py-1 mt-2 focus:text-black focus:bg-white disabled:opacity-60`}
+            className={`bg-transparent cursor-pointer text-white font-bold text-sm border border-gray-300 rounded-md px-2 py-1 mt-2 focus:text-black focus:bg-white disabled:opacity-60`}
             onChange={(e) => onLanguageChange(e.target.value)}
             disabled={disableLanguageSelect}
           >

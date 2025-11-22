@@ -2,7 +2,9 @@ import type { WorkDTO } from '../../domain/dto/WorkDTO.ts';
 import { getWorkById as getWorkByIdFromChapterService } from './ChapterService.ts';
 import {useApiQuery} from "../api/useApiQuery.ts";
 import { apiClient } from '../api/apiClient';
-import { useAuthStore } from '../../domain/store/AuthStore';
+import { useAuthStore } from '../store/AuthStore';
+import type { ExportEpubResponseDto } from '../../domain/dto/ExportEpubResponseDto.ts';
+import type { ExportPdfResponseDto } from '../../domain/dto/ExportPdfResponseDto.ts';
 
 export class WorkService {
 
@@ -47,6 +49,63 @@ export const getTop10Works = () => {
         }
          
     ); 
+};
+
+export const downloadEpub = async (workId: number): Promise<ExportEpubResponseDto> => {
+    try {
+        const token = useAuthStore.getState().token;
+        const response = await apiClient.request<ExportEpubResponseDto>({
+            url: `${import.meta.env.VITE_API_EXPORT_URL}/epub/${workId}`,
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                ...(token ? { Authorization: `Bearer ${token}` } : {}),
+            },
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error downloading ePub:', error);
+        throw new Error('Failed to download ePub');
+    }
+};
+
+export const getTotalSubscribersPerWork = async (workId: number): Promise<number> => {
+    try {
+        const token = useAuthStore.getState().token;
+        console.log("Fetching subscriber count for work ID:", workId);
+        const response = await apiClient.request<number>({
+            url: `/analytics/totalSuscribersPerWork/${workId}`,
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                ...(token ? { Authorization: `Bearer ${token}` } : {}),
+            },
+        });
+         return response.data;
+    }
+    catch (error) {
+        console.error('Error fetching subscription count:', error);
+        throw new Error('Failed to fetch subscription count');
+    }
+};
+
+export const downloadPdf = async (workId: number): Promise<ExportPdfResponseDto> => {
+    try {
+        const token = useAuthStore.getState().token;
+        const response = await apiClient.request<ExportPdfResponseDto>({
+            url: `${import.meta.env.VITE_API_EXPORT_URL}/pdf/${workId}`,
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                ...(token ? { Authorization: `Bearer ${token}` } : {}),
+            },
+        });
+        return response.data;
+    }
+    catch (error) {
+        console.error('Error downloading PDF:', error);
+        throw new Error('Failed to download PDF');
+    }
 };
 
 export interface ExploreRequestDTO {

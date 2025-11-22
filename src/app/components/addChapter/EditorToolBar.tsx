@@ -203,10 +203,10 @@ export default function EditorToolbar({ editorGetter, onImportFile }: Props) {
 
             <button
                 onClick={triggerFile}
-                className="ml-auto bg-white text-black font-bold px-3 py-1 rounded-md hover:bg-[#5C17A6] hover:text-white cursor-pointer hover:scale-103 transition"
+                className="ml-auto px-4 py-2 bg-white text-[#3b2c4e] font-bold rounded-full cursor-pointer"
                 disabled={loading}
             >
-                {loading ? "Importando capítulo..." : "Subir capítulo (.doc/.docx)"}
+                {loading ? "Importando capítulo..." : "Subir capítulo"}
             </button>
         </div>
     );

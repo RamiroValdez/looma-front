@@ -87,7 +87,7 @@ export const ChapterList: React.FC<ChapterListProps> = ({ chapters, originalLang
     <div className="bg-white rounded-xl overflow-hidden divide-y-2 divide-gray-300">
       {sortedChapters.map((chapter, index) => {
         const displayIndex = index + 1; 
-        const isUnlocked = allUnlocked || unlockedSet.has(chapter.id);
+        const isUnlocked = allUnlocked || unlockedSet.has(chapter.id) || chapter.price === 0;
         return (
           chapter.publicationStatus === "PUBLISHED" && (
         <div key={chapter.id} className="py-0">
@@ -105,28 +105,37 @@ export const ChapterList: React.FC<ChapterListProps> = ({ chapters, originalLang
         );
       })}
         {isModalOpen && (
-          <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/50">
-            <div className="bg-white rounded-xl p-8 w-full max-w-md relative shadow-xl">
-              <div className="absolute top-4 right-4">
-                <Button text="" onClick={closeModal} disabled={isPaying} colorClass="cursor-pointer">
-                  <img src="/img/PopUpCierre.png" className="w-9 h-9 hover:opacity-60" alt="Cerrar" />
-                </Button>
-              </div>
+        <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/50 p-4">
+          <div className="bg-white rounded-xl p-8 w-full max-w-md relative shadow-xl flex items-center justify-center min-h-[600px] max-h-[90vh] overflow-y-auto">
+            <div className="absolute top-4 right-4">
+              <Button text="" onClick={closeModal} disabled={isPaying} colorClass="cursor-pointer">
+                <img src="/img/PopUpCierre.png" className="w-9 h-9 hover:opacity-60" alt="Cerrar" />
+              </Button>
+            </div>
 
-              <h3 className="text-3xl font-bold mb-8 text-center text-[#5C17A6]">Comprar Capítulo</h3>
+            <div className="w-full">
 
-              <div className="border-2 border-[#172FA6] rounded-xl p-6 text-center shadow-2xl bg-[#E8EDFC] min-h-[350px]">
-                <h3 className="font-bold text-3xl mb-15 text-[#172FA6]">Capítulo: {selectedChapter?.title}</h3>
-                <h2 className="font-semibold text-8xl text-[#172FA6] mb-15">${selectedChapter?.price}</h2>
-                <p className="text-gray-600 text-2xl mb-23 min-h-[60px]">
+              <div className="border-2 border-[#3c2a50] rounded-2xl p-6 text-center shadow-lg bg-white w-full min-h-[400px] flex flex-col">
+                <h3 className="font-bold text-2xl md:text-3xl text-[#3c2a50] mb-4">Capítulo: {selectedChapter?.title}</h3>
+                <div className="my-4">
+                  <span className="text-5xl md:text-6xl font-bold text-[#3c2a50]">${selectedChapter?.price || '0'}</span>
+                </div>
+                <p className="text-gray-600 text-lg mb-8 flex-grow">
                   Acceso permanente a este capítulo
                 </p>
-                <Button 
-                  text="Adquirir" 
-                  colorClass="bg-[#172FA6] w-full text-white rounded-lg cursor-pointer hover:scale-103 py-3 font-semibold" 
-                  onClick={handleMercadoPagoClick}
-                  disabled={isPaying} 
-                />
+                <div className="mt-auto">
+                  <Button 
+                    text={isPaying ? "Procesando..." : "Adquirir"}
+                    colorClass={`w-full py-3 px-6 rounded-full text-white font-semibold text-lg
+                      ${
+                        isPaying 
+                          ? 'bg-gray-400 cursor-not-allowed' 
+                          : 'bg-[#3c2a50] hover:bg-[#2a1c3a] cursor-pointer transform hover:scale-105 transition-all duration-200'
+                      }`}
+                    onClick={handleMercadoPagoClick}
+                    disabled={isPaying} 
+                  />
+                </div>
               </div>
 
               {isPaying && (
@@ -136,7 +145,8 @@ export const ChapterList: React.FC<ChapterListProps> = ({ chapters, originalLang
               )}
             </div>
           </div>
-        )}
+        </div>
+      )}
     </div>
   );
 }

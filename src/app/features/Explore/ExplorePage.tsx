@@ -1,20 +1,24 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect} from 'react';
 import { useExploreWorks } from '../../../infrastructure/services/ExploreService';
 import { useFormats } from '../../../infrastructure/services/FormatService';
 import { useCategories } from '../../../infrastructure/services/CategoryService';
 import type { ExploreFiltersDto } from '../../../domain/dto/ExploreFiltrersDTO';
 import { WorkItemSearch } from '../../components/WorkItemSearch';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useLocation } from 'react-router-dom';
+
 
 export default function ExplorePage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const qParam = searchParams.get('q') || undefined;
+  const categoryIdsParam = searchParams.get('categoryIds'); 
 
   const [filters, setFilters] = useState<ExploreFiltersDto>({ text: qParam });
   const [page, setPage] = useState(0);
   const { formats, isLoading: loadingFormats } = useFormats();
   const { categories, isLoading: loadingCategories } = useCategories();
-  const { data, isLoading, error } = useExploreWorks(filters, page, 20);
+  const [refreshKey, setRefreshKey] = useState(0); 
+  const location = useLocation();
+  const { data, isLoading, error } = useExploreWorks(filters, page, 20, refreshKey); 
 
   const EPISODE_RANGES = [
     { label: 'Cualquiera', value: 'cualquiera' },
@@ -33,11 +37,21 @@ export default function ExplorePage() {
   ];
 
   useEffect(() => {
+  setFilters({ text: qParam });
+  setPage(0);
+  setRefreshKey((k) => k + 1); 
+}, [location.pathname, qParam]);
+
+  useEffect(() => {
     if (qParam) {
       setFilters((prev) => ({ ...prev, text: qParam }));
       setPage(0);
     }
-  }, [qParam]);
+      if (categoryIdsParam) {
+      setFilters((prev) => ({ ...prev, categoryIds: [Number(categoryIdsParam)] }));
+      setPage(0);
+    }
+  }, [qParam, categoryIdsParam]);
 
   const handleFilterChange = (newFilters: Partial<ExploreFiltersDto>) => {
     setFilters((prev) => ({ ...prev, ...newFilters }));
@@ -49,8 +63,17 @@ export default function ExplorePage() {
       } else {
         searchParams.delete('q');
       }
-      setSearchParams(searchParams, { replace: true });
+
     }
+    if ('categoryIds' in newFilters) {
+      if (newFilters.categoryIds && newFilters.categoryIds.length > 0) {
+        searchParams.set('categoryIds', String(newFilters.categoryIds[0]));
+      } else {
+        searchParams.delete('categoryIds');
+      }
+    
+  }
+      setSearchParams(searchParams, { replace: true });
   };
 
   const handleEpisodeRangeChange = (rangeValue: string, isChecked: boolean) => {
@@ -95,11 +118,12 @@ const handleFinishedChange = (isChecked: boolean) => {
   if (error) return <div>Error al cargar obras: {error.message}</div>;
 
   return (
-    <div className="p-4">
-      <div className="flex gap-6">
-        <aside className="w-48 flex-shrink-0 mt-22">
-          <h3 className="font-semibold mb-2 text-lg">Longitud</h3>
-          <div className="filter-group ml-1">
+    <div className="min-h-screen">
+      <div className="p-4 min-h-[calc(100vh-100px)]">
+        <div className="flex gap-6">
+          <aside className="w-48 flex-shrink-0 mt-22">
+            <h3 className="font-semibold mb-2 text-lg">Longitud</h3>
+            <div className="filter-group ml-1">
                 {EPISODE_RANGES.map(({ label, value }) => (
             <label key={value} className="flex items-center space-x-2 mb-2">
                 <input
@@ -108,7 +132,7 @@ const handleFinishedChange = (isChecked: boolean) => {
                     onChange={(e) => 
                         handleEpisodeRangeChange(value, e.target.checked)
                     }
-                    className="form-checkbox accent-gray-900"
+                    className="form-checkbox accent-gray-900 cursor-pointer"
                       />
                       <span>{label}</span>
                   </label>
@@ -125,7 +149,7 @@ const handleFinishedChange = (isChecked: boolean) => {
                     onChange={(e) =>
                         handleUpdateRangeChange(value, e.target.checked)
                     }
-                    className="form-checkbox accent-gray-900"
+                    className="form-checkbox accent-gray-900 cursor-pointer"
                 />
                 <span>{label}</span>
                     </label>
@@ -141,7 +165,7 @@ const handleFinishedChange = (isChecked: boolean) => {
                             onChange={(e) => 
                                 handleFinishedChange(e.target.checked)
                             }
-                            className="form-checkbox accent-gray-900"
+                            className="form-checkbox accent-gray-900 cursor-pointer"
                         />
                         <span className='whitespace-nowrap'>Solo historias completas</span>
                     </label>
@@ -151,7 +175,7 @@ const handleFinishedChange = (isChecked: boolean) => {
         <div className="flex-1">
           <div className="mb-6 flex items-end justify-between mr-17">
             <div className="flex items-end gap-3">
-              <h2 className="text-2xl font-bold">
+              <h2 className="text-2xl font-bold text-[#172fa6]">
                 Explorar obras {qParam && <span className="text-base text-gray-600">– "{qParam}"</span>}
               </h2>
 
@@ -169,7 +193,7 @@ const handleFinishedChange = (isChecked: boolean) => {
               <div>
                 <label className="block text-sm font-medium mb-1">Categoría</label>
                 <select
-                  className="w-40 border rounded px-3 py-2"
+                  className="w-40 border rounded-full cursor-pointer px-3 py-2 pr-8 appearance-none bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxwb2x5bGluZSBwb2ludHM9IjYgOSAxMiAxNSAxOCA5Ij48L3BvbHlsaW5lPjwvc3ZnPg==')] bg-no-repeat bg-[right_0.75rem_center] bg-[length:1.25em]"
                   value={filters.categoryIds?.[0] ?? ''}
                   onChange={(e) =>
                     handleFilterChange({
@@ -189,7 +213,7 @@ const handleFinishedChange = (isChecked: boolean) => {
               <div>
                 <label className="block text-sm font-medium mb-1">Formato</label>
                 <select
-                  className="w-40 border rounded px-3 py-2"
+                  className="w-40 border rounded-full cursor-pointer px-3 py-2 pr-8 appearance-none bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxwb2x5bGluZSBwb2ludHM9IjYgOSAxMiAxNSAxOCA5Ij48L3BvbHlsaW5lPjwvc3ZnPg==')] bg-no-repeat bg-[right_0.75rem_center] bg-[length:1.25em]"
                   value={filters.formatIds?.[0] ?? ''}
                   onChange={(e) =>
                     handleFilterChange({
@@ -244,5 +268,6 @@ const handleFinishedChange = (isChecked: boolean) => {
         </div>
       </div>
     </div>
+  </div>
   );
 }

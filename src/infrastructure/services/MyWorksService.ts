@@ -1,6 +1,6 @@
 import type { WorkDTO } from '../../domain/dto/WorkDTO.ts';
 import { useApiQuery } from "../api/useApiQuery.ts";
-import { useAuthStore } from "../../domain/store/AuthStore.ts";
+import { useAuthStore } from "../store/AuthStore.ts";
 import {buildEndpoint} from "../api/endpoints.ts";
 
 export function useMyWorks(creatorId: number) {
@@ -19,8 +19,8 @@ export function useMyWorks(creatorId: number) {
             enabled: !!creatorId && !!token,
             refetchOnWindowFocus: false,
             refetchOnReconnect: false,
-            refetchOnMount: false,
-            staleTime: 1000 * 60 * 5,
+            refetchOnMount: "always",
+            staleTime: 0,
             select: (allWorks: WorkDTO[]) =>
                 allWorks.filter(work => work.creator.id === creatorId)
         }

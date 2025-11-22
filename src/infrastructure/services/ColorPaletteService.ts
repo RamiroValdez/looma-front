@@ -1,8 +1,8 @@
 import { type ColorPaletteDTO } from "../../domain/dto/ColorPaletteDTO.ts";
 import { useApiQuery } from "../api/useApiQuery.ts";
-import { useColorPaletteStore } from "../../domain/store/ColorPaletteStore";
+import { useColorPaletteStore } from "../store/ColorPaletteStore";
 import { useEffect } from "react";
-import {useAuthStore} from "../../domain/store/AuthStore.ts";
+import {useAuthStore} from "../store/AuthStore.ts";
 
 export const useColorPalettes = () => {
     const {

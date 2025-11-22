@@ -1,5 +1,5 @@
 import { useApiQuery } from "../api/useApiQuery.ts";
-import { useAuthStore } from "../../domain/store/AuthStore.ts";
+import { useAuthStore } from "../store/AuthStore.ts";
 import { apiClient } from '../api/apiClient';
 
 export interface ChatMessageDto {
@@ -7,7 +7,7 @@ export interface ChatMessageDto {
   chapterId: number;
   content: string;
   userMessage: boolean;
-  timestamp: string;
+  timestamp?: string;
 }
 
 export interface ChatRequestDto {
