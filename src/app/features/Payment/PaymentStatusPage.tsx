@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
-import { useAuthStore } from "../../../domain/store/AuthStore.ts";
+import { useAuthStore } from "../../../infrastructure/store/AuthStore.ts";
 import Button from "../../components/Button.tsx";
 
 // Flexible response type; backend schema may change

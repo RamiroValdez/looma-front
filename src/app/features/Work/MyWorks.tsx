@@ -2,9 +2,8 @@ import Button from "../../../app/components/Button.tsx";
 import { useNavigate } from 'react-router-dom';
 import { WorkItem } from '../../../app/components/WorkItem.tsx';
 import { useMyWorks } from '../../../infrastructure/services/MyWorksService.ts';
-import { useUserStore } from "../../../domain/store/UserStorage.ts";
+import { useUserStore } from "../../../infrastructure/store/UserStorage.ts";
 import type {WorkDTO} from "../../../domain/dto/WorkDTO.ts";
-import { useEffect } from "react";
 
 const PURPLE_BG_CLASS = "bg-[#5C17A6]";
 const CREATE_PATH = '/create';
@@ -86,7 +85,7 @@ export default function CreateWork() {
                 ) : (
                     <div className="w-full flex flex-col items-center">
                         <div className="flex flex-col items-center justify-center min-h-[20vh] mt-16 text-center">
-                            <img src="/img/triste_1.png" alt="no works" className="w-40 h-40 mb-8" />
+                            <img src="/img/triste_1.png" alt="no works" className="w-70 h-70 mb-8" />
                             <p className="text-gray-500 mb-8 w-full text-xl text-center">
                                 Aún no tienes ninguna obra publicada.
                             </p>

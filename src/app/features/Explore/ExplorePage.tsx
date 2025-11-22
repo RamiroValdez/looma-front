@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect} from 'react';
 import { useExploreWorks } from '../../../infrastructure/services/ExploreService';
 import { useFormats } from '../../../infrastructure/services/FormatService';
 import { useCategories } from '../../../infrastructure/services/CategoryService';
 import type { ExploreFiltersDto } from '../../../domain/dto/ExploreFiltrersDTO';
 import { WorkItemSearch } from '../../components/WorkItemSearch';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useLocation } from 'react-router-dom';
+
 
 export default function ExplorePage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -15,7 +16,9 @@ export default function ExplorePage() {
   const [page, setPage] = useState(0);
   const { formats, isLoading: loadingFormats } = useFormats();
   const { categories, isLoading: loadingCategories } = useCategories();
-  const { data, isLoading, error } = useExploreWorks(filters, page, 20);
+  const [refreshKey, setRefreshKey] = useState(0); 
+  const location = useLocation();
+  const { data, isLoading, error } = useExploreWorks(filters, page, 20, refreshKey); 
 
   const EPISODE_RANGES = [
     { label: 'Cualquiera', value: 'cualquiera' },
@@ -32,6 +35,12 @@ export default function ExplorePage() {
     { label: 'Últimos 3 meses', value: 'last_3_months' },
     { label: 'Último año', value: 'last_year' },
   ];
+
+  useEffect(() => {
+  setFilters({ text: qParam });
+  setPage(0);
+  setRefreshKey((k) => k + 1); 
+}, [location.pathname, qParam]);
 
   useEffect(() => {
     if (qParam) {
@@ -65,7 +74,6 @@ export default function ExplorePage() {
     
   }
       setSearchParams(searchParams, { replace: true });
-    
   };
 
   const handleEpisodeRangeChange = (rangeValue: string, isChecked: boolean) => {

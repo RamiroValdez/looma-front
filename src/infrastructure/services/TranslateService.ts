@@ -1,4 +1,4 @@
-import { useAuthStore } from "../../domain/store/AuthStore";
+import { useAuthStore } from "../store/AuthStore";
 
 export const translateContent = async (
   sourceLanguage: string,

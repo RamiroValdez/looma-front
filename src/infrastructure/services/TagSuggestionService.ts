@@ -1,4 +1,4 @@
-import { useAuthStore } from "../../domain/store/AuthStore.ts"; 
+import { useAuthStore } from "../store/AuthStore.ts";
 import {useApiMutation} from "../api/useApiMutation.ts";
 import type { TagSuggestionRequestDTO, TagSuggestionResponseDTO } from "../../domain/dto/TagSuggestionDTO.ts"; 
 

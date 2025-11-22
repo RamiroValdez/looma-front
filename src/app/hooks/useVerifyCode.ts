@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuthStore } from "../../domain/store/AuthStore"
+import { useAuthStore } from "../../infrastructure/store/AuthStore"
 import { verifyCode } from "../../infrastructure/services/VerifyCodeService"; 
-import { useUserStore } from "../../domain/store/UserStorage";
+import { useUserStore } from "../../infrastructure/store/UserStorage";
 import { getCurrentUser } from "../../infrastructure/services/DataUserService";
 
 export const useVerifyCode = (email: string) => {

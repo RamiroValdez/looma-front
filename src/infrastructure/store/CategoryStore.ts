@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type {CategoryDTO} from '../../domain/dto/CategoryDTO';
+import type {CategoryDTO} from '../../domain/dto/CategoryDTO.ts';
 
 interface CategoryState {
     categories: CategoryDTO[];

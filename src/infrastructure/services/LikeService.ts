@@ -1,4 +1,4 @@
-import { useAuthStore } from "../../domain/store/AuthStore.ts";
+import { useAuthStore } from "../store/AuthStore.ts";
 import { handleError } from "../../infrastructure/errorHandler.ts";
 
 export async function likeWork(workId: number): Promise<{ likeCount: number }> {

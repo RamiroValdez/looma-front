@@ -2,7 +2,7 @@
 
 Este proyecto es el frontend de Looma, para funcionar correctamente debe de trabajar en conjunto con `Looma-Core`
 
-# información de lanzamiento
+# Información de lanzamiento
 
 Lo primero que se debe hacer una vez clonado es ejecutar `npm install` para que se carguen todas las dependencias del proyecto.
 

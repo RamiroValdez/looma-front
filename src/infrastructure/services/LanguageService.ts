@@ -1,6 +1,6 @@
 import { type LanguageDTO } from "../../domain/dto/LanguageDTO.ts";
 import { useApiQuery } from "../api/useApiQuery.ts";
-import { useLanguageStore } from "../../domain/store/LanguageStore.ts";
+import { useLanguageStore } from "../store/LanguageStore.ts";
 import { useEffect, useMemo } from "react";
 
 // Intenta normalizar la respuesta del backend a un array de LanguageDTO

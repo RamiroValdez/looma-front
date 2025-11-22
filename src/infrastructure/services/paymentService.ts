@@ -1,4 +1,4 @@
-import { useAuthStore } from "../../domain/store/AuthStore.ts";
+import { useAuthStore } from "../store/AuthStore.ts";
 import { handleError } from "../errorHandler.ts";
 import { v4 as uuidv4 } from "uuid";
 

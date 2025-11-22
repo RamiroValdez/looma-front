@@ -1,4 +1,4 @@
-import { useAuthStore } from '../../domain/store/AuthStore';
+import { useAuthStore } from '../store/AuthStore';
 import { apiClient } from '../api/apiClient';
 import type { WorkDTO } from '../../domain/dto/WorkDTO';
 

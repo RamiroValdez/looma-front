@@ -15,15 +15,14 @@ import { ToastProvider } from "./app/components/ToastProvider.tsx";
 import { MilkdownProvider } from "@milkdown/react";
 import Footer from "./app/components/Footer.tsx";
 import PaymentStatusPage from "./app/features/Payment/PaymentStatusPage.tsx";
-import TermsAndConditions from "./app/features/Legal/TermsAndConditions.tsx";
+import TermsAndConditions from "./app/features/Profile/TermsAndConditions.tsx";
 import { RegisterPage } from "./app/features/Register/RegisterPage.tsx";
 import { VerifyCodePage } from "./app/features/Register/VerifyCodePage.tsx";
 import { WorkDetail } from './app/features/WorkDetail/WorkDetail.tsx';
 import ReadChapterNovel from "./app/features/WorkDetail/ReadChapterNovel.tsx";
 import Notifications from "./app/features/Notifications/Notifications.tsx";
-import { MySaves } from "./app/features/MySaves.tsx";
-import PreferencesPage from "./app/features/PreferencesUser/PreferencesPage.tsx";
-import WelcomePage from "./app/features/Register/WelcomePage.tsx";
+import { SubscriptionsPage } from "./app/features/Profile/SubscriptionsPage.tsx";
+import { MySaves } from "./app/features/Profile/MySaves.tsx";
 
 function Shell({ children }: { children: React.ReactNode }) {
   return (
@@ -53,26 +52,11 @@ function App() {
             <LoginPage />
           </Shell>
         } />
+
         <Route path="/register" element={
           <Shell>
             <RegisterPage />
           </Shell>
-        } />
-
-        <Route path="/preferences" element={
-          <ProtectedRoute>
-            <Shell>
-              <PreferencesPage />
-            </Shell>
-          </ProtectedRoute>
-        } />
-
-        <Route path="/welcome" element={
-          <ProtectedRoute>
-          <Shell>
-            <WelcomePage />
-          </Shell>
-          </ProtectedRoute>
         } />
 
         <Route path="/" element={
@@ -150,6 +134,7 @@ function App() {
             </Shell>
           </ProtectedRoute>
         } />
+
         <Route path="/mySaves" element={
           <ProtectedRoute>
             <Shell>
@@ -171,6 +156,7 @@ function App() {
             <VerifyCodePage />
           </Shell>
         } />
+
         <Route path="/notifications" element={
           <Shell>
             <Notifications />
@@ -187,6 +173,14 @@ function App() {
           <Shell>
             <TermsAndConditions />
           </Shell>
+        } />
+
+        <Route path="/subscriptions" element={
+          <ProtectedRoute>
+            <Shell>
+              <SubscriptionsPage />
+            </Shell>
+          </ProtectedRoute>
         } />
       </Routes>
       <ToastProvider />

@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { WorkFormatDTO } from '../dto/WorkFormatDTO';
+import type { WorkFormatDTO } from '../../domain/dto/WorkFormatDTO.ts';
 
 interface FormatState {
     formats: WorkFormatDTO[];

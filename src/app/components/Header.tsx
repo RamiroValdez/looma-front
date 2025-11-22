@@ -2,14 +2,14 @@ import { useState, useEffect, useRef } from 'react';
 import { getCurrentUser } from '../../infrastructure/services/DataUserService';
 import { Link } from "react-router-dom";
 import { type UserDTO } from "../../domain/dto/UserDTO";
-import { useAuthStore } from '../../domain/store/AuthStore';
+import { useAuthStore } from '../../infrastructure/store/AuthStore';
 import { useNavigate } from 'react-router-dom';
 import { type KeyboardEvent } from 'react';
 import NotificationPopup from "../components/NotificationPopup";
 import { useClickOutside } from '../hooks/useClickOutside';
 import { getUserNotifications } from "../../infrastructure/services/NotificationService";
 import type { NotificationDTO } from "../../domain/dto/NotificationDTO";
-import { useUserStore } from '../../domain/store/UserStorage';
+import { useUserStore } from '../../infrastructure/store/UserStorage';
 
 function Header() {
   const navigate = useNavigate();
@@ -50,6 +50,16 @@ function Header() {
     );
   };
 
+  const [haveImage, setHaveImage] = useState<Boolean>(false);
+
+  const validateImage = () => {
+    console.log(haveImage);
+    console.log(user?.image?.endsWith("/none"))
+    if (user?.image?.endsWith("/none") == false) {
+      setHaveImage(true);
+    }
+  }
+
   useEffect(() => {
     let alive = true;
     const run = async () => {
@@ -78,6 +88,7 @@ function Header() {
   }, [token, logout]);
 
   useEffect(() => {
+    validateImage();
     if (!user) {
       setNotifications([]);
       return;
@@ -160,12 +171,24 @@ useEffect(() => {
                     onMarkAsReadLocal={handleMarkAsReadLocal} />
                 </div>
                 <div className="relative">
-                  <img
-                    src={"/img/fotoPerfil.jpg"}
-                    alt="perfil"
-                    className="w-8 h-8 rounded-full border border-gray-300 object-cover cursor-pointer"
-                    onClick={() => setOpenMenu(!openMenu)}
+                  {
+                    haveImage ? (
+                      <img
+                        src={user.image}
+                        alt="perfil"
+                        className="w-8 h-8 rounded-full border border-gray-300 object-cover cursor-pointer"
+                        onClick={() => setOpenMenu(!openMenu)}
                   />
+                    ) : 
+                    (
+                      <img
+                        src={"/img/perfil.png"}
+                        alt="perfil"
+                        className="w-8 h-8 rounded-full border border-gray-300 object-cover cursor-pointer"
+                        onClick={() => setOpenMenu(!openMenu)}
+                      />
+                    )
+                  } 
                   {openMenu && (
                     <div className="absolute right-0 mt-2 w-40 bg-[#F0EEF6] border border-gray-200 rounded-lg shadow-lg text-sm z-10">
                       <Link
@@ -174,7 +197,7 @@ useEffect(() => {
                       >
                         Mi Perfil
                       </Link>
-                      <Link to="/" className="block px-4 py-2 hover:bg-[#D3CCDA] hover:text-[#5c17a6]">Suscripciones</Link>
+                      <Link to="/subscriptions" className="block px-4 py-2 hover:bg-[#D3CCDA] hover:text-[#5c17a6]">Suscripciones</Link>
                       <Link to="/mySaves" className="block px-4 py-2 hover:bg-[#D3CCDA] hover:text-[#5c17a6]">Guardados</Link>
                       <hr />
                       <button

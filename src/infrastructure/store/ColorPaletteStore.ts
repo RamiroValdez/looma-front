@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { type ColorPaletteDTO } from '../../domain/dto/ColorPaletteDTO';
+import { type ColorPaletteDTO } from '../../domain/dto/ColorPaletteDTO.ts';
 
 interface ColorPaletteState {
     colorPalettes: ColorPaletteDTO[];

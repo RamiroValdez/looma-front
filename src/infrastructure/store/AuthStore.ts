@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import { useUserStore } from '../store/UserStorage'
+import { useUserStore } from './UserStorage.ts'
 
 interface AuthState {
     token: string | null
