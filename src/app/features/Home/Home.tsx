@@ -25,14 +25,14 @@ const Home = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      if (!user?.userId) return; 
 
       try {
         setLoading(true);
         const workList = await getHomeWorkList(user?.userId || 0);
-        
         setTop10(workList.topTen);
-        setContinueReading(workList.currentlyReading);
+        if(workList.currentlyReading){
+            setContinueReading(workList.currentlyReading);
+        }
         setNewReleases(workList.newReleases);
         setRecentlyUpdated(workList.recentlyUpdated);
       }

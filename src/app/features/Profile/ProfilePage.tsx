@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import ProfileMenu from './components/ProfileMenu';
 import Button from '../../components/Button';
 import GradientSection from '../../components/GradientSection';
@@ -28,6 +28,21 @@ const ProfilePage = () => {
   const handleImageClick = () => {
     fileInputRef.current?.click();
   };
+
+  const [haveImage, setHaveImage] = useState<Boolean>(false);
+
+  const validateImage = () => {
+    console.log(haveImage);
+    console.log(profile?.image?.endsWith("/none"))
+    if (profile?.image?.endsWith("/none") == false) {
+      setHaveImage(true);
+    }
+  }
+
+  useEffect(()=> {
+    validateImage();
+  }, [profile]) 
+
 
   if (loading) {
     return (
@@ -100,7 +115,6 @@ const ProfilePage = () => {
       </div>
     );
   }
-
   return (
     <div className="flex bg-gray-50 min-h-screen">
       <ProfileMenu />
@@ -126,14 +140,25 @@ const ProfilePage = () => {
             </div>
           </div>
 
+
           <div className="bg-white rounded-xl shadow-lg p-8">
             <div className="text-center mb-8">
               <div className="relative inline-block">
-                <img
-                  src={selectedImage || profile.image || '/img/fotoPerfil.jpg'}
-                  alt="Foto de perfil"
+              {
+                haveImage ? (
+                  <img
+                  src={profile.image}
+                  alt="foto de perfil"
                   className="w-28 h-28 rounded-full border-4 border-purple-200 object-cover shadow-lg mx-auto"
                 />
+                ) : (
+                  <img
+                  src={selectedImage}
+                  alt="foto de perfil"
+                  className="w-28 h-28 rounded-full border-4 border-purple-200 object-cover shadow-lg mx-auto"
+                />
+                )
+              }
                 {isEditing && (
                   <>
                     <input

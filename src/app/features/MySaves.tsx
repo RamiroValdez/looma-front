@@ -1,11 +1,3 @@
-import { useEffect, useState} from "react";
-import { GetSavedWorks } from "../../infrastructure/services/MySavesService";
-import type { WorkCardDto } from "../../domain/dto/WorkCardDTO";
-import { WorkItemSaves } from "../components/WorkItemSaves";
-
-export const MySaves = () => {
-  const [savedWorks, setSavedWorks] = useState<WorkCardDto[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchSavedWorks = async () => {
