@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { WorkItemSubscriptions } from "./components/WorkItemSubscriptions";
+import { WorkItemSearch } from "../../components/WorkItemSearch";
 import ProfileMenu from "./components/ProfileMenu";
 import type { WorkCardDto } from "../../../domain/dto/WorkCardDTO";
 import { GetSubscriptions } from "../../../infrastructure/services/SubscriptionsService";
@@ -54,7 +54,7 @@ export const SubscriptionsPage = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {subscriptions.map((work) => (
-              <WorkItemSubscriptions key={work.id} work={work} />
+              <WorkItemSearch key={work.id} work={work} />
             ))}
           </div>
 
