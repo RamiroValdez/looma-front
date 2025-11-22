@@ -4,7 +4,6 @@ import { WorkItem } from '../../../app/components/WorkItem.tsx';
 import { useMyWorks } from '../../../infrastructure/services/MyWorksService.ts';
 import { useUserStore } from "../../../domain/store/UserStorage.ts";
 import type {WorkDTO} from "../../../domain/dto/WorkDTO.ts";
-import { useEffect } from "react";
 
 const PURPLE_BG_CLASS = "bg-[#5C17A6]";
 const CREATE_PATH = '/create';

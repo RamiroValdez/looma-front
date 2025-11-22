@@ -49,9 +49,10 @@ export const MySaves = () => {
         ))}
         </div>
         {savedWorks.length === 0 && (
-          <div className="text-center p-8 text-gray-500">
-            No tienes obras guardadas.
-          </div>
+            <div className="flex flex-col items-center justify-center p-16 text-gray-500">
+                <img src="/img/triste_1.png" alt="no works" className="w-40 h-40 mb-8" />
+                <div>No tienes obras guardadas.</div>
+            </div>
         )}
       </div>
     </div>
