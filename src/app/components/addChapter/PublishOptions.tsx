@@ -119,7 +119,7 @@ export default function PublishOptions({ workId, chapterId, onScheduleChange }: 
               setShowPublishModal(true);
             }}
             disabled={publishing}
-            className="mt-5 px-6 py-3 rounded-md bg-[#172FA6] text-white text-lg font-semibold hover:bg-blue-800 disabled:opacity-60 cursor-pointer"
+            className="mt-5 px-4 py-2 rounded-full font-semibold bg-[#172FA6] text-white hover:bg-[#0e1c80] disabled:opacity-60 cursor-pointer"
           >
             {publishing ? "Publicando..." : "Publicar ahora"}
           </button>
@@ -171,7 +171,7 @@ export default function PublishOptions({ workId, chapterId, onScheduleChange }: 
           <div className="flex space-x-4">
             <input
               type="date"
-              className="border rounded-lg p-2 bg-white text-gray-600"
+              className="border rounded-lg p-2 bg-white border-2 border-[#172fa6] text-gray-600"
               value={date}
               onChange={(e) => {
                 setDate(e.target.value);
@@ -180,7 +180,7 @@ export default function PublishOptions({ workId, chapterId, onScheduleChange }: 
             />
             <input
               type="time"
-              className="border rounded-lg p-2 bg-white text-gray-600"
+              className="border rounded-lg p-2 bg-white border-2 border-[#172fa6] text-gray-600"
               value={time}
               onChange={(e) => {
                 setTime(e.target.value);
@@ -197,7 +197,7 @@ export default function PublishOptions({ workId, chapterId, onScheduleChange }: 
                 setShowScheduleModal(true);
               }}
               disabled={scheduling}
-            className="mt-5 px-6 py-3 rounded-md bg-[#172FA6] text-white text-lg font-semibold hover:bg-blue-800 disabled:opacity-60 cursor-pointer"
+            className="mt-5 px-4 py-2 rounded-full font-semibold bg-[#172FA6] text-white hover:bg-[#0e1c80] disabled:opacity-60 cursor-pointer"
             >
               {scheduling ? "Programando..." : "Programar publicación"}
             </button>

@@ -37,7 +37,7 @@ export default function CreateWork() {
             
             <header className={`mx-auto ${MAX_WIDTH_CLASS} flex justify-between items-start mb-10`}>
                 <div>
-                    <h1 className="text-[#2B2B2B] text-3xl font-bold">
+                    <h1 className="text-[#2B2B2B] text-3xl font-bold text-[#172fa6]">
                         {isLoading ? 'Cargando...' : 'Mis Obras'}
                     </h1>
                     <p className="text-[#474747]">Gestiona y organiza tu contenido literario.</p>
@@ -60,7 +60,7 @@ export default function CreateWork() {
                                     className="mb-8 w-full"
                                 >
                                     <div className="flex justify-between items-center mb-4">
-                                        <h2 className="text-[#2B2B2B] text-2xl font-bold">
+                                        <h2 className="text-[#172fa6] text-2xl font-bold">
                                             {group.name} ({group.works.length})
                                         </h2>
                                         
@@ -68,7 +68,7 @@ export default function CreateWork() {
                                             <Button
                                                 text="Crear +"
                                                 onClick={() => navigate(CREATE_PATH)}
-                                                colorClass={`${PURPLE_BG_CLASS} text-white font-semibold cursor-pointer hover:scale-105`}
+                                                colorClass={`${PURPLE_BG_CLASS} text-white rounded-full font-semibold cursor-pointer hover:scale-105`}
                                             />
                                         )}
                                     </div>
@@ -84,8 +84,8 @@ export default function CreateWork() {
                     </div>
                 ) : (
                     <div className="w-full flex flex-col items-center">
-                        <div className="flex flex-col items-center justify-center min-h-[50vh] text-center">
-                            <img src="/img/Carita.png" alt="no works" className="w-40 h-40 mb-8" />
+                        <div className="flex flex-col items-center justify-center min-h-[20vh] mt-16 text-center">
+                            <img src="/img/triste_1.png" alt="no works" className="w-40 h-40 mb-8" />
                             <p className="text-gray-500 mb-8 w-full text-xl text-center">
                                 Aún no tienes ninguna obra publicada.
                             </p>
@@ -94,7 +94,7 @@ export default function CreateWork() {
                             <Button
                                 text="Crear +"
                                 onClick={() => navigate(CREATE_PATH)}
-                                colorClass={`${PURPLE_BG_CLASS} text-white font-semibold cursor-pointer hover:scale-105 w-90`}
+                                colorClass={`${PURPLE_BG_CLASS} text-white rounded-full font-semibold cursor-pointer hover:scale-105 w-90`}
                             />
                         </div>
                     </div>

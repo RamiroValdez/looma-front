@@ -8,18 +8,10 @@ import WorkCarousel from "../../components/WorkCarousel";
 import ScrollArrow from "../../components/ScrollArrow";
 import { useNavigate } from "react-router-dom";
 
-interface TopBook {
-  id: number;
-  title: string;
-  cover: string; 
-  position: number;
-}
-
 const Home = () => {
   const { categories, isLoading, error } = useCategories();
 
-  const [top10, setTop10] = useState<TopBook[]>([]);
-  const [top10Works, setTop10Works] = useState<WorkDTO[]>([]);
+  const [top10, setTop10] = useState<WorkDTO[]>([]);
   const [newReleases, setNewReleases] = useState<WorkDTO[]>([]);
   const [recentlyUpdated, setRecentlyUpdated] = useState<WorkDTO[]>([]);
   const [continueReading, setContinueReading] = useState<WorkDTO[]>([]);
@@ -33,23 +25,14 @@ const Home = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      if (!user?.userId) return; 
 
       try {
         setLoading(true);
         const workList = await getHomeWorkList(user?.userId || 0);
-        
-        setTop10Works(workList.topTen);
-        
-        setTop10(
-          workList.topTen.map((work: WorkDTO, index: number) => ({
-            id: work.id,
-            title: work.title,
-            cover: work.cover,
-            position: index + 1,
-          }))
-        );
-        setContinueReading(workList.currentlyReading);
+        setTop10(workList.topTen);
+        if(workList.currentlyReading){
+            setContinueReading(workList.currentlyReading);
+        }
         setNewReleases(workList.newReleases);
         setRecentlyUpdated(workList.recentlyUpdated);
       }
@@ -63,20 +46,19 @@ const Home = () => {
     fetchData();
   }, [user?.userId]);
 
-  
-useEffect(() => {
-  const checkInitialScroll = () => {
-    if (scrollRef.current) {
-      const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
-      setShowLeft(scrollLeft > 20);
-      setShowRight(scrollLeft + clientWidth < scrollWidth - 20);
-    }
-  };
+  useEffect(() => {
+    const checkInitialScroll = () => {
+      if (scrollRef.current) {
+        const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
+        setShowLeft(scrollLeft > 20);
+        setShowRight(scrollLeft + clientWidth < scrollWidth - 20);
+      }
+    };
 
-  const timer = setTimeout(checkInitialScroll, 100);
-  
-  return () => clearTimeout(timer);
-}, [categories, isLoading]);
+    const timer = setTimeout(checkInitialScroll, 100);
+    
+    return () => clearTimeout(timer);
+  }, [categories, isLoading]);
 
   const scroll = (direction: "left" | "right") => {
     if (!scrollRef.current) return;
@@ -112,7 +94,7 @@ useEffect(() => {
     return <div className="p-8 text-center text-lg">Cargando...</div>;
   }
 
-  const bannerBooks = top10Works
+  const bannerBooks = top10
     .filter((work) => work.banner && work.banner.trim() !== '') 
     .slice(0, 3)
     .map((work) => ({
@@ -172,9 +154,15 @@ useEffect(() => {
       </div>
 
       <WorkCarousel title="Top 10 en Argentina" books={top10} showPosition={true} />
-      <WorkCarousel title="Seguir Leyendo" books={continueReading} />
-      <WorkCarousel title="Nuevos lanzamientos" books={newReleases} />
-      <WorkCarousel title="Actualizados recientemente" books={recentlyUpdated} />
+      {continueReading.length > 0 && (
+        <WorkCarousel title="Seguir Leyendo" books={continueReading} />
+      )}
+      {newReleases.length > 0 && (
+        <WorkCarousel title="Nuevos lanzamientos" books={newReleases} />
+      )}
+      {recentlyUpdated.length > 0 && (
+        <WorkCarousel title="Actualizados recientemente" books={recentlyUpdated} />
+      )}
     </div>
   );
 };

@@ -1,4 +1,4 @@
-import {useRef, useState} from 'react';
+import {useEffect,useRef, useState} from 'react';
 import ProfileMenu from './components/ProfileMenu';
 import Button from '../../components/Button';
 import GradientSection from '../../components/GradientSection';
@@ -30,6 +30,21 @@ const ProfilePage = () => {
   const handleImageClick = () => {
     fileInputRef.current?.click();
   };
+
+  const [haveImage, setHaveImage] = useState<Boolean>(false);
+
+  const validateImage = () => {
+    console.log(haveImage);
+    console.log(profile?.image?.endsWith("/none"))
+    if (profile?.image?.endsWith("/none") == false) {
+      setHaveImage(true);
+    }
+  }
+
+  useEffect(()=> {
+    validateImage();
+  }, [profile])
+
 
   if (loading) {
     return (
@@ -102,7 +117,6 @@ const ProfilePage = () => {
       </div>
     );
   }
-
   return (
     <div className="flex bg-gray-50 min-h-screen">
       <ProfileMenu onBlockSelected={ setBlockSelected }/>
@@ -122,14 +136,14 @@ const ProfilePage = () => {
                                         <Button
                                             onClick={handleSave}
                                             colorClass="bg-green-600 text-white hover:bg-green-700 transition-colors shadow-md cursor-pointer"
-                                            className="px-6 py-2 rounded-lg"
+                                            className="px-6 py-2 rounded-full"
                                             text="Guardar"
                                         />
                                     )}
                                     <Button
                                         onClick={isEditing ? handleCancel : () => setIsEditing(true)}
                                         colorClass="bg-[#5c17a6] text-white hover:bg-[#4b1387] transition-colors shadow-md cursor-pointer"
-                                        className="px-6 py-2 rounded-lg"
+                                        className="px-6 py-2 rounded-full font-semibold"
                                         text={isEditing ? 'Cancelar' : 'Editar Datos'}
                                     />
                                 </div>
@@ -138,11 +152,19 @@ const ProfilePage = () => {
                             <div className="bg-white rounded-xl shadow-lg p-8">
                                 <div className="text-center mb-8">
                                     <div className="relative inline-block">
-                                        <img
-                                            src={selectedImage || profile.image || '/img/fotoPerfil.jpg'}
-                                            alt="Foto de perfil"
-                                            className="w-28 h-28 rounded-full border-4 border-purple-200 object-cover shadow-lg mx-auto"
-                                        />
+                                      {
+                haveImage ? (  <img
+                                            src={profile.image}
+                  alt="foto de perfil"
+                  className="w-28 h-28 rounded-full border-4 border-purple-200 object-cover shadow-lg mx-auto"
+                />
+                ) : (
+                  <img
+                  src={selectedImage}
+                                            alt="foto de perfil"
+                                            className="w-28 h-28 rounded-full border-4 border-purple-200 object-cover shadow-lg mx-auto"/>
+                )
+                                        }
                                         {isEditing && (
                                             <>
                                                 <input

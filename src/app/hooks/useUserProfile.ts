@@ -26,7 +26,7 @@ export const useUserProfile = () => {
     isAuthor: false,
     price: ''
   });
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [selectedImage, setSelectedImage] = useState<string | undefined>("/public/img/perfil.png");
   const [usernameValidation, setUsernameValidation] = useState<{
     isValid: boolean | null;
     isChecking: boolean;
@@ -160,7 +160,7 @@ export const useUserProfile = () => {
       });
     }
     setUsernameValidation({ isValid: null, isChecking: false });
-    setSelectedImage(null);
+    setSelectedImage(undefined);
     setIsEditing(false);
   };
 

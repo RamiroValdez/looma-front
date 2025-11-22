@@ -50,6 +50,16 @@ function Header() {
     );
   };
 
+  const [haveImage, setHaveImage] = useState<Boolean>(false);
+
+  const validateImage = () => {
+    console.log(haveImage);
+    console.log(user?.image?.endsWith("/none"))
+    if (user?.image?.endsWith("/none") == false) {
+      setHaveImage(true);
+    }
+  }
+
   useEffect(() => {
     let alive = true;
     const run = async () => {
@@ -78,6 +88,7 @@ function Header() {
   }, [token, logout]);
 
   useEffect(() => {
+    validateImage();
     if (!user) {
       setNotifications([]);
       return;
@@ -136,13 +147,13 @@ useEffect(() => {
         <div className="flex items-center gap-6 relative">
           {user ? (
             <>
-              <Link to="/my-works" className="bg-[#5c17a6] text-white font-semibold w-30 px-4 py-1 rounded-xl hover:bg-[#4b1387] transition flex items-center justify-center">
+              <Link to="/my-works" className="bg-[#5c17a6] text-white font-semibold w-30 px-4 py-1 rounded-full hover:bg-[#4b1387] transition flex items-center justify-center">
                 Escribir
               </Link>
               <div className="flex items-center gap-2">
                 <div className="relative" ref={notificationRefDesktop}>
                   <button
-                    className="text-2xl text-[#5C14A6] hover:text-[#172fa6] transition mr-2 p-1"
+                    className="text-2xl text-[#5C14A6] hover:text-[#172fa6] transition mr-2 p-1 cursor-pointer"
                     aria-label="Notificaciones"
                     onMouseDown={e => { e.stopPropagation(); setShowNotifications((prev) => !prev); }}
                   >
@@ -160,12 +171,24 @@ useEffect(() => {
                     onMarkAsReadLocal={handleMarkAsReadLocal} />
                 </div>
                 <div className="relative">
-                  <img
-                    src={"/img/fotoPerfil.jpg"}
-                    alt="perfil"
-                    className="w-8 h-8 rounded-full border border-gray-300 object-cover cursor-pointer"
-                    onClick={() => setOpenMenu(!openMenu)}
+                  {
+                    haveImage ? (
+                      <img
+                        src={user.image}
+                        alt="perfil"
+                        className="w-8 h-8 rounded-full border border-gray-300 object-cover cursor-pointer"
+                        onClick={() => setOpenMenu(!openMenu)}
                   />
+                    ) : 
+                    (
+                      <img
+                        src={"/img/perfil.png"}
+                        alt="perfil"
+                        className="w-8 h-8 rounded-full border border-gray-300 object-cover cursor-pointer"
+                        onClick={() => setOpenMenu(!openMenu)}
+                      />
+                    )
+                  } 
                   {openMenu && (
                     <div className="absolute right-0 mt-2 w-40 bg-[#F0EEF6] border border-gray-200 rounded-lg shadow-lg text-sm z-10">
                       <Link
@@ -190,10 +213,10 @@ useEffect(() => {
             </>
           ) : (
             <div className="flex gap-2">
-              <Link to="/login" className="px-4 py-1 rounded-xl border border-[#5c17a6] text-[#5c17a6] hover:bg-[#4b1387] hover:text-white transition">
+              <Link to="/login" className="px-4 py-1 rounded-full border border-[#5c17a6] text-[#5c17a6] hover:bg-[#4b1387] hover:text-white transition">
                 Iniciar sesión
               </Link>
-              <Link to="/register" className="px-4 py-1 rounded-xl bg-[#5c17a6] text-white hover:bg-[#4b1387] transition">
+              <Link to="/register" className="px-4 py-1 rounded-full bg-[#5c17a6] text-white hover:bg-[#4b1387] transition">
                 Registrarse
               </Link>
             </div>
@@ -267,10 +290,10 @@ useEffect(() => {
               </>
             ) : (
               <>
-                <Link to="/login" className="px-4 py-1 rounded-xl border border-[#5c17a6] text-[#5c17a6] hover:bg-[#4b1387] hover:text-white transition" onClick={() => setMobileNavOpen(false)}>
+                <Link to="/login" className="px-4 py-1 rounded-full border border-[#5c17a6] text-[#5c17a6] hover:bg-[#4b1387] hover:text-white transition" onClick={() => setMobileNavOpen(false)}>
                   Iniciar sesión
                 </Link>
-                <Link to="/register" className="px-4 py-1 rounded-xl bg-[#5c17a6] text-white hover:bg-[#4b1387] transition" onClick={() => setMobileNavOpen(false)}>
+                <Link to="/register" className="px-4 py-1 rounded-full bg-[#5c17a6] text-white hover:bg-[#4b1387] transition" onClick={() => setMobileNavOpen(false)}>
                   Registrarse
                 </Link>
               </>
