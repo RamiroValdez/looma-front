@@ -4,18 +4,15 @@ import { MemoryRouter } from 'react-router-dom';
 import { SubscriptionsPage } from '../../../app/features/Profile/SubscriptionsPage';
 import '@testing-library/jest-dom';
 
-// Mock del servicio
 const mockGetSubscriptions = vi.fn();
 vi.mock('../../../infrastructure/services/SubscriptionsService', () => ({
   GetSubscriptions: () => mockGetSubscriptions(),
 }));
 
-// Mock del ProfileMenu
 vi.mock('../../../app/features/Profile/components/ProfileMenu', () => ({
   default: () => <div data-testid="profile-menu">Profile Menu</div>,
 }));
 
-// Mock del WorkItemSearch
 vi.mock('../../../app/components/WorkItemSearch', () => ({
   WorkItemSearch: ({ work }: { work: any }) => (
     <div data-testid={`work-item-${work.id}`}>
@@ -61,7 +58,6 @@ const mockSubscriptionsData = [
   }
 ];
 
-// Helper functions para encapsular validaciones (responsabilidad única)
 function expectProfileMenu() {
   expect(screen.getByTestId("profile-menu")).toBeInTheDocument();
 }
