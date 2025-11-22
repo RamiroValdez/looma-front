@@ -15,13 +15,17 @@ const Home = () => {
   const [newReleases, setNewReleases] = useState<WorkDTO[]>([]);
   const [recentlyUpdated, setRecentlyUpdated] = useState<WorkDTO[]>([]);
   const [continueReading, setContinueReading] = useState<WorkDTO[]>([]);
+  const [preferences, setPreferences] = useState<WorkDTO[]>([]);
   const [loading, setLoading] = useState(true);
   const { user } = useUserStore();
-  
   const [showLeft, setShowLeft] = useState(false);
   const [showRight, setShowRight] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
+  const uniquePreferences = preferences.filter(
+  (work, index, self) =>
+    self.findIndex(w => w.id === work.id) === index
+);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -35,6 +39,7 @@ const Home = () => {
         }
         setNewReleases(workList.newReleases);
         setRecentlyUpdated(workList.recentlyUpdated);
+        setPreferences(workList.userPreferences);
       }
       catch (error) {
         console.error("Error al cargar los datos:", error);
@@ -154,16 +159,19 @@ const Home = () => {
       </div>
 
       <div className="px-2 sm:px-2 md:px-4">
-        <WorkCarousel title="Top 10 en Argentina" books={top10} showPosition={true} />
-        {continueReading.length > 0 && (
-          <WorkCarousel title="Seguir Leyendo" books={continueReading} />
-        )}
-        {newReleases.length > 0 && (
-          <WorkCarousel title="Nuevos lanzamientos" books={newReleases} />
-        )}
-        {recentlyUpdated.length > 0 && (
-          <WorkCarousel title="Actualizados recientemente" books={recentlyUpdated} />
-        )}
+         <WorkCarousel title="Top 10 en Argentina" books={top10} showPosition={true} />
+      {continueReading.length > 0 && (
+        <WorkCarousel title="Seguir Leyendo" books={continueReading} />
+      )}
+      {uniquePreferences.length > 0 && (
+        <WorkCarousel title="Recomendados para ti" books={uniquePreferences} />
+      )}
+      {newReleases.length > 0 && (
+        <WorkCarousel title="Nuevos lanzamientos" books={newReleases} />
+      )}
+      {recentlyUpdated.length > 0 && (
+        <WorkCarousel title="Actualizados recientemente" books={recentlyUpdated} />
+      )}
       </div>
     </div>
   );
