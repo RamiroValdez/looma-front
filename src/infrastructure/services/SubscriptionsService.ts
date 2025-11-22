@@ -6,7 +6,7 @@ export const GetSubscriptions = async (): Promise<WorkCardDto[]> => {
     const { token } = useAuthStore.getState();
     try {
         const response = await apiClient.request<WorkCardDto[]>({
-            url: '/api/subscriptions',
+            url: '/subscriptions',
             method: 'GET',
             headers: {
                 ...(token ? { Authorization: `Bearer ${token}` } : {}),

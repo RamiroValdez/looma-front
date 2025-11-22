@@ -43,7 +43,7 @@ export const SubscriptionsPage = () => {
         <div className="max-w-6xl mx-auto">
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-800 mb-2">Mis Suscripciones</h1>
-            <p className="text-gray-600 mb-4">Obras y autores a los que estÃ¡s suscrito</p>
+            <p className="text-gray-600 mb-4">Obras y autores a los que estás suscrito</p>
             
             <div className="flex items-center justify-between">
               <p className="text-sm text-gray-500">
