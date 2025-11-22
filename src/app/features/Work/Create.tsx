@@ -204,10 +204,12 @@ export default function Create() {
         onSuccess: (data) => {
             setSuggestedTags(data.suggestions); 
             setIsSuggestionMenuOpen(true);
+            setIsAILoading(false);
         },
             onError: (error) => {
             console.error("Error de IA:", error);
             notifyError("Error: No se pudieron generar las etiquetas. Inténtalo más tarde.");
+            setIsAILoading(false);
         },
     });
 };

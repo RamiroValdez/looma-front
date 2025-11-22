@@ -279,6 +279,8 @@ export const useReadChapterData = (chapterId: string) => {
     if (isAuthor) return true;
     if (isWorkSubscribed || isAuthorSubscribed) return true;
     const unlockedChapters = work?.unlockedChapters || [];
+    const chapterObj = chapters.find(ch => ch.id === chapterIdToCheck);
+    if (chapterObj && chapterObj.price === 0) return true;
     return unlockedChapters.includes(chapterIdToCheck);
   };
 

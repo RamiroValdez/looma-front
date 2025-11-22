@@ -1,5 +1,5 @@
 import { type WorkDTO } from "../../../../domain/dto/WorkDTO";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { notifyError, notifySuccess } from "../../../../infrastructure/services/ToastProviderService.ts";
 import { subscribeToAuthor, subscribeToWork } from "../../../../infrastructure/services/paymentService.ts";
 import Button from "../../../components/Button";
@@ -7,7 +7,9 @@ import LikeButton from "../../../components/LikeButton";
 import StarRating from "../../../components/StarRating.tsx";
 import Tag from "../../../components/Tag.tsx";
 import { useWorkData } from "../hooks/userWorkData.ts";
+import { getTotalSubscribersPerWork } from "../../../../infrastructure/services/WorkService.ts";
 import { downloadEpub } from "../../../../infrastructure/services/WorkService.ts";
+import { downloadPdf } from "../../../../infrastructure/services/WorkService.ts";
 
 interface WorkInfoProps {
   work: WorkDTO;
@@ -22,6 +24,12 @@ export const WorkInfo: React.FC<WorkInfoProps> = ({ work, manageFirstChapter, di
   const isAuthorSubscribed = Boolean(work.subscribedToAuthor);
   const isWorkSubscribed = Boolean(work.subscribedToWork);
   const { isWorkSaved, handdleToggleSaveWork } = useWorkData(work.id);
+  const [subscriberCount, setSubscriberCount] = useState<number>(0);
+  const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
+
+  const openDownloadModal = () => setIsDownloadModalOpen(true);
+  const closeDownloadModal = () => setIsDownloadModalOpen(false);
+
 
   const closeModal = () => {
     if (isPaying) return;
@@ -74,7 +82,7 @@ export const WorkInfo: React.FC<WorkInfoProps> = ({ work, manageFirstChapter, di
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      notifySuccess("Descarga iniciada.");
+      notifySuccess("Descarga de EPUB iniciada.");
     } else {
       notifyError("No se ha podido completar la descargar EPUB.");
     }
@@ -83,7 +91,27 @@ export const WorkInfo: React.FC<WorkInfoProps> = ({ work, manageFirstChapter, di
   }
 };
   
+  useEffect(() => {
+  getTotalSubscribersPerWork(work.id)
+    .then(setSubscriberCount)
+    .catch(() => setSubscriberCount(0));
+}, [work.id]);
 
+ const handleDownloadPdf = async () => {
+  if (!work) return;
+  try {
+    const pdfFile = await downloadPdf(work.id);
+    if (pdfFile?.url) {
+      window.open(pdfFile.url, "_blank");
+      notifySuccess("PDF listo para descargar.");
+    } else {
+      notifyError("No se ha podido completar la descarga PDF.");
+    }
+  } catch (e) {
+    notifyError("Error al descargar el PDF.");
+  }
+};
+  
   return (
     <div className="bg-white space-y-6 ">
         <div className="flex flex-wrap gap-2">
@@ -107,7 +135,7 @@ export const WorkInfo: React.FC<WorkInfoProps> = ({ work, manageFirstChapter, di
       className={`flex-1 py-2 rounded-lg text-base font-semibold transition-colors h-10 ${
         isWorkSaved
           ? 'text-[#5C17A6] cursor-pointer border border-[#5C17A6]'
-          : 'text-white cursor-pointer bg-[#3b245a]/90 disabled:opacity-50 disabled:cursor-not-allowed'
+          : 'text-white cursor-pointer hover:bg-[#2a1c3a] bg-[#3b245a]/90 disabled:opacity-50 disabled:cursor-not-allowed'
       }`}
     >
       {isWorkSaved ? "Guardado" : "Guardar"}
@@ -139,29 +167,63 @@ export const WorkInfo: React.FC<WorkInfoProps> = ({ work, manageFirstChapter, di
               <circle cx="8.5" cy="7" r="4" />
               <path d="M20 8v6M23 11h-6" />
             </svg>
-            <span className="text-[16px] font-semibold text-gray-700">1.7k</span>
+            <span className="text-[16px] font-semibold text-gray-700">{subscriberCount}</span>
           </div>
+  <button
+    className="flex items-center gap-2 rounded-lg text-base font-semibold cursor-pointer" 
+    onClick={openDownloadModal}
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      fill="none"
+      stroke="#172FA6"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      viewBox="0 0 24 24"
+    >
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+      <polyline points="7 10 12 15 17 10"/>
+      <line x1="12" y1="15" x2="12" y2="3"/>
+    </svg>
 
-          <div className="flex items-center gap-2 text-gray-700">
-            <button className="cursor-pointer" onClick={handleDownloadEpub}>
-        <svg 
-            xmlns="http://www.w3.org/2000/svg" 
-            width="20" 
-            height="20" 
-            viewBox="0 0 24 24" 
-            fill="none" 
-            stroke="currentColor" 
-            strokeWidth="2" 
-            strokeLinecap="round" 
-            strokeLinejoin="round"
+  </button>
+
+  {isDownloadModalOpen && (
+    <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/50">
+      <div className="bg-white rounded-xl p-8 w-full max-w-md relative shadow-xl flex flex-col items-center">
+        <button
+          className="absolute top-4 right-4 cursor-pointer"
+          onClick={closeDownloadModal}
+        >
+          <img src="/img/PopUpCierre.png" className="w-8 h-8 hover:opacity-60" alt="Cerrar" />
+        </button>
+        <h3 className="text-2xl font-bold mb-8 text-center text-[#172FA6]">Descargar {work.title}</h3>
+        <div className="flex gap-6 justify-center">
+          <div className="flex flex-col items-center border border-[#172FA6] rounded-lg p-6 shadow hover:scale-103 transition cursor-pointer"
+            onClick={() => {
+              handleDownloadEpub();
+              closeDownloadModal();
+            }}
           >
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-            <polyline points="7 10 12 15 17 10"/>
-            <line x1="12" y1="15" x2="12" y2="3"/>
-          </svg>
-          </button>
-          <span className="text-[16px] font-semibold text-gray-700"></span>
+            <img src="/img/epub.png" alt="EPUB" className="w-12 h-12 mb-2" />
+            <span className="font-semibold text-[#172FA6]">Exportar EPUB</span>
+          </div>
+          <div className="flex flex-col items-center border border-[#5C17A6] rounded-lg p-6 shadow hover:scale-103 transition cursor-pointer"
+            onClick={() => {
+              handleDownloadPdf();
+              closeDownloadModal();
+            }}
+          >
+            <img src="/img/pdf.png" alt="PDF" className="w-12 h-12 mb-2" />
+            <span className="font-semibold text-[#5C17A6]">Exportar PDF</span>
+          </div>
         </div>
+      </div>
+    </div>
+  )}
       </div>
 
       <div className="flex items-center justify-between gap-6 px-8">
@@ -181,26 +243,54 @@ export const WorkInfo: React.FC<WorkInfoProps> = ({ work, manageFirstChapter, di
         ))}
       </div>
 
-      <button onClick={manageFirstChapter} disabled={disableFirstChapter} className="w-full bg-[#5c17a6] text-white py-3 rounded-lg text-base font-semibold hover:bg-[#3c2a50] transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
+      <button onClick={manageFirstChapter} disabled={disableFirstChapter} className="w-full bg-[#5c17a6] text-white py-3 rounded-full text-base font-semibold hover:bg-[#3c2a50] transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
         Primer capítulo →
       </button>
 
-       {isModalOpen && (
-        <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/50">
-          <div className="bg-white rounded-xl p-8 w-full max-w-5xl relative shadow-xl min-h-[600px]">
-            <div className="absolute top-4 right-4">
-              <Button text="" onClick={closeModal} disabled={isPaying} colorClass="cursor-pointer">
-                <img src="/img/PopUpCierre.png" className="w-9 h-9 hover:opacity-60" alt="Cerrar" />
-              </Button>
+      {isModalOpen && (
+  <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/50 p-4">
+    <div className="bg-white rounded-xl p-8 w-full max-w-5xl relative shadow-xl min-h-[600px] max-h-[90vh] overflow-y-auto flex items-center justify-center">
+      <div className="absolute top-4 right-4">
+        <Button text="" onClick={closeModal} disabled={isPaying} colorClass="cursor-pointer">
+          <img src="/img/PopUpCierre.png" className="w-9 h-9 hover:opacity-60" alt="Cerrar" />
+        </Button>
+      </div>
+
+      <div className="w-full">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-4xl mx-auto">
+          {/* First Subscription Card */}
+          <div className="border-2 border-[#5c17a6] rounded-2xl p-6 text-center shadow-lg bg-white w-full min-h-[400px] flex flex-col">
+            <h3 className="font-bold text-2xl md:text-3xl text-[#5c17a6] mb-4">Suscribirse al Autor</h3>
+            <div className="my-4">
+              <span className="text-5xl md:text-6xl font-bold text-[#5c17a6]">$20</span>
+              <span className="text-gray-500 text-lg"></span>
             </div>
+            <p className="text-gray-600 text-lg mb-8 flex-grow">
+              Acceso total a todas las obras y capítulos del autor sin límite
+            </p>
+            <div className="mt-auto">
+              <Button 
+                text={isAuthorSubscribed ? "¡Ya estás suscrito!" : "Adquirir suscripción"}
+                colorClass={`w-full cursor-pointer py-3 px-6 rounded-full text-white font-semibold text-lg
+                  ${isAuthorSubscribed 
+                    ? 'bg-gray-400 cursor-not-allowed' 
+                    : 'bg-[#5c17a6] hover:bg-[#4a1285] transform hover:scale-105 transition-all duration-200'
+                  }`}
+                onClick={() => !isAuthorSubscribed && handleMercadoPagoClick("author")}
+                disabled={isPaying || isAuthorSubscribed} 
+              />
+            </div>
+          </div>
 
             <div className="max-w-[800px] mx-auto">
               <h3 className="text-3xl font-bold mb-8 text-center text-[#5C17A6]">Selecciona tu suscripción</h3>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 justify-items-center">
+              <div className={work.price > 0
+              ? "grid grid-cols-1 md:grid-cols-2 justify-items-center"
+              : "flex justify-center"}>
                 <div className="border-1 border-[#6a5a8c] rounded-xl p-6 text-center shadow-2xl bg-[#e0d9f0] w-[350px] min-h-[350px]">
                   <h3 className="font-bold text-3xl mb-15 text-[#3c2a50]">Suscribirse al Autor</h3>
-                  <h2 className="font-semibold text-8xl text-[#3c2a50] mb-15">$20</h2>
+                  <h2 className="font-semibold text-8xl text-[#3c2a50] mb-15">${work.creator.money}</h2>
                   <p className="text-gray-600 text-2xl mb-15 min-h-[60px]">
                     Acceso total a todas las obras y capítulos del autor sin límite
                   </p>
@@ -214,10 +304,11 @@ export const WorkInfo: React.FC<WorkInfoProps> = ({ work, manageFirstChapter, di
                   />
                 </div>
 
+                {work.price > 0 && (
                 <div className="border-2 border-[#172FA6] rounded-xl p-6 text-center bg-[#E8EDFC] w-[350px] min-h-[350px] shadow-2xl">
                   <h3 className="font-bold text-3xl mb-15 text-[#172FA6]">Suscribirse a la obra</h3>
                   <h2 className="font-semibold text-8xl text-[#172FA6] mb-15">${work.price}</h2>
-                  <p className="text-gray-600 text-2xl mb-23 min-h-[60px]">
+                  <p className="text-gray-600 text-2xl mb-15 min-h-[60px]">
                     Acceso completo a todos los capítulos de <span className="font-semibold">{work.title}</span>
                   </p>
                   <Button 
@@ -229,11 +320,14 @@ export const WorkInfo: React.FC<WorkInfoProps> = ({ work, manageFirstChapter, di
                     disabled={isPaying || isWorkSubscribed} 
                   />
                 </div>
+                )}
               </div>
             </div>
           </div>
         </div>
-      )}
+      </div>
+    </div>
+)}
     </div>
   );
-}
+};

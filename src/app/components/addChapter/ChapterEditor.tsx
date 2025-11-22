@@ -1,6 +1,6 @@
 import ChapterForm from "./ChapterForm";
 import EditorToolbar from "./EditorToolBar";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import type {useEditor} from "@milkdown/react";
 import { importFileToText } from "../../../infrastructure/services/ChapterService";
 
@@ -10,6 +10,7 @@ interface Props {
   chapterContent: string;
   setChapterContent: (value: string) => void;
   chapterNumber: number;
+  editorKey?: string; // clave para remonte controlado
 }
 
 export default function ChapterEditor({
@@ -18,6 +19,7 @@ export default function ChapterEditor({
   chapterContent,
   setChapterContent,
   chapterNumber,
+  editorKey,
 }: Props) {
     const [editorGetter, setEditorGetter] = useState<ReturnType<typeof useEditor>['get']>();
 
@@ -27,8 +29,13 @@ export default function ChapterEditor({
     setChapterContent(text);
   }
 
+  // Si cambia la key (por idioma), limpiamos la ref anterior
+  useEffect(() => {
+    setEditorGetter(undefined);
+  }, [editorKey]);
+
   return (
-    <div>
+    <div key={editorKey}>
 
         {editorGetter && <EditorToolbar editorGetter={editorGetter} onImportFile={handleImportFile} />}
       <ChapterForm

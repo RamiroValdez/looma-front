@@ -9,6 +9,7 @@ import NotificationPopup from "../components/NotificationPopup";
 import { useClickOutside } from '../hooks/useClickOutside';
 import { getUserNotifications } from "../../infrastructure/services/NotificationService";
 import type { NotificationDTO } from "../../domain/dto/NotificationDTO";
+import { useUserStore } from '../../domain/store/UserStorage';
 
 function Header() {
   const navigate = useNavigate();
@@ -25,6 +26,8 @@ function Header() {
   const notificationRefMobile = useRef<HTMLDivElement>(null!);
   const [notifications, setNotifications] = useState<NotificationDTO[]>([]);
   const unreadCount = notifications.filter(n => !n.read).length;
+
+  const { clearUser } = useUserStore();
 
   useClickOutside(
     [notificationRefDesktop, notificationRefMobile],
@@ -133,13 +136,13 @@ useEffect(() => {
         <div className="flex items-center gap-6 relative">
           {user ? (
             <>
-              <Link to="/my-works" className="bg-[#5c17a6] text-white font-semibold w-30 px-4 py-1 rounded-xl hover:bg-[#4b1387] transition flex items-center justify-center">
+              <Link to="/my-works" className="bg-[#5c17a6] text-white font-semibold w-30 px-4 py-1 rounded-full hover:bg-[#4b1387] transition flex items-center justify-center">
                 Escribir
               </Link>
               <div className="flex items-center gap-2">
                 <div className="relative" ref={notificationRefDesktop}>
                   <button
-                    className="text-2xl text-[#5C14A6] hover:text-[#172fa6] transition mr-2 p-1"
+                    className="text-2xl text-[#5C14A6] hover:text-[#172fa6] transition mr-2 p-1 cursor-pointer"
                     aria-label="Notificaciones"
                     onMouseDown={e => { e.stopPropagation(); setShowNotifications((prev) => !prev); }}
                   >
@@ -176,7 +179,7 @@ useEffect(() => {
                       <hr />
                       <button
                         className="w-full text-left px-4 py-2 hover:bg-gray-100 text-red-500 cursor-pointer"
-                        onClick={() => { logout(); setUser(null); }}
+                        onClick={() => { logout(); setUser(null); clearUser(); }}
                       >
                         Cerrar sesión
                       </button>
@@ -187,10 +190,10 @@ useEffect(() => {
             </>
           ) : (
             <div className="flex gap-2">
-              <Link to="/login" className="px-4 py-1 rounded-xl border border-[#5c17a6] text-[#5c17a6] hover:bg-[#4b1387] hover:text-white transition">
+              <Link to="/login" className="px-4 py-1 rounded-full border border-[#5c17a6] text-[#5c17a6] hover:bg-[#4b1387] hover:text-white transition">
                 Iniciar sesión
               </Link>
-              <Link to="/register" className="px-4 py-1 rounded-xl bg-[#5c17a6] text-white hover:bg-[#4b1387] transition">
+              <Link to="/register" className="px-4 py-1 rounded-full bg-[#5c17a6] text-white hover:bg-[#4b1387] transition">
                 Registrarse
               </Link>
             </div>
@@ -260,14 +263,14 @@ useEffect(() => {
                 <Link to="/" className="block px-4 py-2 hover:bg-[#D3CCDA] hover:text-[#5c17a6]">Mi Perfil</Link>
                 <Link to="/" className="block px-4 py-2 hover:bg-[#D3CCDA] hover:text-[#5c17a6]">Suscripciones</Link>
                 <Link to="/mySaves" className="block px-4 py-2 hover:bg-[#D3CCDA] hover:text-[#5c17a6]">Guardados</Link>
-                <button className="w-full text-left px-4 py-2 hover:bg-gray-100 text-red-500" onClick={() => { logout(); setUser(null); setMobileNavOpen(false); }}>Cerrar sesión</button>
+                <button className="w-full text-left px-4 py-2 hover:bg-gray-100 text-red-500" onClick={() => { logout(); setUser(null); setMobileNavOpen(false); clearUser(); }}>Cerrar sesión</button>
               </>
             ) : (
               <>
-                <Link to="/login" className="px-4 py-1 rounded-xl border border-[#5c17a6] text-[#5c17a6] hover:bg-[#4b1387] hover:text-white transition" onClick={() => setMobileNavOpen(false)}>
+                <Link to="/login" className="px-4 py-1 rounded-full border border-[#5c17a6] text-[#5c17a6] hover:bg-[#4b1387] hover:text-white transition" onClick={() => setMobileNavOpen(false)}>
                   Iniciar sesión
                 </Link>
-                <Link to="/register" className="px-4 py-1 rounded-xl bg-[#5c17a6] text-white hover:bg-[#4b1387] transition" onClick={() => setMobileNavOpen(false)}>
+                <Link to="/register" className="px-4 py-1 rounded-full bg-[#5c17a6] text-white hover:bg-[#4b1387] transition" onClick={() => setMobileNavOpen(false)}>
                   Registrarse
                 </Link>
               </>
@@ -280,3 +283,4 @@ useEffect(() => {
 }
 
 export default Header;
+

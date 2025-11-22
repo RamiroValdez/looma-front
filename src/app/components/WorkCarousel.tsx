@@ -1,17 +1,11 @@
 import { useRef, useState, useEffect } from "react";
 import TopBookCard from "./TopBookCard";
 import ScrollArrow from "./ScrollArrow";
-
-interface Book {
-    id: number;
-    title: string;
-    cover: string;
-    position?: number; 
-}
+import type { WorkDTO } from "../../domain/dto/WorkDTO";
 
 interface WorkCarouselProps {
     title: string;         
-    books: Book[];
+    books: WorkDTO[];
     showPosition?: boolean; 
 }
 
@@ -57,22 +51,45 @@ const WorkCarousel: React.FC<WorkCarouselProps> = ({
 
     return (
         <section className="relative">
-            <h2 className="text-2xl font-bold mb-8 ml-10">{title}</h2>
+        <h2 className="ml-10 mb-8 text-2xl font-bold tracking-wide text-[#172fa6]
+               border-l-4 border-[#172fa6] pl-4">
+        {title}
+        </h2>
+
+
+
 
             <ScrollArrow direction="left" onClick={() => scroll("left")} isVisible={showLeft} />
 
              <div
                 ref={scrollRef}
-                className="flex justify-start max-w-[1800px] ml-12 gap-10 overflow-x-auto scroll-smooth pl-12 pr-12 pb-8 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']"
+                className="flex justify-start max-w-[1800px] ml-12 overflow-x-auto scroll-smooth pl-12 pr-16 pb-8 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']"
+                style={{
+                    width: 'calc(100% - 3rem)',
+                }}
             >
                 {books.map((book, index) => (
-                    <TopBookCard
+                    <div 
                         key={book.id}
-                        position={showPosition ? (book.position || index + 1) : undefined}
-                        cover={book.cover}
-                        title={book.title}
-                        idWork={book.id}
-                    />
+                        className="flex-none"
+                        style={{ width: '210px', marginRight: '4rem' }}
+                    >
+                        <TopBookCard
+                            position={showPosition ? (index + 1) : undefined}
+                            cover={book.cover}
+                            title={book.title}
+                            idWork={book.id}
+                            authorName={`${book.creator?.name || ''} ${book.creator?.surname || ''}`.trim() || book.creator?.username}
+                            genre={book.categories?.[0]?.name}
+                            format={book.format?.name}
+                            likesCount={book.likes}
+                            description={book.description}
+                            categories={book.categories?.map(cat => ({
+                                id: cat.id,
+                                name: cat.name
+                            })) || []}
+                        />
+                    </div>
                 ))}
             </div>
 

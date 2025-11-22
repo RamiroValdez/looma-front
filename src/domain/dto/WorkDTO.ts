@@ -38,7 +38,7 @@ export interface CreatorDTO {
   surname: string;
   username: string;
   photo?: string;
-  email?: string;
+  money?: number;
 }
 
 export interface TagDTO {

@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import { useUserStore } from '../store/UserStorage'
 
 interface AuthState {
     token: string | null
@@ -14,7 +15,14 @@ export const useAuthStore = create<AuthState>()(
             token: null,
             isAuthenticated: false,
             setToken: (token: string) => set({ token, isAuthenticated: true }),
-            logout: () => set({ token: null, isAuthenticated: false }),
+            logout: () => {
+                // limpiar auth state
+                set({ token: null, isAuthenticated: false });
+                // limpiar user store
+                try {
+                    useUserStore.getState().clearUser();
+                } catch {}
+            },
         }),
         {
             name: 'auth-storage',

@@ -19,8 +19,8 @@ export function useMyWorks(creatorId: number) {
             enabled: !!creatorId && !!token,
             refetchOnWindowFocus: false,
             refetchOnReconnect: false,
-            refetchOnMount: false,
-            staleTime: 1000 * 60 * 5,
+            refetchOnMount: "always",
+            staleTime: 0,
             select: (allWorks: WorkDTO[]) =>
                 allWorks.filter(work => work.creator.id === creatorId)
         }
