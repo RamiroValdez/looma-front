@@ -5,4 +5,5 @@ export interface WorkListDTO {
   currentlyReading: WorkDTO[];
   newReleases: WorkDTO[];
   recentlyUpdated: WorkDTO[];
+  userPreferences: WorkDTO[];
 }

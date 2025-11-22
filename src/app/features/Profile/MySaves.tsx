@@ -43,8 +43,8 @@ export const MySaves = () => {
         ))}
       </div>
       {savedWorks.length === 0 && (
-          <div className="flex flex-col items-center justify-center p-16 text-gray-500">
-              <img src="/img/triste_1.png" alt="no works" className="w-40 h-40 mb-8" />
+          <div className="flex flex-col items-center justify-center p-16 text-gray-500 min-h-[20hv]">
+              <img src="/img/triste_1.png" alt="no works" className="w-70 h-70 mb-8" />
               <div>No tienes obras guardadas.</div>
           </div>
       )}
