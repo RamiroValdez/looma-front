@@ -1,9 +1,6 @@
-import ProfileMenu from './components/ProfileMenu';
-
 export default function TermsAndConditions() {
   return (
     <div className="flex bg-gray-50 min-h-screen">
-      <ProfileMenu />
       <div className="flex-1 p-6">
         <div className="max-w-3xl mx-auto">
           <div className="bg-white rounded-xl shadow-lg p-8 text-[#2B2B2B]">

@@ -5,6 +5,8 @@ import GradientSection from '../../components/GradientSection';
 import PasswordChangeModal from './components/PasswordChangeModal';
 import { useUserProfile } from '../../hooks/useUserProfile';
 import Analytics from "./components/Analytics.tsx";
+import { MySaves } from "./MySaves";
+import TermsAndConditions from "./TermsAndConditions.tsx"; // nuevo import
 
 const ProfilePage = () => {
   const {
@@ -123,6 +125,15 @@ const ProfilePage = () => {
 
         { blockSelected == 'Analytics' && (
             <Analytics/>
+        )}
+        { blockSelected == 'mySaves' && (
+            <MySaves />
+        )}
+
+        { blockSelected == 'terms' && (
+            <div className="flex-1 p-6">
+                <TermsAndConditions />
+            </div>
         )}
 
         { blockSelected == 'profile' && (
@@ -394,3 +405,4 @@ const ProfilePage = () => {
 };
 
 export default ProfilePage;
+

@@ -1,4 +1,4 @@
-import { useNavigate, useParams, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../../../../infrastructure/store/AuthStore';
 import { useState, useEffect } from 'react';
 import { getCurrentUser } from '../../../../infrastructure/services/DataUserService';
@@ -11,7 +11,6 @@ interface Props {
 const ProfileMenu = ({ onBlockSelected }: Props) => {
   const navigate = useNavigate();
   const { logout } = useAuthStore();
-  const { id } = useParams<{ id: string }>();
   const location = useLocation();
   const [user, setUser] = useState<UserDTO | null>(null);
   const [ blockSelected,  setBlockSelected] = useState<string>('profile');
@@ -25,14 +24,14 @@ const ProfileMenu = ({ onBlockSelected }: Props) => {
       }
     };
     fetchUser();
-  }, [user]);
+  }, []);
 
   const handleBlockClick = (block: string) => {
       if (onBlockSelected) {
           setBlockSelected(block);
           onBlockSelected(block);
       }
-  }
+  };
 
   return user ? (
     <div className="profile-menu w-64 h-screen bg-gray-100 p-4 sticky top-0">
@@ -49,11 +48,11 @@ const ProfileMenu = ({ onBlockSelected }: Props) => {
 
         <li
           className={`cursor-pointer p-4 rounded text-lg border-b border-gray-300 ${
-            location.pathname === '/mySaves'
-              ? 'bg-gray-300 text-black' 
-              : 'hover:bg-gray-200 hover:shadow-md'
+              blockSelected == 'mySaves'
+                  ? 'bg-gray-300 text-black'
+                  : 'hover:bg-gray-200 hover:shadow-md'
           }`}
-          onClick={() => navigate('/mySaves')}
+          onClick={() => handleBlockClick('mySaves')}
         >
           Guardados
         </li>
@@ -65,28 +64,22 @@ const ProfileMenu = ({ onBlockSelected }: Props) => {
           Mis Obras
         </li>
 
-        <li className="hover:bg-gray-200 hover:shadow-md cursor-pointer p-4 rounded text-lg border-b border-gray-300">Estadísticas</li>
-
         <li
           className={`cursor-pointer p-4 rounded text-lg border-b border-gray-300 ${
-            location.pathname === '/terms'
+              blockSelected == 'terms'
               ? 'bg-gray-300 text-black' 
               : 'hover:bg-gray-200 hover:shadow-md'
           }`}
-          onClick={() => navigate('/terms')}
+          onClick={() => handleBlockClick('terms')}
         >
           Términos y condiciones
         </li>
-
-        <li className="hover:bg-gray-200 hover:shadow-md cursor-pointer p-4 rounded text-lg border-b border-gray-300">Preferencias</li>
 
         <li className={`cursor-pointer p-4 rounded text-lg border-b border-gray-300 ${
             blockSelected == 'Analytics'
                 ? 'bg-gray-300 text-black'
                 : 'hover:bg-gray-200 hover:shadow-md'
         }`} onClick={() => handleBlockClick('Analytics')}>Estadísticas</li>
-
-        <li className="hover:bg-gray-200 hover:shadow-md cursor-pointer p-4 rounded text-lg border-b border-gray-300">Términos y condiciones</li>
 
         <li
           className="hover:bg-gray-200 hover:shadow-md cursor-pointer p-4 rounded text-lg"
