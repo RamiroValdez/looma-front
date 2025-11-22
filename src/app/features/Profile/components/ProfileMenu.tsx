@@ -44,7 +44,16 @@ const ProfileMenu = ({ onBlockSelected }: Props) => {
           }`}
           onClick={() => handleBlockClick('profile')}>Mi Perfil</li>
 
-        <li className="hover:bg-gray-200 hover:shadow-md cursor-pointer p-4 rounded text-lg border-b border-gray-300">Suscripciones</li>
+        <li 
+          className={`cursor-pointer p-4 rounded text-lg border-b border-gray-300 ${
+            location.pathname === '/subscriptions'
+              ? 'bg-gray-300 text-black' 
+              : 'hover:bg-gray-200 hover:shadow-md'
+          }`}
+          onClick={() => navigate('/subscriptions')}
+        >
+          Suscripciones
+        </li>
 
         <li
           className={`cursor-pointer p-4 rounded text-lg border-b border-gray-300 ${

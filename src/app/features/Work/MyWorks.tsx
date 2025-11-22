@@ -85,7 +85,7 @@ export default function CreateWork() {
                 ) : (
                     <div className="w-full flex flex-col items-center">
                         <div className="flex flex-col items-center justify-center min-h-[20vh] mt-16 text-center">
-                            <img src="/img/triste_1.png" alt="no works" className="w-40 h-40 mb-8" />
+                            <img src="/img/triste_1.png" alt="no works" className="w-70 h-70 mb-8" />
                             <p className="text-gray-500 mb-8 w-full text-xl text-center">
                                 Aún no tienes ninguna obra publicada.
                             </p>
