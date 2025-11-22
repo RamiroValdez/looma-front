@@ -134,11 +134,6 @@ describe('ReadChapterNovel', () => {
     expect(button).toBeDisabled();
   };
 
-  const expectButtonEnabled = (buttonName: string) => {
-    const button = screen.getByRole('button', { name: new RegExp(buttonName, 'i') });
-    expect(button).not.toBeDisabled();
-  };
-
   const expectElementNotInDocument = (testId: string) => {
     expect(screen.queryByTestId(testId)).not.toBeInTheDocument();
   };
