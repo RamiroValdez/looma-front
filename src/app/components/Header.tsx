@@ -29,10 +29,19 @@ function Header() {
 
   const { clearUser } = useUserStore();
 
+  const profileMenuRef = useRef<HTMLDivElement>(null!);
+
   useClickOutside(
     [notificationRefDesktop, notificationRefMobile],
     () => setShowNotifications(false),
     showNotifications
+  );
+
+  // Cerrar menú de perfil al hacer click fuera cuando está abierto
+  useClickOutside(
+    profileMenuRef,
+    () => setOpenMenu(false),
+    openMenu
   );
 
   const handleSearchKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
@@ -170,7 +179,7 @@ useEffect(() => {
                     notifications={notifications}
                     onMarkAsReadLocal={handleMarkAsReadLocal} />
                 </div>
-                <div className="relative">
+                <div className="relative" ref={profileMenuRef}>
                   {
                     haveImage ? (
                       <img
