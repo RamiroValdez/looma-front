@@ -106,14 +106,12 @@ export default function AddChapter() {
 
     const handleLanguageSelect = (languageCode: string) => {
         const current = contentLanguage || chapter?.languageDefaultCode?.code || "";
-        if (languageCode === current) return; // Ya mostrado
-        // Preparamos cambio de idioma: marcamos estado y cambiamos selectedLanguage
+        if (languageCode === current) return;
         setIsLanguageChanging(true);
         setSelectedLanguage(languageCode);
     };
 
     const handleAddLanguage = (language: LanguageDTO) => {
-        // Agregar el idioma a la lista de disponibles si no está presente
         setChapter(prev => {
             if (!prev) return prev;
             const exists = prev.availableLanguages.some(l => l.code === language.code);
@@ -123,15 +121,12 @@ export default function AddChapter() {
                 availableLanguages: [...prev.availableLanguages, language]
             };
         });
-        // Añadir también a la lista local para que aparezca de inmediato aunque el backend no lo devuelva aún
         setPendingLanguages(prev => prev.some(l => l.code === language.code) ? prev : [...prev, language]);
-        // Cambiar automáticamente al nuevo idioma para comenzar a editarlo
         handleLanguageSelect(language.code);
     };
 
     const handlePreview = () => {
         if (!chapter) return;
-        // Generar un ID único para la vista previa y almacenar el contenido en localStorage
         const previewId = `${chapter.id}-${Date.now()}-${Math.random().toString(36).slice(2)}`;
         const previewData = {
             chapterId: chapter.id,
@@ -148,14 +143,10 @@ export default function AddChapter() {
         window.open(previewUrl, '_blank');
     };
 
-    // Idioma activo visual (el que se está mostrando ahora)
     const activeLanguage = contentLanguage || chapter?.languageDefaultCode?.code || "";
-    // Key del editor basada en idioma efectivamente mostrado para evitar desfase
     const editorKey = chapter ? `${chapter.id}-${activeLanguage || 'default'}` : 'loading';
-
     const languageLoading = isLoadingFetch || isFetching || isLanguageChanging;
 
-    // Combinar idiomas del capítulo con los pendientes para mostrar en la UI
     const combinedLanguages: LanguageDTO[] = (() => {
         if (!chapter) return pendingLanguages;
         const map = new Map<string, LanguageDTO>();
@@ -275,6 +266,11 @@ export default function AddChapter() {
                                     workId={Number(id)}
                                     chapterId={Number(chapterId)}
                                     onScheduleChange={(isoDate) => handleFieldChange("publishedAt", isoDate)}
+                                    formData={{ titulo: chapter.title, contenido: chapter.content }}
+                                    price={chapter.price || 0}
+                                    allowAiTranslation={chapter.allowAiTranslation}
+                                    defaultLanguageCode={chapter.languageDefaultCode?.code}
+                                    activeLanguageCode={activeLanguage}
                                 />
                             )}
                             {error && <p className="mt-4 text-red-600 text-sm">{error}</p>}
