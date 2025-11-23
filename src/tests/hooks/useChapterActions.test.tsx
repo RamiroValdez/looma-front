@@ -30,7 +30,6 @@ const chapterBase = {
   scheduledPublicationDate: "",
   availableLanguages: [],
   chapterNumber: 1,
-  isLiked: false,
 };
 
 function expectError(result: any, mensaje: string) {
