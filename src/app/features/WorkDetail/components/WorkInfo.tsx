@@ -1,8 +1,6 @@
 import { type WorkDTO } from "../../../../domain/dto/WorkDTO";
 import React, { useState, useEffect } from "react";
 import { notifyError, notifySuccess } from "../../../../infrastructure/services/ToastProviderService.ts";
-import { subscribeToAuthor, subscribeToWork } from "../../../../infrastructure/services/paymentService.ts";
-import Button from "../../../components/Button";
 import LikeButton from "../../../components/LikeButton";
 import StarRating from "../../../components/StarRating.tsx";
 import Tag from "../../../components/Tag.tsx";
@@ -10,6 +8,7 @@ import { useWorkData } from "../hooks/userWorkData.ts";
 import { getTotalSubscribersPerWork } from "../../../../infrastructure/services/WorkService.ts";
 import { downloadEpub } from "../../../../infrastructure/services/WorkService.ts";
 import { downloadPdf } from "../../../../infrastructure/services/WorkService.ts";
+import SubscriptionModal from "./SubscriptionModal";
 
 interface WorkInfoProps {
   work: WorkDTO;
@@ -19,10 +18,8 @@ interface WorkInfoProps {
 
 export const WorkInfo: React.FC<WorkInfoProps> = ({ work, manageFirstChapter, disableFirstChapter = false }) => {
 
-  const [isPaying, setIsPaying] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const isAuthorSubscribed = Boolean(work.subscribedToAuthor);
-  const isWorkSubscribed = Boolean(work.subscribedToWork);
   const { isWorkSaved, handdleToggleSaveWork } = useWorkData(work.id);
   const [subscriberCount, setSubscriberCount] = useState<number>(0);
   const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
@@ -30,46 +27,6 @@ export const WorkInfo: React.FC<WorkInfoProps> = ({ work, manageFirstChapter, di
   const openDownloadModal = () => setIsDownloadModalOpen(true);
   const closeDownloadModal = () => setIsDownloadModalOpen(false);
 
-
-  const closeModal = () => {
-    if (isPaying) return;
-    setIsModalOpen(false);
-  };
-
-    const handleMercadoPagoClick = async (type: "author" | "work") => {
-    try {
-      setIsPaying(true);
-      const paymentWindow = window.open("", "_blank");
-      const res = type === "author"
-        ? await subscribeToAuthor(work.creator.id, "mercadopago")
-        : await subscribeToWork(work.id, "mercadopago");
-      let url = (res.redirectUrl || "").toString().trim();
-      if (url && !/^https?:\/\//i.test(url)) {
-        url = `${window.location.origin}${url.startsWith('/') ? url : '/' + url}`;
-      }
-      if (url) {
-        if (paymentWindow && !paymentWindow.closed) {
-          try {
-            paymentWindow.location.href = url;
-          } catch {
-            window.open(url, "_blank");
-            if (paymentWindow) paymentWindow.close();
-          }
-        } else {
-          window.open(url, "_blank");
-        }
-        notifySuccess("Redirigiendo a MercadoPago...");
-        closeModal();
-      } else {
-        if (paymentWindow && !paymentWindow.closed) paymentWindow.close();
-        notifyError("No se recibió URL de pago");
-      }
-    } catch (e: unknown) {
-        notifyError(e instanceof Error ? e.message : "No se pudo iniciar el pago");
-    } finally {
-      setIsPaying(false);
-    }
-  };
 
   const handleDownloadEpub = async () => {
   if (!work) return;
@@ -124,7 +81,7 @@ export const WorkInfo: React.FC<WorkInfoProps> = ({ work, manageFirstChapter, di
       onClick={() => {
         setIsModalOpen(true);
       }}
-      disabled={isPaying || isAuthorSubscribed} 
+      disabled={isAuthorSubscribed}
       className="flex-1 bg-[#5c17a6] text-white py-2 rounded-lg text-base font-semibold hover:bg-[#5c17a6]/85 disabled:opacity-50 h-10 cursor-pointer"
     >
       {isAuthorSubscribed ? "Ya suscripto" : "Suscribirse"}
@@ -247,87 +204,7 @@ export const WorkInfo: React.FC<WorkInfoProps> = ({ work, manageFirstChapter, di
         Primer capítulo →
       </button>
 
-      {isModalOpen && (
-  <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/50 p-4">
-    <div className="bg-white rounded-xl p-8 w-full max-w-5xl relative shadow-xl min-h-[600px] max-h-[90vh] overflow-y-auto flex items-center justify-center">
-      <div className="absolute top-4 right-4">
-        <Button text="" onClick={closeModal} disabled={isPaying} colorClass="cursor-pointer">
-          <img src="/img/PopUpCierre.png" className="w-9 h-9 hover:opacity-60" alt="Cerrar" />
-        </Button>
-      </div>
-
-      <div className="w-full">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-4xl mx-auto">
-          {/* First Subscription Card */}
-          <div className="border-2 border-[#5c17a6] rounded-2xl p-6 text-center shadow-lg bg-white w-full min-h-[400px] flex flex-col">
-            <h3 className="font-bold text-2xl md:text-3xl text-[#5c17a6] mb-4">Suscribirse al Autor</h3>
-            <div className="my-4">
-              <span className="text-5xl md:text-6xl font-bold text-[#5c17a6]">$20</span>
-              <span className="text-gray-500 text-lg"></span>
-            </div>
-            <p className="text-gray-600 text-lg mb-8 flex-grow">
-              Acceso total a todas las obras y capítulos del autor sin límite
-            </p>
-            <div className="mt-auto">
-              <Button 
-                text={isAuthorSubscribed ? "¡Ya estás suscrito!" : "Adquirir suscripción"}
-                colorClass={`w-full cursor-pointer py-3 px-6 rounded-full text-white font-semibold text-lg
-                  ${isAuthorSubscribed 
-                    ? 'bg-gray-400 cursor-not-allowed' 
-                    : 'bg-[#5c17a6] hover:bg-[#4a1285] transform hover:scale-105 transition-all duration-200'
-                  }`}
-                onClick={() => !isAuthorSubscribed && handleMercadoPagoClick("author")}
-                disabled={isPaying || isAuthorSubscribed} 
-              />
-            </div>
-          </div>
-
-            <div className="max-w-[800px] mx-auto">
-              <h3 className="text-3xl font-bold mb-8 text-center text-[#5C17A6]">Selecciona tu suscripción</h3>
-
-              <div className={work.price > 0
-              ? "grid grid-cols-1 md:grid-cols-2 justify-items-center"
-              : "flex justify-center"}>
-                <div className="border-1 border-[#6a5a8c] rounded-xl p-6 text-center shadow-2xl bg-[#e0d9f0] w-[350px] min-h-[350px]">
-                  <h3 className="font-bold text-3xl mb-15 text-[#3c2a50]">Suscribirse al Autor</h3>
-                  <h2 className="font-semibold text-8xl text-[#3c2a50] mb-15">${work.creator.money}</h2>
-                  <p className="text-gray-600 text-2xl mb-15 min-h-[60px]">
-                    Acceso total a todas las obras y capítulos del autor sin límite
-                  </p>
-                  <Button 
-                    text="Adquirir" 
-                    colorClass="bg-[#3c2a50] w-full text-white rounded-lg cursor-pointer hover:scale-103 py-3 font-semibold" 
-                    onClick={() => {
-                      handleMercadoPagoClick("author");
-                    }}
-                    disabled={isPaying || isAuthorSubscribed} 
-                  />
-                </div>
-
-                {work.price > 0 && (
-                <div className="border-2 border-[#172FA6] rounded-xl p-6 text-center bg-[#E8EDFC] w-[350px] min-h-[350px] shadow-2xl">
-                  <h3 className="font-bold text-3xl mb-15 text-[#172FA6]">Suscribirse a la obra</h3>
-                  <h2 className="font-semibold text-8xl text-[#172FA6] mb-15">${work.price}</h2>
-                  <p className="text-gray-600 text-2xl mb-15 min-h-[60px]">
-                    Acceso completo a todos los capítulos de <span className="font-semibold">{work.title}</span>
-                  </p>
-                  <Button 
-                    text="Adquirir" 
-                    colorClass="bg-[#172FA6] w-full text-white rounded-lg cursor-pointer hover:scale-103 py-3 font-semibold" 
-                    onClick={() => {
-                      handleMercadoPagoClick("work");
-                    }}
-                    disabled={isPaying || isWorkSubscribed} 
-                  />
-                </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-)}
+      <SubscriptionModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} work={work} />
     </div>
   );
 };
