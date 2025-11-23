@@ -29,10 +29,19 @@ function Header() {
 
   const { clearUser } = useUserStore();
 
+  const profileMenuRef = useRef<HTMLDivElement>(null!);
+
   useClickOutside(
     [notificationRefDesktop, notificationRefMobile],
     () => setShowNotifications(false),
     showNotifications
+  );
+
+  // Cerrar menú de perfil al hacer click fuera cuando está abierto
+  useClickOutside(
+    profileMenuRef,
+    () => setOpenMenu(false),
+    openMenu
   );
 
   const handleSearchKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
@@ -170,7 +179,7 @@ useEffect(() => {
                     notifications={notifications}
                     onMarkAsReadLocal={handleMarkAsReadLocal} />
                 </div>
-                <div className="relative">
+                <div className="relative" ref={profileMenuRef}>
                   {
                     haveImage ? (
                       <img
@@ -197,8 +206,8 @@ useEffect(() => {
                       >
                         Mi Perfil
                       </Link>
-                      <Link to="/subscriptions" className="block px-4 py-2 hover:bg-[#D3CCDA] hover:text-[#5c17a6]">Suscripciones</Link>
-                      <Link to="/mySaves" className="block px-4 py-2 hover:bg-[#D3CCDA] hover:text-[#5c17a6]">Guardados</Link>
+                      <Link to={`/profile/${user.id}#suscripciones`} className="block px-4 py-2 hover:bg-[#D3CCDA] hover:text-[#5c17a6]">Suscripciones</Link>
+                      <Link to={`/profile/${user.id}#guardados`} className="block px-4 py-2 hover:bg-[#D3CCDA] hover:text-[#5c17a6]">Guardados</Link>
                       <hr />
                       <button
                         className="w-full text-left px-4 py-2 hover:bg-gray-100 text-red-500 cursor-pointer"
@@ -259,7 +268,7 @@ useEffect(() => {
       <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0M3.124 7.5A8.969 8.969 0 0 1 5.292 3m13.416 0a8.969 8.969 0 0 1 2.168 4.5" />
     </svg>
   </button>
-  
+
   {/* Lápiz */}
   <button
     className="bg-[#5C14A6] rounded-full p-2 flex items-center justify-center"
@@ -291,7 +300,7 @@ useEffect(() => {
           <a onClick={() => { navigate("/home"); setMobileNavOpen(false); }} className="block px-4 py-2 hover:bg-[#D3CCDA] hover:text-[#5c17a6] cursor-pointer">Inicio</a>
           <a onClick={() => { navigate("/explore"); setMobileNavOpen(false); }} className="block px-4 py-2 hover:bg-[#D3CCDA] hover:text-[#5c17a6] cursor-pointer">Explorar</a>
           <Link to={`/profile/${user.id}`} className="block px-4 py-2 hover:bg-[#D3CCDA] hover:text-[#5c17a6]">Mi Perfil</Link>
-          <Link to="/" className="block px-4 py-2 hover:bg-[#D3CCDA] hover:text-[#5c17a6]">Suscripciones</Link>
+          <Link to={`/profile/${user.id}#suscripciones`} className="block px-4 py-2 hover:bg-[#D3CCDA] hover:text-[#5c17a6]">Suscripciones</Link>
           <Link to="/mySaves" className="block px-4 py-2 hover:bg-[#D3CCDA] hover:text-[#5c17a6]">Guardados</Link>
           <button className="w-full text-left px-4 py-2 hover:bg-gray-100 text-red-500" onClick={() => { logout(); setUser(null); setMobileNavOpen(false); clearUser(); }}>Cerrar sesión</button>
         </>
@@ -323,4 +332,3 @@ useEffect(() => {
 }
 
 export default Header;
-

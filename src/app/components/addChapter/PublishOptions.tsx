@@ -1,14 +1,19 @@
 import { useState } from "react";
-import { publishChapter,scheduleChapter} from "../../../infrastructure/services/ChapterService.ts";
+import { publishChapter, scheduleChapter, saveDraftChapter } from "../../../infrastructure/services/ChapterService.ts";
 import { useNavigate } from "react-router-dom";
 
 interface Props {
   workId: number;
   chapterId: number;
-  onScheduleChange?: (isoDate: string | null) => void; //para pasar la fecha y hora al flujo de publicación
+  onScheduleChange?: (isoDate: string | null) => void;
+  formData: { titulo: string; contenido: string };
+  price: number;
+  allowAiTranslation: boolean;
+  defaultLanguageCode: string;
+  activeLanguageCode: string;
 }
 
-export default function PublishOptions({ workId, chapterId, onScheduleChange }: Props) {
+export default function PublishOptions({ workId, chapterId, onScheduleChange, formData, price, allowAiTranslation, defaultLanguageCode, activeLanguageCode }: Props) {
   const navigate = useNavigate();
   const [date, setDate] = useState("2025-12-24");
   const [time, setTime] = useState("10:30");
@@ -31,7 +36,6 @@ export default function PublishOptions({ workId, chapterId, onScheduleChange }: 
   };
 
   const buildWhenWithOffset = (): string => {
-    // Build local datetime with timezone offset, e.g. 2025-10-15T10:00:00-03:00
     const local = new Date(`${date}T${time}:00`);
     const offsetMin = -local.getTimezoneOffset();
     const sign = offsetMin >= 0 ? "+" : "-";
@@ -71,11 +75,46 @@ export default function PublishOptions({ workId, chapterId, onScheduleChange }: 
     try {
       setPublishError(null);
       setPublishing(true);
+
+      // Validar contenido no vacío
+      const contenido = formData.contenido?.trim() || "";
+      if (!contenido) {
+        setPublishError("El contenido está vacío. Escribe algo antes de publicar.");
+        return;
+      }
+
+      // Construir payload para guardar borrador antes de publicar
+      const targetLang = activeLanguageCode || defaultLanguageCode;
+      const draftPayload = {
+        title: formData.titulo,
+        status: 'DRAFT', // mantenemos estado DRAFT; el endpoint de publicar se encargará de cambiarlo
+        last_update: new Date().toISOString(),
+        price: Number(price) || 0,
+        allow_ai_translation: allowAiTranslation,
+        versions: {
+          [targetLang]: contenido
+        }
+      };
+
+      // Guardar borrador primero
+      try {
+        const saveResp = await saveDraftChapter(Number(chapterId), draftPayload);
+        if (!(saveResp.fetchStatus >= 200 && saveResp.fetchStatus < 300)) {
+          setPublishError("No se pudo guardar el borrador antes de publicar.");
+          return;
+        }
+      } catch (e) {
+        console.error(e);
+        setPublishError("Error al guardar el borrador antes de publicar.");
+        return;
+      }
+
+      // Publicar capítulo
       const resp = await publishChapter(Number(workId), Number(chapterId));
       if (!(resp.fetchStatus >= 200 && resp.fetchStatus < 300)) {
         setPublishError("No se pudo publicar el capítulo.");
+        return;
       }
-      // navigate a manage-work/7
       navigate(`/manage-work/${workId}`);
     } catch (e) {
       setPublishError("Error al publicar el capítulo.");
@@ -87,7 +126,6 @@ export default function PublishOptions({ workId, chapterId, onScheduleChange }: 
 
   return (
     <div className="mb-8 mt-6">
-      
       <div className="flex items-center space-x-6 mb-4">
         <label className="flex items-center space-x-2">
           <span>Publicar inmediatamente</span>
@@ -121,7 +159,7 @@ export default function PublishOptions({ workId, chapterId, onScheduleChange }: 
             disabled={publishing}
             className="mt-5 px-4 py-2 rounded-full font-semibold bg-[#172FA6] text-white hover:bg-[#0e1c80] disabled:opacity-60 cursor-pointer"
           >
-            {publishing ? "Publicando..." : "Publicar ahora"}
+            {publishing ? "Guardando y publicando..." : "Publicar ahora"}
           </button>
         </div>
       )}
@@ -197,7 +235,7 @@ export default function PublishOptions({ workId, chapterId, onScheduleChange }: 
                 setShowScheduleModal(true);
               }}
               disabled={scheduling}
-            className="mt-5 px-4 py-2 rounded-full font-semibold bg-[#172FA6] text-white hover:bg-[#0e1c80] disabled:opacity-60 cursor-pointer"
+              className="mt-5 px-4 py-2 rounded-full font-semibold bg-[#172FA6] text-white hover:bg-[#0e1c80] disabled:opacity-60 cursor-pointer"
             >
               {scheduling ? "Programando..." : "Programar publicación"}
             </button>

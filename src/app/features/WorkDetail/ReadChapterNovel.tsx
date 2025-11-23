@@ -1,20 +1,21 @@
 import FooterLector from "../../components/FooterLector.tsx";
 import TextViewer from "../Chapter/TextViewer.tsx";
-import { MilkdownProvider } from "@milkdown/react";
-import { useParams, useNavigate } from "react-router-dom";
-import { useReadChapterData } from "./hooks/useReadChapterData";
-import { useState , useEffect } from "react";
-import { useTheme } from "./hooks/useTheme";
+import {MilkdownProvider} from "@milkdown/react";
+import {useNavigate, useParams} from "react-router-dom";
+import {useReadChapterData} from "./hooks/useReadChapterData";
+import {useEffect, useState} from "react";
+import {useTheme} from "./hooks/useTheme";
 import ThemeSelector from "./components/ThemeSelector.tsx";
-import Button from "../../components/Button";
-import { updateReadingProgress } from "../../../infrastructure/services/HomeService.ts";
+import {updateReadingProgress} from "../../../infrastructure/services/HomeService.ts";
+import SubscriptionModal from "./components/SubscriptionModal";
+import ChapterPurchaseModal from "./components/ChapterPurchaseModal";
 
 const ReadChapter = () => {
     const navigate = useNavigate();
     const { chapterId } = useParams<{ chapterId: string }>();
     const [isWorkModalOpen, setIsWorkModalOpen] = useState(false);
     const [isChapterModalOpen, setIsChapterModalOpen] = useState(false);
-    const [selectedChapterForPayment, setSelectedChapterForPayment] = useState<number | null>(null);
+    const [selectedChapterForPayment, setSelectedChapterForPayment] = useState<any | null>(null);
     const { currentTheme, fontSize, changeTheme, changeFontSize, getTheme, getFontSize, themes } = useTheme();
     const [isThemeSelectorOpen, setIsThemeSelectorOpen] = useState(false);
     const theme = getTheme();
@@ -41,7 +42,6 @@ const ReadChapter = () => {
         toggleLike,
         handleChapterClick,
         handleLanguageChange,
-        handleSubscribeWork,
         handleChapterPayment,
         isChapterUnlocked,
         handdleToggleSaveWork,
@@ -57,7 +57,8 @@ const ReadChapter = () => {
     };
 
     const openChapterModal = (chapterIdForPayment: number) => {
-        setSelectedChapterForPayment(chapterIdForPayment);
+        const fullChapter = chapters.find(ch => ch.id === chapterIdForPayment) || null;
+        setSelectedChapterForPayment(fullChapter);
         setIsChapterModalOpen(true);
     };
 
@@ -67,19 +68,6 @@ const ReadChapter = () => {
         setSelectedChapterForPayment(null);
     };
 
-    const handleConfirmWorkSubscription = async () => {
-        await handleSubscribeWork();
-        closeWorkModal();
-    };
-
-    const handleConfirmChapterPayment = async () => {
-        if (selectedChapterForPayment) {
-            await handleChapterPayment(selectedChapterForPayment);
-            closeChapterModal();
-        }
-    };
-
-    
 const handlePreviousChapter = () => {
     const publishedChapters = chapters
         .filter(ch => ch.publicationStatus === "PUBLISHED")
@@ -111,7 +99,7 @@ const handleNextChapter = () => {
  useEffect(() => {
         const saveProgress = async () => {
             if (!chapterData?.workId || !chapterId) return;
-
+            console.log("Idiomas Disponibles: ", chapterData.availableLanguages);
             try {
                 await updateReadingProgress(Number(chapterData.workId), Number(chapterId));
                 console.log('Progreso guardado');
@@ -465,59 +453,23 @@ const handleNextChapter = () => {
             )}
 
             {isWorkModalOpen && (
-                <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/50">
-                    <div className="bg-white rounded-xl p-6 w-full max-w-md relative">
-                        <div className="absolute top-4 right-4">
-                            <Button text="" onClick={closeWorkModal} disabled={isPaying} colorClass="cursor-pointer">
-                                <img src="/img/PopUpCierre.png" className="w-6 h-6 hover:opacity-60" alt="Cerrar" />
-                            </Button>
-                        </div>
-                        <h3 className="text-2xl font-bold mb-4">Suscribirse a la Obra</h3>
-                        <p className="mb-4">Selecciona un método de pago</p>
-                        <div
-                            className={`border rounded-lg p-4 flex items-center justify-between hover:bg-gray-50 cursor-pointer ${isPaying ? 'opacity-50 pointer-events-none' : ''}`}
-                            onClick={handleConfirmWorkSubscription}
-                        >
-                            <div className="flex items-center gap-3">
-                                <img src="/img/mercadopago.png" alt="MercadoPago" className="w-8 h-8" />
-                                <div className="flex flex-col">
-                                    <span className="font-semibold">Pagar con MercadoPago</span>
-                                    <span className="text-sm text-gray-500">Tarjeta, débito, efectivo y más</span>
-                                </div>
-                            </div>
-                            <span className="text-[#5c17a6] font-semibold">Continuar</span>
-                        </div>
-                        {isPaying && <p className="mt-4 text-sm text-gray-500">Iniciando pago...</p>}
-                    </div>
-                </div>
+                <SubscriptionModal
+                  isOpen={isWorkModalOpen}
+                  onClose={closeWorkModal}
+                  work={work}
+                />
             )}
 
             {isChapterModalOpen && (
-                <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/50">
-                    <div className="bg-white rounded-xl p-6 w-full max-w-md relative">
-                        <div className="absolute top-4 right-4">
-                            <Button text="" onClick={closeChapterModal} disabled={isPaying} colorClass="cursor-pointer">
-                                <img src="/img/PopUpCierre.png" className="w-6 h-6 hover:opacity-60" alt="Cerrar" />
-                            </Button>
-                        </div>
-                        <h3 className="text-2xl font-bold mb-4">Adquirir Capítulo</h3>
-                        <p className="mb-4">Selecciona un método de pago</p>
-                        <div
-                            className={`border rounded-lg p-4 flex items-center justify-between hover:bg-gray-50 cursor-pointer ${isPaying ? 'opacity-50 pointer-events-none' : ''}`}
-                            onClick={handleConfirmChapterPayment}
-                        >
-                            <div className="flex items-center gap-3">
-                                <img src="/img/mercadopago.png" alt="MercadoPago" className="w-8 h-8" />
-                                <div className="flex flex-col">
-                                    <span className="font-semibold">Pagar con MercadoPago</span>
-                                    <span className="text-sm text-gray-500">Tarjeta, débito, efectivo y más</span>
-                                </div>
-                            </div>
-                            <span className="text-[#5c17a6] font-semibold">Continuar</span>
-                        </div>
-                        {isPaying && <p className="mt-4 text-sm text-gray-500">Iniciando pago...</p>}
-                    </div>
-                </div>
+                <ChapterPurchaseModal
+                  isOpen={isChapterModalOpen}
+                  onClose={closeChapterModal}
+                  chapter={selectedChapterForPayment}
+                  workId={chapterData?.workId ? Number(chapterData.workId) : work?.id || 0}
+                  onPayment={async (chapter) => {
+                    await handleChapterPayment(chapter.id);
+                  }}
+                />
             )}
 
             {isThemeSelectorOpen && (

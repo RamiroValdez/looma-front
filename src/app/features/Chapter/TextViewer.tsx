@@ -12,7 +12,7 @@ interface TextViewerProps {
 
 function htmlToMarkdown(input: string): string {
     return input
-        .replace(/<br\s*\/?>/gi, '\n\n<br />\n\n')
+        .replace(/<br\s*\/?>/gi, '\n\n')
 }
 
 export default function TextViewer({ content }: TextViewerProps) {

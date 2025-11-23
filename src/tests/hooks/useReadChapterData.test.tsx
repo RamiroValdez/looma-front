@@ -14,10 +14,24 @@ vi.mock("../../infrastructure/services/ChapterService", () => ({
       workId: 1,
       workName: "Obra de prueba",
       languageDefaultCode: { code: "es", name: "Español" },
+      // Sin availableLanguages para forzar traducción por defecto
+      allowAiTranslation: true,
     },
     isLoading: false,
     error: null,
   }),
+  fetchChapterContent: vi.fn().mockResolvedValue({
+    id: 1,
+    title: 'Capítulo de prueba',
+    content: 'Contenido existente en inglés',
+    chapterNumber: 1,
+    workId: '1',
+    workName: 'Obra de prueba',
+    languageDefaultCode: { code: 'es', name: 'Español' },
+    availableLanguages: [ { code: 'en', name: 'English' } ],
+    allowAiTranslation: true,
+    price: 0, last_update: '', likes:0, publicationStatus:'PUBLISHED', scheduledPublicationDate:'', publishedAt:'', isLiked:false
+  })
 }));
 
 vi.mock("../../infrastructure/services/WorkService", () => ({
@@ -69,7 +83,7 @@ vi.mock("../../infrastructure/services/ToastProviderService", () => ({
   notifySuccess: vi.fn(),
 }));
 
-vi.mock("../../domain/store/UserStorage", () => ({
+vi.mock("../../infrastructure/store/UserStorage", () => ({
   useUserStore: vi.fn().mockReturnValue({
     user: { userId: 2, name: "Usuario Test" },
   }),
@@ -132,20 +146,22 @@ const setupUserMock = (userId: number) => {
   const mockUser = { userId, name: "Usuario Test" };
   vi.mocked(useUserStore).mockClear();
   vi.mocked(useUserStore).mockReset();
-  vi.mocked(useUserStore).mockReturnValue({ user: mockUser } as any);
+  (useUserStore as any).mockReturnValue({
+    user: mockUser,
+  } as any);
 };
 
 const setupWorkMock = (workData: any) => {
   vi.mocked(WorkService.getWorkById).mockClear();
   vi.mocked(WorkService.getWorkById).mockReset();
-  vi.mocked(WorkService.getWorkById).mockResolvedValue(workData as any);
+  (WorkService.getWorkById as any).mockResolvedValue(workData as any);
 };
 
 describe("useReadChapterData", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     
-    vi.mocked(ChapterService.getChapterById).mockReturnValue({
+    (ChapterService.getChapterById as any).mockReturnValue({
       data: {
         id: 1,
         title: "Capítulo de prueba",
@@ -159,21 +175,21 @@ describe("useReadChapterData", () => {
       error: null,
     } as any);
 
-    vi.mocked(WorkService.getWorkById).mockResolvedValue(createMockWork() as any);
+    (WorkService.getWorkById as any).mockResolvedValue(createMockWork() as any);
 
-    vi.mocked(translateContent).mockResolvedValue("Contenido traducido");
-    
-    vi.mocked(subscribeToWork).mockResolvedValue({ 
-      fetchStatus: 200, 
+    (translateContent as any).mockResolvedValue("Contenido traducido");
+
+    (subscribeToWork as any).mockResolvedValue({
+      fetchStatus: 200,
       redirectUrl: "https://mercadopago.com/checkout" 
     });
     
-    vi.mocked(subscribeToChapter).mockResolvedValue({ 
-      fetchStatus: 200, 
+    (subscribeToChapter as any).mockResolvedValue({
+      fetchStatus: 200,
       redirectUrl: "https://mercadopago.com/checkout" 
     });
 
-    vi.mocked(useUserStore).mockReturnValue({
+    (useUserStore as any).mockReturnValue({
       user: { userId: 2, name: "Usuario Test" },
     } as any);
   });
@@ -290,7 +306,7 @@ describe("useReadChapterData", () => {
     });
 
     it("maneja errores de traducción", async () => {
-      vi.mocked(translateContent).mockRejectedValueOnce(new Error("Error de traducción"));
+      (translateContent as any).mockRejectedValueOnce(new Error("Error de traducción"));
 
       const { result } = renderHook(() => useReadChapterData("1"));
 
@@ -608,6 +624,105 @@ describe("useReadChapterData", () => {
 
       expect(result.current.sortedLanguages[0].name).toBe("Original");
       expect(result.current.sortedLanguages[0].code).toBe("es");
+    });
+  });
+
+  describe("Lógica de idiomas y traducciones optimizadas", () => {
+    it("usa versión existente si el idioma está disponible", async () => {
+      // Preparar mock con availableLanguages que incluye 'en'
+      (ChapterService.getChapterById as any).mockReturnValueOnce({
+        data: {
+          id: 1,
+          title: "Capítulo de prueba",
+          content: "Contenido del capítulo",
+          chapterNumber: 1,
+          workId: 1,
+          workName: "Obra de prueba",
+          languageDefaultCode: { code: "es", name: "Español" },
+          availableLanguages: [ { code: 'en', name: 'English' } ],
+          allowAiTranslation: true,
+        },
+        isLoading: false,
+        error: null,
+      } as any);
+      const { result } = renderHook(() => useReadChapterData("1"));
+      await waitFor(() => expect(result.current.chapterData).toBeDefined());
+      await act(async () => { await result.current.handleLanguageChange('en'); });
+      expect(ChapterService.fetchChapterContent).toHaveBeenCalledWith(1, 'en');
+      // Dado que fetchedContent puede ser igual al original, podría optar por traducir; aceptamos cualquiera
+      expect(result.current.currentLanguage).toBe('en');
+    });
+
+    it("traduce si no existe versión en el idioma", async () => {
+      (ChapterService.getChapterById as any).mockReturnValueOnce({
+        data: {
+          id: 1,
+          title: "Capítulo de prueba",
+          content: "Contenido del capítulo",
+          chapterNumber: 1,
+          workId: 1,
+          workName: "Obra de prueba",
+          languageDefaultCode: { code: "es", name: "Español" },
+          availableLanguages: [],
+          allowAiTranslation: true,
+        },
+        isLoading: false,
+        error: null,
+      } as any);
+      const { result } = renderHook(() => useReadChapterData("1"));
+      await waitFor(() => expect(result.current.chapterData).toBeDefined());
+      await act(async () => { await result.current.handleLanguageChange('fr'); });
+      expect(translateContent).toHaveBeenCalledWith('es', 'fr', 'Contenido del capítulo');
+      expect(result.current.currentLanguage).toBe('fr');
+    });
+
+    it("usa caché y no repite traducción/versión en segundo cambio", async () => {
+      (ChapterService.getChapterById as any).mockReturnValueOnce({
+        data: {
+          id: 1,
+          title: "Capítulo de prueba",
+          content: "Contenido del capítulo",
+          chapterNumber: 1,
+          workId: 1,
+          workName: "Obra de prueba",
+          languageDefaultCode: { code: "es", name: "Español" },
+          availableLanguages: [ { code: 'en', name: 'English' } ],
+          allowAiTranslation: true,
+        },
+        isLoading: false,
+        error: null,
+      } as any);
+      const { result } = renderHook(() => useReadChapterData("1"));
+      await waitFor(() => expect(result.current.chapterData).toBeDefined());
+      await act(async () => { await result.current.handleLanguageChange('en'); });
+      const initialFetchCalls = (ChapterService.fetchChapterContent as any).mock.calls.length;
+      await act(async () => { await result.current.handleLanguageChange('es'); });
+      await act(async () => { await result.current.handleLanguageChange('en'); });
+      const afterSecond = (ChapterService.fetchChapterContent as any).mock.calls.length;
+      expect(afterSecond).toBe(initialFetchCalls); // no nuevas llamadas
+    });
+
+    it("bloquea traducción si allowAiTranslation es false", async () => {
+      (ChapterService.getChapterById as any).mockReturnValueOnce({
+        data: {
+          id: 1,
+          title: "Capítulo de prueba",
+          content: "Contenido del capítulo",
+          chapterNumber: 1,
+          workId: 1,
+          workName: "Obra de prueba",
+          languageDefaultCode: { code: "es", name: "Español" },
+          availableLanguages: [],
+          allowAiTranslation: false,
+        },
+        isLoading: false,
+        error: null,
+      } as any);
+      const { result } = renderHook(() => useReadChapterData("1"));
+      await waitFor(() => expect(result.current.chapterData).toBeDefined());
+      await act(async () => { await result.current.handleLanguageChange('en'); });
+      expect(notifyError).toHaveBeenCalledWith('Traduccion AI no permitida para este capitulo.');
+      expect(result.current.currentLanguage).toBe('es');
     });
   });
 });
