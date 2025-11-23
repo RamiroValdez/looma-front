@@ -3,7 +3,6 @@ import {
     Line,
     XAxis,
     YAxis,
-    CartesianGrid,
     Tooltip,
     Legend,
     ResponsiveContainer
@@ -19,9 +18,9 @@ const procesarDatosParaGrafico = (
     saves: AnalyticsSavedWorkDto[],
     subs: AnalyticsSuscribersPerWorkDto[]
 ) => {
-    const mapaTimeline = new Map();
+    const mapaTimeline = new Map<string, { fecha: string; guardados: number; suscriptores: number }>();
 
-    const initDay = (dateKey) => {
+    const initDay = (dateKey: string) => {
         if (!mapaTimeline.has(dateKey)) {
             mapaTimeline.set(dateKey, { fecha: dateKey, guardados: 0, suscriptores: 0 });
         }
@@ -32,7 +31,9 @@ const procesarDatosParaGrafico = (
         initDay(dateKey);
 
         const entry = mapaTimeline.get(dateKey);
-        entry.guardados += 1;
+        if (entry) {
+            entry.guardados += 1;
+        }
     });
 
     subs.forEach(item => {
@@ -40,7 +41,9 @@ const procesarDatosParaGrafico = (
         initDay(dateKey);
 
         const entry = mapaTimeline.get(dateKey);
-        entry.suscriptores += 1;
+        if (entry) {
+            entry.suscriptores += 1;
+        }
     });
 
     return Array.from(mapaTimeline.values())

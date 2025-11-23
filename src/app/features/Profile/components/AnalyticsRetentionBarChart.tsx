@@ -26,6 +26,7 @@ export function AnalyticsRetentionBarChart({ retentionData, metric, title }: Pro
 
     return (
         <div className="space-y-2">
+            {title && <h3 className="text-sm font-medium text-gray-700">{title}</h3>}
             <ResponsiveContainer width="100%" height={280}>
                 <BarChart data={data}>
                     <CartesianGrid strokeDasharray="3 3" />
@@ -33,10 +34,7 @@ export function AnalyticsRetentionBarChart({ retentionData, metric, title }: Pro
                     <YAxis tickFormatter={(v) => `${v}%`} />
                     <Tooltip
                         formatter={(val) => [`${val}%`, 'Retención']}
-                        labelFormatter={(pos) => {
-                            const item = data.find(d => d.position === pos);
-                            return `Capítulo ${pos}`;
-                        }}
+                        labelFormatter={(pos) => `Capítulo ${pos}`}
                     />
                     <Legend />
                     <Bar
@@ -45,7 +43,7 @@ export function AnalyticsRetentionBarChart({ retentionData, metric, title }: Pro
                         fill={metric === 'percentFromFirst' ? '#6366f1' : '#10b981'}
                         radius={[4,4,0,0]}
                     >
-                        <LabelList dataKey="value" position="top" className="text-xs" formatter={(v: number) => `${v}%`} />
+                        <LabelList dataKey="value" position="top" className="text-xs" formatter={(label) => typeof label === 'number' ? `${label}%` : label} />
                     </Bar>
                 </BarChart>
             </ResponsiveContainer>

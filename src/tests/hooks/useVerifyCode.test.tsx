@@ -4,7 +4,7 @@ import { describe, it, beforeEach, expect, vi } from 'vitest';
 vi.mock("react-router-dom", () => ({
   useNavigate: vi.fn(),
 }));
-vi.mock("../../domain/store/AuthStore", () => ({
+vi.mock("../../infrastructure/store/AuthStore", () => ({
   useAuthStore: {
     getState: vi.fn(),
   },
@@ -15,7 +15,7 @@ vi.mock("../../infrastructure/services/VerifyCodeService", () => ({
 
 import { useVerifyCode } from "../../app/hooks/useVerifyCode";
 import { useNavigate } from "react-router-dom";
-import { useAuthStore } from "../../domain/store/AuthStore";
+import { useAuthStore } from "../../infrastructure/store/AuthStore";
 import * as VerifyCodeService from "../../infrastructure/services/VerifyCodeService";
 
 // Helpers
