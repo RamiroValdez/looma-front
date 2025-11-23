@@ -78,7 +78,7 @@ export default function Create() {
         currentTags.length > 0 &&
         (!isPaid || (isPaid && price > 0)) &&
         bannerFile !== null &&
-        (coverFile !== null)||(coverIaUrl !== null);
+        (coverFile !== null||coverIaUrl !== null);
 
     const [hasTriedSubmit, setHasTriedSubmit] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
