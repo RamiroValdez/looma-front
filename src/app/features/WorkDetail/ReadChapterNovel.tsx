@@ -143,11 +143,11 @@ const handleNextChapter = () => {
                 }}
             >
                 <div 
-                className={`px-6 pt-6 pb-28 flex flex-col ${!isFullScreen ? 'min-h-[calc(100vh-4rem)]' : 'min-h-screen'}`}
-                style={{ 
-                    backgroundColor: theme.bgColor, 
-                    color: theme.textColor,
-                }}>
+  className={`px-6 pt-6 pb-28 mb-24 sm:mb-0 flex flex-col ${!isFullScreen ? 'min-h-[calc(100vh-4rem)]' : 'min-h-screen'}`}
+  style={{ 
+    backgroundColor: theme.bgColor, 
+    color: theme.textColor,
+  }}>
 
                     {!isFullScreen && (
                         <button
@@ -218,15 +218,14 @@ const handleNextChapter = () => {
                         </div>
 
                             <div className="mt-auto">
-                         <div 
-                        className="mt-12 flex items-center justify-between border-t pt-6"
-                        style={{ 
-                            borderColor: currentTheme === 'dark' ? '#4b5563' : 
-                                        currentTheme === 'paper' ? '#d97706' :
-                                        currentTheme === 'sepia' ? '#78350f' :
-                                        '#e5e7eb' 
-                        }}
-                    >
+<div className="flex flex-row items-center justify-between w-full mt-12 border-t pt-6"
+  style={{ 
+    borderColor: currentTheme === 'dark' ? '#4b5563' : 
+                currentTheme === 'paper' ? '#d97706' :
+                currentTheme === 'sepia' ? '#78350f' :
+                '#e5e7eb' 
+  }}
+>
                                 <button
                                     onClick={() => {
                                         const publishedChapters = chapters

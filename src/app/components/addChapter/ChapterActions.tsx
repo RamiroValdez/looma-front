@@ -78,8 +78,8 @@ export default function ChapterActions({ onPreview, workId, formData, chapterId,
   const isDraft = publicationStatus === 'DRAFT';
 
   return (
-    <div className="flex flex-col gap-3 mb-6">
-      {error && <p className="text-sm text-red-600">{error}</p>}
+<div className="flex w-full justify-center sm:justify-start flex-wrap gap-4">      
+  {error && <p className="text-sm text-red-600">{error}</p>}
       <div className="flex flex-wrap gap-4">
         <button
           onClick={handlePreview}
@@ -96,8 +96,10 @@ export default function ChapterActions({ onPreview, workId, formData, chapterId,
         </button>
       </div>
       {!isDraft && (
-        <p className="text-xs text-gray-600">Solo se puede editar cuando el capítulo está en estado <span className="font-semibold">DRAFT</span>.</p>
-      )}
+        <p className="text-xs text-gray-600 w-full sm:text-left">
+    Solo se puede editar cuando el capítulo está en estado <span className="font-semibold">DRAFT</span>.
+  </p>
+)}
     </div>
   );
 }

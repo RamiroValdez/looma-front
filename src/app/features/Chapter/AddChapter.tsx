@@ -169,23 +169,6 @@ export default function AddChapter() {
                 </div>
             ) : data && chapter ? (
                 <div className="min-h-screen bg-[#F4F0F7] px-4 sm:px-8 md:px-16 py-8 max-w-screen">
-                    <div className="w-screen relative left-1/2 right-1/2 -mx-[50vw] bg-white mb-8">
-                        <div className="bg-white border-b border-[#e4e2eb] h-14 flex items-center ">
-                            <div className="px-4 sm:px-8 md:px-16 mx-auto flex justify-between items-center w-full">
-                                <div className="flex items-center gap-4 p-6">
-                                    <div className="w-8 h-8 bg-[#1a2fa1] rounded-full flex items-center justify-center">
-                                        <span className="text-white text-lg font-bold">?</span>
-                                    </div>
-                                    <h2 className="text-gray-900 font-semibold text-base">
-                                        ¿Tenés dudas? Dejanos darte algunos consejos
-                                    </h2>
-                                </div>
-                                <a href="#" className="text-gray-400 hover:text-gray-600 underline text-sm">
-                                    Normativas de contenido
-                                </a>
-                            </div>
-                        </div>
-                    </div>
                     <div className="pl-5">
                         <BackButton to={`/manage-work/${id}`} />
                     </div>
@@ -251,17 +234,20 @@ export default function AddChapter() {
                                 activeLanguageCode={activeLanguage}
                             />
                             {chapter.publicationStatus === 'DRAFT' && (
-                                <div className="mt-6">
-                                    <div className="border border-red-300 bg-red-50 text-red-700 rounded-lg p-4">
-                                        <div className="flex items-center justify-between">
-                                            <div>
-                                                <h4 className="font-semibold">Eliminar capítulo</h4>
-                                                <p className="text-sm">Esta acción no se puede deshacer.</p>
-                                            </div>
-                                            <button onClick={openDeleteModal} className="px-4 py-2 bg-red-600 cursor-pointer text-white rounded-full font-semibold hover:bg-red-700">Eliminar capítulo</button>
+                               <div className="border border-red-300 bg-red-50 text-red-700 rounded-lg p-4 mt-5">
+                                    <div className="flex flex-col sm:flex-row items-center sm:justify-between gap-4 w-full text-center sm:text-left">
+                                        <div>
+                                        <h4 className="font-semibold">Eliminar capítulo</h4>
+                                        <p className="text-sm">Esta acción no se puede deshacer.</p>
                                         </div>
+                                        <button
+                                        onClick={openDeleteModal}
+                                        className="px-4 py-2 bg-red-600 cursor-pointer text-white rounded-full font-semibold hover:bg-red-700 whitespace-nowrap"
+                                        >
+                                        Eliminar capítulo
+                                        </button>
                                     </div>
-                                </div>
+                                    </div>
                             )}
                             {chapter.publicationStatus === 'DRAFT' && (
                                 <PublishOptions
@@ -274,14 +260,6 @@ export default function AddChapter() {
                         </div>
                         <div className="flex-[2] lg:max-w-[400px] mt-4">
                             <h3 className="text-center font-semibold mb-4 text-xl">Herramientas avanzadas</h3>
-                            <label className="flex items-center space-x-2 mb-6">
-                                <span>Permitir traducción con IA</span>
-                                <input
-                                    type="checkbox"
-                                    checked={chapter.allowAiTranslation}
-                                    onChange={(e) => handleFieldChange("allowAiTranslation", e.target.checked)}
-                                />
-                            </label>
                             <AdvancedTools
                                 availableLanguages={combinedLanguages}
                                 defaultLanguageCode={chapter.languageDefaultCode}

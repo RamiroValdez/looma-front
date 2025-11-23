@@ -59,7 +59,7 @@ const ProfilePage = () => {
                 <div className="h-8 bg-gray-300 rounded w-32"></div>
                 <div className="h-10 bg-gray-300 rounded w-24"></div>
               </div>
-              <div className="bg-white rounded-xl shadow-lg p-8">
+              <div className="bg-white rounded-xl shadow-lg p-4 sm:p-8 max-w-xs sm:max-w-3xl mx-auto">
                 <div className="text-center mb-8">
                   <div className="w-28 h-28 bg-gray-300 rounded-full mx-auto mb-4"></div>
                   <div className="h-6 bg-gray-300 rounded w-40 mx-auto mb-2"></div>
@@ -121,8 +121,9 @@ const ProfilePage = () => {
   }
   return (
     <div className="flex bg-gray-50 min-h-screen">
-      <ProfileMenu onBlockSelected={ setBlockSelected }/>
-
+      <div className="hidden sm:block">
+  <ProfileMenu onBlockSelected={setBlockSelected} />
+</div>
         { blockSelected == 'Analytics' && (
             <Analytics/>
         )}
@@ -140,26 +141,25 @@ const ProfilePage = () => {
                 <div className="flex-1 p-6">
                     <div >
                         <div className="max-w-3xl mx-auto">
-                            <div className="flex justify-between items-center mb-8">
-                                <h1 className="text-3xl font-bold text-gray-800">Mi Perfil</h1>
-                                <div className="flex space-x-3">
-                                    {isEditing && (
-                                        <Button
-                                            onClick={handleSave}
-                                            colorClass="bg-green-600 text-white hover:bg-green-700 transition-colors shadow-md cursor-pointer"
-                                            className="px-6 py-2 rounded-full"
-                                            text="Guardar"
-                                        />
-                                    )}
-                                    <Button
-                                        onClick={isEditing ? handleCancel : () => setIsEditing(true)}
-                                        colorClass="bg-[#5c17a6] text-white hover:bg-[#4b1387] transition-colors shadow-md cursor-pointer"
-                                        className="px-6 py-2 rounded-full font-semibold"
-                                        text={isEditing ? 'Cancelar' : 'Editar Datos'}
-                                    />
-                                </div>
-                            </div>
-
+                            <div className="flex flex-col items-start mb-8 sm:flex-row sm:justify-between sm:items-center">
+                            <h1 className="text-3xl font-bold text-gray-800">Mi Perfil</h1>
+                        <div className="flex space-x-3 justify-start sm:justify-end mt-4 sm:mt-0 w-full max-w-xs">
+                {isEditing && (
+                    <Button
+                    onClick={handleSave}
+                    colorClass="bg-green-600 text-white hover:bg-green-700 transition-colors shadow-md cursor-pointer"
+                    className="px-6 py-2 rounded-full"
+                    text="Guardar"
+                    />
+                )}
+                <Button
+                    onClick={isEditing ? handleCancel : () => setIsEditing(true)}
+                    colorClass="bg-[#5c17a6] text-white hover:bg-[#4b1387] transition-colors shadow-md cursor-pointer"
+                    className="px-6 py-2 rounded-full font-semibold"
+                    text={isEditing ? 'Cancelar' : 'Editar Datos'}
+                />
+                </div>
+                        </div>
                             <div className="bg-white rounded-xl shadow-lg p-8">
                                 <div className="text-center mb-8">
                                     <div className="relative inline-block">
@@ -366,20 +366,20 @@ const ProfilePage = () => {
                                     {(isEditing ? editedData.isAuthor : profile.isAuthor) && (
                                         <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-4 rounded-lg border border-green-200">
                                             <div className="flex items-center space-x-4">
-                                                <span className="font-medium text-gray-700 whitespace-nowrap">Precio por suscripción</span>
+                                                <span className="font-medium text-gray-700 whitespace-nowrap">Precio suscripción</span>
                                                 <div className="flex-1">
                                                     {isEditing ? (
                                                         <div className="flex items-center space-x-3">
                                                             <span className="text-lg font-semibold text-gray-700">$</span>
                                                             <input
-                                                                type="number"
-                                                                value={editedData.price}
-                                                                onChange={(e) => handleInputChange('price', e.target.value)}
-                                                                className="w-40 p-2 text-lg font-bold text-[#5c17a6] bg-white rounded-md border border-[#5c17a6] focus:border-[#5c17a6] focus:ring-2 focus:ring-[#5c17a6] focus:ring-opacity-50 text-left"
-                                                                placeholder="0.00"
-                                                                min="0"
-                                                                step="0.01"
-                                                            />
+                                            type="number"
+                                            value={editedData.price}
+                                            onChange={(e) => handleInputChange('price', e.target.value)}
+                                            className="w-full sm:w-40 p-2 text-lg font-bold text-[#5c17a6] bg-white rounded-md border border-[#5c17a6] focus:border-[#5c17a6] focus:ring-2 focus:ring-[#5c17a6] focus:ring-opacity-50 text-left"
+                                            placeholder="0.00"
+                                            min="0"
+                                            step="0.01"
+                                        />
                                                         </div>
                                                     ) : (
                                                         <div className="text-2xl font-bold text-[#5c17a6]">${profile.price || '0.00'}</div>

@@ -111,7 +111,7 @@ export default function PublishOptions({ workId, chapterId, onScheduleChange }: 
       </div>
 
       {!isScheduled && (
-        <div className="mb-4">
+        <div className="mb-4 text-center sm:text-left">
           <button
             type="button"
             onClick={() => {
@@ -188,7 +188,7 @@ export default function PublishOptions({ workId, chapterId, onScheduleChange }: 
               }}
             />
           </div>
-          <div className="mt-4">
+          <div className="mt-4 text-center sm:text-left">
             <button
               type="button"
               onClick={() => {
@@ -240,7 +240,7 @@ export default function PublishOptions({ workId, chapterId, onScheduleChange }: 
               <button
                 onClick={() => handlePublishNow()}
                 disabled={publishing}
-                className="px-4 py-2 rounded-md text-white bg-blue-800 hover:bg-blue-900 disabled:opacity-50"
+                className="px-4 py-2 rounded-md text-white bg-blue-800 hover:bg-blue-900 disabled:opacity-50 cursor-pointer"
               >
                 Confirmar publicación
               </button>

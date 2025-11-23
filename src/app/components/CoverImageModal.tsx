@@ -27,11 +27,8 @@ const CoverImageModal: React.FC<CoverImageModalProps> = ({
 }) => {
     useEffect(() => {
         if (isOpen) {
-            // Guardar el valor original del overflow
             const originalOverflow = document.body.style.overflow;
             document.body.style.overflow = 'hidden';
-
-            // Cleanup function que se ejecuta cuando el modal se cierra
             return () => {
                 document.body.style.overflow = originalOverflow || 'auto';
             };
@@ -48,20 +45,19 @@ const CoverImageModal: React.FC<CoverImageModalProps> = ({
 
   return createPortal(
     <div className="fixed inset-0 top-0 left-0 flex items-center text-center justify-center z-[9999] bg-black/50" role="dialog" aria-modal="true">
-      <div className="bg-white p-6 shadow-2xl flex flex-col items-center w-full max-w-xl md:max-w-3xl rounded-xl relative">
-        <p className="text-5xl font-bold mb-4">{title ?? 'Cargar Portada'}</p>
+      <div className="bg-white p-4 shadow-2xl flex flex-col items-center w-full max-w-xs sm:max-w-xl md:max-w-3xl rounded-xl relative mx-2 max-h-[90vh] overflow-y-auto">
+            <p className="text-3xl sm:text-5xl font-bold mb-4">{title ?? 'Cargar Portada'}</p>
 
         <Button
           text=""
           onClick={onClose}
-          colorClass="absolute top-4 right-4 cursor-pointer"
+          colorClass="absolute top-0 right-0 sm:top-2 sm:right-2 cursor-pointer"
         >
-          <img src="/img/PopUpCierre.png" className="w-10 h-10 hover:opacity-60" alt="Cerrar" />
+          <img src="/img/PopUpCierre.png" className="w-7 h-7 sm:w-10 sm:h-10 hover:opacity-60" alt="Cerrar" />
         </Button>
 
-        <p className="text-2xl font-semibold mb-4">Seleccione una opción</p>
+        <p className="sm:text-2xl font-semibold mb-4 hidden">Seleccione una opción</p>
         <div className="flex flex-col md:flex-row gap-4 mb-4 w-full">
-          {/* Subir imagen */}
           <div className="flex flex-col items-center text-center gap-4 mb-4 border-dashed border-1 rounded-xl border-[#172FA6] py-10 px-8 w-full md:w-1/2">
             <p className="text-lg font-bold mb-4">Subir una imagen</p>
             <p className="text-s font-medium mb-4 text-[#3F3E3E]">Seleccione un archivo para la imagen de su portada</p>
@@ -76,7 +72,6 @@ const CoverImageModal: React.FC<CoverImageModalProps> = ({
             )}
           </div>
 
-          {/* Generar con IA */}
           <div className="flex flex-col items-center text-center gap-4 mb-4 border-dashed border-1 rounded-xl border-[#172FA6] py-10 px-8 w-full md:w-1/2">
             <p className="text-lg font-bold mb-4">Generar una imagen</p>
             <p className="text-s font-medium mb-4 text-[#3F3E3E]">Genera tu portada al instante con nuestra inteligencia artificial.</p>
@@ -88,9 +83,8 @@ const CoverImageModal: React.FC<CoverImageModalProps> = ({
             />
           </div>
         </div>
-        {/* Footer actions */}
         {onSave && (
-          <div className="w-full flex justify-end mt-2">
+          <div className="w-full flex justify-center mt-2 sm:justify-end">
             <Button
               text={saving ? 'Guardando...' : 'Guardar'}
               onClick={onSave}
