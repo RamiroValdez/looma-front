@@ -45,7 +45,6 @@ export default function ChapterActions({ onPreview, workId, formData, chapterId,
         price: Number(price) || 0,
         allow_ai_translation: allowAiTranslation,
         versions: {
-          // Guardar sobre el idioma activo realmente editado, no siempre el original
           [targetLang]: contentToSave
         }
       };
