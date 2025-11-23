@@ -311,7 +311,7 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
 
           <div className="lg:col-span-2 lg:border-r lg:border-gray-300 lg:pr-6">
             <div className="sticky top-8">
-              <div className="flex flex-col items-start">
+<div className="flex flex-col items-center w-full sm:items-start">
                 <img
                   src={coverPreview || work.cover}
                   alt={work.title}
@@ -595,7 +595,7 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
 
                   <div>
                       {allowSubscription && 
-                    <div className="flex items-center justify-center gap-2">
+              <div className="flex items-center gap-2 justify-start">
                       <label className="text-black font-medium text-base">Precio:</label>
                       <div className="flex items-center border rounded border-2 border-[#172fa6]">
                         <span className="px-2 py-2 bg-gray-50 border-r text-base text-black border-[#172fa6]">$</span>

@@ -106,14 +106,12 @@ export default function AddChapter() {
 
     const handleLanguageSelect = (languageCode: string) => {
         const current = contentLanguage || chapter?.languageDefaultCode?.code || "";
-        if (languageCode === current) return; // Ya mostrado
-        // Preparamos cambio de idioma: marcamos estado y cambiamos selectedLanguage
+        if (languageCode === current) return;
         setIsLanguageChanging(true);
         setSelectedLanguage(languageCode);
     };
 
     const handleAddLanguage = (language: LanguageDTO) => {
-        // Agregar el idioma a la lista de disponibles si no está presente
         setChapter(prev => {
             if (!prev) return prev;
             const exists = prev.availableLanguages.some(l => l.code === language.code);
@@ -123,32 +121,32 @@ export default function AddChapter() {
                 availableLanguages: [...prev.availableLanguages, language]
             };
         });
-        // Añadir también a la lista local para que aparezca de inmediato aunque el backend no lo devuelva aún
         setPendingLanguages(prev => prev.some(l => l.code === language.code) ? prev : [...prev, language]);
-        // Cambiar automáticamente al nuevo idioma para comenzar a editarlo
         handleLanguageSelect(language.code);
     };
 
     const handlePreview = () => {
         if (!chapter) return;
+        const previewId = `${chapter.id}-${Date.now()}-${Math.random().toString(36).slice(2)}`;
         const previewData = {
-            content: chapter.content,
-            selectedLanguages: chapter.availableLanguages,
+            chapterId: chapter.id,
+            content: chapter.content, // contenido potencialmente sin guardar
             numberChapter: chapter.chapterNumber,
             originalLanguage: chapter.languageDefaultCode.code,
         };
-        const previewUrl = `/preview?data=${encodeURIComponent(JSON.stringify(previewData))}`;
-        window.open(previewUrl, "_blank");
+        try {
+            localStorage.setItem(`preview:${previewId}`, JSON.stringify(previewData));
+        } catch (e) {
+            console.error('No se pudo guardar el contenido de la vista previa en localStorage:', e);
+        }
+        const previewUrl = `/preview?previewId=${encodeURIComponent(previewId)}`;
+        window.open(previewUrl, '_blank');
     };
 
-    // Idioma activo visual (el que se está mostrando ahora)
     const activeLanguage = contentLanguage || chapter?.languageDefaultCode?.code || "";
-    // Key del editor basada en idioma efectivamente mostrado para evitar desfase
     const editorKey = chapter ? `${chapter.id}-${activeLanguage || 'default'}` : 'loading';
-
     const languageLoading = isLoadingFetch || isFetching || isLanguageChanging;
 
-    // Combinar idiomas del capítulo con los pendientes para mostrar en la UI
     const combinedLanguages: LanguageDTO[] = (() => {
         if (!chapter) return pendingLanguages;
         const map = new Map<string, LanguageDTO>();
@@ -169,23 +167,6 @@ export default function AddChapter() {
                 </div>
             ) : data && chapter ? (
                 <div className="min-h-screen bg-[#F4F0F7] px-4 sm:px-8 md:px-16 py-8 max-w-screen">
-                    <div className="w-screen relative left-1/2 right-1/2 -mx-[50vw] bg-white mb-8">
-                        <div className="bg-white border-b border-[#e4e2eb] h-14 flex items-center ">
-                            <div className="px-4 sm:px-8 md:px-16 mx-auto flex justify-between items-center w-full">
-                                <div className="flex items-center gap-4 p-6">
-                                    <div className="w-8 h-8 bg-[#1a2fa1] rounded-full flex items-center justify-center">
-                                        <span className="text-white text-lg font-bold">?</span>
-                                    </div>
-                                    <h2 className="text-gray-900 font-semibold text-base">
-                                        ¿Tenés dudas? Dejanos darte algunos consejos
-                                    </h2>
-                                </div>
-                                <a href="#" className="text-gray-400 hover:text-gray-600 underline text-sm">
-                                    Normativas de contenido
-                                </a>
-                            </div>
-                        </div>
-                    </div>
                     <div className="pl-5">
                         <BackButton to={`/manage-work/${id}`} />
                     </div>
@@ -251,37 +232,37 @@ export default function AddChapter() {
                                 activeLanguageCode={activeLanguage}
                             />
                             {chapter.publicationStatus === 'DRAFT' && (
-                                <div className="mt-6">
-                                    <div className="border border-red-300 bg-red-50 text-red-700 rounded-lg p-4">
-                                        <div className="flex items-center justify-between">
-                                            <div>
-                                                <h4 className="font-semibold">Eliminar capítulo</h4>
-                                                <p className="text-sm">Esta acción no se puede deshacer.</p>
-                                            </div>
-                                            <button onClick={openDeleteModal} className="px-4 py-2 bg-red-600 cursor-pointer text-white rounded-full font-semibold hover:bg-red-700">Eliminar capítulo</button>
+                               <div className="border border-red-300 bg-red-50 text-red-700 rounded-lg p-4 mt-5">
+                                    <div className="flex flex-col sm:flex-row items-center sm:justify-between gap-4 w-full text-center sm:text-left">
+                                        <div>
+                                        <h4 className="font-semibold">Eliminar capítulo</h4>
+                                        <p className="text-sm">Esta acción no se puede deshacer.</p>
                                         </div>
+                                        <button
+                                        onClick={openDeleteModal}
+                                        className="px-4 py-2 bg-red-600 cursor-pointer text-white rounded-full font-semibold hover:bg-red-700 whitespace-nowrap"
+                                        >
+                                        Eliminar capítulo
+                                        </button>
                                     </div>
-                                </div>
+                                    </div>
                             )}
                             {chapter.publicationStatus === 'DRAFT' && (
                                 <PublishOptions
                                     workId={Number(id)}
                                     chapterId={Number(chapterId)}
                                     onScheduleChange={(isoDate) => handleFieldChange("publishedAt", isoDate)}
+                                    formData={{ titulo: chapter.title, contenido: chapter.content }}
+                                    price={chapter.price || 0}
+                                    allowAiTranslation={chapter.allowAiTranslation}
+                                    defaultLanguageCode={chapter.languageDefaultCode?.code}
+                                    activeLanguageCode={activeLanguage}
                                 />
                             )}
                             {error && <p className="mt-4 text-red-600 text-sm">{error}</p>}
                         </div>
                         <div className="flex-[2] lg:max-w-[400px] mt-4">
                             <h3 className="text-center font-semibold mb-4 text-xl">Herramientas avanzadas</h3>
-                            <label className="flex items-center space-x-2 mb-6">
-                                <span>Permitir traducción con IA</span>
-                                <input
-                                    type="checkbox"
-                                    checked={chapter.allowAiTranslation}
-                                    onChange={(e) => handleFieldChange("allowAiTranslation", e.target.checked)}
-                                />
-                            </label>
                             <AdvancedTools
                                 availableLanguages={combinedLanguages}
                                 defaultLanguageCode={chapter.languageDefaultCode}
