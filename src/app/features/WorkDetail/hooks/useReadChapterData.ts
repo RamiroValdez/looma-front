@@ -1,7 +1,7 @@
 import { useState, useEffect} from 'react';
 import { useNavigate } from 'react-router-dom';
 import { WorkService } from '../../../../infrastructure/services/WorkService';
-import { getChapterById } from '../../../../infrastructure/services/ChapterService';
+import { getChapterById, fetchChapterContent } from '../../../../infrastructure/services/ChapterService';
 import { useLanguages } from '../../../../infrastructure/services/LanguageService';
 import { translateContent } from '../../../../infrastructure/services/TranslateService';
 import { subscribeToWork, subscribeToChapter } from '../../../../infrastructure/services/paymentService';
@@ -29,6 +29,8 @@ export const useReadChapterData = (chapterId: string) => {
   const [showFooter, setShowFooter] = useState(false);
   const [isPaying, setIsPaying] = useState(false);
   const [isWorkSaved, setIsWorkSaved] = useState(false);
+
+  const languageCache = useState<Map<string, string>>(() => new Map())[0];
 
   const isStatusError = (err: unknown): err is { response: { status: number } } => {
     if (typeof err !== "object" || err === null) return false;
@@ -161,15 +163,58 @@ export const useReadChapterData = (chapterId: string) => {
   const handleLanguageChange = async (languageCode: string) => {
     if (!chapterData || languageCode === currentLanguage) return;
 
+    if (languageCache.has(languageCode)) {
+      setTranslatedContent(languageCache.get(languageCode) || chapterData.content);
+      setCurrentLanguage(languageCode);
+      return;
+    }
+
     try {
       setIsTranslating(true);
       const source = chapterData.languageDefaultCode?.code || currentLanguage;
-      const translated = await translateContent(source, languageCode, chapterData.content);
-      setTranslatedContent(translated);
-      setCurrentLanguage(languageCode);
+
+      let fetchedContent: string | null = null;
+      try {
+        const fetched = await fetchChapterContent(chapterData.id, languageCode);
+        fetchedContent = fetched.content || "";
+      } catch {
+        fetchedContent = null; // se intentará traducir
+      }
+
+      const available = chapterData.availableLanguages || [];
+      const existsVersion = available.some((l) => l.code === languageCode);
+      const originalContent = chapterData.content;
+
+      if (existsVersion && fetchedContent) {
+        languageCache.set(languageCode, fetchedContent);
+        setTranslatedContent(fetchedContent);
+        setCurrentLanguage(languageCode);
+        return;
+      }
+
+      if (fetchedContent && fetchedContent !== originalContent) {
+        languageCache.set(languageCode, fetchedContent);
+        setTranslatedContent(fetchedContent);
+        setCurrentLanguage(languageCode);
+        return;
+      }
+
+      if (chapterData.allowAiTranslation === false) {
+        notifyError('Traduccion AI no permitida para este capitulo.');
+        return;
+      }
+
+      try {
+        const translated = await translateContent(source, languageCode, chapterData.content);
+        languageCache.set(languageCode, translated);
+        setTranslatedContent(translated);
+        setCurrentLanguage(languageCode);
+      } catch {
+        notifyError('No se pudo traducir el contenido.');
+      }
     } catch (error: any) {
-      console.error("Error al traducir el contenido:", error);
-      notifyError(`No se pudo traducir el contenido.`);
+      console.error('Error al cambiar de idioma:', error);
+      notifyError('No se pudo cambiar el idioma.');
     } finally {
       setIsTranslating(false);
     }

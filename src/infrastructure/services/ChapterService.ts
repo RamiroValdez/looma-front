@@ -316,3 +316,28 @@ export async function updateChapterPrice(chapterId: number, price: number): Prom
     throw new Error(handleError(error));
   }
 }
+
+export async function fetchChapterContent(chapterId: number, languageCode: string): Promise<ChapterWithContentDTO> {
+  try {
+    if (!chapterId) throw new Error("chapterId requerido");
+    const token = useAuthStore.getState().token;
+    let url = `${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_API_EDIT_CHAPTER_URL}/${chapterId}`;
+    if (languageCode) {
+      url += `?language=${encodeURIComponent(languageCode)}`;
+    }
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+    });
+    if (!response.ok) {
+      const errBody = await response.json().catch(() => null);
+      throw new Error(errBody?.message || `Error ${response.status}: ${response.statusText}`);
+    }
+    return (await response.json()) as ChapterWithContentDTO;
+  } catch (error) {
+    throw new Error(handleError(error));
+  }
+}
