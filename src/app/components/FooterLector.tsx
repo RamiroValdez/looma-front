@@ -25,14 +25,12 @@ const FooterLector = ({
 }: FooterLectorProps) => {
   return (
     <footer 
-      className={`fixed bottom-0 left-0 w-full bg-[#3b245a] text-white px-6 py-3 flex items-center justify-between flex-wrap ${
-        isThemeModalOpen ? 'z-[9999]' : 'z-50'
-      }`}
-    >
-      <div className="flex items-center justify-center leading-tight justify-between gap-4">
-        <span className="text-base font-semibold">{chapterTitle}</span>
-        <div className="h-10 w-[1px] bg-gray-400"></div>
-      </div>
+  className={`fixed bottom-0 left-0 w-full bg-[#3b245a] text-white px-6 py-3 flex flex-col sm:flex-row items-center justify-center sm:justify-between flex-wrap ${isThemeModalOpen ? 'z-[9999]' : 'z-50'}`}
+>
+      <div className="w-full sm:w-auto flex justify-center items-center mb-2 sm:mb-0">
+     <span className="text-base font-semibold text-center w-full">{chapterTitle}</span>
+        <div className="h-10 w-[1px] bg-gray-400 hidden sm:block ml-4"></div>
+  </div>
 
       <div className="flex items-center gap-8 text-gray-300">
         <div 
@@ -58,8 +56,8 @@ const FooterLector = ({
         </div>
       </div>
 
-      <div className="flex items-center gap-4">
-        <button
+<div className="flex items-center gap-4 justify-center w-full sm:w-auto mt-2 sm:mt-0">
+          <button
           onClick={onPreviousChapter}
           className="text-gray-300 hover:text-white transition-colors cursor-pointer group relative"
           aria-label="Capítulo anterior"

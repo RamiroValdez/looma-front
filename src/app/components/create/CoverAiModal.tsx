@@ -120,10 +120,10 @@ const CoverAiModal: React.FC<CoverIaModalProps> = ({
     <div>
       {isOpen && (
         <div className="fixed inset-0 flex items-center text-center justify-center z-50 bg-black/50">
-          <div className="bg-white p-6 shadow-lg flex flex-col items-center w-full max-w-xl md:max-w-5xl rounded-xl relative">
-            <p className="text-4xl font-bold text-[#3B2252] mb-4">Genera tu portada con IA</p>
+          <div className="bg-white p-6 shadow-lg flex flex-col items-center w-full max-w-xs sm:max-w-xl md:max-w-5xl rounded-xl relative mx-2 max-h-[90vh] overflow-y-auto">
+            <p className="sm:text-4xl text-2xl font-bold text-[#3B2252] mb-4">Genera tu portada con Inteligencia Artificial</p>
             <Button text="" onClick={onClose} colorClass="absolute top-0 right-0 cursor-pointer">
-              <img src="/img/PopUpCierre.png" className="w-10 h-10 hover:opacity-60" alt="Cerrar" />
+              <img src="/img/PopUpCierre.png" className="w-7 h-7 sm:w-10 sm:h-10 hover:opacity-60" alt="Cerrar" />
             </Button>
 
             <div className="flex flex-col md:flex-row gap-6 mb-4 w-full">
@@ -250,7 +250,7 @@ const CoverAiModal: React.FC<CoverIaModalProps> = ({
                     />
                     <p className="absolute bottom-2 right-2 text-xs text-gray-400">max 200 caracteres</p>
                   </div>
-                  <p className="text-s text-gray-500 w-[400px]">
+                  <p className="text-s text-gray-500 w-[220px] sm:w-full">
                     *Describe lo que debe ser visible. Sé específico sobre el sujeto, el entorno y la acción.
                   </p>
                 </div>

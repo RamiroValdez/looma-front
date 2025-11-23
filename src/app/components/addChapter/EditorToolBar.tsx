@@ -92,7 +92,7 @@ export default function EditorToolbar({ editorGetter, onImportFile }: Props) {
     };
 
     return (
-        <div className="flex items-center space-x-3 bg-[#4C3B63] text-white px-4 py-2 text-sm">
+<div className="flex items-center space-x-3 bg-[#4C3B63] text-white px-4 py-2 text-sm justify-center sm:justify-start">
             <div className="flex outline rounded-lg p-1">
                 <div className="flex items-center">
                     <button
@@ -203,7 +203,7 @@ export default function EditorToolbar({ editorGetter, onImportFile }: Props) {
 
             <button
                 onClick={triggerFile}
-                className="ml-auto px-4 py-2 bg-white text-[#3b2c4e] font-bold rounded-full cursor-pointer"
+                className="ml-auto px-4 py-2 bg-white text-[#3b2c4e] font-bold rounded-full cursor-pointer hidden sm:block"
                 disabled={loading}
             >
                 {loading ? "Importando capítulo..." : "Subir capítulo"}
