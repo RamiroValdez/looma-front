@@ -206,8 +206,8 @@ useEffect(() => {
                       >
                         Mi Perfil
                       </Link>
-                      <Link to="/subscriptions" className="block px-4 py-2 hover:bg-[#D3CCDA] hover:text-[#5c17a6]">Suscripciones</Link>
-                      <Link to="/mySaves" className="block px-4 py-2 hover:bg-[#D3CCDA] hover:text-[#5c17a6]">Guardados</Link>
+                      <Link to={`/profile/${user.id}#suscripciones`} className="block px-4 py-2 hover:bg-[#D3CCDA] hover:text-[#5c17a6]">Suscripciones</Link>
+                      <Link to={`/profile/${user.id}#guardados`} className="block px-4 py-2 hover:bg-[#D3CCDA] hover:text-[#5c17a6]">Guardados</Link>
                       <hr />
                       <button
                         className="w-full text-left px-4 py-2 hover:bg-gray-100 text-red-500 cursor-pointer"
@@ -292,8 +292,8 @@ useEffect(() => {
                 <Link to="/my-works" className="bg-[#5c17a6] text-white w-full px-4 py-1 rounded-xl hover:bg-[#4b1387] transition flex items-center justify-center" onClick={() => setMobileNavOpen(false)}>
                   Publicar
                 </Link>
-                <Link to="/" className="block px-4 py-2 hover:bg-[#D3CCDA] hover:text-[#5c17a6]">Mi Perfil</Link>
-                <Link to="/" className="block px-4 py-2 hover:bg-[#D3CCDA] hover:text-[#5c17a6]">Suscripciones</Link>
+                <Link to={`/profile/${user.id}`} className="block px-4 py-2 hover:bg-[#D3CCDA] hover:text-[#5c17a6]">Mi Perfil</Link>
+                <Link to={`/profile/${user.id}#suscripciones`} className="block px-4 py-2 hover:bg-[#D3CCDA] hover:text-[#5c17a6]">Suscripciones</Link>
                 <Link to="/mySaves" className="block px-4 py-2 hover:bg-[#D3CCDA] hover:text-[#5c17a6]">Guardados</Link>
                 <button className="w-full text-left px-4 py-2 hover:bg-gray-100 text-red-500" onClick={() => { logout(); setUser(null); setMobileNavOpen(false); clearUser(); }}>Cerrar sesión</button>
               </>
@@ -315,4 +315,3 @@ useEffect(() => {
 }
 
 export default Header;
-

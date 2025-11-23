@@ -7,6 +7,7 @@ import { useUserProfile } from '../../hooks/useUserProfile';
 import Analytics from "./components/Analytics.tsx";
 import { MySaves } from "./MySaves";
 import TermsAndConditions from "./TermsAndConditions.tsx"; // nuevo import
+import { Subscriptions } from "./SubscriptionsPage";
 
 const ProfilePage = () => {
   const {
@@ -28,6 +29,39 @@ const ProfilePage = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
   const [blockSelected, setBlockSelected] = useState<string>('profile');
+
+  // leer hash inicial
+  useEffect(() => {
+    const hash = window.location.hash.replace('#','');
+    if (hash === 'suscripciones') {
+      setBlockSelected('subscriptions');
+    } else if (hash === 'guardados') {
+      setBlockSelected('mySaves');
+    } else if (hash === 'estadisticas') {
+      setBlockSelected('Analytics');
+    } else if (hash === 'terminos') {
+      setBlockSelected('terms');
+    }
+  }, []);
+
+  const handleSelectBlock = (block: string) => {
+    setBlockSelected(block);
+    // sincronizar hash para deep-linking
+    let newHash: string;
+    switch (block) {
+      case 'subscriptions': newHash = 'suscripciones'; break;
+      case 'mySaves': newHash = 'guardados'; break;
+      case 'Analytics': newHash = 'estadisticas'; break;
+      case 'terms': newHash = 'terminos'; break;
+      case 'profile': newHash = ''; break;
+      default: newHash = '';
+    }
+    if (newHash) {
+      history.replaceState(null, '', `${window.location.pathname}#${newHash}`);
+    } else {
+      history.replaceState(null, '', `${window.location.pathname}`);
+    }
+  };
 
   const handleImageClick = () => {
     fileInputRef.current?.click();
@@ -121,13 +155,16 @@ const ProfilePage = () => {
   }
   return (
     <div className="flex bg-gray-50 min-h-screen">
-      <ProfileMenu onBlockSelected={ setBlockSelected }/>
+      <ProfileMenu onBlockSelected={ handleSelectBlock } selectedBlock={blockSelected}/>
 
         { blockSelected == 'Analytics' && (
             <Analytics/>
         )}
         { blockSelected == 'mySaves' && (
             <MySaves />
+        )}
+        { blockSelected == 'subscriptions' && (
+            <Subscriptions />
         )}
 
         { blockSelected == 'terms' && (
@@ -405,4 +442,3 @@ const ProfilePage = () => {
 };
 
 export default ProfilePage;
-
