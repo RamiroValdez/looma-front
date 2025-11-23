@@ -111,7 +111,7 @@ const handleNextChapter = () => {
  useEffect(() => {
         const saveProgress = async () => {
             if (!chapterData?.workId || !chapterId) return;
-
+            console.log("Idiomas Disponibles: ", chapterData.availableLanguages);
             try {
                 await updateReadingProgress(Number(chapterData.workId), Number(chapterId));
                 console.log('Progreso guardado');
