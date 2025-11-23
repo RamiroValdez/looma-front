@@ -131,14 +131,21 @@ export default function AddChapter() {
 
     const handlePreview = () => {
         if (!chapter) return;
+        // Generar un ID único para la vista previa y almacenar el contenido en localStorage
+        const previewId = `${chapter.id}-${Date.now()}-${Math.random().toString(36).slice(2)}`;
         const previewData = {
-            content: chapter.content,
-            selectedLanguages: chapter.availableLanguages,
+            chapterId: chapter.id,
+            content: chapter.content, // contenido potencialmente sin guardar
             numberChapter: chapter.chapterNumber,
             originalLanguage: chapter.languageDefaultCode.code,
         };
-        const previewUrl = `/preview?data=${encodeURIComponent(JSON.stringify(previewData))}`;
-        window.open(previewUrl, "_blank");
+        try {
+            localStorage.setItem(`preview:${previewId}`, JSON.stringify(previewData));
+        } catch (e) {
+            console.error('No se pudo guardar el contenido de la vista previa en localStorage:', e);
+        }
+        const previewUrl = `/preview?previewId=${encodeURIComponent(previewId)}`;
+        window.open(previewUrl, '_blank');
     };
 
     // Idioma activo visual (el que se está mostrando ahora)
