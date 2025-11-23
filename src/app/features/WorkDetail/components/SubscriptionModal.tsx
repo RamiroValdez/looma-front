@@ -88,28 +88,28 @@ const SubscriptionModal: React.FC<SubscriptionModalProps> = ({ isOpen, onClose, 
 
   return (
     <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/50 p-4">
-      <div className="bg-white rounded-xl p-8 w-full max-w-5xl relative shadow-xl min-h-[600px] max-h-[90vh] overflow-y-auto flex items-center justify-center">
-        <div className="absolute top-4 right-4">
+      <div className="bg-white rounded-xl w-full max-w-5xl relative shadow-xl max-h-[80vh] overflow-y-auto flex justify-center p-4 sm:p-6 md:p-8 min-h-[400px] md:min-h-[600px]">
+        <div className="absolute top-3 -right-1 md:top-4 md:right-4">
           <Button text="" onClick={() => { if (!isPaying) onClose(); }} disabled={isPaying} colorClass="cursor-pointer">
-            <img src="/img/PopUpCierre.png" className="w-9 h-9 hover:opacity-60" alt="Cerrar" />
+            <img src="/img/PopUpCierre.png" className="w-7 h-7 md:w-9 md:h-9 hover:opacity-60" alt="Cerrar" />
           </Button>
         </div>
 
         <div className="w-full">
           <div className="gap-4 w-full max-w-4xl mx-auto">
             <div className="flex flex-col items-center">
-              <h3 className=" text-3xl font-bold mb-8 text-center text-[#5C17A6]">Selecciona tu suscripción</h3>
-              <div className="grid grid-cols-1 gap-6 md:grid-cols-2 justify-items-center">
+              <h3 className="text-2xl sm:text-3xl font-bold mb-8 text-center text-[#5C17A6]">Selecciona tu suscripción</h3>
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2 justify-items-center w-full">
                 {hasAuthorPlan && (
-                  <div className="border-1 border-[#6a5a8c] rounded-xl p-6 text-center shadow-2xl bg-[#e0d9f0] w-[350px] min-h-[350px]">
-                    <h3 className="font-bold text-3xl mb-15 text-[#3c2a50]">Suscribirse al Autor</h3>
-                    <h2 className="font-semibold text-8xl text-[#3c2a50] mb-15">${authorPrice}</h2>
-                    <p className="text-gray-600 text-2xl mb-15 min-h-[60px]">
+                  <div className="border-1 border-[#6a5a8c] rounded-xl p-4 sm:p-6 text-center shadow-2xl bg-[#e0d9f0] w-full max-w-[320px] sm:max-w-[340px] md:w-[350px] min-h-[280px] md:min-h-[350px]">
+                    <h3 className="font-bold text-2xl sm:text-3xl m-1 md:mb-15 text-[#3c2a50]">Suscribirse al Autor</h3>
+                    <h2 className="font-semibold text-5xl md:text-7xl xl:text-8xl text-[#3c2a50] m-1 md:mb-15">${authorPrice}</h2>
+                    <p className="text-lg sm:text-xl md:text-2xl text-gray-600 m-1 md:mb-15 min-h-[60px]">
                       Acceso total a todas las obras y capítulos del autor sin límite
                     </p>
                     <Button
                       text="Adquirir"
-                      colorClass="bg-[#3c2a50] w-full text-white rounded-lg cursor-pointer hover:scale-103 py-3 font-semibold"
+                      colorClass="bg-[#3c2a50] w-full text-white rounded-lg cursor-pointer hover:scale-103 py-3 font-semibold "
                       onClick={() => handleMercadoPagoClick("author")}
                       disabled={isPaying || isAuthorSubscribed}
                     />
@@ -117,10 +117,10 @@ const SubscriptionModal: React.FC<SubscriptionModalProps> = ({ isOpen, onClose, 
                 )}
 
                 {hasWorkPlan && (
-                  <div className="border-2 border-[#172FA6] rounded-xl p-6 text-center bg-[#E8EDFC] w-[350px] min-h-[350px] shadow-2xl">
-                    <h3 className="font-bold text-3xl mb-15 text-[#172FA6]">Suscribirse a la obra</h3>
-                    <h2 className="font-semibold text-8xl text-[#172FA6] mb-15">${workPrice}</h2>
-                    <p className="text-gray-600 text-2xl mb-15 min-h-[60px]">
+                  <div className="border-2 border-[#172FA6] rounded-xl p-4 sm:p-6 text-center bg-[#E8EDFC] w-full max-w-[320px] sm:max-w-[340px] md:w-[350px] min-h-[280px] md:min-h-[350px] shadow-2xl">
+                    <h3 className="font-bold text-2xl sm:text-3xl m-1 md:mb-15 text-[#172FA6]">Suscribirse a la obra</h3>
+                    <h2 className="font-semibold text-5xl md:text-7xl xl:text-8xl text-[#172FA6] m-1 md:mb-15">${workPrice}</h2>
+                    <p className="text-lg sm:text-xl md:text-2xl text-gray-600 m-1 md:mb-15 min-h-[60px]">
                       Acceso completo a todos los capítulos de <span className="font-semibold">{work.title}</span>
                     </p>
                     <Button
