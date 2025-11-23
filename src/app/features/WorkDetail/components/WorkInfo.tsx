@@ -20,6 +20,7 @@ export const WorkInfo: React.FC<WorkInfoProps> = ({ work, manageFirstChapter, di
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const isAuthorSubscribed = Boolean(work.subscribedToAuthor);
+  const isWorkSubscribed = Boolean(work.subscribedToWork); // nueva variable
   const { isWorkSaved, handdleToggleSaveWork } = useWorkData(work.id);
   const [subscriberCount, setSubscriberCount] = useState<number>(0);
   const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
@@ -81,10 +82,10 @@ export const WorkInfo: React.FC<WorkInfoProps> = ({ work, manageFirstChapter, di
       onClick={() => {
         setIsModalOpen(true);
       }}
-      disabled={isAuthorSubscribed}
+      disabled={isAuthorSubscribed || isWorkSubscribed} // deshabilitar si cualquiera
       className="flex-1 bg-[#5c17a6] text-white py-2 rounded-lg text-base font-semibold hover:bg-[#5c17a6]/85 disabled:opacity-50 h-10 cursor-pointer"
     >
-      {isAuthorSubscribed ? "Ya suscripto" : "Suscribirse"}
+      {isAuthorSubscribed || isWorkSubscribed ? "Ya suscripto" : "Suscribirse"}
     </button>
 
     <button

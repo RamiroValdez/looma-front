@@ -45,6 +45,7 @@ const ReadChapter = () => {
         handleChapterPayment,
         isChapterUnlocked,
         handdleToggleSaveWork,
+        currentLanguage,
     } = useReadChapterData(chapterId || "");
 
     const openWorkModal = () => {
@@ -449,6 +450,8 @@ const handleNextChapter = () => {
                     isThemeModalOpen={isThemeSelectorOpen}
                     onPreviousChapter={handlePreviousChapter}
                     onNextChapter={handleNextChapter}
+                    currentLanguage={currentLanguage} // nuevo
+                    disableLanguageSelect={isTranslating} // deshabilitar mientras traduce
                 />
             )}
 

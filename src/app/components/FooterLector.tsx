@@ -9,6 +9,7 @@ interface FooterLectorProps {
   isThemeModalOpen?: boolean;
   onPreviousChapter?: () => void; 
   onNextChapter?: () => void; 
+  currentLanguage?: string; // nuevo prop para controlar el select
 }
 
 const FooterLector = ({ 
@@ -22,6 +23,7 @@ const FooterLector = ({
   isThemeModalOpen = false,
   onPreviousChapter, 
   onNextChapter, 
+  currentLanguage, // recibir nuevo prop
 }: FooterLectorProps) => {
   return (
     <footer 
@@ -46,6 +48,7 @@ const FooterLector = ({
             className={`bg-transparent cursor-pointer text-white font-bold text-sm border border-gray-300 rounded-md px-2 py-1 mt-2 focus:text-black focus:bg-white disabled:opacity-60`}
             onChange={(e) => onLanguageChange(e.target.value)}
             disabled={disableLanguageSelect}
+            value={currentLanguage} // controlar valor
           >
             {selectedLanguages.map((lang) => (
               <option key={lang.code} value={lang.code} className="text-black">

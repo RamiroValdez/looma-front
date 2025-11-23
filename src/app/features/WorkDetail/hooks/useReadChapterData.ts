@@ -17,6 +17,7 @@ export const useReadChapterData = (chapterId: string) => {
 
   const [translatedContent, setTranslatedContent] = useState<string>("");
   const [currentLanguage, setCurrentLanguage] = useState<string>("");
+  const [originalContent, setOriginalContent] = useState<string>(""); // guardar original
   const [isTranslating, setIsTranslating] = useState(false);
 
   const [work, setWork] = useState<any | null>(null);
@@ -50,6 +51,7 @@ export const useReadChapterData = (chapterId: string) => {
   useEffect(() => {
     if (chapterData?.content) {
       setTranslatedContent(chapterData.content);
+      setOriginalContent(chapterData.content);
       setCurrentLanguage(chapterData.languageDefaultCode.code);
     }
 
@@ -161,7 +163,14 @@ export const useReadChapterData = (chapterId: string) => {
   };
 
   const handleLanguageChange = async (languageCode: string) => {
-    if (!chapterData || languageCode === currentLanguage) return;
+    if (!chapterData) return;
+    // Si volvemos al idioma original
+    if (languageCode === chapterData.languageDefaultCode?.code) {
+      setTranslatedContent(originalContent); // restaurar
+      setCurrentLanguage(languageCode);
+      return;
+    }
+    if (languageCode === currentLanguage) return;
 
     if (languageCache.has(languageCode)) {
       setTranslatedContent(languageCache.get(languageCode) || chapterData.content);
@@ -173,7 +182,7 @@ export const useReadChapterData = (chapterId: string) => {
       setIsTranslating(true);
       const source = chapterData.languageDefaultCode?.code || currentLanguage;
 
-      let fetchedContent: string | null = null;
+      let fetchedContent: string | null; // removido inicializador redundante
       try {
         const fetched = await fetchChapterContent(chapterData.id, languageCode);
         fetchedContent = fetched.content || "";
@@ -183,7 +192,7 @@ export const useReadChapterData = (chapterId: string) => {
 
       const available = chapterData.availableLanguages || [];
       const existsVersion = available.some((l) => l.code === languageCode);
-      const originalContent = chapterData.content;
+      const originalContentLocal = originalContent;
 
       if (existsVersion && fetchedContent) {
         languageCache.set(languageCode, fetchedContent);
@@ -192,7 +201,7 @@ export const useReadChapterData = (chapterId: string) => {
         return;
       }
 
-      if (fetchedContent && fetchedContent !== originalContent) {
+      if (fetchedContent && fetchedContent !== originalContentLocal) {
         languageCache.set(languageCode, fetchedContent);
         setTranslatedContent(fetchedContent);
         setCurrentLanguage(languageCode);
@@ -205,7 +214,7 @@ export const useReadChapterData = (chapterId: string) => {
       }
 
       try {
-        const translated = await translateContent(source, languageCode, chapterData.content);
+        const translated = await translateContent(source, languageCode, originalContentLocal);
         languageCache.set(languageCode, translated);
         setTranslatedContent(translated);
         setCurrentLanguage(languageCode);
@@ -344,6 +353,7 @@ export const useReadChapterData = (chapterId: string) => {
     
     translatedContent,
     currentLanguage,
+    originalContent, // exponer
     isTranslating,
     sortedLanguages,
     
