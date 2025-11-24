@@ -159,13 +159,9 @@ export function useChapterVersions({ chapterId, initialLanguageCode }: UseChapte
   const switchLanguage = useCallback((code: string) => {
     if (!chapter) return;
     if (code === activeLanguage) return;
-    const currentVersion = versions[activeLanguage];
-    if (currentVersion?.dirty) {
-      const confirm = window.confirm('Tienes cambios sin guardar en este idioma. ¿Cambiar igualmente?');
-      if (!confirm) return;
-    }
+    // Confirmación de cambios se maneja externamente en el componente (modal propio)
     setRequestedLanguage(code);
-  }, [activeLanguage, versions, chapter]);
+  }, [activeLanguage, chapter]);
 
   const updateContent = useCallback((newContent: string) => {
     if (!activeLanguage) return;
