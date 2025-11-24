@@ -29,7 +29,7 @@ export async function subscribeToWork(
       subscriptionType: "work" as const,
       targetId: workId,
       provider,
-      returnUrl: `https://looma-front-production-0b1e.up.railway.app/payment/${uuidv4()}`,
+      returnUrl: `${import.meta.env.VITE_MP_RETURN_URL}${uuidv4()}`,
     };
 
     const base = import.meta.env.VITE_API_BASE_URL || "";
@@ -73,7 +73,7 @@ export async function subscribeToAuthor(
       subscriptionType: "author" as const,
       targetId: authorId,
       provider,
-      returnUrl: `https://looma-front-production-0b1e.up.railway.app/payment/${uuidv4()}`,
+      returnUrl: `${import.meta.env.VITE_MP_RETURN_URL}${uuidv4()}`,
     };
 
     const base = import.meta.env.VITE_API_BASE_URL || "";
@@ -120,7 +120,7 @@ export async function subscribeToChapter(
       targetId: chapterId,
       workId,
       provider,
-      returnUrl: `https://looma-front-production-0b1e.up.railway.app/payment/${paymentUUID}`,
+      returnUrl: `${import.meta.env.VITE_MP_RETURN_URL}${paymentUUID}`,
     };
 
     const base = import.meta.env.VITE_API_BASE_URL || "";

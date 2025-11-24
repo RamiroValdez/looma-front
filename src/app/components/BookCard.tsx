@@ -10,7 +10,6 @@ const BookCard: React.FC<Props> = ({ book }) => {
     <div className="w-40 flex-shrink-0">
       <div className="relative rounded-2xl overflow-hidden shadow-md h-56">
 
-        {/*acordarme de cambiar aca x la ruta que va a la vista del libro*/}
         <Link to={`/book/${book.id}`}>
           <img
             src={book.cover}
