@@ -37,6 +37,8 @@ export default function AddChapter() {
     const [deleteInput, setDeleteInput] = useState("");
     const [showCancelScheduleModal, setShowCancelScheduleModal] = useState(false);
     const [cancelScheduleInput, setCancelScheduleInput] = useState("");
+    const [targetLanguageCandidate, setTargetLanguageCandidate] = useState<string | null>(null);
+    const [showConfirmLanguageModal, setShowConfirmLanguageModal] = useState(false);
 
     const {
         error,
@@ -46,7 +48,8 @@ export default function AddChapter() {
         handleCancelSchedule,
         cancelingSchedule,
         cancelScheduleError,
-        setCancelScheduleError
+        setCancelScheduleError,
+        setDeleteError
     } = useChapterActions(id ?? "", chapter as ChapterWithContentDTO | null);
 
     const closeDeleteModal = () => { if (deleting) return; setShowDeleteModal(false); };
@@ -75,6 +78,23 @@ export default function AddChapter() {
         for (const l of pendingLanguages) map.set(l.code, l);
         return Array.from(map.values());
     })();
+
+    const openDeleteModal = () => {
+        if (deleting) return;
+        setDeleteError("");
+        setDeleteInput("");
+        setShowDeleteModal(true);
+    };
+
+    const requestLanguageChange = (code: string) => {
+        if (!dirtyActive) {
+            switchLanguage(code);
+            return;
+        }
+        // hay cambios sucios: mostrar modal
+        setTargetLanguageCandidate(code);
+        setShowConfirmLanguageModal(true);
+    };
 
     return (
         <div>
@@ -135,6 +155,11 @@ export default function AddChapter() {
                                         onClick={() => saveActiveLanguage(chapter.allowAiTranslation)}
                                         colorClass={`px-4 py-2 ${dirtyActive ? 'bg-[#172FA6]' : 'bg-[#4C3B63]'} font-semibold text-white rounded-full shadow hover:brightness-110 cursor-pointer whitespace-nowrap flex-shrink-0`}
                                     />
+                                    <Button
+                                        text={deleting ? 'Eliminando...' : 'Eliminar capítulo'}
+                                        onClick={openDeleteModal}
+                                        colorClass={`px-4 py-2 bg-red-600 font-semibold text-white rounded-full shadow hover:bg-red-700 cursor-pointer disabled:opacity-60 whitespace-nowrap`}
+                                    />
                                 </div>
                             </div>
 
@@ -157,7 +182,7 @@ export default function AddChapter() {
                             <AdvancedTools
                                 availableLanguages={combinedLanguages}
                                 defaultLanguageCode={chapter.languageDefaultCode}
-                                onLanguageSelect={switchLanguage}
+                                onLanguageSelect={requestLanguageChange}
                                 activeLanguageCode={activeLanguage}
                                 disabled={languageLoading}
                                 onAddLanguage={addLanguage}
@@ -205,8 +230,8 @@ export default function AddChapter() {
                                 />
                                 {deleteError && <p className="text-sm text-red-600 mb-2">{deleteError}</p>}
                                 <div className="flex justify-end gap-2">
-                                    <button onClick={closeDeleteModal} disabled={deleting} className="px-4 py-2 rounded-md border border-gray-300 text-gray-700 hover:bg-gray-100 disabled:opacity-50">Cancelar</button>
-                                    <button onClick={() => handleConfirmDelete(chapterId, deleteInput)} disabled={deleteInput !== 'Eliminar Capitulo' || deleting} className="px-4 py-2 rounded-md bg-red-600 text-white hover:bg-red-700 disabled:opacity-50">{deleting ? 'Eliminando...' : 'Confirmar eliminación'}</button>
+                                    <button onClick={closeDeleteModal} disabled={deleting} className="px-4 py-2 rounded-full border border-gray-300 text-gray-700 hover:bg-gray-100 disabled:opacity-50">Cancelar</button>
+                                    <button onClick={() => handleConfirmDelete(chapterId, deleteInput)} disabled={deleteInput !== 'Eliminar Capitulo' || deleting} className="px-4 py-2 rounded-full bg-red-600 text-white hover:bg-red-700 disabled:opacity-50">{deleting ? 'Eliminando...' : 'Confirmar eliminación'}</button>
                                 </div>
                             </div>
                         </div>
@@ -226,8 +251,33 @@ export default function AddChapter() {
                                 />
                                 {cancelScheduleError && <p className="text-sm text-red-600 mb-2">{cancelScheduleError}</p>}
                                 <div className="flex justify-end gap-2">
-                                    <button onClick={() => !cancelingSchedule && setShowCancelScheduleModal(false)} disabled={cancelingSchedule} className="px-4 py-2 rounded-md border border-gray-300 text-gray-700 hover:bg-gray-100 disabled:opacity-50">Cancelar</button>
-                                    <button onClick={async () => { if (cancelScheduleInput !== 'Deshacer Programacion' || cancelingSchedule) return; await handleCancelSchedule(chapterId); setShowCancelScheduleModal(false); }} disabled={cancelScheduleInput !== 'Deshacer Programacion' || cancelingSchedule} className="px-4 py-2 rounded-md bg-red-600 text-white hover:bg-red-700 disabled:opacity-50">{cancelingSchedule ? 'Deshaciendo...' : 'Confirmar'}</button>
+                                    <button onClick={() => !cancelingSchedule && setShowCancelScheduleModal(false)} disabled={cancelingSchedule} className="px-4 py-2 rounded-full border border-gray-300 text-gray-700 hover:bg-gray-100 disabled:opacity-50">Cancelar</button>
+                                    <button onClick={async () => { if (cancelScheduleInput !== 'Deshacer Programacion' || cancelingSchedule) return; await handleCancelSchedule(chapterId); setShowCancelScheduleModal(false); }} disabled={cancelScheduleInput !== 'Deshacer Programacion' || cancelingSchedule} className="px-4 py-2 rounded-full bg-red-600 text-white hover:bg-red-700 disabled:opacity-50">{cancelingSchedule ? 'Deshaciendo...' : 'Confirmar'}</button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                    {showConfirmLanguageModal && targetLanguageCandidate && (
+                        <div className="fixed inset-0 z-50 flex items-center justify-center px-2 sm:px-4 overflow-x-hidden">
+                            <div className="absolute inset-0 bg-black/40" onClick={() => setShowConfirmLanguageModal(false)} />
+                            <div className="relative z-10 w-full max-w-screen -ml-2 sm:ml-auto sm:max-w-xl lg:max-w-2xl bg-white rounded-xl shadow-lg p-4 sm:p-6 mx-auto max-h-[90vh] overflow-y-auto">
+                                <h3 className="text-lg font-semibold mb-2">Cambiar de idioma</h3>
+                                <p className="text-sm text-gray-600 mb-4">
+                                    Tienes cambios sin guardar en el idioma actual. Si cambias a <span className="font-semibold">{targetLanguageCandidate.toUpperCase()}</span> sin guardar, podrás volver luego pero los cambios siguen pendientes aquí. ¿Deseas continuar?
+                                </p>
+                                <div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 w-full">
+                                    <button
+                                        onClick={() => { setShowConfirmLanguageModal(false); setTargetLanguageCandidate(null); }}
+                                        className="px-4 py-2 rounded-full border border-gray-300 text-gray-700 hover:bg-gray-100 w-full sm:w-auto"
+                                    >Cancelar</button>
+                                    <button
+                                        onClick={() => { switchLanguage(targetLanguageCandidate); setShowConfirmLanguageModal(false); setTargetLanguageCandidate(null); }}
+                                        className="px-4 py-2 rounded-full bg-[#172FA6] text-white hover:bg-[#0e1c80] w-full sm:w-auto"
+                                    >Cambiar sin guardar</button>
+                                    <button
+                                        onClick={async () => { await saveActiveLanguage(chapter.allowAiTranslation); switchLanguage(targetLanguageCandidate); setShowConfirmLanguageModal(false); setTargetLanguageCandidate(null); }}
+                                        className="px-4 py-2 rounded-full bg-[#4C3B63] text-white hover:bg-[#3b2c4e] w-full sm:w-auto"
+                                    >Guardar y cambiar</button>
                                 </div>
                             </div>
                         </div>
