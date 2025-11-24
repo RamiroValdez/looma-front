@@ -40,19 +40,22 @@ export default function AdvancedTools({ availableLanguages, defaultLanguageCode,
       <div className="divide-y divide-gray-300 bg-[#F0EEF6]">
         {availableLanguages.map(language => {
           const isActive = activeLanguageCode === language.code || (!activeLanguageCode && language.id === defaultLanguageCode.id);
-          const isDisabledBtn = disabled || isActive || isLoadingLanguages; // deshabilitar mientras cargan idiomas
+          const isDisabledBtn = disabled || isLoadingLanguages || isActive; // mantener disabled funcional
           return (
             <button
               key={language.id}
               type="button"
-              className={`w-full text-left py-2 px-4 flex justify-between items-center hover:bg-[#E0DEE8] ${isDisabledBtn ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}`}
-              onClick={isDisabledBtn || !onLanguageSelect ? undefined : () => onLanguageSelect(language.code)}
+              className={`w-full text-left py-2 px-4 flex justify-between items-center hover:bg-[#E0DEE8] ${isActive ? 'bg-[#D9D5E3] font-semibold cursor-default' : 'cursor-pointer'} ${(!isActive && isDisabledBtn) ? 'opacity-60 cursor-not-allowed' : ''}`}
+              onClick={isDisabledBtn || !onLanguageSelect || isActive ? undefined : () => onLanguageSelect(language.code)}
               disabled={isDisabledBtn}
             >
               <span>{language.name}</span>
-              <div>
+              <div className="flex gap-2 items-center">
                 {language.id === defaultLanguageCode.id && (
                   <span className="bg-[#172FA6] text-white text-xs px-3 py-1 rounded-full font-semibold">Original</span>
+                )}
+                {isActive && (
+                  <span className="bg-[#4C3B63] text-white text-xs px-3 py-1 rounded-full font-semibold">Activo</span>
                 )}
               </div>
             </button>

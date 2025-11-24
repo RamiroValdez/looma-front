@@ -160,7 +160,11 @@ export const useUserProfile = () => {
       });
     }
     setUsernameValidation({ isValid: null, isChecking: false });
-    setSelectedImage(undefined);
+    if (!profile?.image || profile.image.endsWith('/none')) {
+    setSelectedImage("/public/img/perfil.png");
+  } else {
+    setSelectedImage(profile.image);
+  }
     setIsEditing(false);
   };
 
@@ -170,7 +174,6 @@ export const useUserProfile = () => {
     try {
       const formData = new FormData();
       
-      // Usar los datos actuales del perfil para mantener todo igual excepto la contraseña
       formData.append("id", userId);
       formData.append("name", profile.name || '');
       formData.append("surname", profile.surname || '');
@@ -180,13 +183,11 @@ export const useUserProfile = () => {
       formData.append("money", (profile.price || 0).toString());
       formData.append("newPassword", newPassword);
       
-      // Nota: El backend validará la autorización vía JWT token
 
       await changePasswordMutation.mutateAsync(formData);
       
       notifySuccess("¡Contraseña cambiada exitosamente!");
     } catch (error: any) {
-      // Manejo mejorado de errores específicos del backend
       let errorMessage = "Error al cambiar la contraseña";
       
       if (error?.response?.status === 400) {
@@ -198,7 +199,7 @@ export const useUserProfile = () => {
       }
       
       notifyError(errorMessage);
-      throw error; // Re-throw para que el modal pueda manejarlo
+      throw error; 
     }
   };
 
