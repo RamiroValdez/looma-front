@@ -21,8 +21,9 @@ import { VerifyCodePage } from "./app/features/Register/VerifyCodePage.tsx";
 import { WorkDetail } from './app/features/WorkDetail/WorkDetail.tsx';
 import ReadChapterNovel from "./app/features/WorkDetail/ReadChapterNovel.tsx";
 import Notifications from "./app/features/Notifications/Notifications.tsx";
-import { SubscriptionsPage } from "./app/features/Profile/SubscriptionsPage.tsx";
-import { MySaves } from "./app/features/Profile/MySaves.tsx";
+import  PreferencesPage  from "./app/features/PreferencesUser/PreferencesPage.tsx";
+import WelcomePage from "./app/features/Register/WelcomePage.tsx";
+import { MySaves as MySavesComponent } from "./app/features/Profile/MySaves.tsx";
 
 function Shell({ children }: { children: React.ReactNode }) {
   return (
@@ -138,7 +139,7 @@ function App() {
         <Route path="/mySaves" element={
           <ProtectedRoute>
             <Shell>
-              <MySaves />
+              <MySavesComponent />
             </Shell>
           </ProtectedRoute>
         } />
@@ -175,13 +176,22 @@ function App() {
           </Shell>
         } />
 
-        <Route path="/subscriptions" element={
+        <Route path="/preferences" element={
           <ProtectedRoute>
             <Shell>
-              <SubscriptionsPage />
+              <PreferencesPage />
             </Shell>
           </ProtectedRoute>
         } />
+
+        <Route path="/welcome" element={
+          <ProtectedRoute>
+            <Shell>
+              <WelcomePage/>
+            </Shell>
+          </ProtectedRoute>
+        } />
+
       </Routes>
       <ToastProvider />
     </BrowserRouter>

@@ -1,4 +1,4 @@
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../../../infrastructure/store/AuthStore';
 import { useState, useEffect } from 'react';
 import { getCurrentUser } from '../../../../infrastructure/services/DataUserService';
@@ -6,12 +6,12 @@ import { type UserDTO } from '../../../../domain/dto/UserDTO';
 
 interface Props {
     onBlockSelected?: (block: string) => void;
+    selectedBlock?: string; // nuevo prop para sincronizar desde el padre
 }
 
-const ProfileMenu = ({ onBlockSelected }: Props) => {
+const ProfileMenu = ({ onBlockSelected, selectedBlock }: Props) => {
   const navigate = useNavigate();
   const { logout } = useAuthStore();
-  const location = useLocation();
   const [user, setUser] = useState<UserDTO | null>(null);
   const [ blockSelected,  setBlockSelected] = useState<string>('profile');
   useEffect(() => {
@@ -25,6 +25,12 @@ const ProfileMenu = ({ onBlockSelected }: Props) => {
     };
     fetchUser();
   }, []);
+
+  useEffect(() => {
+    if (selectedBlock && selectedBlock !== blockSelected) {
+      setBlockSelected(selectedBlock);
+    }
+  }, [selectedBlock]);
 
   const handleBlockClick = (block: string) => {
       if (onBlockSelected) {
@@ -46,11 +52,11 @@ const ProfileMenu = ({ onBlockSelected }: Props) => {
 
         <li 
           className={`cursor-pointer p-4 rounded text-lg border-b border-gray-300 ${
-            location.pathname === '/subscriptions'
+              blockSelected == 'subscriptions'
               ? 'bg-gray-300 text-black' 
               : 'hover:bg-gray-200 hover:shadow-md'
           }`}
-          onClick={() => navigate('/subscriptions')}
+          onClick={() => handleBlockClick('subscriptions')}
         >
           Suscripciones
         </li>

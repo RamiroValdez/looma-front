@@ -34,7 +34,7 @@ const PreferencesPage: React.FC = () => {
                 key={genre.id || genre.name}
                 type="button"
                 onClick={() => toggleSelection(genre.id)}
-                className={`px-4 py-1 rounded-full border text-sm transition-all ${selectedGenres.includes(genre.id)
+                className={`px-4 py-1 rounded-full border text-sm cursor-pointer transition-all ${selectedGenres.includes(genre.id)
                   ? "bg-[#5c17a6] text-white border-[#5c17a6]"
                   : "bg-white text-black border-[#5c17a6] hover:bg-gray-100"
                   }`}
@@ -53,7 +53,7 @@ const PreferencesPage: React.FC = () => {
           type="button"
           disabled={selectedGenres.length === 0 || sending}
           onClick={handleSubmit}
-          className={`w-full py-3 rounded-lg text-white font-semibold transition-all ${selectedGenres.length === 0 || sending
+          className={`w-full py-3 rounded-lg text-white cursor-pointer font-semibold transition-all ${selectedGenres.length === 0 || sending
             ? "bg-gray-400 cursor-not-allowed"
             : "bg-[#172FA6] hover:bg-[#0f23a8]"
             }`}

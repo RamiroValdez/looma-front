@@ -78,7 +78,7 @@ export default function Create() {
         currentTags.length > 0 &&
         (!isPaid || (isPaid && price > 0)) &&
         bannerFile !== null &&
-        (coverFile !== null)||(coverIaUrl !== null);
+        (coverFile !== null||coverIaUrl !== null);
 
     const [hasTriedSubmit, setHasTriedSubmit] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -223,10 +223,10 @@ export default function Create() {
         <main>
             <form onSubmit={handleSubmitForm}>
                 <section>
-                    <div
+                   <div
                         onClick={handleBannerClick}
-                        className="w-full max-w-[1345px] h-[256px] bg-[#E8E5E5] flex justify-center items-center mx-auto border-b border-l border-r border-[rgba(0,0,0,0.5)] hover:bg-[#D7D7D7] cursor-pointer bg-cover bg-center"
-                        style={bannerPreview ? { backgroundImage: `url(${bannerPreview})` } : undefined}
+                    className="w-full h-[180px] sm:h-[256px] bg-[#E8E5E5] flex justify-center items-center mx-auto border-b border-l border-r border-[rgba(0,0,0,0.5)] hover:bg-[#D7D7D7] cursor-pointer bg-cover bg-center"
+                    style={bannerPreview ? { backgroundImage: `url(${bannerPreview})` } : undefined}
                     >
                         {!bannerPreview && (
                             <div className="text-center text-gray-400 flex flex-col items-center">
@@ -248,7 +248,7 @@ export default function Create() {
                         className="hidden"
                         accept="image/png,image/jpeg,image/jpg,image/webp"
                         onChange={handleFileChange}
-                        data-testid="banner-input" // ⬅️ agregado
+                        data-testid="banner-input" 
                     />
 
                     {errorBanner && (
@@ -258,9 +258,10 @@ export default function Create() {
                     )}
                 </section>
 
-                <section className="w-[1345px] mx-auto flex py-8">
-                    <div className="w-1/4 pr-8 flex flex-col items-center">
-                        <div className="w-[192px] h-[256px] bg-[#E8E5E5] border border-[rgba(0,0,0,0.5)] hover:bg-[#D7D7D7] rounded-md flex justify-center items-center mb-3 cursor-pointer"
+                <section className="w-full sm:w-[1345px] mx-auto flex flex-col sm:flex-row py-8">
+                <div className="w-full sm:w-1/4 sm:pr-8 flex flex-col items-center mb-6 sm:mb-0">                        
+                 <div className="w-[192px] h-[256px] bg-[#E8E5E5] border border-[rgba(0,0,0,0.5)] hover:bg-[#D7D7D7] 
+                 rounded-md flex justify-center items-center mb-3 cursor-pointer"
                              onClick={() => setShowCoverPopup(true)}>
                             {coverPreview ? (
                                 <img src={coverPreview} className="w-[192px] h-[256px] object-cover rounded-md" alt="Portada preview" />
@@ -284,7 +285,7 @@ export default function Create() {
                             className="hidden"
                             accept="image/png,image/jpeg,image/jpg,image/webp"
                             onChange={e => handleFileChange(e, true)}
-                            data-testid="cover-input" // ⬅️ agregado
+                            data-testid="cover-input" 
 
                         />
 
@@ -317,27 +318,31 @@ export default function Create() {
                         )}
                     </div>
 
-                    <div className="w-3/4 pl-8 border-l border-gray-300">
-                        <div className="flex flex-col mb-6">
-                            <div className="flex items-center">
-                                <label className="w-1/4 text-lg font-medium text-gray-700">Nombre de la obra</label>
-                                <input
-                                    type="text"
-                                    placeholder="Título de la obra"
-                                    data-testid="work-title"
-                                    value={nameWork}
-                                    onChange={e => setNameWork(e.target.value)}
-                                    className={`w-3/4 p-2 border ${hasTriedSubmit && nameWork.trim() === '' ? 'border-red-500' : 'border-gray-300'} rounded-md focus:ring-2 focus:border-transparent`}
-                                />
-                            </div>
+                    <div className="w-full sm:w-3/4 sm:pl-8 border-l border-gray-300">                        
+                    <div className="flex flex-col mb-6">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center mb-6 w-full">
+                <label className="text-lg font-medium text-gray-700 mb-2 sm:mb-0 sm:w-1/4 w-full">
+                    Nombre de la obra
+                </label>
+                <input
+                    type="text"
+                    placeholder="Título de la obra"
+                    data-testid="work-title"
+                    value={nameWork}
+                    onChange={e => setNameWork(e.target.value)}
+                    className={`w-full sm:w-3/4 p-2 border ${hasTriedSubmit && nameWork.trim() === '' ? 'border-red-500' : 'border-gray-300'} rounded-md focus:ring-2 focus:border-transparent`}
+                />
+                </div>
                             {hasTriedSubmit && nameWork.trim() === '' && (
                                 <p className="text-red-500 text-sm mt-1 ml-1/4 pt-1 pl-[25%]">El nombre es obligatorio.</p>
                             )}
                         </div>
 
                         <div className="flex flex-col mb-6">
-                            <div className="flex items-start">
-                                <label className="w-1/4 text-lg font-medium text-gray-700 pt-1">Categorías</label>
+                <div className="flex flex-col sm:flex-row items-start sm:items-center mb-6 w-full">
+                                  <label className="text-lg font-medium text-gray-700 mb-2 sm:mb-0 sm:w-1/4 w-full">
+                                Categorías
+                            </label>
                                 <div className="flex gap-2 w-3/4 relative items-center flex-wrap">
                                     {selectedCategories.map((category) => (
                                         <Tag
@@ -393,8 +398,10 @@ export default function Create() {
                         </div>
 
                         <div className="flex flex-col mb-6">
-                            <div className="flex items-center">
-                                <label className="w-1/4 text-lg font-medium text-gray-700">Formato</label>
+                            <div className="flex flex-col sm:flex-row items-start sm:items-center mb-6 w-full">
+                        <label className="text-lg font-medium text-gray-700 mb-2 sm:mb-0 sm:w-1/4 w-full">
+                            Formato
+                        </label>
                                 {isLoadingFormat ? (
                                     <div className="w-[120px] p-2 bg-gray-400 text-white rounded-md flex justify-center items-center">
                                         <span className="text-sm">Cargando...</span>
@@ -431,8 +438,9 @@ export default function Create() {
                         </div>
 
                         <div className="flex flex-col mb-6">
-                            <div className="flex items-center">
-                                <label className="w-1/4 text-lg font-medium text-gray-700">Idioma Original</label>
+                             <div className="flex flex-col sm:flex-row items-start sm:items-center mb-6 w-full">
+                                <label className="text-lg font-medium text-gray-700 mb-2 sm:mb-0 sm:w-1/4 w-full">
+                                     Idioma Original</label>
                                 {isLoadingLanguage ? (
                                     <div className="w-[120px] p-2 bg-gray-400 text-white rounded-md flex justify-center items-center">
                                         <span className="text-sm">Cargando...</span>
@@ -469,12 +477,11 @@ export default function Create() {
                         </div>
 
                         <div className="flex flex-col mb-6">
-                            <div className="flex items-start">
-                                <label className="w-1/4 text-lg font-medium text-gray-700">Etiquetas</label>
+                                <div className="flex flex-col sm:flex-row items-start sm:items-center mb-6 w-full">
+                                 <label className="text-lg font-medium text-gray-700 mb-2 sm:mb-0 sm:w-1/4 w-full">Etiquetas</label>
                                 <div className="w-3/4 flex flex-wrap gap-2 relative items-center">
                                     {currentTags.map((tag) => (
                                         <Tag
-
                                             key={tag}
                                             text={tag}
                                             colorClass="border-[#5C17A6] text-[#5C17A6]"
@@ -562,8 +569,8 @@ export default function Create() {
                                 <p className="text-red-500 text-sm mt-1 ml-1/4 pt-1 pl-[25%]">Debes agregar al menos una etiqueta.</p>
                             )}
 
-                    <div className="flex items-center gap-15 mt-8">
-                <label htmlFor="toggle-paga" className="text-gray-700 font-medium text-lg">
+<div className="flex flex-col sm:flex-row items-start sm:items-center mb-6 w-full">
+                <label htmlFor="toggle-paga" className="text-lg font-medium text-gray-700 mb-2 sm:mb-0 sm:w-1/4 w-full">
                     ¿Tu obra va a ser paga?
                 </label>
 
@@ -597,8 +604,8 @@ export default function Create() {
                 </div>
 
                 {isPaid && (
-                    <div className="space-y-2 pt-4 text-left mt-2 flex gap-14">
-                        <label htmlFor="precio" className="block text-lg font-medium text-gray-700 mt-2">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center mb-6 w-full">
+                        <label htmlFor="precio" className="text-lg font-medium text-gray-700 mb-2 sm:mb-0 sm:w-1/4 w-full">
                             Precio de la obra (ARS)
                         </label>
                         <input
@@ -614,17 +621,14 @@ export default function Create() {
                         />
                     </div>
                 )}
-
                         </div>
 
                         <div className="flex flex-col mb-6">
-                            <div className="flex items-start">
-                            {/* 1. AGREGAR htmlFor="descripcion-obra" */}
-                            <label htmlFor="descripcion-obra" className="w-1/4 text-lg font-medium text-gray-700">
+                            <div className="flex flex-col sm:flex-row items-start sm:items-center mb-6 w-full">
+                            <label htmlFor="descripcion-obra" className="text-lg font-medium text-gray-700 mb-2 sm:mb-0 sm:w-1/4 w-full">
                                 Descripción
                             </label>
-                            <div className="w-3/4 relative">
-                                {/* 2. AGREGAR id="descripcion-obra" */}
+                            <div className="w-full sm:w-3/4">
                                 <textarea
                                     data-testid="work-description"
                                     className={`w-full h-40 p-2 border ${hasTriedSubmit && descriptionF.trim() === '' ? 'border-red-500' : 'border-gray-300'} rounded-md focus:ring-2 focus:border-transparent resize-none`}
@@ -639,7 +643,7 @@ export default function Create() {
                             )}
                         </div>
 
-                        <div className="flex justify-end mt-4">
+                    <div className="w-full flex justify-center sm:justify-end">
                             {hasTriedSubmit && !isSubmitEnabled && (
                                 <p className="text-sm text-yellow-600 mr-4 self-center">
                                     * Completa todos los campos obligatorios antes de guardar.

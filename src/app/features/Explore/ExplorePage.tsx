@@ -6,19 +6,18 @@ import type { ExploreFiltersDto } from '../../../domain/dto/ExploreFiltrersDTO';
 import { WorkItemSearch } from '../../components/WorkItemSearch';
 import { useSearchParams, useLocation } from 'react-router-dom';
 
-
 export default function ExplorePage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const qParam = searchParams.get('q') || undefined;
-  const categoryIdsParam = searchParams.get('categoryIds'); 
-
+  const categoryIdsParam = searchParams.get('categoryIds');
   const [filters, setFilters] = useState<ExploreFiltersDto>({ text: qParam });
   const [page, setPage] = useState(0);
   const { formats, isLoading: loadingFormats } = useFormats();
   const { categories, isLoading: loadingCategories } = useCategories();
   const [refreshKey, setRefreshKey] = useState(0); 
   const location = useLocation();
-  const { data, isLoading, error } = useExploreWorks(filters, page, 20, refreshKey); 
+  const { data, isLoading, error } = useExploreWorks(filters, page, 20, refreshKey);
+  const [showMobileFilters, setShowMobileFilters] = useState(false);
 
   const EPISODE_RANGES = [
     { label: 'Cualquiera', value: 'cualquiera' },
@@ -37,17 +36,18 @@ export default function ExplorePage() {
   ];
 
   useEffect(() => {
-  setFilters({ text: qParam });
-  setPage(0);
-  setRefreshKey((k) => k + 1); 
-}, [location.pathname, qParam]);
+    setFilters({ text: qParam });
+    setPage(0);
+    setRefreshKey((k) => k + 1);
+    setShowMobileFilters(false);
+  }, [location.pathname, qParam]);
 
   useEffect(() => {
     if (qParam) {
       setFilters((prev) => ({ ...prev, text: qParam }));
       setPage(0);
     }
-      if (categoryIdsParam) {
+    if (categoryIdsParam) {
       setFilters((prev) => ({ ...prev, categoryIds: [Number(categoryIdsParam)] }));
       setPage(0);
     }
@@ -63,7 +63,6 @@ export default function ExplorePage() {
       } else {
         searchParams.delete('q');
       }
-
     }
     if ('categoryIds' in newFilters) {
       if (newFilters.categoryIds && newFilters.categoryIds.length > 0) {
@@ -71,48 +70,79 @@ export default function ExplorePage() {
       } else {
         searchParams.delete('categoryIds');
       }
-    
-  }
-      setSearchParams(searchParams, { replace: true });
+    }
+    setSearchParams(searchParams, { replace: true });
   };
 
   const handleEpisodeRangeChange = (rangeValue: string, isChecked: boolean) => {
     const currentRanges = (filters.rangeEpisodes as string[] || []); 
     let updatedRanges: string[];
+    updatedRanges = isChecked
+      ? [...currentRanges, rangeValue]
+      : currentRanges.filter(val => val !== rangeValue);
+    handleFilterChange({ rangeEpisodes: updatedRanges });
+  };
 
-    if (isChecked) {
-        updatedRanges = [...currentRanges, rangeValue];
-    } else {
-        updatedRanges = currentRanges.filter(val => val !== rangeValue);
-    }
-
-    const newFilters: Partial<ExploreFiltersDto> = {
-        rangeEpisodes: updatedRanges,
-    };
-    handleFilterChange(newFilters);
-};
-
-const handleUpdateRangeChange = (updateValue: string, isChecked: boolean) => {
-    const currentUpdates = (filters.lastUpdated as string[] || []); 
+  const handleUpdateRangeChange = (updateValue: string, isChecked: boolean) => {
+    const currentUpdates = (filters.lastUpdated as string[] || []);
     let updatedUpdates: string[];
-    if (isChecked) {
-        updatedUpdates = [...currentUpdates, updateValue];
-    } else {
-        updatedUpdates = currentUpdates.filter(val => val !== updateValue);
-    }
-    const newFilters: Partial<ExploreFiltersDto> = {
-        lastUpdated: updatedUpdates,
-    };
-    handleFilterChange(newFilters);
-}
+    updatedUpdates = isChecked
+      ? [...currentUpdates, updateValue]
+      : currentUpdates.filter(val => val !== updateValue);
+    handleFilterChange({ lastUpdated: updatedUpdates });
+  };
 
-const handleFinishedChange = (isChecked: boolean) => {
-    const newFilters: Partial<ExploreFiltersDto> = {
-        state: isChecked ? 'finished' : undefined,
-    };
-    handleFilterChange(newFilters);
-}
+  const handleFinishedChange = (isChecked: boolean) => {
+    handleFilterChange({ state: isChecked ? 'finished' : undefined });
+  };
 
+  // Grupos de filtros reutilizables (1 columna)
+  const renderFilterGroups = () => (
+    <div className="flex flex-col gap-8">
+      <fieldset className="flex flex-col gap-2">
+        <legend className="font-semibold mb-2 text-lg">Longitud</legend>
+        {EPISODE_RANGES.map(({ label, value }) => (
+          <label key={value} className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              checked={filters.rangeEpisodes?.includes(value) || false}
+              onChange={(e) => handleEpisodeRangeChange(value, e.target.checked)}
+              className="form-checkbox accent-gray-900 cursor-pointer"
+            />
+            <span>{label}</span>
+          </label>
+        ))}
+      </fieldset>
+
+      <fieldset className="flex flex-col gap-2">
+        <legend className="font-semibold mb-2 text-lg">Última actualización</legend>
+        {UPDATE_PERIODS.map(({ label, value }) => (
+          <label key={value} className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              checked={filters.lastUpdated?.includes(value) || false}
+              onChange={(e) => handleUpdateRangeChange(value, e.target.checked)}
+              className="form-checkbox accent-gray-900 cursor-pointer"
+            />
+            <span>{label}</span>
+          </label>
+        ))}
+      </fieldset>
+
+      <fieldset className="flex flex-col gap-2">
+        <legend className='font-semibold mb-2 text-lg'>Contenido</legend>
+        <label className="flex items-center space-x-2">
+          <input
+            type="checkbox"
+            checked={filters.state === 'finished'}
+            onChange={(e) => handleFinishedChange(e.target.checked)}
+            className="form-checkbox accent-gray-900 cursor-pointer"
+          />
+          <span className='whitespace-nowrap'>Historias completas</span>
+        </label>
+      </fieldset>
+    </div>
+  );
 
   if (loadingFormats || loadingCategories) return <div>Cargando catálogos...</div>;
   if (error) return <div>Error al cargar obras: {error.message}</div>;
@@ -120,154 +150,129 @@ const handleFinishedChange = (isChecked: boolean) => {
   return (
     <div className="min-h-screen">
       <div className="p-4 min-h-[calc(100vh-100px)]">
+
         <div className="flex gap-6">
-          <aside className="w-48 flex-shrink-0 mt-22">
-            <h3 className="font-semibold mb-2 text-lg">Longitud</h3>
-            <div className="filter-group ml-1">
-                {EPISODE_RANGES.map(({ label, value }) => (
-            <label key={value} className="flex items-center space-x-2 mb-2">
-                <input
-                    type="checkbox"
-                    checked={filters.rangeEpisodes?.includes(value) || false}
-                    onChange={(e) => 
-                        handleEpisodeRangeChange(value, e.target.checked)
-                    }
-                    className="form-checkbox accent-gray-900 cursor-pointer"
-                      />
-                      <span>{label}</span>
-                  </label>
-              ))} 
-          </div>
+            <aside className="hidden md:block w-56 flex-shrink-0 mt-2 bg-white rounded-lg p-4 shadow-sm h-fit">
+              {renderFilterGroups()}
+            </aside>
 
-          <h3 className="font-semibold mb-2 text-lg mt-8">Última actualización</h3>
-          <div className="mt-2 filter-group ml-1">
-                {UPDATE_PERIODS.map(({ label, value }) => (
-            <label key={value} className="flex items-center space-x-2 mb-2">
-                <input
-                    type="checkbox"
-                    checked={filters.lastUpdated?.includes(value) || false}
-                    onChange={(e) =>
-                        handleUpdateRangeChange(value, e.target.checked)
-                    }
-                    className="form-checkbox accent-gray-900 cursor-pointer"
-                />
-                <span>{label}</span>
-                    </label>
-                ))}
-            </div>
-            
-            <h3 className='font-semibold mb-2 text-lg mt-8'>Contenido</h3>
-                <div className="filter-group">
-                    <label className="flex items-center space-x-2 ml-1">
-                        <input
-                            type="checkbox"
-                            checked={filters.state === 'finished'} 
-                            onChange={(e) => 
-                                handleFinishedChange(e.target.checked)
-                            }
-                            className="form-checkbox accent-gray-900 cursor-pointer"
-                        />
-                        <span className='whitespace-nowrap'>Solo historias completas</span>
-                    </label>
+          <div className="flex-1">
+            <div className="mb-6 flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
+              <div className="flex flex-col gap-2 md:gap-3">
+                <div className="flex items-center gap-3 flex-wrap">
+                  <h2 className="text-2xl font-bold text-[#172fa6]">
+                    Explorar obras {qParam && <span className="text-base text-gray-600">– "{qParam}"</span>}
+                  </h2>
+                  {qParam && (
+                    <button
+                      onClick={() => handleFilterChange({ text: undefined })}
+                      className="text-sm text-violet-600 cursor-pointer hover:underline"
+                    >
+                      Limpiar búsqueda
+                    </button>
+                  )}
                 </div>
-        </aside>
 
-        <div className="flex-1">
-          <div className="mb-6 flex items-end justify-between mr-17">
-            <div className="flex items-end gap-3">
-              <h2 className="text-2xl font-bold text-[#172fa6]">
-                Explorar obras {qParam && <span className="text-base text-gray-600">– "{qParam}"</span>}
-              </h2>
+                <div className="flex flex-col sm:flex-row gap-4 flex-wrap">
+                  <div className="flex flex-col">
+                    <label className="block text-sm font-medium mb-1">Categoría</label>
+                    <select
+                      className="sm:w-48 w-full border rounded-full cursor-pointer px-3 py-2 pr-10 appearance-none bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxwb2x5bGluZSBwb2ludHM9IjYgOSAxMiAxNSAxOCA5Ij48L3BvbHlsaW5lPjwvc3ZnPg==')] bg-no-repeat bg-[right_0.9rem_center] bg-[length:1.25em]"
+                      value={filters.categoryIds?.[0] ?? ''}
+                      onChange={(e) =>
+                        handleFilterChange({
+                          categoryIds: e.target.value ? [Number(e.target.value)] : undefined,
+                        })
+                      }
+                    >
+                      <option value="">Todas</option>
+                      {categories?.map((cat) => (
+                        <option key={cat.id} value={cat.id}>
+                          {cat.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
 
-              {qParam && (
-                <button
-                  onClick={() => handleFilterChange({ text: undefined })}
-                  className="text-sm text-violet-500 cursor-pointer hover:underline"
-                >
-                  Limpiar búsqueda
-                </button>
-              )}
-            </div>
-
-            <div className="flex gap-4">
-              <div>
-                <label className="block text-sm font-medium mb-1">Categoría</label>
-                <select
-                  className="w-40 border rounded-full cursor-pointer px-3 py-2 pr-8 appearance-none bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxwb2x5bGluZSBwb2ludHM9IjYgOSAxMiAxNSAxOCA5Ij48L3BvbHlsaW5lPjwvc3ZnPg==')] bg-no-repeat bg-[right_0.75rem_center] bg-[length:1.25em]"
-                  value={filters.categoryIds?.[0] ?? ''}
-                  onChange={(e) =>
-                    handleFilterChange({
-                      categoryIds: e.target.value ? [Number(e.target.value)] : undefined,
-                    })
-                  }
-                >
-                  <option value="">Todas</option>
-                  {categories?.map((cat) => (
-                    <option key={cat.id} value={cat.id}>
-                      {cat.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1">Formato</label>
-                <select
-                  className="w-40 border rounded-full cursor-pointer px-3 py-2 pr-8 appearance-none bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxwb2x5bGluZSBwb2ludHM9IjYgOSAxMiAxNSAxOCA5Ij48L3BvbHlsaW5lPjwvc3ZnPg==')] bg-no-repeat bg-[right_0.75rem_center] bg-[length:1.25em]"
-                  value={filters.formatIds?.[0] ?? ''}
-                  onChange={(e) =>
-                    handleFilterChange({
-                      formatIds: e.target.value ? [Number(e.target.value)] : undefined,
-                    })
-                  }
-                >
-                  <option value="">Todos</option>
-                  {formats?.map((fmt) => (
-                    <option key={fmt.id} value={fmt.id}>
-                      {fmt.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-          </div>
-
-          {isLoading ? (
-            <div>Cargando obras...</div>
-          ) : (
-            <>
-              <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-x-0 gap-y-8">
-                {data?.content.map((work) => (
-                  <WorkItemSearch key={work.id} work={work} />
-                ))}
-              </div>
-
-              {(data?.totalPages ?? 0) > 1 && (
-                <div className="flex justify-center gap-2 mt-6">
-                  <button
-                    disabled={page === 0}
-                    onClick={() => setPage((p) => p - 1)}
-                    className="px-4 py-2 border rounded disabled:opacity-50"
-                  >
-                    Anterior
-                  </button>
-                  <span className="px-4 py-2">
-                    Página {page + 1} de {data?.totalPages ?? 1}
-                  </span>
-                  <button
-                    disabled={page + 1 >= (data?.totalPages ?? 1)}
-                    onClick={() => setPage((p) => p + 1)}
-                    className="px-4 py-2 border rounded disabled:opacity-50"
-                  >
-                    Siguiente
-                  </button>
+                  <div className="flex flex-col">
+                    <label className="block text-sm font-medium mb-1">Formato</label>
+                    <select
+                      className="sm:w-48 w-full border rounded-full cursor-pointer px-3 py-2 pr-10 appearance-none bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxwb2x5bGluZSBwb2ludHM9IjYgOSAxMiAxNSAxOCA5Ij48L3BvbHlsaW5lPjwvc3ZnPg==')] bg-no-repeat bg-[right_0.9rem_center] bg-[length:1.25em]"
+                      value={filters.formatIds?.[0] ?? ''}
+                      onChange={(e) =>
+                        handleFilterChange({
+                          formatIds: e.target.value ? [Number(e.target.value)] : undefined,
+                        })
+                      }
+                    >
+                      <option value="">Todos</option>
+                      {formats?.map((fmt) => (
+                        <option key={fmt.id} value={fmt.id}>
+                          {fmt.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
-              )}
-            </>
-          )}
+              </div>
+            </div>
+
+              <div className="mb-4 md:hidden flex justify-center items-center text-center">
+                  <button
+                      onClick={() => setShowMobileFilters(prev => !prev)}
+                      className="px-4 py-2 border rounded-full text-sm font-medium bg-white shadow-sm active:scale-[.97] transition"
+                      aria-expanded={showMobileFilters}
+                      aria-controls="mobile-filters"
+                  >
+                      {showMobileFilters ? 'Ocultar filtros' : 'Mostrar filtros'}
+                  </button>
+
+              </div>
+
+              <div
+                  id="mobile-filters"
+                  className={`md:hidden overflow-hidden transition-all duration-300 ${showMobileFilters ? 'max-h-[1200px] opacity-100' : 'max-h-0 opacity-0'} bg-white border rounded-lg shadow-sm px-4 ${showMobileFilters ? 'py-4 mt-0 mb-6' : 'py-0 mt-0 mb-2'}`}
+                  aria-hidden={!showMobileFilters}
+              >
+                  {showMobileFilters && renderFilterGroups()}
+              </div>
+
+            {isLoading ? (
+              <div>Cargando obras...</div>
+            ) : (
+              <>
+                <div className="grid grid-cols-1 justify-items-center md:grid-cols-3 lg:grid-cols-6 gap-y-8 md:gap-x-4">
+                  {data?.content.map((work) => (
+                    <WorkItemSearch key={work.id} work={work} />
+                  ))}
+                </div>
+
+                {(data?.totalPages ?? 0) > 1 && (
+                  <div className="flex justify-center gap-2 mt-8">
+                    <button
+                      disabled={page === 0}
+                      onClick={() => setPage((p) => p - 1)}
+                      className="px-4 py-2 border rounded disabled:opacity-50 hover:bg-gray-50 transition"
+                    >
+                      Anterior
+                    </button>
+                    <span className="px-4 py-2 text-sm">
+                      Página {page + 1} de {data?.totalPages ?? 1}
+                    </span>
+                    <button
+                      disabled={page + 1 >= (data?.totalPages ?? 1)}
+                      onClick={() => setPage((p) => p + 1)}
+                      className="px-4 py-2 border rounded disabled:opacity-50 hover:bg-gray-50 transition"
+                    >
+                      Siguiente
+                    </button>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
         </div>
       </div>
     </div>
-  </div>
   );
 }

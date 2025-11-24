@@ -29,10 +29,19 @@ function Header() {
 
   const { clearUser } = useUserStore();
 
+  const profileMenuRef = useRef<HTMLDivElement>(null!);
+
   useClickOutside(
     [notificationRefDesktop, notificationRefMobile],
     () => setShowNotifications(false),
     showNotifications
+  );
+
+  // Cerrar menú de perfil al hacer click fuera cuando está abierto
+  useClickOutside(
+    profileMenuRef,
+    () => setOpenMenu(false),
+    openMenu
   );
 
   const handleSearchKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
@@ -170,7 +179,7 @@ useEffect(() => {
                     notifications={notifications}
                     onMarkAsReadLocal={handleMarkAsReadLocal} />
                 </div>
-                <div className="relative">
+                <div className="relative" ref={profileMenuRef}>
                   {
                     haveImage ? (
                       <img
@@ -197,8 +206,8 @@ useEffect(() => {
                       >
                         Mi Perfil
                       </Link>
-                      <Link to="/subscriptions" className="block px-4 py-2 hover:bg-[#D3CCDA] hover:text-[#5c17a6]">Suscripciones</Link>
-                      <Link to="/mySaves" className="block px-4 py-2 hover:bg-[#D3CCDA] hover:text-[#5c17a6]">Guardados</Link>
+                      <Link to={`/profile/${user.id}#suscripciones`} className="block px-4 py-2 hover:bg-[#D3CCDA] hover:text-[#5c17a6]">Suscripciones</Link>
+                      <Link to={`/profile/${user.id}#guardados`} className="block px-4 py-2 hover:bg-[#D3CCDA] hover:text-[#5c17a6]">Guardados</Link>
                       <hr />
                       <button
                         className="w-full text-left px-4 py-2 hover:bg-gray-100 text-red-500 cursor-pointer"
@@ -249,61 +258,77 @@ useEffect(() => {
             />
           </svg>
         </div>
-        <div className="relative" ref={notificationRefMobile}>
-          <button
-            className="text-2xl text-[#5C14A6] hover:text-[#172fa6] transition mr-2 p-1"
-            aria-label="Notificaciones"
-            onMouseDown={e => { e.stopPropagation(); setShowNotifications((prev) => !prev); }}
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.6" stroke="currentColor" className="w-7 h-7 text-[#5C14A6]">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0M3.124 7.5A8.969 8.969 0 0 1 5.292 3m13.416 0a8.969 8.969 0 0 1 2.168 4.5" />
-            </svg>
-          </button>
-          <button
-            className="text-3xl text-[#5c17a6] focus:outline-none ml-2"
-            onClick={() => setMobileNavOpen(!mobileNavOpen)}
-          >
-            ☰
-          </button>
-          <NotificationPopup show={showNotifications} onClose={() => setShowNotifications(false)}
-            notifications={notifications}
-            onMarkAsReadLocal={handleMarkAsReadLocal} />
-        </div>
-      </div>
-      {mobileNavOpen && (
-        <div className="md:hidden bg-white border-t shadow-lg px-4 py-3">
-          <nav className="flex flex-col gap-2">
-            <a onClick={() => { navigate("/home"); setMobileNavOpen(false); }} className="text-[#686868] hover:text-[#5c17a6] transition cursor-pointer">Inicio</a>
-            <a onClick={() => { navigate("/explore"); setMobileNavOpen(false); }} className="text-[#686868] hover:text-[#5c17a6] transition cursor-pointer">Explorar</a>
+<div className="flex items-center gap-2 relative" ref={notificationRefMobile}>
+  <button
+    className="text-2xl text-[#5C14A6] hover:text-[#172fa6] transition p-1"
+    aria-label="Notificaciones"
+    onMouseDown={e => { e.stopPropagation(); setShowNotifications((prev) => !prev); }}
+  >
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.6" stroke="currentColor" className="w-7 h-7 text-[#5C14A6]">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0M3.124 7.5A8.969 8.969 0 0 1 5.292 3m13.416 0a8.969 8.969 0 0 1 2.168 4.5" />
+    </svg>
+  </button>
 
-          </nav>
-          <div className="mt-4 flex flex-col gap-2">
-            {user ? (
-              <>
-                <Link to="/my-works" className="bg-[#5c17a6] text-white w-full px-4 py-1 rounded-xl hover:bg-[#4b1387] transition flex items-center justify-center" onClick={() => setMobileNavOpen(false)}>
-                  Publicar
-                </Link>
-                <Link to="/" className="block px-4 py-2 hover:bg-[#D3CCDA] hover:text-[#5c17a6]">Mi Perfil</Link>
-                <Link to="/" className="block px-4 py-2 hover:bg-[#D3CCDA] hover:text-[#5c17a6]">Suscripciones</Link>
-                <Link to="/mySaves" className="block px-4 py-2 hover:bg-[#D3CCDA] hover:text-[#5c17a6]">Guardados</Link>
-                <button className="w-full text-left px-4 py-2 hover:bg-gray-100 text-red-500" onClick={() => { logout(); setUser(null); setMobileNavOpen(false); clearUser(); }}>Cerrar sesión</button>
-              </>
-            ) : (
-              <>
-                <Link to="/login" className="px-4 py-1 rounded-full border border-[#5c17a6] text-[#5c17a6] hover:bg-[#4b1387] hover:text-white transition" onClick={() => setMobileNavOpen(false)}>
-                  Iniciar sesión
-                </Link>
-                <Link to="/register" className="px-4 py-1 rounded-full bg-[#5c17a6] text-white hover:bg-[#4b1387] transition" onClick={() => setMobileNavOpen(false)}>
-                  Registrarse
-                </Link>
-              </>
-            )}
-          </div>
-        </div>
+  {/* Lápiz */}
+  <button
+    className="bg-[#5C14A6] rounded-full p-2 flex items-center justify-center"
+    aria-label="Escribir"
+    onClick={() => navigate("/my-works")}
+  >
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="white" className="w-5 h-5">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 5.487a2.1 2.1 0 1 1 2.97 2.97L8.5 19.79l-3.5.5.5-3.5 10.362-11.303z" />
+    </svg>
+  </button>
+
+  {/* Menú hamburguesa */}
+  <button
+    className="text-3xl text-[#5c17a6] focus:outline-none"
+    onClick={() => setMobileNavOpen(!mobileNavOpen)}
+  >
+    ☰
+  </button>
+  <NotificationPopup show={showNotifications} onClose={() => setShowNotifications(false)}
+    notifications={notifications}
+    onMarkAsReadLocal={handleMarkAsReadLocal} />
+</div>
+      </div>
+    {mobileNavOpen && (
+  <div className="fixed top-0 right-0 h-full w-64 z-[9999] bg-white shadow-lg px-4 py-6 md:hidden">
+    <nav className="flex flex-col gap-2 mt-8">
+      {user ? (
+        <>
+          <a onClick={() => { navigate("/home"); setMobileNavOpen(false); }} className="block px-4 py-2 hover:bg-[#D3CCDA] hover:text-[#5c17a6] cursor-pointer">Inicio</a>
+          <a onClick={() => { navigate("/explore"); setMobileNavOpen(false); }} className="block px-4 py-2 hover:bg-[#D3CCDA] hover:text-[#5c17a6] cursor-pointer">Explorar</a>
+          <Link to={`/profile/${user.id}`} className="block px-4 py-2 hover:bg-[#D3CCDA] hover:text-[#5c17a6]">Mi Perfil</Link>
+          <Link to={`/profile/${user.id}#suscripciones`} className="block px-4 py-2 hover:bg-[#D3CCDA] hover:text-[#5c17a6]">Suscripciones</Link>
+          <Link to="/mySaves" className="block px-4 py-2 hover:bg-[#D3CCDA] hover:text-[#5c17a6]">Guardados</Link>
+          <button className="w-full text-left px-4 py-2 hover:bg-gray-100 text-red-500" onClick={() => { logout(); setUser(null); setMobileNavOpen(false); clearUser(); }}>Cerrar sesión</button>
+        </>
+      ) : (
+        <>
+          <a onClick={() => { navigate("/home"); setMobileNavOpen(false); }} className="block px-4 py-2 hover:bg-[#D3CCDA] hover:text-[#5c17a6] cursor-pointer">Inicio</a>
+          <a onClick={() => { navigate("/explore"); setMobileNavOpen(false); }} className="block px-4 py-2 hover:bg-[#D3CCDA] hover:text-[#5c17a6] cursor-pointer">Explorar</a>
+          <Link to="/login" className="px-4 py-1 rounded-full border border-[#5c17a6] text-[#5c17a6] hover:bg-[#4b1387] hover:text-white transition" onClick={() => setMobileNavOpen(false)}>
+            Iniciar sesión
+          </Link>
+          <Link to="/register" className="px-4 py-1 rounded-full bg-[#5c17a6] text-white hover:bg-[#4b1387] transition" onClick={() => setMobileNavOpen(false)}>
+            Registrarse
+          </Link>
+        </>
       )}
+    </nav>
+    {/* Botón para cerrar el menú */}
+    <button
+      className="absolute top-4 right-4 text-3xl text-[#5c17a6] focus:outline-none"
+      onClick={() => setMobileNavOpen(false)}
+      aria-label="Cerrar menú"
+    >
+      ×
+    </button>
+  </div>
+)}
     </header>
   );
 }
 
 export default Header;
-
