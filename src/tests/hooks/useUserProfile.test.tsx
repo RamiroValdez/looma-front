@@ -303,8 +303,7 @@ describe("useUserProfile", () => {
       await act(async () => {
         await result.current.handlePasswordChange("wrongPassword");
       });
-    } catch (error) {
-    }
+    } catch (error) { console.error('Error esperado en cambio de contraseña', error); }
 
     expect(toastService.notifyError).toHaveBeenCalledWith("Contraseña incorrecta");
   });

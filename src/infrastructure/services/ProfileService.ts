@@ -52,6 +52,7 @@ export const useUserProfileQuery = (userId: string | undefined) => {
       select: (data: any): UserDTO => {
         console.log('Datos del backend:', data); 
         const money = data.money ? parseFloat(data.money) : 0;
+        const price = data.price ? parseFloat(data.price) : 0;
         return {
           id: data.id?.toString() || '',
           name: data.name || '',        
@@ -60,7 +61,8 @@ export const useUserProfileQuery = (userId: string | undefined) => {
           username: data.username || '',
           image: data.photo || '',      
           isAuthor: money > 0,
-          price: money > 0 ? money : undefined
+          money: money > 0 ? money : undefined,
+            price: price > 0 ? price : undefined,
         };
       }
     }

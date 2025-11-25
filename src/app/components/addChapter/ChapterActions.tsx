@@ -3,11 +3,10 @@ interface Props {
   publicationStatus: string;
 }
 
-export default function ChapterActions({ onPreview, publicationStatus }: Props) {
+export default function ChapterActions({ onPreview, publicationStatus: _publicationStatus }: Props) {
   const handlePreview = () => {
     if (onPreview) onPreview();
   };
-  const isDraft = publicationStatus === 'DRAFT';
   return (
     <div className="">
       <div className="flex flex-wrap gap-4">
@@ -18,11 +17,6 @@ export default function ChapterActions({ onPreview, publicationStatus }: Props) 
           Vista previa
         </button>
       </div>
-      {!isDraft && (
-        <p className="text-xs text-gray-600 w-full sm:text-left">
-    Solo se puede editar cuando el capítulo está en estado <span className="font-semibold">DRAFT</span>.
-  </p>
-)}
     </div>
   );
 }

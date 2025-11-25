@@ -41,7 +41,7 @@ const LikeButton: React.FC<LikeButtonProps> = ({
         alignItems: "center",
         opacity: loading ? 0.5 : 1,
       }}
-      aria-label={liked ? "Quitar like" : "Dar like"}
+      aria-label={liked ? "Quitar like" : "Agregar like"}
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"

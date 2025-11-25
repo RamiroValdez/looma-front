@@ -155,11 +155,13 @@ export default function AddChapter() {
                                         onClick={() => saveActiveLanguage(chapter.allowAiTranslation)}
                                         colorClass={`px-4 py-2 ${dirtyActive ? 'bg-[#172FA6]' : 'bg-[#4C3B63]'} font-semibold text-white rounded-full shadow hover:brightness-110 cursor-pointer whitespace-nowrap flex-shrink-0`}
                                     />
-                                    <Button
-                                        text={deleting ? 'Eliminando...' : 'Eliminar capítulo'}
-                                        onClick={openDeleteModal}
-                                        colorClass={`px-4 py-2 bg-red-600 font-semibold text-white rounded-full shadow hover:bg-red-700 cursor-pointer disabled:opacity-60 whitespace-nowrap`}
-                                    />
+                                    {chapter.publicationStatus !== 'PUBLISHED' && (
+                                        <Button
+                                            text={deleting ? 'Eliminando...' : 'Eliminar capítulo'}
+                                            onClick={openDeleteModal}
+                                            colorClass={`px-4 py-2 bg-red-600 font-semibold text-white rounded-full shadow hover:bg-red-700 cursor-pointer disabled:opacity-60 whitespace-nowrap`}
+                                        />
+                                    )}
                                 </div>
                             </div>
 
@@ -215,7 +217,7 @@ export default function AddChapter() {
                             </div>
                         </div>
                     </div>
-                    {showDeleteModal && (
+                    {showDeleteModal && chapter.publicationStatus !== 'PUBLISHED' && (
                         <div className="fixed inset-0 z-50 flex items-center justify-center">
                             <div className="absolute inset-0 bg-black/40" onClick={closeDeleteModal} />
                             <div className="relative z-10 w-full max-w-md bg-white rounded-xl shadow-lg p-6">

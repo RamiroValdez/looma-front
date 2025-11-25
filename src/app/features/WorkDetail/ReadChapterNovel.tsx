@@ -9,6 +9,7 @@ import ThemeSelector from "./components/ThemeSelector.tsx";
 import {updateReadingProgress} from "../../../infrastructure/services/HomeService.ts";
 import SubscriptionModal from "./components/SubscriptionModal";
 import ChapterPurchaseModal from "./components/ChapterPurchaseModal";
+import LikeButton from "../../components/LikeButton";
 
 const ReadChapter = () => {
     const navigate = useNavigate();
@@ -39,7 +40,6 @@ const ReadChapter = () => {
         isAuthorSubscribed,
         isWorkSaved,
         toggleFullScreen,
-        toggleLike,
         handleChapterClick,
         handleLanguageChange,
         handleChapterPayment,
@@ -400,33 +400,26 @@ const handleNextChapter = () => {
                                                         </div>
 
                                                         <div className="flex items-center gap-3">
-                                                            <button
-                                                                onClick={(e) => {
-                                                                    e.stopPropagation();
-                                                                    if (isUnlocked) {
-                                                                        toggleLike(chapter.id);
-                                                                    }
-                                                                }}
-                                                                disabled={!isUnlocked}
-                                                                aria-label={liked[chapter.id] ? 'Quitar like' : 'Agregar like'}
-                                                                className={`p-1 rounded-md transition-transform ${isUnlocked ? 'cursor-pointer hover:scale-105' : 'cursor-not-allowed opacity-50'
-                                                                    }`}
-                                                            >
-                                                                {chapter.likedByUser ? (
-                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="#c026d3" stroke="#c026d3" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                                                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-                                                                    </svg>
-                                                                ) : (
-                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#c026d3" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={!isUnlocked ? 'opacity-50' : ''}>
-                                                                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-                                                                    </svg>
-                                                                )}
-                                                            </button>
+                                                                {/* Reemplazo del botón manual de like por componente LikeButton */}
+                                                                <div
+                                                                    onClick={(e) => {
+                                                                        e.stopPropagation();
+                                                                    }}
+                                                                    className={`p-1 rounded-md transition-transform ${isUnlocked ? 'cursor-pointer hover:scale-105' : 'cursor-not-allowed opacity-50'}`}
+                                                                >
+                                                                    <LikeButton
+                                                                        workId={Number(work?.id || chapterData.workId)}
+                                                                        chapterId={chapter.id}
+                                                                        initialLiked={chapter.likedByUser || liked[chapter.id]}
+                                                                        initialCount={localLikes[chapter.id] ?? chapter.likes ?? 0}
+                                                                        type="chapter"
+                                                                        disabled={!isUnlocked}
+                                                                    />
+                                                                </div>
 
-                                                            <span className="text-sm text-gray-500 hidden">{chapter.publishedAt || ''}</span>
-
-                                                            <span className="text-sm text-gray-500">{(localLikes[chapter.id] ?? chapter.likes ?? 0).toLocaleString()}</span>
-                                                        </div>
+                                                                <span className="text-sm text-gray-500 hidden">{chapter.publishedAt || ''}</span>
+                                                                {/* Eliminado conteo manual porque LikeButton ya lo muestra */}
+                                                            </div>
                                                     </div>
                                                 );
                                             })}
