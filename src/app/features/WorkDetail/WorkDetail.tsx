@@ -14,7 +14,6 @@ export const WorkDetail: React.FC = () => {
     return <div className="text-center text-red-600 py-10">Error: {error}</div>;
   if (!work) return <div className="text-center py-10">Obra no encontrada.</div>;
 
-  // Reimplementación: solo considerar el primer capítulo y su estado de desbloqueo
   const sortedChapters = [...work.chapters].sort((a, b) => a.id - b.id);
   const firstChapter = sortedChapters[0];
   const allUnlocked = Boolean(work.subscribedToAuthor) || Boolean(work.subscribedToWork);
