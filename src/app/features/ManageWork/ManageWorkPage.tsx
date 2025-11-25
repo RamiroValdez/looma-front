@@ -13,10 +13,10 @@ import CoverImageModal from '../../components/CoverImageModal';
 import CoverAiModal from "../../components/create/CoverAiModal.tsx";
 import BackButton from '../../components/BackButton';
 import { notifySuccess, notifyError } from "../../../infrastructure/services/ToastProviderService.ts";
-import { useCategories } from "../../../infrastructure/services/CategoryService.ts";
 import type { CategoryDTO } from "../../../domain/dto/CategoryDTO.ts";
 import { apiClient } from "../../../infrastructure/api/apiClient.ts";
 import { useAuthStore } from "../../../infrastructure/store/AuthStore.ts";
+import { useCategories } from "../../hooks/useCategories.ts";
 
 interface UpdateWorkDTO {
   categoryIds?: number[];
