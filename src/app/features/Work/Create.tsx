@@ -15,15 +15,15 @@ import {
     type CreateWorkDTO,
     useClickOutside
 } from "../../../infrastructure/services/CreateWorkService.ts";
-import {useCategories} from "../../../infrastructure/services/CategoryService.ts";
 import { useCategoryStore } from "../../../infrastructure/store/CategoryStore.ts";
 import type { CategoryDTO } from "../../../domain/dto/CategoryDTO.ts";
 import { useFormatStore} from "../../../infrastructure/store/FormatStore.ts";
-import { useFormats } from "../../../infrastructure/services/FormatService.ts";
 import { useLanguages } from '../../../infrastructure/services/LanguageService.ts';
 import { useLanguageStore } from '../../../infrastructure/store/LanguageStore';
 import type {TagSuggestionRequestDTO} from "../../../domain/dto/TagSuggestionDTO.ts";
 import { notifySuccess, notifyError } from "../../../infrastructure/services/ToastProviderService.ts";
+import { useCategories } from "../../hooks/useCategories.ts";
+import { useFormats } from "../../hooks/useFormats.ts";
 
 
 export default function Create() {

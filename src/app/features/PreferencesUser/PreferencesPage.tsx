@@ -1,6 +1,6 @@
 import React from "react";
-import { useCategories } from "../../../infrastructure/services/CategoryService";
 import { usePreferences } from "../../hooks/usePreferences";
+import { useCategories } from "../../hooks/useCategories";
 
 const PreferencesPage: React.FC = () => {
   const { categories, isLoading: loadingCategories } = useCategories();

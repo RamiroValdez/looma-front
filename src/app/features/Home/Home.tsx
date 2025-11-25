@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { useCategories } from "../../../infrastructure/services/CategoryService";
+import { useCategories } from "../../hooks/useCategories";
 import type { WorkDTO } from "../../../domain/dto/WorkDTO";
 import BannerHome from "../../components/BannerHome";
 import { getHomeWorkList } from "../../../infrastructure/services/HomeService";
