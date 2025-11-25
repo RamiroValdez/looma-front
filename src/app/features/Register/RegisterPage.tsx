@@ -62,17 +62,28 @@ export const RegisterPage = () => {
 
                 <div>
                   <label htmlFor="surname" className="block text-sm font-medium text-gray-700 mb-1">Apellido</label>
-                  <input
-                    id="surname"
-                    name="surname"
-                    value={surname}
-                    onChange={handleChange}
-                    disabled={loading}
-                    className="w-full px-3 py-2 border border-gray-200 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#5C17A6] focus:border-transparent disabled:bg-gray-100"
-                    placeholder="Apellido"
-                  />
+                    <div className="relative">
+                        <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M10 10a4 4 0 100-8 4 4 0 000 8z" />
+                        <path d="M2 18a8 8 0 0116 0H2z" />
+                      </svg>
+                    </span>
+                        <input
+                            id="surname"
+                            name="surname"
+                            value={surname}
+                            onChange={handleChange}
+                            disabled={loading}
+                            className="w-full pl-10 pr-3 py-2 border border-gray-200 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#5C17A6] focus:border-transparent disabled:bg-gray-100"
+                            placeholder="Apellido"
+                        />
+                    </div>
+                    {errors.surname && <p className="text-red-600 text-xs mt-1">{errors.surname}</p>}
                 </div>
-                {errors.surname && <p className="text-red-600 text-xs mt-1">{errors.surname}</p>}
+
+
+
                 <div>
                   <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">Nombre de usuario</label>
                   <div className="relative">
@@ -142,20 +153,27 @@ export const RegisterPage = () => {
 
                 <div>
                   <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">Confirmar contraseña</label>
-
-                  <input
-                    type="password"
-                    id="confirmPassword"
-                    name="confirmPassword"
-                    value={confirmPassword}
-                    onChange={handleChange}
-                    disabled={loading}
-                    className="w-full px-3 py-2 border border-gray-200 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#5C17A6] focus:border-transparent disabled:bg-gray-100"
-                    placeholder="••••••••"
-                  />
+                    <div className="relative">
+                        <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M10 2a6 6 0 00-6 6v2a2 2 0 00-2 2v4a2 2 0 002 2h12a2 2 0 002-2v-4a2 2 0 00-2-2V8a6 6 0 00-6-6zM8 10V8a2 2 0 114 0v2H8z" clipRule="evenodd" />
+                      </svg>
+                    </span>
+                        <input
+                            type="password"
+                            id="confirmPassword"
+                            name="confirmPassword"
+                            value={confirmPassword}
+                            onChange={handleChange}
+                            disabled={loading}
+                            className="w-full pl-10 pr-3 py-2 border border-gray-200 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#5C17A6] focus:border-transparent disabled:bg-gray-100"
+                            placeholder="••••••••"
+                        />
+                    </div>
+                    {errors.confirmPassword && <p className="text-red-600 text-xs mt-1">{errors.confirmPassword}</p>}
                 </div>
 
-                {errors.confirmPassword && <p className="text-red-600 text-xs mt-1">{errors.confirmPassword}</p>}
+
 
                 <div className="flex items-center mt-2">
                   <input

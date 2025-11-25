@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, {useEffect, useState} from "react";
 import { type WorkDTO } from "../../../../domain/dto/WorkDTO";
 import Button from "../../../components/Button";
 import { notifyError, notifySuccess } from "../../../../infrastructure/services/ToastProviderService.ts";
@@ -11,11 +11,17 @@ interface SubscriptionModalProps {
 }
 
 const SubscriptionModal: React.FC<SubscriptionModalProps> = ({ isOpen, onClose, work }) => {
+
   const [isPaying, setIsPaying] = useState(false);
+  const [authorPrice, setAuthorPrice] = useState<number>(0);
   const isAuthorSubscribed = Boolean(work.subscribedToAuthor);
   const isWorkSubscribed = Boolean(work.subscribedToWork);
 
-  const authorPrice = work.creator?.money ?? 0;
+    useEffect(() => {
+        setAuthorPrice( work.creator?.price ?? 0 );
+        console.log(authorPrice);
+    }, []);
+
   const workPrice = work.price ?? 0;
   // Helper dinámico para evitar overflow de precios grandes
   const getPriceClass = (price: number) => {
@@ -34,6 +40,8 @@ const SubscriptionModal: React.FC<SubscriptionModalProps> = ({ isOpen, onClose, 
   const showAuthorCard = hasAuthorPlan && !isAuthorSubscribed;
   const showWorkCard = hasWorkPlan && !isWorkSubscribed;
   const visibleCards = (showAuthorCard ? 1 : 0) + (showWorkCard ? 1 : 0);
+
+
 
   const handleMercadoPagoClick = async (type: "author" | "work") => {
     try {

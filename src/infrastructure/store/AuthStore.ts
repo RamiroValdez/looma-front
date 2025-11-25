@@ -21,7 +21,7 @@ export const useAuthStore = create<AuthState>()(
                 // limpiar user store
                 try {
                     useUserStore.getState().clearUser();
-                } catch {}
+                } catch { console.error('Error limpiando user store'); }
             },
         }),
         {

@@ -66,7 +66,7 @@ export default function CreateWork() {
                                         
                                         {group === firstGroup && (
                                             <Button
-                                                text="Crear +"
+                                                text="Crear obra"
                                                 onClick={() => navigate(CREATE_PATH)}
                                                 colorClass={`${PURPLE_BG_CLASS} text-white rounded-full font-semibold cursor-pointer hover:scale-105`}
                                             />
@@ -92,7 +92,7 @@ export default function CreateWork() {
                         </div>
                         <div className="mt-8">
                             <Button
-                                text="Crear +"
+                                text="Crear obra"
                                 onClick={() => navigate(CREATE_PATH)}
                                 colorClass={`${PURPLE_BG_CLASS} text-white rounded-full font-semibold cursor-pointer hover:scale-105 w-90`}
                             />

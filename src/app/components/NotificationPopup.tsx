@@ -98,7 +98,7 @@ const NotificationPopup: React.FC<NotificationPopupProps> = ({
                     try {
                       await markNotificationAsRead(n.id);
                       onMarkAsReadLocal(n.id);
-                    } catch (err) { }
+                    } catch (err) { console.error('Error marcando notificación como leída', err); }
                   }
                   onClose();
                   navigate("/notifications");

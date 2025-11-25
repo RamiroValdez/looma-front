@@ -34,7 +34,7 @@ export function useNotifications() {
     try {
       await markNotificationAsRead(notificationId);
       window.dispatchEvent(new Event("notifications-updated"));
-    } catch (err) { }
+    } catch (err) { console.error('Error marcando notificación como leída', err); }
   };
 
   const filtered = notifications.filter(n => filter === "all" || !n.read);

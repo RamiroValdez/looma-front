@@ -55,6 +55,7 @@ const PasswordChangeModal = ({ isOpen, onClose, onPasswordChange }: PasswordChan
             setErrors({});
             onClose();
         } catch (error) {
+            console.error('Error cambiando contraseña', error);
         } finally {
             setIsSubmitting(false);
         }

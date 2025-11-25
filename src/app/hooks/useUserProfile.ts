@@ -121,7 +121,7 @@ export const useUserProfile = () => {
       formData.append("photo", profile.image);
       formData.append("email", profile.email);
       formData.append(
-        "money",
+        "price",
         editedData.isAuthor && editedData.price ? editedData.price : "0"
       );
       formData.append("newPassword", "");

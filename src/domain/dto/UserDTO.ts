@@ -7,4 +7,5 @@ export interface UserDTO {
   image: string;
   isAuthor?: boolean;
   price?: number;
+  money?: number;
 }
