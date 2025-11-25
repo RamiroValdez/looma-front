@@ -26,7 +26,7 @@ describe("Componente StarRating", () => {
     vi.clearAllMocks();
     mockGetMyRatings.mockResolvedValue(0);
     mockGetRatingsCount.mockResolvedValue(10);
-    mockSendRating.mockResolvedValue({ averageRating: 4.2 });
+      mockSendRating.mockResolvedValue({ workId: 1, userId: 1, rating: 5, average_rating: 4.2 });
   });
 
   it("muestra el promedio inicial", async () => {

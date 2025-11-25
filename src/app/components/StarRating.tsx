@@ -48,10 +48,10 @@ const StarRating: React.FC<StarRatingProps> = ({ workId, initialValue = 0 }) => 
   }
 
   useEffect(() => {
-    setAverage(prev => prev === null ? initialValue : prev);
+    setAverage(initialValue);
     fetchTotalRatings();
     fetchMyRating();
-  }, [workId, average]); // quitamos initialValue para no sobrescribir luego
+  }, [workId, initialValue]);
 
   const handleClick = (e: React.MouseEvent<HTMLDivElement>, starValue: number) => {
     const { left, width } = e.currentTarget.getBoundingClientRect();
@@ -80,7 +80,7 @@ const StarRating: React.FC<StarRatingProps> = ({ workId, initialValue = 0 }) => 
     <div className="flex items-center gap-2 mb-2 w-full">
       <div className="flex items-end gap-2">
         <span className="font-semibold text-3xl text-yellow-600">
-          {average !== null ? average : "—"}
+          {average !== null ? average.toFixed(1) : "—"}
         </span>
         <span className="text-gray-500 ml-0.2 mb-1 text-sm">
           ({total})

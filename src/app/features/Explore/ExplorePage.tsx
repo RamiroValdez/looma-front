@@ -76,8 +76,7 @@ export default function ExplorePage() {
 
   const handleEpisodeRangeChange = (rangeValue: string, isChecked: boolean) => {
     const currentRanges = (filters.rangeEpisodes as string[] || []); 
-    let updatedRanges: string[];
-    updatedRanges = isChecked
+    const updatedRanges: string[] = isChecked
       ? [...currentRanges, rangeValue]
       : currentRanges.filter(val => val !== rangeValue);
     handleFilterChange({ rangeEpisodes: updatedRanges });
@@ -85,8 +84,7 @@ export default function ExplorePage() {
 
   const handleUpdateRangeChange = (updateValue: string, isChecked: boolean) => {
     const currentUpdates = (filters.lastUpdated as string[] || []);
-    let updatedUpdates: string[];
-    updatedUpdates = isChecked
+    const updatedUpdates: string[] = isChecked
       ? [...currentUpdates, updateValue]
       : currentUpdates.filter(val => val !== updateValue);
     handleFilterChange({ lastUpdated: updatedUpdates });

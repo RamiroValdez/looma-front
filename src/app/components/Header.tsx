@@ -59,7 +59,7 @@ function Header() {
     );
   };
 
-  const [haveImage, setHaveImage] = useState<Boolean>(false);
+  const [haveImage, setHaveImage] = useState<boolean>(false);
 
   const validateImage = () => {
     console.log(haveImage);
