@@ -1,6 +1,13 @@
 import { useAuthStore } from "../store/AuthStore";
 
-export async function sendRating(workId: number, rating: number) {
+interface RatingResponseDTO {
+    workId: number,
+    userId: number,
+    rating: number,
+    average_rating: number
+}
+
+export async function sendRating(workId: number, rating: number): Promise<RatingResponseDTO> {
   const token = useAuthStore.getState().token;
   const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/works/${workId}/ratings`, {
     method: "POST",
@@ -11,7 +18,8 @@ export async function sendRating(workId: number, rating: number) {
     body: JSON.stringify({ rating }),
   });
   if (!response.ok) throw new Error("Error al enviar la valoración");
-  return response.json();
+    const data = await response.json();
+    return data as RatingResponseDTO;
 }
 
 export async function getRatingsCount(workId: number): Promise<number> {

@@ -39,6 +39,8 @@ const ProfileMenu = ({ onBlockSelected, selectedBlock }: Props) => {
       }
   };
 
+  const hasAuthorPrivileges = (user?.price ?? 0) > 0; // nueva validación basada en precio
+
   return user ? (
     <div className="profile-menu w-64 h-screen bg-gray-100 p-4 sticky top-0">
       <ul className="space-y-2">
@@ -90,11 +92,14 @@ const ProfileMenu = ({ onBlockSelected, selectedBlock }: Props) => {
           Términos y condiciones
         </li>
 
-        <li className={`cursor-pointer p-4 rounded text-lg border-b border-gray-300 ${
-            blockSelected == 'Analytics'
-                ? 'bg-gray-300 text-black'
-                : 'hover:bg-gray-200 hover:shadow-md'
-        }`} onClick={() => handleBlockClick('Analytics')}>Estadísticas</li>
+          {hasAuthorPrivileges && (
+              <li className={`cursor-pointer p-4 rounded text-lg border-b border-gray-300 ${
+                  blockSelected == 'Analytics'
+                      ? 'bg-gray-300 text-black'
+                      : 'hover:bg-gray-200 hover:shadow-md'
+              }`} onClick={() => handleBlockClick('Analytics')}>Estadísticas</li>
+          )}
+
 
         <li
           className="hover:bg-gray-200 hover:shadow-md cursor-pointer p-4 rounded text-lg"

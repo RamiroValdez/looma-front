@@ -33,13 +33,6 @@ const StarRating: React.FC<StarRatingProps> = ({ workId, initialValue = 0 }) => 
     }
   }, [success]);
 
-  const fetchRatings = async (averageRating: number | undefined) => {
-      if(averageRating !== undefined) {
-          setAverage(averageRating);
-      }
-      setAverage(initialValue);
-  };
-
   const fetchTotalRatings = async () => {
       const total = await getRatingsCount(workId);
       setTotal(total);
@@ -55,10 +48,10 @@ const StarRating: React.FC<StarRatingProps> = ({ workId, initialValue = 0 }) => 
   }
 
   useEffect(() => {
-    fetchRatings(undefined);
+    setAverage(prev => prev === null ? initialValue : prev);
     fetchTotalRatings();
     fetchMyRating();
-  }, [workId, initialValue]);
+  }, [workId, average]); // quitamos initialValue para no sobrescribir luego
 
   const handleClick = (e: React.MouseEvent<HTMLDivElement>, starValue: number) => {
     const { left, width } = e.currentTarget.getBoundingClientRect();
@@ -74,8 +67,9 @@ const StarRating: React.FC<StarRatingProps> = ({ workId, initialValue = 0 }) => 
     setErrorMsg(null);
     try {
         const response = await sendRating(workId, rating);
+        console.log(response);
+        setAverage(response.average_rating);
         setSuccess(true);
-        fetchRatings(response.averageRating);
     } catch (e: any) {
       setErrorMsg("Error al enviar la valoración");
     }
@@ -86,7 +80,7 @@ const StarRating: React.FC<StarRatingProps> = ({ workId, initialValue = 0 }) => 
     <div className="flex items-center gap-2 mb-2 w-full">
       <div className="flex items-end gap-2">
         <span className="font-semibold text-3xl text-yellow-600">
-          {average !== null ? average.toFixed(1) : "—"}
+          {average !== null ? average : "—"}
         </span>
         <span className="text-gray-500 ml-0.2 mb-1 text-sm">
           ({total})
@@ -142,8 +136,8 @@ const StarRating: React.FC<StarRatingProps> = ({ workId, initialValue = 0 }) => 
         {success && (
           <div className={`text-green-600 transition-opacity duration-500 ${isVisible ? 'opacity-100' : 'opacity-0'}`}>
             <svg 
-              xmlns="http://www.w3.org/2000-svg" 
-              className="h-5 w-5" 
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5"
               viewBox="0 0 20 20" 
               fill="currentColor"
             >
@@ -158,8 +152,8 @@ const StarRating: React.FC<StarRatingProps> = ({ workId, initialValue = 0 }) => 
         {errorMsg && (
           <div className="text-red-600">
             <svg 
-              xmlns="http://www.w3.org/2000-svg" 
-              className="h-5 w-5" 
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5"
               viewBox="0 0 20 20" 
               fill="currentColor"
             >

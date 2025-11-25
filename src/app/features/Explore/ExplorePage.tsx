@@ -241,13 +241,20 @@ export default function ExplorePage() {
               <div>Cargando obras...</div>
             ) : (
               <>
-                <div className="grid grid-cols-1 justify-items-center md:grid-cols-3 lg:grid-cols-6 gap-y-8 md:gap-x-4">
-                  {data?.content.map((work) => (
-                    <WorkItemSearch key={work.id} work={work} />
-                  ))}
-                </div>
+                {data?.content && data.content.length > 0 ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-[repeat(auto-fill,minmax(240px,1fr))] justify-items-center gap-6">
+                        {data.content.map((work) => (
+                            <WorkItemSearch key={work.id} work={work} />
+                        ))}
+                    </div>
+                ) : (
+                  <div className="flex flex-col justify-center items-center py-16 text-gray-600 w-full text-center">
+                    <img src="/img/triste_1.png" alt="Sin obras encontradas" className="w-70 h-70 mb-6" />
+                    <p className="text-lg">No se encontraron obras</p>
+                  </div>
+                )}
 
-                {(data?.totalPages ?? 0) > 1 && (
+                {data?.content && data.content.length > 0 && (data?.totalPages ?? 0) > 1 && (
                   <div className="flex justify-center gap-2 mt-8">
                     <button
                       disabled={page === 0}
