@@ -24,31 +24,38 @@ export const WorkInfo: React.FC<WorkInfoProps> = ({ work, manageFirstChapter, di
   const { isWorkSaved, handdleToggleSaveWork } = useWorkData(work.id);
   const [subscriberCount, setSubscriberCount] = useState<number>(0);
   const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
+  const [isPreparingDownload, setIsPreparingDownload] = useState(false);
+  const [downloadType, setDownloadType] = useState<'epub' | 'pdf' | null>(null);
 
   const openDownloadModal = () => setIsDownloadModalOpen(true);
   const closeDownloadModal = () => setIsDownloadModalOpen(false);
 
 
   const handleDownloadEpub = async () => {
-  if (!work) return;
-  try {
-    const epubFile = await downloadEpub(work.id);
-    if (epubFile?.url) {
-      const link = document.createElement('a');
-      link.href = epubFile.url;
-      link.download = `${work.title}.epub`; 
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      notifySuccess("Descarga de EPUB iniciada.");
-    } else {
-      notifyError("No se ha podido completar la descargar EPUB.");
+    if (!work) return;
+    setDownloadType('epub');
+    setIsPreparingDownload(true);
+    try {
+      const epubFile = await downloadEpub(work.id);
+      if (epubFile?.url) {
+        const link = document.createElement('a');
+        link.href = epubFile.url;
+        link.download = `${work.title}.epub`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        notifySuccess("Descarga de EPUB iniciada.");
+      } else {
+        notifyError("No se ha podido completar la descargar EPUB.");
+      }
+    } catch (e) {
+      notifyError("Error al descargar el ePub.");
+    } finally {
+      setIsPreparingDownload(false);
+      setDownloadType(null);
     }
-  } catch (e) {
-    notifyError("Error al descargar el ePub.");
-  }
-};
-  
+  };
+
   useEffect(() => {
   getTotalSubscribersPerWork(work.id)
     .then(setSubscriberCount)
@@ -57,6 +64,8 @@ export const WorkInfo: React.FC<WorkInfoProps> = ({ work, manageFirstChapter, di
 
  const handleDownloadPdf = async () => {
   if (!work) return;
+  setDownloadType('pdf');
+  setIsPreparingDownload(true);
   try {
     const pdfFile = await downloadPdf(work.id);
     if (pdfFile?.url) {
@@ -67,6 +76,9 @@ export const WorkInfo: React.FC<WorkInfoProps> = ({ work, manageFirstChapter, di
     }
   } catch (e) {
     notifyError("Error al descargar el PDF.");
+  } finally {
+    setIsPreparingDownload(false);
+    setDownloadType(null);
   }
 };
   
@@ -183,6 +195,19 @@ export const WorkInfo: React.FC<WorkInfoProps> = ({ work, manageFirstChapter, di
     </div>
   )}
       </div>
+
+      {/* Modal de carga durante la preparación de la descarga */}
+      {isPreparingDownload && (
+        <div className="fixed inset-0 z-[11000] flex items-center justify-center bg-black/60" aria-live="polite" aria-label="Preparando descarga">
+          <div className="bg-white rounded-xl p-6 w-full max-w-sm flex flex-col items-center gap-4 shadow-lg">
+            <div className="animate-spin rounded-full h-12 w-12 border-4 border-[#5C17A6] border-t-transparent"></div>
+            <p className="text-[#5C17A6] font-semibold">
+              {downloadType === 'epub' ? 'Generando archivo EPUB...' : downloadType === 'pdf' ? 'Generando archivo PDF...' : 'Preparando descarga...'}
+            </p>
+            <p className="text-gray-500 text-sm text-center">Esto puede tardar unos segundos.</p>
+          </div>
+        </div>
+      )}
 
       <div className="flex items-center justify-between gap-6 px-8">
 
