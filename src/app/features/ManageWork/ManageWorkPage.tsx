@@ -14,7 +14,6 @@ export const ManageWorkPage: React.FC = () => {
   const currentWorkId = Number(workId) || defaultWorkId;
   
   const {
-    // Estados
     work,
     loading,
     error,
@@ -47,13 +46,11 @@ export const ManageWorkPage: React.FC = () => {
     aiSuggestionMessage,
     isDescriptionValid,
     
-    // Referencias
     bannerInputRef,
     coverInputRef,
     suggestionMenuRef,
     suggestionCategoryMenuRef,
     
-    // Setters
     setIsAddingTag,
     setNewTagText,
     setIsCategoryMenuOpen,
@@ -66,7 +63,6 @@ export const ManageWorkPage: React.FC = () => {
     setShowCoverModal,
     setShowCoverModalAi,
     
-    // Funciones
     handleAddCategory,
     unselectCategory,
     handleFileChange,
