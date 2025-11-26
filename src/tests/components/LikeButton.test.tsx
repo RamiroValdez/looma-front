@@ -13,7 +13,7 @@ function expectHeartFill(container: HTMLElement, color: string) {
   expect(svg).toHaveAttribute("fill", color);
 }
 
-describe("Componente LikeButton", () => {
+describe("LikeButton", () => {
   const mockHandleLike = vi.fn();
 
   beforeEach(() => {
@@ -26,18 +26,21 @@ describe("Componente LikeButton", () => {
     });
   });
 
-  it("muestra el contador inicial correctamente", () => {
+  it('cuando se renderiza, muestra el contador inicial correctamente', () => {
+    // Dado
     (useLike as any).mockReturnValue({
       liked: false,
       count: 5,
       loading: false,
       handleLike: mockHandleLike,
     });
+    // Cuando
     render(<LikeButton workId={1} />);
+    // Entonces
     expect(screen.getByText("5")).toBeInTheDocument();
   });
 
-  it("muestra el contador formateado en 'k' si es mayor a 1000", () => {
+  it('cuando el contador es mayor a 1000, lo muestra formateado en "k"', () => {
     (useLike as any).mockReturnValue({
       liked: false,
       count: 1500,
@@ -48,7 +51,7 @@ describe("Componente LikeButton", () => {
     expect(screen.getByText("1.5k")).toBeInTheDocument();
   });
 
-  it("muestra el corazón relleno si liked es true", () => {
+  it('cuando liked es true, muestra el corazón relleno', () => {
     (useLike as any).mockReturnValue({
       liked: true,
       count: 10,
@@ -59,7 +62,7 @@ describe("Componente LikeButton", () => {
     expectHeartFill(container, "#c026d3");
   });
 
-  it("muestra el corazón vacío si liked es false", () => {
+  it('cuando liked es false, muestra el corazón vacío', () => {
     (useLike as any).mockReturnValue({
       liked: false,
       count: 10,
@@ -70,14 +73,14 @@ describe("Componente LikeButton", () => {
     expectHeartFill(container, "none");
   });
 
-  it("llama a handleLike al hacer click", () => {
+  it('cuando se hace click en el botón, llama a handleLike', () => {
     render(<LikeButton workId={1} />);
     const button = screen.getByRole("button");
     fireEvent.click(button);
     expect(mockHandleLike).toHaveBeenCalled();
   });
 
-  it("deshabilita el botón si loading es true", () => {
+  it('cuando loading es true, deshabilita el botón', () => {
     (useLike as any).mockReturnValue({
       liked: false,
       count: 0,
@@ -89,13 +92,13 @@ describe("Componente LikeButton", () => {
     expect(button).toBeDisabled();
   });
 
-  it("deshabilita el botón si disabled es true", () => {
+  it('cuando disabled es true, deshabilita el botón', () => {
     render(<LikeButton workId={1} disabled />);
     const button = screen.getByRole("button");
     expect(button).toBeDisabled();
   });
 
-  it("usa el aria-label correcto según el estado", () => {
+  it('cuando liked es false, usa el aria-label "Agregar like"', () => {
     (useLike as any).mockReturnValue({
       liked: false,
       count: 0,
@@ -103,8 +106,10 @@ describe("Componente LikeButton", () => {
       handleLike: mockHandleLike,
     });
     render(<LikeButton workId={1} />);
-    expect(screen.getByLabelText("Dar like")).toBeInTheDocument();
+    expect(screen.getByLabelText("Agregar like")).toBeInTheDocument();
+  });
 
+  it('cuando liked es true, usa el aria-label "Quitar like"', () => {
     (useLike as any).mockReturnValue({
       liked: true,
       count: 0,
