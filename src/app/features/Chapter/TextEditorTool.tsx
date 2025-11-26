@@ -45,7 +45,6 @@ export default function TextEditorTool({chapterContent, onChange, setEditorRef}:
         if (!editor) return;
         if (chapterContent === editorValue) return;
 
-        // Programar una actualización para el próximo frame, cuando el editor ya debería estar montado.
         if (scheduledUpdateRef.current) {
             cancelAnimationFrame(scheduledUpdateRef.current);
         }
@@ -60,7 +59,6 @@ export default function TextEditorTool({chapterContent, onChange, setEditorRef}:
                     }
                 });
             } catch (_) {
-                // Si aún no está inyectado editorView, omitimos silenciosamente.
             }
         });
 
