@@ -27,16 +27,13 @@ describe("LikeButton", () => {
   });
 
   it('cuando se renderiza, muestra el contador inicial correctamente', () => {
-    // Dado
     (useLike as any).mockReturnValue({
       liked: false,
       count: 5,
       loading: false,
       handleLike: mockHandleLike,
     });
-    // Cuando
     render(<LikeButton workId={1} />);
-    // Entonces
     expect(screen.getByText("5")).toBeInTheDocument();
   });
 

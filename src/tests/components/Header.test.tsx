@@ -78,7 +78,6 @@ describe("Componente Header", () => {
   it("muestra el input de búsqueda y permite escribir (desktop)", () => {
     renderHeader();
     const inputs = screen.getAllByPlaceholderText(/buscar/i);
-    // Desktop input es el que tiene el placeholder largo
     const input = inputs.find(i => i.getAttribute("placeholder")?.includes("título"))!;
     fireEvent.change(input, { target: { value: "algo" } });
     expect(input).toHaveValue("algo");

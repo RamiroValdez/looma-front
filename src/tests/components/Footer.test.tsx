@@ -39,9 +39,7 @@ function expectInstagramVisible() {
 
 describe('Footer', () => {
   it('cuando se renderiza, muestra el botón "Explorar Obras"', () => {
-    // Dado
     renderFooter();
-    // Entonces
     expectBotonExplorarObrasVisible();
   });
 
