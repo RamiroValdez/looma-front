@@ -3,7 +3,6 @@ import { Link, useParams, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../../infrastructure/store/AuthStore.ts";
 import Button from "../../components/Button.tsx";
 
-// Flexible response type; backend schema may change
 export type PaymentSessionResponse = Record<string, any>;
 
 const PURPLE_BG_CLASS = "bg-[#5C17A6]";

@@ -26,7 +26,7 @@ function expectBotonExplorarObrasVisible() {
 }
 
 function expectBotonTerminosCondicionesVisible() {
-  expect(screen.getByText('Términos y Condiciones')).toBeInTheDocument();
+  expect(screen.getByText('políticas y condiciones')).toBeInTheDocument();
 }
 
 function expectEmailVisible() {
@@ -34,7 +34,7 @@ function expectEmailVisible() {
 }
 
 function expectInstagramVisible() {
-  expect(screen.getByText(/Instagram @looma/i)).toBeInTheDocument();
+  expect(screen.getByText('Instagram @looma.ar')).toBeInTheDocument();
 }
 
 describe('Footer', () => {
@@ -43,7 +43,7 @@ describe('Footer', () => {
     expectBotonExplorarObrasVisible();
   });
 
-  it('cuando se renderiza, muestra el botón "Términos y Condiciones"', () => {
+  it('cuando se renderiza, muestra el enlace de "políticas y condiciones"', () => {
     renderFooter();
     expectBotonTerminosCondicionesVisible();
   });
@@ -64,9 +64,10 @@ describe('Footer', () => {
     expect(mockNavigate).toHaveBeenCalledWith('/explore');
   });
 
-  it('cuando se hace click en "Términos y Condiciones", navega a /terms', () => {
+  it('cuando se hace click en "políticas y condiciones", navega a /terms', () => {
     renderFooter();
-    fireEvent.click(screen.getByText('Términos y Condiciones'));
-    expect(mockNavigate).toHaveBeenCalledWith('/terms');
+    fireEvent.click(screen.getByText('políticas y condiciones'));
+    // Este es un enlace <a>, no usa navigate, va directamente a /terms
+    expect(screen.getByText('políticas y condiciones')).toHaveAttribute('href', '/terms');
   });
 });
