@@ -1,249 +1,80 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import type { WorkDTO } from '../../../domain/dto/WorkDTO.ts';
+import React from 'react';
 import { ChapterItem } from '../../components/ChapterItem';
 import Button from '../../components/Button.tsx';
 import Tag from '../../components/Tag.tsx';
-import { handleAddTag, validateFile, useClickOutside } from "../../../infrastructure/services/CreateWorkService.ts";
-import { useSuggestTagsMutation } from "../../../infrastructure/services/TagSuggestionService.ts";
-import type { TagSuggestionRequestDTO } from "../../../domain/dto/TagSuggestionDTO.ts";
-import { useNavigate, useParams } from 'react-router-dom';
-import { addChapter, getWorkById } from '../../../infrastructure/services/ChapterService.ts';
-import { uploadCover, uploadBanner } from '../../../infrastructure/services/WorkAssetsService.ts';
+import { useParams } from 'react-router-dom';
 import CoverImageModal from '../../components/CoverImageModal';
 import CoverAiModal from "../../components/create/CoverAiModal.tsx";
 import BackButton from '../../components/BackButton';
-import { notifySuccess, notifyError } from "../../../infrastructure/services/ToastProviderService.ts";
-import type { CategoryDTO } from "../../../domain/dto/CategoryDTO.ts";
-import { apiClient } from "../../../infrastructure/api/apiClient.ts";
-import { useAuthStore } from "../../../infrastructure/store/AuthStore.ts";
-import { useCategories } from "../../hooks/useCategories.ts";
+import { useManageWorkData } from './hooks/useManageWorkData';
 
-interface UpdateWorkDTO {
-  categoryIds?: number[];
-  tagIds?: string[];
-  state?: 'paused' | 'InProgress' | 'finished';
-  price?: number;
-}
-
-interface ManageWorkPageProps {
-  workId?: number;
-}
-
-export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
-
+export const ManageWorkPage: React.FC = () => {
   const { id: workId } = useParams<{ id: string }>();
-  const { token } = useAuthStore();
-  const [showCoverModal, setShowCoverModal] = useState(false);
-  const [showCoverModalAi, setShowCoverModalAi] = useState(false);
-  const [work, setWork] = useState<WorkDTO | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const defaultWorkId = 1;
   const currentWorkId = Number(workId) || defaultWorkId;
-  const [isCategoryMenuOpen, setIsCategoryMenuOpen] = useState(false);
-  const [selectedCategories, setSelectedCategories] = useState<CategoryDTO[]>([]);
-  const [currentTags, setCurrentTags] = useState<string[]>([]);
-  const [isAddingTag, setIsAddingTag] = useState(false);
-  const [newTagText, setNewTagText] = useState('');
-  const [isSuggestionMenuOpen, setIsSuggestionMenuOpen] = useState(false);
-  const [showIATooltip, setShowIATooltip] = useState(false);
-  const [isAILoading, setIsAILoading] = useState(false);
-  const [suggestedTags, setSuggestedTags] = useState<string[]>([]);
-  const [isSaving, setIsSaving] = useState(false);
-  const shortMessage = "Tags con IA: tu descripción tiene menos de 20 caracteres.";
-  const aiSuggestionMessage = "Sugerencias de la IA";
-  const suggestMutation = useSuggestTagsMutation();
-  const { categories, isLoading: isLoadingCategory, error: errorCategory } = useCategories();
-  const [nameWork, setNameWork] = useState('');
-  const [showBannerTooltip, setShowBannerTooltip] = useState(false);
-  const [descriptionF, setDescriptionF] = useState('');
-  const bannerInputRef = useRef<HTMLInputElement>(null);
-  const coverInputRef = useRef<HTMLInputElement>(null);
-  const suggestionMenuRef = useRef<HTMLDivElement | null>(null);
-  const suggestionCategoryMenuRef = useRef<HTMLDivElement | null>(null);
-  useClickOutside(suggestionMenuRef as React.RefObject<HTMLElement>, () => setIsSuggestionMenuOpen(false));
-  useClickOutside(suggestionCategoryMenuRef as React.RefObject<HTMLElement>, () => setIsCategoryMenuOpen(false));
-  const [bannerPreview, setBannerPreview] = useState<string | null>(null);
-  const [coverPreview, setCoverPreview] = useState<string | null>(null);
-  const [errorBanner, setErrorBanner] = useState<string | null>(null);
-  const [errorCover, setErrorCover] = useState<string | null>(null);
-  const [pendingCoverFile, setPendingCoverFile] = useState<File | null>(null);
-  const [savingCover, setSavingCover] = useState(false);
-  const navigate = useNavigate();
-  const isDescriptionValid = descriptionF.trim().length > 20;
-  const [price, setPrice] = useState('');
-  const [workStatus, setWorkStatus] = useState<'paused' | 'InProgress' | 'finished' | ''>('');
-  const [allowSubscription, setAllowSubscription] = useState(false);
-
-  const handleAddCategory = (category: CategoryDTO) => {
-    if (!selectedCategories.some(c => c.id === category.id)) {
-      setSelectedCategories([...selectedCategories, category]);
-    }
-    setIsCategoryMenuOpen(false);
-  };
-
-  const unselectCategory = (categoryId: number) => {
-    setSelectedCategories(selectedCategories.filter(c => c.id !== categoryId));
-  };
-
-  const handleSaveChanges= async () => {
-  try {
-    setIsSaving(true);
-
-    const updatePrice: UpdateWorkDTO = {
-      price: allowSubscription ? (price ? parseFloat(price) : 0) : 0,
-      categoryIds: selectedCategories.map(c => c.id),
-      tagIds: currentTags,
-      state: workStatus || undefined
-    };
+  
+  const {
+    work,
+    loading,
+    error,
+    selectedCategories,
+    currentTags,
+    isAddingTag,
+    newTagText,
+    isSuggestionMenuOpen,
+    isCategoryMenuOpen,
+    showIATooltip,
+    suggestedTags,
+    showBannerTooltip,
+    bannerPreview,
+    coverPreview,
+    errorBanner,
+    errorCover,
+    pendingCoverFile,
+    savingCover,
+    price,
+    workStatus,
+    allowSubscription,
+    categories,
+    isLoadingCategory,
+    errorCategory,
+    showCoverModal,
+    showCoverModalAi,
+    isAILoading,
+    isSaving,
+    shortMessage,
+    aiSuggestionMessage,
+    isDescriptionValid,
     
-    const response = await apiClient.request({
-      url: `/manage-work/${currentWorkId}`,
-      method: 'PUT',
-      data: updatePrice,
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    });
-
-    if (response.status === 200) {
-      notifySuccess('Datos actualizados exitosamente');
-      setPrice(allowSubscription ? price : '0');
-    }
-  } catch (err) {
-    console.error('Error al guardar precio:', err);
-    notifyError('No se pudo guardar el precio');
-  } finally {
-    setIsSaving(false);
-  }
-};
-
-  const handleCreateChapter = async (workId: number, languageId: number) => {
-    const chapter = await addChapter(workId, languageId, 'TEXT');
-    if (chapter?.fetchStatus === 200) {
-      navigate(`/chapter/work/${workId}/edit/${chapter.chapterId}`);
-      return;
-    }
-
-    navigate(`/manage-work/${workId}`);
-  };
-
-  const handleBannerClick = () => bannerInputRef.current?.click();
-
-  const handleFileChange = useCallback(async (e: React.ChangeEvent<HTMLInputElement>, isCover: boolean = false) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const options = isCover
-      ? { maxSizeMB: 20, maxWidth: 500, maxHeight: 800 }
-      : { maxSizeMB: 20, maxWidth: 1345, maxHeight: 256 };
-    const result = await validateFile(file, options);
-    const setFilePreview = isCover ? setCoverPreview : setBannerPreview;
-    const setError = isCover ? setErrorCover : setErrorBanner;
-    const inputRef = isCover ? coverInputRef : bannerInputRef;
-    const setPendingFile = isCover ? setPendingCoverFile : null;
-
-    if (!result.valid) {
-      const msg = result.error || 'Archivo inválido.';
-      setError(msg);
-
-      setFilePreview(prev => { if (prev) URL.revokeObjectURL(prev); return null; });
-      if (setPendingFile) setPendingFile(null);
-
-      if (inputRef.current) inputRef.current.value = '';
-      return;
-    }
-
-    setError(null);
-    setFilePreview(prev => {
-      if (prev) URL.revokeObjectURL(prev);
-      return URL.createObjectURL(file);
-    });
-
-    if (inputRef.current) {
-      inputRef.current.value = '';
-    }
-
-    if (isCover) {
-      setPendingFile!(file);
-      notifySuccess("Portada lista para subir.");
-    } else {
-      try {
-        await uploadBanner(currentWorkId, file);
-        notifySuccess("Banner actualizado con éxito.");
-      } catch (err) {
-        console.error('Error al subir el banner:', err);
-        setError('No se pudo subir el banner. Intenta nuevamente.');
-        setFilePreview(prev => { if (prev) URL.revokeObjectURL(prev); return null; });
-      }
-    }
-  }, [currentWorkId]);
-
-  const handleAISuggestion = () => {
-    if (!isDescriptionValid) {
-      alert("La descripción es demasiado corta. Proporciona más detalles.");
-      return;
-    }
-
-    const payload: TagSuggestionRequestDTO = {
-      description: descriptionF,
-      title: nameWork,
-      existingTags: currentTags,
-    };
-
-    setIsAILoading(true);
-
-    suggestMutation.mutate(payload, {
-      onSuccess: (data) => {
-        setSuggestedTags(data.suggestions);
-        setIsSuggestionMenuOpen(true);
-        setIsAILoading(false);
-      },
-      onError: (error) => {
-        console.error("Error de IA:", error);
-        setIsAILoading(false);
-      },
-    });
-  };
-
-  useEffect(() => {
-    const fetchWork = async () => {
-      try {
-        setLoading(true);
-        const workData = await getWorkById(currentWorkId);
-        console.log(workData);
-        setWork(workData);
-        setSelectedCategories(workData.categories || []);
-        setCurrentTags(workData.tags.map((tag) => tag.name));
-        setNameWork(workData.title || '');
-        setDescriptionF(workData.description || '');
-        setPrice(workData.price?.toString() || '');
-        setAllowSubscription(!!workData.price && workData.price > 0); 
-        setWorkStatus(workData.state || '');
-      } catch (err) {
-        setError('Error loading work');
-        console.error('Error:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchWork();
-  }, [currentWorkId]);
-
-  useEffect(() => {
-    return () => {
-      if (bannerPreview) URL.revokeObjectURL(bannerPreview);
-      if (coverPreview) URL.revokeObjectURL(coverPreview);
-    };
-  }, [bannerPreview, coverPreview]);
-
-  const handleTagSubmit = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      handleAddTag(newTagText, currentTags, setCurrentTags, setIsAddingTag, setNewTagText, setIsSuggestionMenuOpen);
-    }
-  };
+    bannerInputRef,
+    coverInputRef,
+    suggestionMenuRef,
+    suggestionCategoryMenuRef,
+    
+    setIsAddingTag,
+    setNewTagText,
+    setIsCategoryMenuOpen,
+    setShowIATooltip,
+    setShowBannerTooltip,
+    setPrice,
+    setWorkStatus,
+    setAllowSubscription,
+    setCurrentTags,
+    setShowCoverModal,
+    setShowCoverModalAi,
+    
+    handleAddCategory,
+    unselectCategory,
+    handleFileChange,
+    handleSaveCover,
+    handleSaveCoverAI,
+    handleTagSubmit,
+    handleAISuggestion,
+    handleSuggestedTagClick,
+    handleCreateChapter,
+    handleSaveChanges,
+    handleBannerClick,
+  } = useManageWorkData(currentWorkId);
 
   if (loading) {
     return (
@@ -341,20 +172,7 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
                     setShowCoverModal(false);
                     setShowCoverModalAi(true);
                   }}
-                  onSave={async () => {
-                    if (!pendingCoverFile) return;
-                    try {
-                      setSavingCover(true);
-                      await uploadCover(currentWorkId, pendingCoverFile, null);
-                      setSavingCover(false);
-                      setShowCoverModal(false);
-                      setPendingCoverFile(null);
-                    } catch (err) {
-                      console.error('Error al guardar portada:', err);
-                      setSavingCover(false);
-                      setErrorCover('No se pudo guardar la portada. Intenta nuevamente.');
-                    }
-                  }}
+                  onSave={handleSaveCover}
                   saveDisabled={!pendingCoverFile}
                   saving={savingCover}
                   errorMessage={errorCover}
@@ -370,19 +188,7 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
             <CoverAiModal
               isOpen={showCoverModalAi}
               onClose={() => setShowCoverModalAi(false)}
-              onSetIaCoverUrl={async (url: string) => {
-                try {
-                  setSavingCover(true);
-                  await uploadCover(currentWorkId, null, url);
-                  setSavingCover(false);
-                  setShowCoverModalAi(false);
-                  setCoverPreview(url);
-                } catch (err) {
-                  console.error('Error al guardar portada:', err);
-                  setSavingCover(false);
-                  setErrorCover('No se pudo guardar la portada. Intenta nuevamente.');
-                }
-              }}
+              onSetIaCoverUrl={handleSaveCoverAI}
             />
           </div>
 
@@ -521,17 +327,7 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
                             key={tag}
                             text={tag}
                             colorClass="border border-gray-300 text-gray-600 bg-transparent hover:bg-gray-100"
-                            onClick={() => {
-                              handleAddTag(tag, currentTags, setCurrentTags, setIsAddingTag, setNewTagText, setIsSuggestionMenuOpen, false);
-                              setSuggestedTags((prev) => prev.filter((t) => t !== tag));
-                              setSuggestedTags((prev) => {
-                                const updated = prev.filter((t) => t !== tag);
-                                if (updated.length === 0) {
-                                  setIsSuggestionMenuOpen(false);
-                                }
-                                return updated;
-                              });
-                            }}
+                            onClick={() => handleSuggestedTagClick(tag)}
                           />
                         ))}
                       </div>

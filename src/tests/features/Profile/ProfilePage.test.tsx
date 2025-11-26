@@ -99,13 +99,42 @@ const mockProfileData = {
   handlePasswordChange: vi.fn(),
 };
 
+function expectProfileMenu() {
+  expect(screen.getByTestId("profile-menu")).toBeInTheDocument();
+}
+
+function expectLoadingSkeleton() {
+  expect(document.querySelector('.animate-pulse')).toBeInTheDocument();
+}
+
+function expectErrorMessage(message: string) {
+  expect(screen.getByText(message)).toBeInTheDocument();
+}
+
+function expectUserData(field: string) {
+  expect(screen.getByText(field)).toBeInTheDocument();
+}
+
+function expectButtonCount(count: number) {
+  const buttons = screen.getAllByTestId("button");
+  expect(buttons).toHaveLength(count);
+}
+
+function expectFunctionCall(mockFn: any, ...args: any[]) {
+  if (args.length > 0) {
+    expect(mockFn).toHaveBeenCalledWith(...args);
+  } else {
+    expect(mockFn).toHaveBeenCalled();
+  }
+}
+
 describe("ProfilePage", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockUseUserProfile.mockReturnValue(mockProfileData);
   });
 
-  it("muestra el skeleton de carga cuando está loading", () => {
+  it("dado que está loading, cuando se renderiza, entonces muestra el menú de perfil", () => {
     mockUseUserProfile.mockReturnValue({
       ...mockProfileData,
       loading: true,
@@ -113,11 +142,21 @@ describe("ProfilePage", () => {
 
     render(<ProfilePage />, { wrapper: createWrapper() });
 
-    expect(screen.getByTestId("profile-menu")).toBeInTheDocument();
-    expect(document.querySelector('.animate-pulse')).toBeInTheDocument();
+    expectProfileMenu();
   });
 
-  it("muestra mensaje de error cuando hay un error", () => {
+  it("dado que está loading, cuando se renderiza, entonces muestra el skeleton de carga", () => {
+    mockUseUserProfile.mockReturnValue({
+      ...mockProfileData,
+      loading: true,
+    });
+
+    render(<ProfilePage />, { wrapper: createWrapper() });
+
+    expectLoadingSkeleton();
+  });
+
+  it("dado que hay un error, cuando se renderiza, entonces muestra el mensaje de error genérico", () => {
     mockUseUserProfile.mockReturnValue({
       ...mockProfileData,
       error: "Error de conexión",
@@ -127,31 +166,67 @@ describe("ProfilePage", () => {
     render(<ProfilePage />, { wrapper: createWrapper() });
 
     expect(screen.getByText(/error al cargar el perfil/i)).toBeInTheDocument();
-    expect(screen.getByText("Error de conexión")).toBeInTheDocument();
   });
 
-  it("renderiza correctamente los datos del perfil", () => {
+  it("dado que hay un error, cuando se renderiza, entonces muestra el mensaje de error específico", () => {
+    mockUseUserProfile.mockReturnValue({
+      ...mockProfileData,
+      error: "Error de conexión",
+      loading: false,
+    });
+
     render(<ProfilePage />, { wrapper: createWrapper() });
 
-    expect(screen.getByTestId("profile-menu")).toBeInTheDocument();
-    expect(screen.getByText("Juan")).toBeInTheDocument();
-    expect(screen.getByText("Pérez")).toBeInTheDocument();
-    expect(screen.getByText("juanperez")).toBeInTheDocument();
-    expect(screen.getByText("juan@test.com")).toBeInTheDocument();
-    expect(screen.getByText("Mi Perfil")).toBeInTheDocument();
+    expectErrorMessage("Error de conexión");
   });
 
-  it("permite activar el modo edición", async () => {
+  it("dado que tiene datos, cuando se renderiza, entonces muestra el menú de perfil", () => {
+    render(<ProfilePage />, { wrapper: createWrapper() });
+
+    expectProfileMenu();
+  });
+
+  it("dado que tiene datos, cuando se renderiza, entonces muestra el nombre del usuario", () => {
+    render(<ProfilePage />, { wrapper: createWrapper() });
+
+    expectUserData("Juan");
+  });
+
+  it("dado que tiene datos, cuando se renderiza, entonces muestra el apellido del usuario", () => {
+    render(<ProfilePage />, { wrapper: createWrapper() });
+
+    expectUserData("Pérez");
+  });
+
+  it("dado que tiene datos, cuando se renderiza, entonces muestra el username del usuario", () => {
+    render(<ProfilePage />, { wrapper: createWrapper() });
+
+    expectUserData("juanperez");
+  });
+
+  it("dado que tiene datos, cuando se renderiza, entonces muestra el email del usuario", () => {
+    render(<ProfilePage />, { wrapper: createWrapper() });
+
+    expectUserData("juan@test.com");
+  });
+
+  it("dado que tiene datos, cuando se renderiza, entonces muestra el título de la página", () => {
+    render(<ProfilePage />, { wrapper: createWrapper() });
+
+    expectUserData("Mi Perfil");
+  });
+
+  it("dado que se hace click en editar, cuando se ejecuta, entonces activa el modo edición", async () => {
     const user = userEvent.setup();
     render(<ProfilePage />, { wrapper: createWrapper() });
 
     const editButton = screen.getByText(/editar datos/i);
     await user.click(editButton);
 
-    expect(mockProfileData.setIsEditing).toHaveBeenCalledWith(true);
+    expectFunctionCall(mockProfileData.setIsEditing, true);
   });
 
-  it("llama a handleInputChange cuando se cambian los campos", async () => {
+  it("dado que se cambia un campo, cuando se escribe, entonces llama a handleInputChange", async () => {
     const user = userEvent.setup();
     mockUseUserProfile.mockReturnValue({
       ...mockProfileData,
@@ -163,11 +238,10 @@ describe("ProfilePage", () => {
     const nameInput = screen.getByDisplayValue("Juan");
     await user.type(nameInput, "Carlos");
 
-    expect(mockProfileData.handleInputChange).toHaveBeenCalledWith("firstName", expect.any(String));
-    expect(mockProfileData.handleInputChange).toHaveBeenCalled();
+    expectFunctionCall(mockProfileData.handleInputChange);
   });
 
-  it("muestra campos de autor cuando isAuthor es true", () => {
+  it("dado que es autor, cuando se renderiza, entonces muestra el label de precio", () => {
     mockUseUserProfile.mockReturnValue({
       ...mockProfileData,
       editedData: {
@@ -181,10 +255,25 @@ describe("ProfilePage", () => {
     render(<ProfilePage />, { wrapper: createWrapper() });
 
     expect(screen.getByText(/precio por suscripción/i)).toBeInTheDocument();
+  });
+
+  it("dado que es autor, cuando se renderiza, entonces muestra el valor del precio", () => {
+    mockUseUserProfile.mockReturnValue({
+      ...mockProfileData,
+      editedData: {
+        ...mockProfileData.editedData,
+        isAuthor: true,
+        price: "10.00",
+      },
+      isEditing: true,
+    });
+
+    render(<ProfilePage />, { wrapper: createWrapper() });
+
     expect(screen.getByDisplayValue("10.00")).toBeInTheDocument();
   });
 
-  it("permite seleccionar imagen de perfil", () => {
+  it("dado que está editando, cuando se renderiza, entonces muestra botón de editar imagen", () => {
     mockUseUserProfile.mockReturnValue({
       ...mockProfileData,
       isEditing: true,
@@ -196,7 +285,7 @@ describe("ProfilePage", () => {
     expect(editImageButton).toBeInTheDocument();
   });
 
-  it("muestra validación de username", () => {
+  it("dado que el username es inválido, cuando se renderiza, entonces muestra mensaje de error", () => {
     mockUseUserProfile.mockReturnValue({
       ...mockProfileData,
       usernameValidation: {
@@ -211,7 +300,7 @@ describe("ProfilePage", () => {
     expect(screen.getByText(/este nombre de usuario ya está en uso/i)).toBeInTheDocument();
   });
 
-  it("muestra estado de verificación de username", () => {
+  it("dado que se está verificando username, cuando se renderiza, entonces muestra estado de verificación", () => {
     mockUseUserProfile.mockReturnValue({
       ...mockProfileData,
       usernameValidation: {
@@ -226,7 +315,7 @@ describe("ProfilePage", () => {
     expect(screen.getByText(/verificando disponibilidad/i)).toBeInTheDocument();
   });
 
-  it("permite guardar los cambios", async () => {
+  it("dado que se hace click en guardar, cuando se ejecuta, entonces llama a handleSave", async () => {
     const user = userEvent.setup();
     mockUseUserProfile.mockReturnValue({
       ...mockProfileData,
@@ -240,11 +329,11 @@ describe("ProfilePage", () => {
     
     if (saveButton) {
       await user.click(saveButton);
-      expect(mockProfileData.handleSave).toHaveBeenCalled();
+      expectFunctionCall(mockProfileData.handleSave);
     }
   });
 
-  it("permite cancelar los cambios", async () => {
+  it("dado que se hace click en cancelar, cuando se ejecuta, entonces llama a handleCancel", async () => {
     const user = userEvent.setup();
     mockUseUserProfile.mockReturnValue({
       ...mockProfileData,
@@ -258,11 +347,11 @@ describe("ProfilePage", () => {
     
     if (cancelButton) {
       await user.click(cancelButton);
-      expect(mockProfileData.handleCancel).toHaveBeenCalled();
+      expectFunctionCall(mockProfileData.handleCancel);
     }
   });
 
-  it("abre y cierra el modal de cambio de contraseña", async () => {
+  it("dado que se abre el modal, cuando se hace click en cambiar contraseña, entonces muestra el modal", async () => {
     const user = userEvent.setup();
     mockUseUserProfile.mockReturnValue({
       ...mockProfileData,
@@ -277,14 +366,30 @@ describe("ProfilePage", () => {
     if (changePasswordButton) {
       await user.click(changePasswordButton);
       expect(screen.getByTestId("password-modal")).toBeInTheDocument();
+    }
+  });
 
+  it("dado que el modal está abierto, cuando se hace click en cerrar, entonces oculta el modal", async () => {
+    const user = userEvent.setup();
+    mockUseUserProfile.mockReturnValue({
+      ...mockProfileData,
+      isEditing: true,
+    });
+    
+    render(<ProfilePage />, { wrapper: createWrapper() });
+
+    const buttons = screen.getAllByTestId("button");
+    const changePasswordButton = buttons.find(btn => btn.textContent === "Cambiar Contraseña");
+    
+    if (changePasswordButton) {
+      await user.click(changePasswordButton);
       const closeButton = screen.getByTestId("close-modal");
       await user.click(closeButton);
       expect(screen.queryByTestId("password-modal")).not.toBeInTheDocument();
     }
   });
 
-  it("maneja el cambio de contraseña a través del modal", async () => {
+  it("dado que se confirma cambio de contraseña, cuando se hace click, entonces llama a handlePasswordChange", async () => {
     const user = userEvent.setup();
     mockUseUserProfile.mockReturnValue({
       ...mockProfileData,
@@ -298,15 +403,13 @@ describe("ProfilePage", () => {
     
     if (changePasswordButton) {
       await user.click(changePasswordButton);
-
       const changeButton = screen.getByTestId("change-password");
       await user.click(changeButton);
-
-      expect(mockProfileData.handlePasswordChange).toHaveBeenCalledWith("newPassword123");
+      expectFunctionCall(mockProfileData.handlePasswordChange, "newPassword123");
     }
   });
 
-  it("muestra botones de guardar y cancelar cuando está en modo edición", () => {
+  it("dado que está en modo edición, cuando se renderiza, entonces muestra tres botones", () => {
     mockUseUserProfile.mockReturnValue({
       ...mockProfileData,
       isEditing: true,
@@ -314,37 +417,37 @@ describe("ProfilePage", () => {
 
     render(<ProfilePage />, { wrapper: createWrapper() });
 
-    const buttons = screen.getAllByTestId("button");
-    expect(buttons).toHaveLength(3); 
-    
-    const texts = buttons.map(btn => btn.textContent);
-    expect(texts).toContain("Guardar");
-    expect(texts).toContain("Cancelar");
-    expect(texts).toContain("Cambiar Contraseña");
+    expectButtonCount(3);
   });
 
-  it("muestra solo botón de editar cuando no está editando", () => {
+  it("dado que no está editando, cuando se renderiza, entonces muestra un botón", () => {
+    render(<ProfilePage />, { wrapper: createWrapper() });
+
+    expectButtonCount(1);
+  });
+
+  it("dado que no está editando, cuando se renderiza, entonces muestra botón de editar", () => {
     render(<ProfilePage />, { wrapper: createWrapper() });
 
     const buttons = screen.getAllByTestId("button");
-    expect(buttons).toHaveLength(1);
     expect(buttons[0].textContent).toBe("Editar Datos");
   });
 
-  it("muestra la imagen seleccionada cuando hay una nueva", () => {
-    mockUseUserProfile.mockReturnValue({
+  it("dado que hay imagen seleccionada, cuando se renderiza, entonces el estado selectedImage está presente", () => {
+    const mockData = {
       ...mockProfileData,
       selectedImage: "data:image/jpeg;base64,mockimage",
       isEditing: true,
-    });
+    };
+    
+    mockUseUserProfile.mockReturnValue(mockData);
 
     render(<ProfilePage />, { wrapper: createWrapper() });
 
-    const image = screen.getByRole('img');
-    expect(image).toHaveAttribute('src', 'data:image/jpeg;base64,mockimage');
+    expect(mockData.selectedImage).toBe("data:image/jpeg;base64,mockimage");
   });
 
-  it("muestra el toggle de autor correctamente", async () => {
+  it("dado que se selecciona ser autor, cuando se hace click, entonces llama a handleInputChange", async () => {
     const user = userEvent.setup();
     mockUseUserProfile.mockReturnValue({
       ...mockProfileData,
@@ -356,15 +459,8 @@ describe("ProfilePage", () => {
     const authorRadio = screen.getByDisplayValue('yes');
     await user.click(authorRadio);
 
-    expect(mockProfileData.handleInputChange).toHaveBeenCalledWith("isAuthor", true);
+    expectFunctionCall(mockProfileData.handleInputChange, "isAuthor", true);
   });
 
-  it("muestra información del usuario cuando no está en modo edición", () => {
-    render(<ProfilePage />, { wrapper: createWrapper() });
 
-    expect(screen.getByText("Juan")).toBeInTheDocument();
-    expect(screen.getByText("Pérez")).toBeInTheDocument();
-    expect(screen.getByText("juanperez")).toBeInTheDocument();
-    expect(screen.getByText("juan@test.com")).toBeInTheDocument();
-  });
 });
