@@ -29,8 +29,11 @@ Object.defineProperty(import.meta, 'env', {
 });
 
 
-const expectSuccessfulResponse = (result: any, expectedStatus: number, expectedUrl: string) => {
+const expectFetchStatus = (result: any, expectedStatus: number) => {
   expect(result.fetchStatus).toBe(expectedStatus);
+};
+
+const expectRedirectUrl = (result: any, expectedUrl: string) => {
   expect(result.redirectUrl).toBe(expectedUrl);
 };
 
@@ -145,13 +148,22 @@ describe('PaymentService', () => {
         expect(body.returnUrl).toContain('mock-uuid-1234');
       });
 
-      it('dado que backend responde exitosamente, cuando se suscribe a obra, entonces retorna respuesta correcta', async () => {
+      it('dado que backend responde exitosamente, cuando se suscribe a obra, entonces retorna status correcto', async () => {
         setupAuthToken('valid-token');
         setupSuccessfulResponse('https://mercadopago.com/checkout');
 
         const result = await subscribeToWork(123, 'mercadopago');
 
-        expectSuccessfulResponse(result, 200, 'https://mercadopago.com/checkout');
+        expectFetchStatus(result, 200);
+      });
+
+      it('dado que backend responde exitosamente, cuando se suscribe a obra, entonces retorna URL de redirección correcta', async () => {
+        setupAuthToken('valid-token');
+        setupSuccessfulResponse('https://mercadopago.com/checkout');
+
+        const result = await subscribeToWork(123, 'mercadopago');
+
+        expectRedirectUrl(result, 'https://mercadopago.com/checkout');
       });
     });
 
@@ -166,7 +178,7 @@ describe('PaymentService', () => {
 
         const result = await subscribeToWork(123, 'mercadopago');
 
-        expectSuccessfulResponse(result, 200, 'https://mp.com/redirect');
+        expectRedirectUrl(result, 'https://mp.com/redirect');
       });
 
       it('dado que respuesta no tiene redirectUrl pero tiene url, cuando se procesa respuesta, entonces usa url', async () => {
@@ -178,7 +190,7 @@ describe('PaymentService', () => {
 
         const result = await subscribeToWork(123, 'mercadopago');
 
-        expectSuccessfulResponse(result, 200, 'https://mp.com/url');
+        expectRedirectUrl(result, 'https://mp.com/url');
       });
 
       it('dado que respuesta solo tiene init_point, cuando se procesa respuesta, entonces usa init_point', async () => {
@@ -190,7 +202,7 @@ describe('PaymentService', () => {
 
         const result = await subscribeToWork(123, 'mercadopago');
 
-        expectSuccessfulResponse(result, 200, 'https://mp.com/init');
+        expectRedirectUrl(result, 'https://mp.com/init');
       });
 
       it('dado que respuesta solo tiene sandbox_init_point, cuando se procesa respuesta, entonces usa sandbox_init_point', async () => {
@@ -201,7 +213,7 @@ describe('PaymentService', () => {
 
         const result = await subscribeToWork(123, 'mercadopago');
 
-        expectSuccessfulResponse(result, 200, 'https://mp.com/sandbox');
+        expectRedirectUrl(result, 'https://mp.com/sandbox');
       });
     });
 
@@ -253,13 +265,22 @@ describe('PaymentService', () => {
         });
       });
 
-      it('dado que backend responde exitosamente, cuando se suscribe a autor, entonces retorna respuesta correcta', async () => {
+      it('dado que backend responde exitosamente, cuando se suscribe a autor, entonces retorna status correcto', async () => {
         setupAuthToken('valid-token');
         setupSuccessfulResponse('https://mercadopago.com/checkout');
 
         const result = await subscribeToAuthor(456, 'mercadopago');
 
-        expectSuccessfulResponse(result, 200, 'https://mercadopago.com/checkout');
+        expectFetchStatus(result, 200);
+      });
+
+      it('dado que backend responde exitosamente, cuando se suscribe a autor, entonces retorna URL de redirección correcta', async () => {
+        setupAuthToken('valid-token');
+        setupSuccessfulResponse('https://mercadopago.com/checkout');
+
+        const result = await subscribeToAuthor(456, 'mercadopago');
+
+        expectRedirectUrl(result, 'https://mercadopago.com/checkout');
       });
     });
   });
@@ -280,13 +301,22 @@ describe('PaymentService', () => {
         });
       });
 
-      it('dado que backend responde exitosamente, cuando se suscribe a capítulo, entonces retorna respuesta correcta', async () => {
+      it('dado que backend responde exitosamente, cuando se suscribe a capítulo, entonces retorna status correcto', async () => {
         setupAuthToken('valid-token');
         setupSuccessfulResponse('https://mercadopago.com/checkout');
 
         const result = await subscribeToChapter(789, 123, 'mercadopago');
 
-        expectSuccessfulResponse(result, 200, 'https://mercadopago.com/checkout');
+        expectFetchStatus(result, 200);
+      });
+
+      it('dado que backend responde exitosamente, cuando se suscribe a capítulo, entonces retorna URL de redirección correcta', async () => {
+        setupAuthToken('valid-token');
+        setupSuccessfulResponse('https://mercadopago.com/checkout');
+
+        const result = await subscribeToChapter(789, 123, 'mercadopago');
+
+        expectRedirectUrl(result, 'https://mercadopago.com/checkout');
       });
 
       it('dado que se suscribe a capítulo, cuando se genera returnUrl, entonces incluye UUID único', async () => {

@@ -28,18 +28,17 @@ const expectSuccessfulTranslation = (result: string, expected: string) => {
   expect(result).toBe(expected);
 };
 
-const expectTranslationRequestBody = (sourceLanguage: string, targetLanguage: string, originalText: string) => {
+const expectRequestBodyEquals = (expectedBody: any) => {
   const lastCall = mockFetch.mock.calls[mockFetch.mock.calls.length - 1];
   const body = JSON.parse(lastCall[1].body);
-  expect(body).toEqual({
-    sourceLanguage,
-    targetLanguage,
-    originalText
-  });
+  expect(body).toEqual(expectedBody);
 };
 
-const expectAuthTokenUsed = (token: string) => {
+const expectAuthStoreWasCalled = () => {
   expect(useAuthStore.getState).toHaveBeenCalled();
+};
+
+const expectAuthorizationHeader = (token: string) => {
   const lastCall = mockFetch.mock.calls[mockFetch.mock.calls.length - 1];
   expect(lastCall[1].headers.Authorization).toBe(`Bearer ${token}`);
 };
@@ -186,13 +185,22 @@ describe('TranslateService', () => {
       expectCorrectTranslationUrl();
     });
 
+    it('dado que usuario tiene token, cuando se ejecuta translateContent, entonces llama a AuthStore', async () => {
+      setupAuthToken('valid-token');
+      setupJsonResponse('Hello world');
+
+      await translateContent('es', 'en', 'Hola mundo');
+
+      expectAuthStoreWasCalled();
+    });
+
     it('dado que usuario tiene token, cuando se ejecuta translateContent, entonces incluye token en headers', async () => {
       setupAuthToken('valid-token');
       setupJsonResponse('Hello world');
 
       await translateContent('es', 'en', 'Hola mundo');
 
-      expectAuthTokenUsed('valid-token');
+      expectAuthorizationHeader('valid-token');
     });
 
     it('dado que parámetros son válidos, cuando se ejecuta translateContent, entonces genera body correcto', async () => {
@@ -201,7 +209,11 @@ describe('TranslateService', () => {
 
       await translateContent('es', 'en', 'Hola mundo');
 
-      expectTranslationRequestBody('es', 'en', 'Hola mundo');
+      expectRequestBodyEquals({
+        sourceLanguage: 'es',
+        targetLanguage: 'en',
+        originalText: 'Hola mundo'
+      });
     });
 
     it('dado que backend responde con JSON válido, cuando se ejecuta translateContent, entonces retorna texto traducido', async () => {

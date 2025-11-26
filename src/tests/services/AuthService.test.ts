@@ -17,13 +17,28 @@ Object.defineProperty(import.meta, 'env', {
   configurable: true
 });
 
-const expectSuccessfulLoginResponse = (result: any, expectedData: any) => {
-  expect(result.token).toBe(expectedData.token);
-  expect(result.userId).toBe(expectedData.userId);
-  expect(result.email).toBe(expectedData.email);
-  expect(result.name).toBe(expectedData.name);
-  expect(result.surname).toBe(expectedData.surname);
-  expect(result.username).toBe(expectedData.username);
+const expectLoginToken = (result: any, expectedToken: string) => {
+  expect(result.token).toBe(expectedToken);
+};
+
+const expectLoginUserId = (result: any, expectedUserId: number) => {
+  expect(result.userId).toBe(expectedUserId);
+};
+
+const expectLoginEmail = (result: any, expectedEmail: string) => {
+  expect(result.email).toBe(expectedEmail);
+};
+
+const expectLoginName = (result: any, expectedName: string) => {
+  expect(result.name).toBe(expectedName);
+};
+
+const expectLoginSurname = (result: any, expectedSurname: string) => {
+  expect(result.surname).toBe(expectedSurname);
+};
+
+const expectLoginUsername = (result: any, expectedUsername: string) => {
+  expect(result.username).toBe(expectedUsername);
 };
 
 const expectApiRequestCalledWith = (url: string, method: string, data: any) => {
@@ -42,8 +57,11 @@ const expectFetchCalledWith = (url: string, method: string, body: any) => {
   });
 };
 
-const expectSuccessfulRegisterResponse = (result: any, expectedStatus: number) => {
+const expectRegisterStatus = (result: any, expectedStatus: number) => {
   expect(result.status).toBe(expectedStatus);
+};
+
+const expectRegisterDataDefined = (result: any) => {
   expect(result.data).toBeDefined();
 };
 
@@ -153,7 +171,7 @@ describe('AuthService', () => {
         expectLoginDataStructure('test@example.com', 'password123');
       });
 
-      it('dado que backend responde exitosamente, cuando se ejecuta login, entonces retorna respuesta completa', async () => {
+      it('dado que backend responde exitosamente, cuando se ejecuta login, entonces retorna token válido', async () => {
         const mockResponse = {
           token: 'valid-jwt-token',
           userId: 123,
@@ -166,7 +184,87 @@ describe('AuthService', () => {
 
         const result = await useLogin('test@example.com', 'password123');
 
-        expectSuccessfulLoginResponse(result, mockResponse);
+        expectLoginToken(result, 'valid-jwt-token');
+      });
+
+      it('dado que backend responde exitosamente, cuando se ejecuta login, entonces retorna userId correcto', async () => {
+        const mockResponse = {
+          token: 'valid-jwt-token',
+          userId: 123,
+          email: 'test@example.com',
+          name: 'John',
+          surname: 'Doe',
+          username: 'johndoe'
+        };
+        setupSuccessfulLoginResponse(mockResponse);
+
+        const result = await useLogin('test@example.com', 'password123');
+
+        expectLoginUserId(result, 123);
+      });
+
+      it('dado que backend responde exitosamente, cuando se ejecuta login, entonces retorna email correcto', async () => {
+        const mockResponse = {
+          token: 'valid-jwt-token',
+          userId: 123,
+          email: 'test@example.com',
+          name: 'John',
+          surname: 'Doe',
+          username: 'johndoe'
+        };
+        setupSuccessfulLoginResponse(mockResponse);
+
+        const result = await useLogin('test@example.com', 'password123');
+
+        expectLoginEmail(result, 'test@example.com');
+      });
+
+      it('dado que backend responde exitosamente, cuando se ejecuta login, entonces retorna name correcto', async () => {
+        const mockResponse = {
+          token: 'valid-jwt-token',
+          userId: 123,
+          email: 'test@example.com',
+          name: 'John',
+          surname: 'Doe',
+          username: 'johndoe'
+        };
+        setupSuccessfulLoginResponse(mockResponse);
+
+        const result = await useLogin('test@example.com', 'password123');
+
+        expectLoginName(result, 'John');
+      });
+
+      it('dado que backend responde exitosamente, cuando se ejecuta login, entonces retorna surname correcto', async () => {
+        const mockResponse = {
+          token: 'valid-jwt-token',
+          userId: 123,
+          email: 'test@example.com',
+          name: 'John',
+          surname: 'Doe',
+          username: 'johndoe'
+        };
+        setupSuccessfulLoginResponse(mockResponse);
+
+        const result = await useLogin('test@example.com', 'password123');
+
+        expectLoginSurname(result, 'Doe');
+      });
+
+      it('dado que backend responde exitosamente, cuando se ejecuta login, entonces retorna username correcto', async () => {
+        const mockResponse = {
+          token: 'valid-jwt-token',
+          userId: 123,
+          email: 'test@example.com',
+          name: 'John',
+          surname: 'Doe',
+          username: 'johndoe'
+        };
+        setupSuccessfulLoginResponse(mockResponse);
+
+        const result = await useLogin('test@example.com', 'password123');
+
+        expectLoginUsername(result, 'johndoe');
       });
     });
 
@@ -231,7 +329,7 @@ describe('AuthService', () => {
         expectRegisterDataStructure(registerData);
       });
 
-      it('dado que backend responde exitosamente, cuando se ejecuta register, entonces retorna respuesta con status', async () => {
+      it('dado que backend responde exitosamente, cuando se ejecuta register, entonces retorna status correcto', async () => {
         const registerData = {
           name: 'John',
           surname: 'Doe',
@@ -245,7 +343,40 @@ describe('AuthService', () => {
 
         const result = await useRegister(registerData);
 
-        expectSuccessfulRegisterResponse(result, 201);
+        expectRegisterStatus(result, 201);
+      });
+
+      it('dado que backend responde exitosamente, cuando se ejecuta register, entonces retorna datos definidos', async () => {
+        const registerData = {
+          name: 'John',
+          surname: 'Doe',
+          username: 'johndoe',
+          email: 'john@example.com', 
+          password: 'password123',
+          confirmPassword: 'password123'
+        };
+        const mockResponseData = { message: 'User created successfully', userId: 456 };
+        setupSuccessfulRegisterResponse(201, mockResponseData);
+
+        const result = await useRegister(registerData);
+
+        expectRegisterDataDefined(result);
+      });
+
+      it('dado que backend responde exitosamente, cuando se ejecuta register, entonces retorna datos correctos', async () => {
+        const registerData = {
+          name: 'John',
+          surname: 'Doe',
+          username: 'johndoe',
+          email: 'john@example.com', 
+          password: 'password123',
+          confirmPassword: 'password123'
+        };
+        const mockResponseData = { message: 'User created successfully', userId: 456 };
+        setupSuccessfulRegisterResponse(201, mockResponseData);
+
+        const result = await useRegister(registerData);
+
         expect(result.data).toEqual(mockResponseData);
       });
     });
@@ -364,7 +495,7 @@ describe('AuthService', () => {
         );
       });
 
-      it('dado que respuesta tiene status 500, cuando falla register, entonces incluye datos del error', async () => {
+      it('dado que respuesta tiene status 500, cuando falla register, entonces incluye status correcto', async () => {
         const registerData = {
           name: 'John',
           surname: 'Doe',
@@ -380,6 +511,24 @@ describe('AuthService', () => {
           expect.fail('Expected error to be thrown');
         } catch (error: any) {
           expect(error.status).toBe(500);
+        }
+      });
+
+      it('dado que respuesta tiene status 500, cuando falla register, entonces incluye datos del error', async () => {
+        const registerData = {
+          name: 'John',
+          surname: 'Doe',
+          username: 'johndoe',
+          email: 'john@example.com',
+          password: 'password123',
+          confirmPassword: 'password123'
+        };
+        
+        try {
+          setupFailedRegisterResponse(500, 'Internal server error', { trace: 'stack-trace' });
+          await useRegister(registerData);
+          expect.fail('Expected error to be thrown');
+        } catch (error: any) {
           expect(error.data).toEqual({ message: 'Internal server error', trace: 'stack-trace' });
         }
       });
