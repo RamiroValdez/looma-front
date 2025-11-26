@@ -5,8 +5,8 @@ import GradientSection from '../../components/GradientSection';
 import PasswordChangeModal from './components/PasswordChangeModal';
 import { useUserProfile } from '../../hooks/useUserProfile';
 import Analytics from "./components/Analytics.tsx";
-import { MySaves } from "./MySaves";
-import TermsAndConditions from "./TermsAndConditions.tsx"; // nuevo import
+import { MySaves } from "./MySaves.tsx";
+import TermsAndConditions from "./TermsAndConditions.tsx"; 
 import { Subscriptions } from "./SubscriptionsPage";
 
 const ProfilePage = () => {
@@ -30,7 +30,6 @@ const ProfilePage = () => {
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
   const [blockSelected, setBlockSelected] = useState<string>('profile');
 
-  // leer hash inicial
   useEffect(() => {
     const hash = window.location.hash.replace('#','');
     if (hash === 'suscripciones') {
@@ -46,7 +45,6 @@ const ProfilePage = () => {
 
   const handleSelectBlock = (block: string) => {
     setBlockSelected(block);
-    // sincronizar hash para deep-linking
     let newHash: string;
     switch (block) {
       case 'subscriptions': newHash = 'suscripciones'; break;
