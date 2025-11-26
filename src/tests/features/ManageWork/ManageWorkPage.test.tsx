@@ -31,6 +31,52 @@ vi.mock('../../../infrastructure/services/CompositionService', () => ({
 
 const mockUseManageWorkData = vi.mocked(useManageWorkData);
 
+function expectTextToBeInDocument(text: string) {
+  expect(screen.getByText(text)).toBeInTheDocument();
+}
+
+function expectTextNotInDocument(text: string) {
+  expect(screen.queryByText(text)).not.toBeInTheDocument();
+}
+
+function expectImageWithAlt(altText: string, src?: string) {
+  const image = screen.getByAltText(altText);
+  expect(image).toBeInTheDocument();
+  if (src) {
+    expect(image).toHaveAttribute('src', src);
+  }
+}
+
+function expectButtonWithName(name: RegExp | string) {
+  expect(screen.getByRole('button', { name })).toBeInTheDocument();
+}
+
+function expectCheckboxToBeChecked(name: RegExp | string) {
+  const checkbox = screen.getByRole('checkbox', { name });
+  expect(checkbox).toBeChecked();
+}
+
+function expectInputWithValue(value: string) {
+  expect(screen.getByDisplayValue(value)).toBeInTheDocument();
+}
+
+function expectInputWithPlaceholder(placeholder: string, value?: string) {
+  const input = screen.getByPlaceholderText(placeholder);
+  expect(input).toBeInTheDocument();
+  if (value !== undefined) {
+    expect(input).toHaveValue(value);
+  }
+}
+
+function expectFunctionToHaveBeenCalledTimes(mockFn: any, times: number) {
+  expect(mockFn).toHaveBeenCalledTimes(times);
+}
+
+function clickButtonWithName(name: RegExp | string) {
+  const button = screen.getByRole('button', { name });
+  button.click();
+}
+
 describe('ManageWorkPage', () => {
   const createMockWork = (overrides?: Partial<WorkDTO>): WorkDTO => ({
     id: 1,
@@ -162,7 +208,7 @@ describe('ManageWorkPage', () => {
   };
 
   describe('Renderizado básico', () => {
-    it('should render work title when work is loaded', () => {
+    it('debería renderizar título de obra cuando está cargada', () => {
       const mockWork = createMockWork({ title: 'Mi Obra Genial' });
       mockUseManageWorkData.mockReturnValue({
         ...defaultMockData,
@@ -171,13 +217,26 @@ describe('ManageWorkPage', () => {
 
       renderComponent();
 
-      expect(screen.getByText('Mi Obra Genial')).toBeInTheDocument();
-      expect(screen.getByText('Nombre de la obra:')).toBeInTheDocument();
+      expectTextToBeInDocument('Mi Obra Genial');
+      expectTextToBeInDocument('Nombre de la obra:');
     });
 
-    it('should render work format and language information', () => {
+    it('debería renderizar formato de obra', () => {
       const mockWork = createMockWork({
-        format: { id: 2, name: 'Novela Gráfica' },
+        format: { id: 2, name: 'Novela Gráfica' }
+      });
+      mockUseManageWorkData.mockReturnValue({
+        ...defaultMockData,
+        work: mockWork,
+      });
+
+      renderComponent();
+
+      expectTextToBeInDocument('Novela Gráfica');
+    });
+
+    it('debería renderizar idioma original de obra', () => {
+      const mockWork = createMockWork({
         originalLanguage: { id: 1, name: 'Francés' }
       });
       mockUseManageWorkData.mockReturnValue({
@@ -187,13 +246,26 @@ describe('ManageWorkPage', () => {
 
       renderComponent();
 
-      expect(screen.getByText('Novela Gráfica')).toBeInTheDocument();
-      expect(screen.getByText('Francés')).toBeInTheDocument();
-      expect(screen.getByText('Formato:')).toBeInTheDocument();
-      expect(screen.getByText('Idioma Original:')).toBeInTheDocument();
+      expectTextToBeInDocument('Francés');
     });
 
-    it('should render work description or fallback text', () => {
+    it('debería renderizar etiqueta de formato', () => {
+      mockUseManageWorkData.mockReturnValue(defaultMockData);
+
+      renderComponent();
+
+      expectTextToBeInDocument('Formato:');
+    });
+
+    it('debería renderizar etiqueta de idioma original', () => {
+      mockUseManageWorkData.mockReturnValue(defaultMockData);
+
+      renderComponent();
+
+      expectTextToBeInDocument('Idioma Original:');
+    });
+
+    it('debería renderizar descripción de obra o texto de respaldo', () => {
       const mockWork = createMockWork({ description: '' });
       mockUseManageWorkData.mockReturnValue({
         ...defaultMockData,
@@ -202,10 +274,10 @@ describe('ManageWorkPage', () => {
 
       renderComponent();
 
-      expect(screen.getByText('Sin descripción...')).toBeInTheDocument();
+      expectTextToBeInDocument('Sin descripción...');
     });
 
-    it('should render work cover image', () => {
+    it('debería renderizar imagen de portada de obra', () => {
       const mockWork = createMockWork({ cover: 'https://example.com/cover.jpg' });
       mockUseManageWorkData.mockReturnValue({
         ...defaultMockData,
@@ -214,42 +286,68 @@ describe('ManageWorkPage', () => {
 
       renderComponent();
 
-      const coverImage = screen.getByAltText('Test Work');
-      expect(coverImage).toBeInTheDocument();
-      expect(coverImage).toHaveAttribute('src', 'https://example.com/cover.jpg');
+      expectImageWithAlt('Test Work', 'https://example.com/cover.jpg');
     });
 
-    it('should render main action buttons', () => {
+    it('debería renderizar botón editar banner', () => {
       mockUseManageWorkData.mockReturnValue(defaultMockData);
 
       renderComponent();
 
-      expect(screen.getByRole('button', { name: /editar banner/i })).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: /editar portada/i })).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: /agregar capítulo/i })).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: /guardar/i })).toBeInTheDocument();
+      expectButtonWithName(/editar banner/i);
+    });
+
+    it('debería renderizar botón editar portada', () => {
+      mockUseManageWorkData.mockReturnValue(defaultMockData);
+
+      renderComponent();
+
+      expectButtonWithName(/editar portada/i);
+    });
+
+    it('debería renderizar botón agregar capítulo', () => {
+      mockUseManageWorkData.mockReturnValue(defaultMockData);
+
+      renderComponent();
+
+      expectButtonWithName(/agregar capítulo/i);
+    });
+
+    it('debería renderizar botón guardar', () => {
+      mockUseManageWorkData.mockReturnValue(defaultMockData);
+
+      renderComponent();
+
+      expectButtonWithName(/guardar/i);
     });
   });
 
   describe('Estados de carga y error', () => {
-    it('should show loading state when data is being fetched', () => {
-      // Given: El hook está en estado de carga
+    it('debería mostrar mensaje de carga cuando loading es true', () => {
       mockUseManageWorkData.mockReturnValue({
         ...defaultMockData,
         loading: true,
         work: null,
       });
 
-      // When: Se renderiza el componente
       renderComponent();
 
-      // Then: Debe mostrar el mensaje de carga
-      expect(screen.getByText('Cargando obra...')).toBeInTheDocument();
-      expect(screen.queryByText('Nombre de la obra:')).not.toBeInTheDocument();
+      expectTextToBeInDocument('Cargando obra...');
     });
 
-    it('should show error state when there is an error', () => {
-      // Given: El hook tiene un error
+    it('debería ocultar contenido principal cuando está cargando', () => {
+      mockUseManageWorkData.mockReturnValue({
+        ...defaultMockData,
+        loading: true,
+        work: null,
+      });
+
+      renderComponent();
+
+      expectTextNotInDocument('Nombre de la obra:');
+    });
+
+    it('debería mostrar mensaje de error cuando hay un error', () => {
       mockUseManageWorkData.mockReturnValue({
         ...defaultMockData,
         loading: false,
@@ -257,16 +355,25 @@ describe('ManageWorkPage', () => {
         error: 'Error al cargar el trabajo',
       });
 
-      // When: Se renderiza el componente
       renderComponent();
 
-      // Then: Debe mostrar el mensaje de error
-      expect(screen.getByText('Error al cargar el trabajo')).toBeInTheDocument();
-      expect(screen.queryByText('Nombre de la obra:')).not.toBeInTheDocument();
+      expectTextToBeInDocument('Error al cargar el trabajo');
     });
 
-    it('should show error state when work is null', () => {
-      // Given: El hook no tiene trabajo cargado
+    it('debería ocultar contenido principal cuando hay error', () => {
+      mockUseManageWorkData.mockReturnValue({
+        ...defaultMockData,
+        loading: false,
+        work: null,
+        error: 'Error al cargar el trabajo',
+      });
+
+      renderComponent();
+
+      expectTextNotInDocument('Nombre de la obra:');
+    });
+
+    it('debería mostrar estado de error cuando la obra es nula', () => {
       mockUseManageWorkData.mockReturnValue({
         ...defaultMockData,
         loading: false,
@@ -274,184 +381,162 @@ describe('ManageWorkPage', () => {
         error: null,
       });
 
-      // When: Se renderiza el componente
       renderComponent();
 
-      // Then: Debe mostrar mensaje de work not found
-      expect(screen.getByText('Work not found')).toBeInTheDocument();
+      expectTextToBeInDocument('Work not found');
     });
 
-    it('should show banner error when present', () => {
-      // Given: Un error en el banner
+    it('debería mostrar error de banner cuando está presente', () => {
       mockUseManageWorkData.mockReturnValue({
         ...defaultMockData,
         errorBanner: 'Error al subir el banner',
       });
 
-      // When: Se renderiza el componente
       renderComponent();
 
-      // Then: Debe mostrar el error del banner
-      expect(screen.getByText('Error al subir el banner')).toBeInTheDocument();
+      expectTextToBeInDocument('Error al subir el banner');
     });
 
-    it('should show cover error when present', () => {
-      // Given: Un error en la portada
+    it('debería mostrar error de portada cuando está presente', () => {
       mockUseManageWorkData.mockReturnValue({
         ...defaultMockData,
         errorCover: 'Error al subir la portada',
       });
 
-      // When: Se renderiza el componente
       renderComponent();
 
-      // Then: Debe mostrar el error de la portada
-      expect(screen.getByText('Error al subir la portada')).toBeInTheDocument();
+      expectTextToBeInDocument('Error al subir la portada');
     });
   });
 
   describe('Interacciones UI simples', () => {
-    it('should call handleCreateChapter when add chapter button is clicked', async () => {
-      // Given: Un trabajo cargado
+    it('debería llamar handleCreateChapter cuando se hace clic en botón agregar capítulo', async () => {
       const handleCreateChapterMock = vi.fn();
       mockUseManageWorkData.mockReturnValue({
         ...defaultMockData,
         handleCreateChapter: handleCreateChapterMock,
       });
 
-      // When: Se renderiza y hace click en agregar capítulo
       renderComponent();
-      const addChapterButton = screen.getByRole('button', { name: /agregar capítulo/i });
-      addChapterButton.click();
+      clickButtonWithName(/agregar capítulo/i);
 
-      // Then: Debe llamar a la función
-      expect(handleCreateChapterMock).toHaveBeenCalledTimes(1);
+      expectFunctionToHaveBeenCalledTimes(handleCreateChapterMock, 1);
     });
 
-    it('should call handleSaveChanges when save button is clicked', () => {
-      // Given: Un componente renderizado
+    it('debería llamar handleSaveChanges cuando se hace clic en botón guardar', () => {
       const handleSaveChangesMock = vi.fn();
       mockUseManageWorkData.mockReturnValue({
         ...defaultMockData,
         handleSaveChanges: handleSaveChangesMock,
       });
 
-      // When: Se hace click en el botón guardar
       renderComponent();
-      const saveButton = screen.getByRole('button', { name: /guardar/i });
-      saveButton.click();
+      clickButtonWithName(/guardar/i);
 
-      // Then: Debe llamar a handleSaveChanges
-      expect(handleSaveChangesMock).toHaveBeenCalledTimes(1);
+      expectFunctionToHaveBeenCalledTimes(handleSaveChangesMock, 1);
     });
 
-    it('should show banner tooltip on hover', () => {
-      // Given: Un componente renderizado
+    it('debería mostrar tooltip de banner al pasar el cursor', () => {
       mockUseManageWorkData.mockReturnValue({
         ...defaultMockData,
         showBannerTooltip: true,
       });
 
-      // When: Se renderiza el componente
       renderComponent();
 
-      // Then: Debe mostrar el tooltip del banner
-      expect(screen.getByText('*Se admiten PNG, JPG, JPEG, WEBP de máximo 20mb. (Max 1345x256px).')).toBeInTheDocument();
+      expectTextToBeInDocument('*Se admiten PNG, JPG, JPEG, WEBP de máximo 20mb. (Max 1345x256px).');
     });
 
-    it('should render IA suggestion button', () => {
-      // Given: Un componente renderizado
+    it('debería renderizar botón de sugerencia de IA', () => {
       mockUseManageWorkData.mockReturnValue(defaultMockData);
 
-      // When: Se renderiza el componente
       renderComponent();
 
-      // Then: Debe mostrar el botón con icono de IA
-      const iaIcon = screen.getByAltText('Icono IA');
-      expect(iaIcon).toBeInTheDocument();
+      expectImageWithAlt('Icono IA');
     });
 
-    it('should show subscription checkbox and price input when allowSubscription is true', () => {
-      // Given: Suscripción habilitada
+    it('debería mostrar checkbox marcado cuando allowSubscription es true', () => {
+      mockUseManageWorkData.mockReturnValue({
+        ...defaultMockData,
+        allowSubscription: true,
+      });
+
+      renderComponent();
+
+      expectCheckboxToBeChecked(/permitir suscripción a obra/i);
+    });
+
+    it('debería mostrar input de precio con valor cuando price tiene contenido y allowSubscription es true', () => {
       mockUseManageWorkData.mockReturnValue({
         ...defaultMockData,
         allowSubscription: true,
         price: '9.99',
       });
 
-      // When: Se renderiza el componente
       renderComponent();
 
-      // Then: Debe mostrar el checkbox y el input de precio
-      const checkbox = screen.getByRole('checkbox', { name: /permitir suscripción a obra/i });
-      expect(checkbox).toBeChecked();
-      
-      const priceInput = screen.getByDisplayValue('9.99');
-      expect(priceInput).toBeInTheDocument();
+      expectInputWithValue('9.99');
     });
   });
 
   describe('Modales de Cover y AI', () => {
-    it('should render edit cover button', () => {
-      // Given: Un componente renderizado
+    it('debería renderizar botón de editar portada', () => {
       mockUseManageWorkData.mockReturnValue(defaultMockData);
 
-      // When: Se renderiza el componente
       renderComponent();
 
-      // Then: Debe mostrar el botón de editar portada
-      const editCoverButton = screen.getByRole('button', { name: /editar portada/i });
-      expect(editCoverButton).toBeInTheDocument();
+      expectButtonWithName(/editar portada/i);
     });
 
-    it('should render cover section with image', () => {
-      // Given: Un trabajo con portada
+    it('debería renderizar sección de portada con imagen', () => {
       const mockWork = createMockWork({ cover: 'test-cover.jpg' });
       mockUseManageWorkData.mockReturnValue({
         ...defaultMockData,
         work: mockWork,
       });
 
-      // When: Se renderiza el componente
       renderComponent();
 
-      // Then: Debe mostrar el botón de editar portada
-      const editCoverButton = screen.getByRole('button', { name: /editar portada/i });
-      expect(editCoverButton).toBeInTheDocument();
+      expectButtonWithName(/editar portada/i);
     });
 
-    it('should render banner section', () => {
-      // Given: Un trabajo con banner
+    it('debería renderizar sección de banner', () => {
       const mockWork = createMockWork({ banner: 'test-banner.jpg' });
       mockUseManageWorkData.mockReturnValue({
         ...defaultMockData,
         work: mockWork,
       });
 
-      // When: Se renderiza el componente
       renderComponent();
 
-      // Then: Debe mostrar el botón de editar banner
-      const editBannerButton = screen.getByRole('button', { name: /editar banner/i });
-      expect(editBannerButton).toBeInTheDocument();
+      expectButtonWithName(/editar banner/i);
     });
 
-    it('should render category selection area', () => {
-      // Given: Un componente renderizado
+    it('debería renderizar área de selección de categorías', () => {
       mockUseManageWorkData.mockReturnValue(defaultMockData);
 
-      // When: Se renderiza el componente
       renderComponent();
 
-      // Then: Debe mostrar el texto de categorías (con dos puntos)
-      const categoryLabel = screen.getByText('Categorías:');
-      expect(categoryLabel).toBeInTheDocument();
+      expectTextToBeInDocument('Categorías:');
     });
   });
 
   describe('Gestión de tags y categorías', () => {
-    it('should render selected categories', () => {
-      // Given: Categorías seleccionadas
+    it('debería renderizar primera categoría seleccionada', () => {
+      const selectedCategories = [
+        { id: 1, name: 'Fantasía' }
+      ];
+      mockUseManageWorkData.mockReturnValue({
+        ...defaultMockData,
+        selectedCategories,
+      });
+
+      renderComponent();
+
+      expectTextToBeInDocument('Fantasía');
+    });
+
+    it('debería renderizar segunda categoría seleccionada', () => {
       const selectedCategories = [
         { id: 1, name: 'Fantasía' },
         { id: 2, name: 'Romance' }
@@ -461,66 +546,82 @@ describe('ManageWorkPage', () => {
         selectedCategories,
       });
 
-      // When: Se renderiza el componente
       renderComponent();
 
-      // Then: Debe mostrar las categorías seleccionadas
-      expect(screen.getByText('Fantasía')).toBeInTheDocument();
-      expect(screen.getByText('Romance')).toBeInTheDocument();
+      expectTextToBeInDocument('Romance');
     });
 
-    it('should render current tags', () => {
-      // Given: Tags actuales
+    it('debería renderizar primer tag actual', () => {
+      const currentTags = ['aventura'];
+      mockUseManageWorkData.mockReturnValue({
+        ...defaultMockData,
+        currentTags,
+      });
+
+      renderComponent();
+
+      expectTextToBeInDocument('aventura');
+    });
+
+    it('debería renderizar segundo tag actual', () => {
+      const currentTags = ['aventura', 'magia'];
+      mockUseManageWorkData.mockReturnValue({
+        ...defaultMockData,
+        currentTags,
+      });
+
+      renderComponent();
+
+      expectTextToBeInDocument('magia');
+    });
+
+    it('debería renderizar tercer tag actual', () => {
       const currentTags = ['aventura', 'magia', 'dragones'];
       mockUseManageWorkData.mockReturnValue({
         ...defaultMockData,
         currentTags,
       });
 
-      // When: Se renderiza el componente
       renderComponent();
 
-      // Then: Debe mostrar los tags
-      expect(screen.getByText('aventura')).toBeInTheDocument();
-      expect(screen.getByText('magia')).toBeInTheDocument();
-      expect(screen.getByText('dragones')).toBeInTheDocument();
+      expectTextToBeInDocument('dragones');
     });
 
-    it('should show tag input when isAddingTag is true', () => {
-      // Given: Estado de agregar tag activo
+    it('debería mostrar input de tag cuando isAddingTag es true', () => {
       mockUseManageWorkData.mockReturnValue({
         ...defaultMockData,
         isAddingTag: true,
         newTagText: 'nuevo tag',
       });
 
-      // When: Se renderiza el componente
       renderComponent();
 
-      // Then: Debe mostrar el input de tag
-      const tagInput = screen.getByPlaceholderText('Enter para añadir etiqueta');
-      expect(tagInput).toBeInTheDocument();
-      expect(tagInput).toHaveValue('nuevo tag');
+      expectInputWithPlaceholder('Enter para añadir etiqueta', 'nuevo tag');
     });
 
-    it('should show validation messages when categories or tags are empty', () => {
-      // Given: Sin categorías ni tags seleccionados
+    it('debería mostrar mensaje de validación cuando no hay categorías', () => {
       mockUseManageWorkData.mockReturnValue({
         ...defaultMockData,
         selectedCategories: [],
+      });
+
+      renderComponent();
+
+      expectTextToBeInDocument('Selecciona al menos una categoría.');
+    });
+
+    it('debería mostrar mensaje de validación cuando no hay tags', () => {
+      mockUseManageWorkData.mockReturnValue({
+        ...defaultMockData,
         currentTags: [],
       });
 
-      // When: Se renderiza el componente
       renderComponent();
 
-      // Then: Debe mostrar mensajes de validación
-      expect(screen.getByText('Selecciona al menos una categoría.')).toBeInTheDocument();
-      expect(screen.getByText('Debes agregar al menos una etiqueta.')).toBeInTheDocument();
+      expectTextToBeInDocument('Debes agregar al menos una etiqueta.');
     });
 
-    it('should render chapters when work has chapters', () => {
-      // Given: Un trabajo con capítulos
+    it('debería renderizar capítulos cuando la obra tiene capítulos', () => {
       const mockWork = createMockWork({
         chapters: [
           { 
@@ -549,11 +650,9 @@ describe('ManageWorkPage', () => {
         work: mockWork,
       });
 
-      // When: Se renderiza el componente
       renderComponent();
 
-      // Then: Debe mostrar la sección de capítulos
-      expect(screen.getByText('Capítulos')).toBeInTheDocument();
+      expectTextToBeInDocument('Capítulos');
     });
   });
 });
