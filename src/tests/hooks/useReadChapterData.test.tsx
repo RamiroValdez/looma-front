@@ -718,11 +718,13 @@ describe("useReadChapterData", () => {
 
     it("dado que obra está cargada, cuando se ejecuta handleSubscribeWork, entonces muestra notificación de éxito", async () => {
       setupWindowOpenMock();
+      setupWorkMock();
 
       const { result } = renderHook(() => useReadChapterData("1"));
 
       await waitFor(() => {
         expectWorkDefined(result);
+        expectWorkId(result, 1);
       });
 
       await act(async () => {
@@ -829,9 +831,8 @@ describe("useReadChapterData", () => {
 
       await waitFor(() => {
         expectWorkDefined(result);
+        expectWorkId(result, 1);
       });
-
-      expectWorkId(result, 1);
 
       await act(async () => {
         await result.current.handleChapterPayment(2);
@@ -842,6 +843,7 @@ describe("useReadChapterData", () => {
 
     it("dado que obra está cargada, cuando se ejecuta handleChapterPayment, entonces muestra notificación de éxito", async () => {
       setupWindowOpenMock();
+      setupWorkMock();
 
       const { result } = renderHook(() => useReadChapterData("1"));
 
@@ -907,13 +909,14 @@ describe("useReadChapterData", () => {
     });
 
     it("dado que usuario es el autor, cuando se verifica isChapterUnlocked, entonces desbloquea capítulo 2", async () => {
-      setupUserMock(1);
-      setupWorkMock(createMockWork({ creator: { id: 1, name: "Autor", surname: "Test" } }));
+      setupUserMock(2);
+      setupWorkMock(createMockWork({ creator: { id: 2, name: "Autor", surname: "Test" } }));
 
       const { result } = renderHook(() => useReadChapterData("1"));
 
       await waitFor(() => {
         expectWorkDefined(result);
+        expectAuthorStatus(result, true);
       });
 
       expectChapterUnlocked(result, 2, true);
