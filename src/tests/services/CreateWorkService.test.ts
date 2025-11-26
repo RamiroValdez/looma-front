@@ -7,11 +7,11 @@ import {
   createFormDataForIa,
   urlToFile,
   useCreateWork,
-  useGenerateCover,
-  type CreateWorkDTO
+  useGenerateCover
 } from '../../infrastructure/services/CreateWorkService';
 import { useAuthStore } from '../../infrastructure/store/AuthStore';
 import { useApiMutation } from '../../infrastructure/api/useApiMutation';
+import type { CreateWorkDTO } from '../../domain/dto/CreateWorkDTO';
 import type { CoverIaFormDTO } from '../../domain/dto/FormCoverIaDTO';
 
 vi.mock('../../infrastructure/store/AuthStore', () => ({
