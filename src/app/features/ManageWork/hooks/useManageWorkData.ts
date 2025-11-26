@@ -1,21 +1,35 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { WorkDTO } from '../../../../domain/dto/WorkDTO';
 import type { CategoryDTO } from '../../../../domain/dto/CategoryDTO';
+import type { TagSuggestionRequestDTO } from '../../../../domain/dto/TagSuggestionDTO';
 import { handleAddTag, validateFile, useClickOutside } from "../../../../infrastructure/services/CreateWorkService";
 import { useSuggestTagsMutation } from "../../../../infrastructure/services/TagSuggestionService";
-import { getWorkById } from '../../../../infrastructure/services/ChapterService';
+import { addChapter, getWorkById } from '../../../../infrastructure/services/ChapterService';
 import { uploadCover, uploadBanner } from '../../../../infrastructure/services/WorkAssetsService';
 import { notifySuccess, notifyError } from "../../../../infrastructure/services/ToastProviderService";
-import { useCategories } from "../../../../infrastructure/services/CategoryService";
 import { apiClient } from "../../../../infrastructure/api/apiClient";
 import { useAuthStore } from "../../../../infrastructure/store/AuthStore";
+import { useCategories } from "../../../hooks/useCategories";
+
+interface UpdateWorkDTO {
+  categoryIds?: number[];
+  tagIds?: string[];
+  state?: 'paused' | 'InProgress' | 'finished';
+  price?: number;
+}
 
 export const useManageWorkData = (currentWorkId: number) => {
   const { token } = useAuthStore();
   const navigate = useNavigate();
   const suggestMutation = useSuggestTagsMutation();
   const { categories, isLoading: isLoadingCategory, error: errorCategory } = useCategories();
+  
+  // Referencias
+  const bannerInputRef = useRef<HTMLInputElement>(null);
+  const coverInputRef = useRef<HTMLInputElement>(null);
+  const suggestionMenuRef = useRef<HTMLDivElement | null>(null);
+  const suggestionCategoryMenuRef = useRef<HTMLDivElement | null>(null);
 
   const [work, setWork] = useState<WorkDTO | null>(null);
   const [loading, setLoading] = useState(true);
@@ -38,9 +52,18 @@ export const useManageWorkData = (currentWorkId: number) => {
   const [price, setPrice] = useState('');
   const [workStatus, setWorkStatus] = useState<'paused' | 'InProgress' | 'finished' | ''>('');
   const [allowSubscription, setAllowSubscription] = useState(false);
-  const [isLoadingTagSuggestion, setIsLoadingTagSuggestion] = useState(false);
-  const [tagSuggestions, setTagSuggestions] = useState<string[]>([]);
   const [allowComments, setAllowComments] = useState(false);
+  const [showCoverModal, setShowCoverModal] = useState(false);
+  const [showCoverModalAi, setShowCoverModalAi] = useState(false);
+  const [isAILoading, setIsAILoading] = useState(false);
+  const [nameWork, setNameWork] = useState('');
+  const [descriptionF, setDescriptionF] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
+  
+  // Constantes
+  const shortMessage = "Tags con IA: tu descripción tiene menos de 20 caracteres.";
+  const aiSuggestionMessage = "Sugerencias de la IA";
+  const isDescriptionValid = descriptionF.trim().length > 20;
 
   useEffect(() => {
     const loadWorkData = async () => {
@@ -49,7 +72,12 @@ export const useManageWorkData = (currentWorkId: number) => {
         const workData = await getWorkById(currentWorkId);
         setWork(workData);
         setSelectedCategories(workData.categories || []);
-        setCurrentTags(workData.tags?.map(tag => tag.name) || []);
+        setCurrentTags(workData.tags.map((tag) => tag.name));
+        setNameWork(workData.title || '');
+        setDescriptionF(workData.description || '');
+        setPrice(workData.price?.toString() || '');
+        setAllowSubscription(!!workData.price && workData.price > 0);
+        setWorkStatus(workData.state || '');
         setError(null);
       } catch (err) {
         console.error('Error loading work:', err);
@@ -63,6 +91,18 @@ export const useManageWorkData = (currentWorkId: number) => {
       loadWorkData();
     }
   }, [currentWorkId]);
+
+  // Limpiar URLs de preview al desmontar
+  useEffect(() => {
+    return () => {
+      if (bannerPreview) URL.revokeObjectURL(bannerPreview);
+      if (coverPreview) URL.revokeObjectURL(coverPreview);
+    };
+  }, [bannerPreview, coverPreview]);
+
+  // Configurar click outside
+  useClickOutside(suggestionMenuRef as React.RefObject<HTMLElement>, () => setIsSuggestionMenuOpen(false));
+  useClickOutside(suggestionCategoryMenuRef as React.RefObject<HTMLElement>, () => setIsCategoryMenuOpen(false));
 
   const handleAddCategory = (category: CategoryDTO) => {
     if (!selectedCategories.some(c => c.id === category.id)) {
@@ -85,6 +125,7 @@ export const useManageWorkData = (currentWorkId: number) => {
     const result = await validateFile(file, options);
     const setFilePreview = isCover ? setCoverPreview : setBannerPreview;
     const setError = isCover ? setErrorCover : setErrorBanner;
+    const inputRef = isCover ? coverInputRef : bannerInputRef;
     const setPendingFile = isCover ? setPendingCoverFile : null;
 
     if (!result.valid) {
@@ -92,6 +133,7 @@ export const useManageWorkData = (currentWorkId: number) => {
       setError(msg);
       setFilePreview(prev => { if (prev) URL.revokeObjectURL(prev); return null; });
       if (setPendingFile) setPendingFile(null);
+      if (inputRef.current) inputRef.current.value = '';
       return;
     }
 
@@ -100,6 +142,10 @@ export const useManageWorkData = (currentWorkId: number) => {
       if (prev) URL.revokeObjectURL(prev);
       return URL.createObjectURL(file);
     });
+
+    if (inputRef.current) {
+      inputRef.current.value = '';
+    }
 
     if (isCover) {
       setPendingFile!(file);
@@ -117,11 +163,12 @@ export const useManageWorkData = (currentWorkId: number) => {
   }, [currentWorkId]);
 
   const handleSaveCover = async () => {
-    if (!pendingCoverFile) return;
+    if (!pendingCoverFile) return false;
     try {
       setSavingCover(true);
       await uploadCover(currentWorkId, pendingCoverFile, null);
       setSavingCover(false);
+      setShowCoverModal(false);
       setPendingCoverFile(null);
       notifySuccess("Portada actualizada exitosamente");
       return true;
@@ -138,6 +185,7 @@ export const useManageWorkData = (currentWorkId: number) => {
       setSavingCover(true);
       await uploadCover(currentWorkId, null, url);
       setSavingCover(false);
+      setShowCoverModalAi(false);
       setCoverPreview(url);
       notifySuccess("Portada generada y guardada exitosamente");
       return true;
@@ -156,27 +204,31 @@ export const useManageWorkData = (currentWorkId: number) => {
     }
   };
 
-  const handleAISuggestion = async () => {
-    if (!work?.description?.trim() && !work?.title?.trim()) {
-      notifyError('Agrega una descripción o título para generar sugerencias.');
+  const handleAISuggestion = () => {
+    if (!isDescriptionValid) {
+      alert("La descripción es demasiado corta. Proporciona más detalles.");
       return;
     }
-    try {
-      setIsLoadingTagSuggestion(true);
-      const suggestionData = {
-        description: work?.description || '',
-        title: work?.title || '',
-        existingTags: currentTags
-      };
-      const response = await suggestMutation.mutateAsync(suggestionData);
-      setTagSuggestions(response.suggestions || []);
-      setSuggestedTags(response.suggestions || []);
-      setIsSuggestionMenuOpen(true);
-      setIsLoadingTagSuggestion(false);
-    } catch {
-      notifyError('Error al obtener sugerencias. Intenta de nuevo.');
-      setIsLoadingTagSuggestion(false);
-    }
+
+    const payload: TagSuggestionRequestDTO = {
+      description: descriptionF,
+      title: nameWork,
+      existingTags: currentTags,
+    };
+
+    setIsAILoading(true);
+
+    suggestMutation.mutate(payload, {
+      onSuccess: (data) => {
+        setSuggestedTags(data.suggestions);
+        setIsSuggestionMenuOpen(true);
+        setIsAILoading(false);
+      },
+      onError: (error) => {
+        console.error("Error de IA:", error);
+        setIsAILoading(false);
+      },
+    });
   };
 
   const handleSuggestedTagClick = (tag: string) => {
@@ -190,55 +242,50 @@ export const useManageWorkData = (currentWorkId: number) => {
     });
   };
 
-  const handleCreateChapter = (workId: number, languageId: number) => {
-    navigate(`/create-chapter/${workId}/${languageId}`);
+  const handleCreateChapter = async (workId: number, languageId: number) => {
+    const chapter = await addChapter(workId, languageId, 'TEXT');
+    if (chapter?.fetchStatus === 200) {
+      navigate(`/chapter/work/${workId}/edit/${chapter.chapterId}`);
+      return;
+    }
+    navigate(`/manage-work/${workId}`);
   };
 
-  const setupClickOutside = (suggestionMenuRef: React.RefObject<HTMLElement>, suggestionCategoryMenuRef: React.RefObject<HTMLElement>) => {
-    useClickOutside(suggestionMenuRef, () => setIsSuggestionMenuOpen(false));
-    useClickOutside(suggestionCategoryMenuRef, () => setIsCategoryMenuOpen(false));
-  };
+  const handleBannerClick = () => bannerInputRef.current?.click();
+
+
+
+
 
   const handleSaveChanges = async () => {
-    if (!work?.title?.trim()) {
-      notifyError('El título es obligatorio.');
-      return;
-    }
-    if (selectedCategories.length === 0) {
-      notifyError('Debes seleccionar al menos una categoría.');
-      return;
-    }
-    if (currentTags.length === 0) {
-      notifyError('Debes agregar al menos un tag.');
-      return;
-    }
-
     try {
-      const updateData = {
-        title: work.title,
-        description: work.description || '',
-        categories: selectedCategories.map(c => c.id),
-        tags: currentTags,
-        allowComments: allowComments,
-        allowSubscription: allowSubscription,
-        ...(workStatus && { status: workStatus }),
-        ...(allowSubscription && price && { price: parseFloat(price) })
-      };
+      setIsSaving(true);
 
-      await apiClient.request({
-        url: `${import.meta.env.VITE_API_MANAGE_WORK_URL}/${currentWorkId}`,
-        method: 'PATCH',
+      const updatePrice: UpdateWorkDTO = {
+        price: allowSubscription ? (price ? parseFloat(price) : 0) : 0,
+        categoryIds: selectedCategories.map(c => c.id),
+        tagIds: currentTags,
+        state: workStatus || undefined
+      };
+      
+      const response = await apiClient.request({
+        url: `/manage-work/${currentWorkId}`,
+        method: 'PUT',
+        data: updatePrice,
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        data: updateData,
+          'Authorization': `Bearer ${token}`
+        }
       });
 
-      notifySuccess('Cambios guardados exitosamente');
-    } catch (error) {
-      console.error('Error al guardar:', error);
-      notifyError('Error al guardar los cambios. Intenta nuevamente.');
+      if (response.status === 200) {
+        notifySuccess('Datos actualizados exitosamente');
+        setPrice(allowSubscription ? price : '0');
+      }
+    } catch (err) {
+      console.error('Error al guardar precio:', err);
+      notifyError('No se pudo guardar el precio');
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -264,13 +311,27 @@ export const useManageWorkData = (currentWorkId: number) => {
     price,
     workStatus,
     allowSubscription,
-    isLoadingTagSuggestion,
-    tagSuggestions,
     allowComments,
     categories,
     isLoadingCategory,
     errorCategory,
+    showCoverModal,
+    showCoverModalAi,
+    isAILoading,
+    nameWork,
+    descriptionF,
+    isSaving,
+    shortMessage,
+    aiSuggestionMessage,
+    isDescriptionValid,
 
+    // Referencias
+    bannerInputRef,
+    coverInputRef,
+    suggestionMenuRef,
+    suggestionCategoryMenuRef,
+
+    // Setters
     setIsAddingTag,
     setNewTagText,
     setIsSuggestionMenuOpen,
@@ -282,7 +343,10 @@ export const useManageWorkData = (currentWorkId: number) => {
     setAllowSubscription,
     setAllowComments,
     setCurrentTags,
+    setShowCoverModal,
+    setShowCoverModalAi,
 
+    // Funciones
     handleAddCategory,
     unselectCategory,
     handleFileChange,
@@ -293,6 +357,6 @@ export const useManageWorkData = (currentWorkId: number) => {
     handleSuggestedTagClick,
     handleCreateChapter,
     handleSaveChanges,
-    setupClickOutside,
+    handleBannerClick,
   };
 };

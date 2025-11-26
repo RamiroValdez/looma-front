@@ -90,6 +90,22 @@ describe('ManageWorkPage', () => {
     categories: [],
     isLoadingCategory: false,
     errorCategory: null,
+    showCoverModal: false,
+    showCoverModalAi: false,
+    isAILoading: false,
+    nameWork: '',
+    descriptionF: '',
+    isSaving: false,
+    shortMessage: '',
+    aiSuggestionMessage: '',
+    isDescriptionValid: true,
+    
+    // Referencias
+    bannerInputRef: { current: null },
+    coverInputRef: { current: null },
+    suggestionMenuRef: { current: null },
+    suggestionCategoryMenuRef: { current: null },
+    
     // Setters
     setIsAddingTag: vi.fn(),
     setNewTagText: vi.fn(),
@@ -102,6 +118,9 @@ describe('ManageWorkPage', () => {
     setAllowSubscription: vi.fn(),
     setAllowComments: vi.fn(),
     setCurrentTags: vi.fn(),
+    setShowCoverModal: vi.fn(),
+    setShowCoverModalAi: vi.fn(),
+    
     // Funciones
     handleAddCategory: vi.fn(),
     unselectCategory: vi.fn(),
@@ -113,7 +132,7 @@ describe('ManageWorkPage', () => {
     handleSuggestedTagClick: vi.fn(),
     handleCreateChapter: vi.fn(),
     handleSaveChanges: vi.fn(),
-    setupClickOutside: vi.fn(),
+    handleBannerClick: vi.fn(),
   };
 
   beforeEach(() => {

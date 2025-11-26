@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React from 'react';
 import { ChapterItem } from '../../components/ChapterItem';
 import Button from '../../components/Button.tsx';
 import Tag from '../../components/Tag.tsx';
@@ -8,16 +8,13 @@ import CoverAiModal from "../../components/create/CoverAiModal.tsx";
 import BackButton from '../../components/BackButton';
 import { useManageWorkData } from './hooks/useManageWorkData';
 
-interface ManageWorkPageProps {
-  workId?: number;
-}
-
-export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
+export const ManageWorkPage: React.FC = () => {
   const { id: workId } = useParams<{ id: string }>();
   const defaultWorkId = 1;
   const currentWorkId = Number(workId) || defaultWorkId;
   
   const {
+    // Estados
     work,
     loading,
     error,
@@ -39,11 +36,24 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
     price,
     workStatus,
     allowSubscription,
-    isLoadingTagSuggestion,
     categories,
     isLoadingCategory,
     errorCategory,
-
+    showCoverModal,
+    showCoverModalAi,
+    isAILoading,
+    isSaving,
+    shortMessage,
+    aiSuggestionMessage,
+    isDescriptionValid,
+    
+    // Referencias
+    bannerInputRef,
+    coverInputRef,
+    suggestionMenuRef,
+    suggestionCategoryMenuRef,
+    
+    // Setters
     setIsAddingTag,
     setNewTagText,
     setIsCategoryMenuOpen,
@@ -53,7 +63,10 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
     setWorkStatus,
     setAllowSubscription,
     setCurrentTags,
-
+    setShowCoverModal,
+    setShowCoverModalAi,
+    
+    // Funciones
     handleAddCategory,
     unselectCategory,
     handleFileChange,
@@ -64,33 +77,8 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
     handleSuggestedTagClick,
     handleCreateChapter,
     handleSaveChanges,
-    setupClickOutside,
+    handleBannerClick,
   } = useManageWorkData(currentWorkId);
-
-  const [showCoverModal, setShowCoverModal] = useState(false);
-  const [showCoverModalAi, setShowCoverModalAi] = useState(false);
-  
-  const bannerInputRef = useRef<HTMLInputElement>(null);
-  const coverInputRef = useRef<HTMLInputElement>(null);
-  const suggestionMenuRef = useRef<HTMLDivElement | null>(null);
-  const suggestionCategoryMenuRef = useRef<HTMLDivElement | null>(null);
-  
-  setupClickOutside(suggestionMenuRef as React.RefObject<HTMLElement>, suggestionCategoryMenuRef as React.RefObject<HTMLElement>);
-  
-  const isDescriptionValid = (work?.description?.trim().length || 0) > 20;
-  const shortMessage = "Tags con IA: tu descripción tiene menos de 20 caracteres.";
-  const aiSuggestionMessage = "Sugerencias de la IA";
-  const isSaving = false; 
-  const isAILoading = isLoadingTagSuggestion;
-
-  const handleBannerClick = () => bannerInputRef.current?.click();
-  
-  const handleSaveCoverWithModal = async () => {
-    const success = await handleSaveCover();
-    if (success) {
-      setShowCoverModal(false);
-    }
-  };
 
   if (loading) {
     return (
@@ -158,7 +146,7 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
 
           <div className="lg:col-span-2 lg:border-r lg:border-gray-300 lg:pr-6">
             <div className="sticky top-8">
-              <div className="flex flex-col items-center w-full sm:items-start">
+<div className="flex flex-col items-center w-full sm:items-start">
                 <img
                   src={coverPreview || work.cover}
                   alt={work.title}
@@ -188,7 +176,7 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
                     setShowCoverModal(false);
                     setShowCoverModalAi(true);
                   }}
-                  onSave={handleSaveCoverWithModal}
+                  onSave={handleSaveCover}
                   saveDisabled={!pendingCoverFile}
                   saving={savingCover}
                   errorMessage={errorCover}
@@ -204,12 +192,7 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
             <CoverAiModal
               isOpen={showCoverModalAi}
               onClose={() => setShowCoverModalAi(false)}
-              onSetIaCoverUrl={async (url: string) => {
-                const success = await handleSaveCoverAI(url);
-                if (success) {
-                  setShowCoverModalAi(false);
-                }
-              }}
+              onSetIaCoverUrl={handleSaveCoverAI}
             />
           </div>
 
@@ -234,16 +217,16 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
                   ))}
 
                   {selectedCategories.length < 2 && (
-                    <Button
-                      text={'+'}
-                      onClick={() => setIsCategoryMenuOpen(!isCategoryMenuOpen)}
-                      colorClass={`w-8 h-8 pt-0 flex justify-center rounded-full border-2 border-[#172FA6] text-[#172FA6] text-2xl font-medium leading-none cursor-pointer hover:bg-[#172FA6] hover:text-white z-10`}
-                    />
+                  <Button
+                    text={'+'}
+                    onClick={() => setIsCategoryMenuOpen(!isCategoryMenuOpen)}
+                    colorClass={`w-8 h-8 pt-0 flex justify-center rounded-full border-2 border-[#172FA6] text-[#172FA6] text-2xl font-medium leading-none cursor-pointer hover:bg-[#172FA6] hover:text-white z-10`}
+                  />
                   )}
 
-                  {selectedCategories.length === 0 && (
-                    <p className="text-red-500 text-sm mt-1 ml-1/4 pt-1">Selecciona al menos una categoría.</p>
-                  )}
+                   {selectedCategories.length === 0 && (
+              <p className="text-red-500 text-sm mt-1 ml-1/4 pt-1">Selecciona al menos una categoría.</p>
+            )}
 
                   {isCategoryMenuOpen && (
                     <div ref={suggestionCategoryMenuRef} className="absolute z-20 top-10 mt-1 mr-[-10%] w-max max-w-sm lg:max-w-md">
@@ -393,16 +376,16 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
           <div className="lg:col-span-2 lg:pl-4">
             <div className="sticky top-8">
               <h2 className="text-3xl font-bold text-black mb-4 text-center">Administrar</h2>
-
+              
               <div className="bg-white rounded-lg shadow-lg p-4">
                 <div className="space-y-4">
-
-
+                  
+                  
                   <div>
                     <label className="flex items-center text-base text-black">
-                      <input
-                        type="checkbox"
-                        className="mr-2"
+                      <input 
+                        type="checkbox" 
+                        className="mr-2" 
                         checked={allowSubscription}
                         onChange={(e) => setAllowSubscription(e.target.checked)}
                       />
@@ -411,53 +394,53 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
                   </div>
 
                   <div>
-                    {allowSubscription &&
-                      <div className="flex items-center gap-2 justify-start">
-                        <label className="text-black font-medium text-base">Precio:</label>
-                        <div className="flex items-center border rounded border-2 border-[#172fa6]">
-                          <span className="px-2 py-2 bg-gray-50 border-r text-base text-black border-[#172fa6]">$</span>
-                          <input
-                            type="number"
-                            placeholder="0.00"
-                            disabled={!allowSubscription}
-                            value={allowSubscription ? price : 0}
-                            onChange={(e) => setPrice(e.target.value)}
-                            className="px-2 py-2 text-base text-black rounded-r focus:outline-none focus:ring-2 focus:ring-[#5C17A6] w-20"
-                            min="0"
-                            step="0.01"
-                          />
-
-                        </div>
+                      {allowSubscription && 
+              <div className="flex items-center gap-2 justify-start">
+                      <label className="text-black font-medium text-base">Precio:</label>
+                      <div className="flex items-center border rounded border-2 border-[#172fa6]">
+                        <span className="px-2 py-2 bg-gray-50 border-r text-base text-black border-[#172fa6]">$</span>
+                        <input 
+                          type="number" 
+                          placeholder="0.00"
+                          disabled={!allowSubscription}
+                          value={allowSubscription ? price : 0}
+                          onChange={(e) => setPrice(e.target.value)}
+                          className="px-2 py-2 text-base text-black rounded-r focus:outline-none focus:ring-2 focus:ring-[#5C17A6] w-20"
+                          min="0"
+                          step="0.01"
+                        />
+                        
                       </div>
-                    }
+                    </div>
+              }
                   </div>
 
                   <hr className="border-gray-300" />
-
+    
                   <div className="space-y-2">
                     <div>
                       <label className="flex items-center text-base text-black">
-                        <input
-                          type="radio"
-                          name="estado"
+                        <input 
+                          type="radio" 
+                          name="estado" 
                           value="paused"
                           checked={workStatus === 'paused'}
                           onChange={(e) => setWorkStatus(e.target.value as 'paused' | 'InProgress' | 'finished' | '')}
-                          className="mr-2"
+                          className="mr-2" 
                         />
                         <span>Marcar como pausado</span>
                       </label>
                     </div>
-
+                    
                     <div>
                       <label className="flex items-center text-base text-black">
-                        <input
-                          type="radio"
-                          name="estado"
+                        <input 
+                          type="radio" 
+                          name="estado" 
                           value="InProgress"
                           checked={workStatus === 'InProgress'}
                           onChange={(e) => setWorkStatus(e.target.value as 'paused' | 'InProgress' | 'finished' | '')}
-                          className="mr-2"
+                          className="mr-2" 
                         />
                         <span>Marcar como en proceso</span>
                       </label>
@@ -465,23 +448,23 @@ export const ManageWorkPage: React.FC<ManageWorkPageProps> = () => {
 
                     <div>
                       <label className="flex items-center text-base text-black">
-                        <input
-                          type="radio"
-                          name="estado"
+                        <input 
+                          type="radio" 
+                          name="estado" 
                           value="finished"
                           checked={workStatus === 'finished'}
                           onChange={(e) => setWorkStatus(e.target.value as 'paused' | 'InProgress' | 'finished' | '')}
-                          className="mr-2"
+                          className="mr-2" 
                         />
                         <span>Marcar como finalizado</span>
                       </label>
                     </div>
                   </div>
 
-                  <hr className="border-gray-300" />
-
-                  <div className="flex gap-3 pt-2">
-                    <Button
+                  <hr className="border-gray-300" />  
+                  
+                  <div className="flex gap-3 pt-2">                
+                    <Button 
                       text={isSaving ? "Guardando..." : "Guardar"}
                       onClick={handleSaveChanges}
                       colorClass="bg-[#5C17A6] hover:bg-[#4A1285] focus:ring-[#5C17A6] flex-1 text-white font-semibold rounded-full px-4 py-2 cursor-pointer disabled:bg-gray-400 disabled:cursor-not-allowed"
