@@ -1,6 +1,7 @@
 import { useAuthStore } from "../store/AuthStore.ts";
 import { handleError } from "../errorHandler.ts";
 import { v4 as uuidv4 } from "uuid";
+import type { SubscribeRequestDTO } from "../../domain/dto/SubscribeRequestDTO.ts";
 
 export interface PaymentRedirectResponse {
     redirectUrl?: string;
@@ -10,13 +11,6 @@ export interface PaymentRedirectResponse {
     sandbox_init_point?: string;
     preference_url?: string;
     checkout_url?: string;
-}
-
-export interface SubscribeRequestDTO {
-  subscriptionType: "chapter";
-  targetId: number; // chapter ID
-  workId: number;
-  provider: "mercadopago";
 }
 
 export async function subscribeToWork(
