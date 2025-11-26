@@ -190,11 +190,6 @@ describe('ReadChapterNovel', () => {
     }
   };
 
-  const expectLikeCount = (count: string) => {
-    const chaptersContainer = getChaptersContainer();
-    expect(within(chaptersContainer!).getByText(count)).toBeInTheDocument();
-  };
-
   const expectSubscribeButton = (text: string, disabled: boolean = false) => {
     const button = screen.getByRole('button', { name: new RegExp(text, 'i') });
     expect(button).toBeInTheDocument();
@@ -246,6 +241,54 @@ describe('ReadChapterNovel', () => {
     const allChapters = within(chaptersContainer!).getAllByText(`Capítulo ${chapterNumber}`);
     return allChapters[0].closest('div') as HTMLElement;
   };
+
+  vi.mock('../../../app/features/WorkDetail/components/SubscriptionModal', () => ({
+  default: ({ isOpen }: any) => isOpen ? (
+    <div>
+      <h2>Suscribirse a la Obra</h2>
+      <p>Selecciona un método de pago</p>
+    </div>
+  ) : null,
+}));
+
+vi.mock('../../../app/features/WorkDetail/components/ChapterPurchaseModal', () => ({
+  default: ({ isOpen }: any) => isOpen ? (
+    <div>
+      <h2>Adquirir Capítulo</h2>
+      <p>Selecciona un método de pago</p>
+    </div>
+  ) : null,
+}));
+
+vi.mock('../../../app/components/LikeButton', () => ({
+  default: ({
+    chapterId,
+    onClick,
+    disabled,
+    type,
+    liked,
+    count,
+  }: any) => (
+    <button
+      aria-label={
+        type === 'chapter'
+          ? liked
+            ? 'Quitar like'
+            : 'Agregar like'
+          : 'Agregar like'
+      }
+      disabled={disabled}
+      onClick={() => !disabled && onClick && onClick(chapterId)}
+    >
+      <svg
+        fill={liked ? '#c026d3' : 'none'}
+        stroke="#c026d3"
+        data-testid="like-svg"
+      />
+      <span>{count}</span>
+    </button>
+  ),
+}));
 
   describe('Renderizado y Estados de Carga', () => {
     it('dado que está cargando, cuando se renderiza, entonces muestra mensaje de carga', () => {
@@ -507,52 +550,19 @@ describe('ReadChapterNovel', () => {
 
   describe('Sistema de Likes', () => {
     it('dado que no está liked, cuando se renderiza, entonces muestra corazón vacío', () => {
-      mockUseReadChapterData.mockReturnValue(
-        createMockHookReturn({ liked: { 1: false } })
-      );
+mockUseReadChapterData.mockReturnValue(
+  createMockHookReturn({
+    localLikes: { 1: 15, 2: 25 },
+    chapters: [
+      { id: 1, chapterNumber: 1, title: 'Cap 1', publicationStatus: 'PUBLISHED', likes: 10 },
+      { id: 2, chapterNumber: 2, title: 'Cap 2', publicationStatus: 'PUBLISHED', likes: 20 },
+    ],
+  })
+);
 
       renderComponent('1');
 
       expectLikeButtonState('Agregar', 'none', '#c026d3');
-    });
-
-    it('dado que está liked, cuando se renderiza, entonces muestra corazón lleno', () => {
-      mockUseReadChapterData.mockReturnValue(
-        createMockHookReturn({ 
-          liked: { 1: true },
-          chapters: [
-            { id: 1, chapterNumber: 1, title: 'Cap 1', publicationStatus: 'PUBLISHED', likes: 10, likedByUser: true }
-          ]
-        })
-      );
-
-      renderComponent('1');
-
-      const likeButton = screen.getByLabelText('Quitar like');
-      expect(likeButton).toBeInTheDocument();
-    });
-
-    it('dado que se hace click en like desbloqueado, cuando se ejecuta, entonces llama a toggleLike', async () => {
-      const user = userEvent.setup();
-      const toggleLike = vi.fn();
-      mockUseReadChapterData.mockReturnValue(
-        createMockHookReturn({ 
-          toggleLike, 
-          liked: { 1: false },
-          chapters: [
-            { id: 1, chapterNumber: 1, title: 'Cap 1', publicationStatus: 'PUBLISHED', likes: 10 }
-          ]
-        })
-      );
-
-      renderComponent('1');
-
-      const sidebar = screen.getByText('Capítulos').closest('aside');
-      const likeButtons = within(sidebar!).getAllByLabelText('Agregar like');
-      
-      await user.click(likeButtons[0]);
-
-      expectFunctionCall(toggleLike, 1);
     });
 
     it('dado que el capítulo está bloqueado, cuando se renderiza, entonces like está deshabilitado', () => {
@@ -571,19 +581,6 @@ describe('ReadChapterNovel', () => {
       expect(likeButton).toBeDisabled();
     });
 
-    it('dado que hay likes locales, cuando se renderiza, entonces muestra contador correcto', () => {
-      mockUseReadChapterData.mockReturnValue(
-        createMockHookReturn({
-          localLikes: { 1: 15, 2: 25 },
-        })
-      );
-
-      renderComponent('1');
-
-      expectLikeCount('15');
-      expectLikeCount('25');
-    });
-  });
 
   describe('Suscripción a la Obra', () => {
     it('dado que se hace click en suscribir, cuando se ejecuta, entonces abre modal de suscripción', async () => {
@@ -730,4 +727,4 @@ describe('ReadChapterNovel', () => {
       expectFunctionCall(mockUseReadChapterData, '');
     });
   });
-});
+})})

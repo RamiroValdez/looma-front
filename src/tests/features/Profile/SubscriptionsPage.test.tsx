@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { SubscriptionsPage } from '../../../app/features/Profile/SubscriptionsPage';
+import { Subscriptions} from '../../../app/features/Profile/SubscriptionsPage';
 import '@testing-library/jest-dom';
 
 const mockGetSubscriptions = vi.fn();
@@ -58,10 +58,6 @@ const mockSubscriptionsData = [
   }
 ];
 
-function expectProfileMenu() {
-  expect(screen.getByTestId("profile-menu")).toBeInTheDocument();
-}
-
 function expectLoadingText() {
   expect(screen.getByText("Cargando suscripciones...")).toBeInTheDocument();
 }
@@ -88,18 +84,11 @@ describe("SubscriptionsPage", () => {
     vi.clearAllMocks();
   });
 
-  it("dado que está cargando, cuando se renderiza, entonces muestra el menú de perfil", async () => {
-    mockGetSubscriptions.mockImplementation(() => new Promise(() => {}));
-
-    render(<SubscriptionsPage />, { wrapper: createWrapper() });
-
-    expectProfileMenu();
-  });
 
   it("dado que está cargando, cuando se renderiza, entonces muestra el texto de carga", async () => {
     mockGetSubscriptions.mockImplementation(() => new Promise(() => {}));
 
-    render(<SubscriptionsPage />, { wrapper: createWrapper() });
+    render(<Subscriptions />, { wrapper: createWrapper() });
 
     expectLoadingText();
   });
@@ -107,7 +96,7 @@ describe("SubscriptionsPage", () => {
   it("dado que hay suscripciones, cuando se renderiza, entonces muestra el título de la página", async () => {
     mockGetSubscriptions.mockResolvedValue(mockSubscriptionsData);
 
-    render(<SubscriptionsPage />, { wrapper: createWrapper() });
+    render(<Subscriptions />, { wrapper: createWrapper() });
 
     await waitFor(() => {
       expect(screen.getByText("Mis Suscripciones")).toBeInTheDocument();
@@ -117,27 +106,17 @@ describe("SubscriptionsPage", () => {
   it("dado que hay suscripciones, cuando se renderiza, entonces muestra la descripción de la página", async () => {
     mockGetSubscriptions.mockResolvedValue(mockSubscriptionsData);
 
-    render(<SubscriptionsPage />, { wrapper: createWrapper() });
+    render(<Subscriptions />, { wrapper: createWrapper() });
 
     await waitFor(() => {
       expect(screen.getByText("Obras y autores a los que estás suscrito")).toBeInTheDocument();
     });
   });
 
-  it("dado que hay suscripciones, cuando se renderiza, entonces muestra el menú de perfil", async () => {
-    mockGetSubscriptions.mockResolvedValue(mockSubscriptionsData);
-
-    render(<SubscriptionsPage />, { wrapper: createWrapper() });
-
-    await waitFor(() => {
-      expectProfileMenu();
-    });
-  });
-
   it("dado que hay múltiples suscripciones, cuando se renderiza, entonces muestra el contador correcto", async () => {
     mockGetSubscriptions.mockResolvedValue(mockSubscriptionsData);
 
-    render(<SubscriptionsPage />, { wrapper: createWrapper() });
+    render(<Subscriptions />, { wrapper: createWrapper() });
 
     await waitFor(() => {
       expectWorksCount(2);
@@ -147,7 +126,7 @@ describe("SubscriptionsPage", () => {
   it("dado que hay suscripciones, cuando se renderiza, entonces muestra la primera obra", async () => {
     mockGetSubscriptions.mockResolvedValue(mockSubscriptionsData);
 
-    render(<SubscriptionsPage />, { wrapper: createWrapper() });
+    render(<Subscriptions />, { wrapper: createWrapper() });
 
     await waitFor(() => {
       expect(screen.getByTestId("work-item-1")).toBeInTheDocument();
@@ -157,7 +136,7 @@ describe("SubscriptionsPage", () => {
   it("dado que hay suscripciones, cuando se renderiza, entonces muestra el título de la primera obra", async () => {
     mockGetSubscriptions.mockResolvedValue(mockSubscriptionsData);
 
-    render(<SubscriptionsPage />, { wrapper: createWrapper() });
+    render(<Subscriptions />, { wrapper: createWrapper() });
 
     await waitFor(() => {
       expect(screen.getByText("La Primera Obra")).toBeInTheDocument();
@@ -167,7 +146,7 @@ describe("SubscriptionsPage", () => {
   it("dado que no hay suscripciones, cuando se renderiza, entonces muestra el contador en cero", async () => {
     mockGetSubscriptions.mockResolvedValue([]);
 
-    render(<SubscriptionsPage />, { wrapper: createWrapper() });
+    render(<Subscriptions />, { wrapper: createWrapper() });
 
     await waitFor(() => {
       expectWorksCount(0);
@@ -177,7 +156,7 @@ describe("SubscriptionsPage", () => {
   it("dado que no hay suscripciones, cuando se renderiza, entonces muestra el mensaje vacío", async () => {
     mockGetSubscriptions.mockResolvedValue([]);
 
-    render(<SubscriptionsPage />, { wrapper: createWrapper() });
+    render(<Subscriptions />, { wrapper: createWrapper() });
 
     await waitFor(() => {
       expectEmptyMessage();
@@ -187,7 +166,7 @@ describe("SubscriptionsPage", () => {
   it("dado que no hay suscripciones, cuando se renderiza, entonces no muestra el mensaje informativo", async () => {
     mockGetSubscriptions.mockResolvedValue([]);
 
-    render(<SubscriptionsPage />, { wrapper: createWrapper() });
+    render(<Subscriptions />, { wrapper: createWrapper() });
 
     await waitFor(() => {
       expect(screen.queryByText("Las suscripciones incluyen obras de autores suscritos y obras individuales")).not.toBeInTheDocument();
@@ -197,7 +176,7 @@ describe("SubscriptionsPage", () => {
   it("dado que hay suscripciones, cuando se renderiza, entonces muestra el mensaje informativo", async () => {
     mockGetSubscriptions.mockResolvedValue(mockSubscriptionsData);
 
-    render(<SubscriptionsPage />, { wrapper: createWrapper() });
+    render(<Subscriptions />, { wrapper: createWrapper() });
 
     await waitFor(() => {
       expect(screen.getByText("Las suscripciones incluyen obras de autores suscritos y obras individuales")).toBeInTheDocument();
@@ -208,7 +187,7 @@ describe("SubscriptionsPage", () => {
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     mockGetSubscriptions.mockRejectedValue(new Error('Error de conexión'));
 
-    render(<SubscriptionsPage />, { wrapper: createWrapper() });
+    render(<Subscriptions/>, { wrapper: createWrapper() });
 
     await waitFor(() => {
       expectConsoleError(consoleSpy);
@@ -220,7 +199,7 @@ describe("SubscriptionsPage", () => {
   it("dado que la API falla, cuando se renderiza, entonces muestra mensaje vacío", async () => {
     mockGetSubscriptions.mockRejectedValue(new Error('Error de conexión'));
 
-    render(<SubscriptionsPage />, { wrapper: createWrapper() });
+    render(<Subscriptions />, { wrapper: createWrapper() });
 
     await waitFor(() => {
       expectEmptyMessage();
@@ -230,27 +209,27 @@ describe("SubscriptionsPage", () => {
   it("dado que hay una sola suscripción, cuando se renderiza, entonces muestra el texto en singular", async () => {
     mockGetSubscriptions.mockResolvedValue([mockSubscriptionsData[0]]);
 
-    render(<SubscriptionsPage />, { wrapper: createWrapper() });
+    render(<Subscriptions />, { wrapper: createWrapper() });
 
     await waitFor(() => {
       expectWorksCount(1);
     });
   });
 
-  it("dado que hay suscripciones, cuando se renderiza, entonces muestra el grid", async () => {
-    mockGetSubscriptions.mockResolvedValue(mockSubscriptionsData);
+it("dado que hay suscripciones, cuando se renderiza, entonces muestra el grid", async () => {
+  mockGetSubscriptions.mockResolvedValue(mockSubscriptionsData);
 
-    render(<SubscriptionsPage />, { wrapper: createWrapper() });
+  render(<Subscriptions />, { wrapper: createWrapper() });
 
-    await waitFor(() => {
-      expect(document.querySelector('.grid')).toBeInTheDocument();
-    });
+  await waitFor(() => {
+    expect(document.querySelector('.flex.flex-row.flex-wrap.gap-6.mt-2')).toBeInTheDocument();
   });
+});
 
   it("dado que el componente se monta, cuando se renderiza, entonces llama al servicio una vez", async () => {
     mockGetSubscriptions.mockResolvedValue([]);
 
-    render(<SubscriptionsPage />, { wrapper: createWrapper() });
+    render(<Subscriptions />, { wrapper: createWrapper() });
 
     expectServiceCall(1);
   });
@@ -262,7 +241,7 @@ describe("SubscriptionsPage", () => {
     });
     mockGetSubscriptions.mockReturnValue(promise);
 
-    render(<SubscriptionsPage />, { wrapper: createWrapper() });
+    render(<Subscriptions />, { wrapper: createWrapper() });
 
     expectLoadingText();
 
@@ -272,14 +251,13 @@ describe("SubscriptionsPage", () => {
       expect(screen.queryByText("Cargando suscripciones...")).not.toBeInTheDocument();
     });
   });
+it("dado que hay suscripciones, cuando se renderiza, entonces muestra el contenedor principal", async () => {
+  mockGetSubscriptions.mockResolvedValue(mockSubscriptionsData);
 
-  it("dado que hay suscripciones, cuando se renderiza, entonces muestra el contenedor principal", async () => {
-    mockGetSubscriptions.mockResolvedValue(mockSubscriptionsData);
+  render(<Subscriptions />, { wrapper: createWrapper() });
 
-    render(<SubscriptionsPage />, { wrapper: createWrapper() });
-
-    await waitFor(() => {
-      expect(document.querySelector('.flex.bg-gray-50.min-h-screen')).toBeInTheDocument();
-    });
+  await waitFor(() => {
+    expect(document.querySelector('.container')).toBeInTheDocument();
   });
+});
 });

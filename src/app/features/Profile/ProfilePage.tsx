@@ -1,4 +1,4 @@
-import {useEffect,useRef, useState} from 'react';
+import {useState} from 'react';
 import ProfileMenu from './components/ProfileMenu';
 import Button from '../../components/Button';
 import GradientSection from '../../components/GradientSection';
@@ -8,6 +8,7 @@ import Analytics from "./components/Analytics.tsx";
 import { MySaves } from "./MySaves.tsx";
 import TermsAndConditions from "./TermsAndConditions.tsx"; 
 import { Subscriptions } from "./SubscriptionsPage";
+import { useProfileViewLogic } from './hooks/useProfileViewLogic';
 
 const ProfilePage = () => {
   const {
@@ -26,58 +27,15 @@ const ProfilePage = () => {
     handlePasswordChange
   } = useUserProfile();
 
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
-  const [blockSelected, setBlockSelected] = useState<string>('profile');
 
-  useEffect(() => {
-    const hash = window.location.hash.replace('#','');
-    if (hash === 'suscripciones') {
-      setBlockSelected('subscriptions');
-    } else if (hash === 'guardados') {
-      setBlockSelected('mySaves');
-    } else if (hash === 'estadisticas') {
-      setBlockSelected('Analytics');
-    } else if (hash === 'terminos') {
-      setBlockSelected('terms');
-    }
-  }, []);
-
-  const handleSelectBlock = (block: string) => {
-    setBlockSelected(block);
-    let newHash: string;
-    switch (block) {
-      case 'subscriptions': newHash = 'suscripciones'; break;
-      case 'mySaves': newHash = 'guardados'; break;
-      case 'Analytics': newHash = 'estadisticas'; break;
-      case 'terms': newHash = 'terminos'; break;
-      case 'profile': newHash = ''; break;
-      default: newHash = '';
-    }
-    if (newHash) {
-      history.replaceState(null, '', `${window.location.pathname}#${newHash}`);
-    } else {
-      history.replaceState(null, '', `${window.location.pathname}`);
-    }
-  };
-
-  const handleImageClick = () => {
-    fileInputRef.current?.click();
-  };
-
-  const [haveImage, setHaveImage] = useState<boolean>(false);
-
-  const validateImage = () => {
-    console.log(haveImage);
-    console.log(profile?.image?.endsWith("/none"))
-    if (profile?.image?.endsWith("/none") == false) {
-      setHaveImage(true);
-    }
-  }
-
-  useEffect(()=> {
-    validateImage();
-  }, [profile])
+  const {
+    blockSelected,
+    handleSelectBlock,
+    haveImage,
+    fileInputRef,
+    handleImageClick
+  } = useProfileViewLogic(profile);
 
 
   if (loading) {
