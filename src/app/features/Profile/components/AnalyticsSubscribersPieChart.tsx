@@ -25,24 +25,31 @@ export function AnalyticsSubscribersPieChart({ authorTotal, perWork, works }: Pr
   }
 
   return (
-    <div className="space-y-2">
-      <ResponsiveContainer width="100%" height={300}>
-        <PieChart>
+    <div className="space-y-4">
+      <ResponsiveContainer width="100%" height={400}>
+        <PieChart margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
           <Pie
             data={chartData}
             dataKey="value"
             nameKey="name"
             cx="50%"
             cy="50%"
-            outerRadius={100}
+            outerRadius={90}
+            innerRadius={0}
             label={({ name, value }) => `${name}: ${value}`}
+            labelLine={false}
           >
             {chartData.map((_, idx) => (
               <Cell key={`cell-${idx}`} fill={COLORS[idx % COLORS.length]} />
             ))}
           </Pie>
           <Tooltip formatter={(val, name) => [`${val}`, name as string]} />
-          <Legend />
+          <Legend 
+            layout="horizontal"
+            verticalAlign="bottom"
+            align="center"
+            wrapperStyle={{ paddingTop: '20px' }}
+          />
         </PieChart>
       </ResponsiveContainer>
       <p className="text-xs text-gray-500">Nota: Puede existir superposición entre suscriptores del autor y de obras.</p>
