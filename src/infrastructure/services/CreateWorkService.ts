@@ -4,17 +4,7 @@ import {useAuthStore} from "../store/AuthStore.ts";
 import React from "react";
 import type { CoverIaFormDTO } from "../../domain/dto/FormCoverIaDTO.ts";
 import { useEffect } from "react";
-
-export interface CreateWorkDTO {
-    title: string;
-    description: string;
-    formatId: number | null; 
-    originalLanguageId: number | null;
-    categoryIds: number[];
-    tagIds: string[];
-    price: number;
-    coverIaUrl?: string;
-}
+import type { CreateWorkDTO } from "../../domain/dto/CreateWorkDTO.ts";
 
 export interface GenerateCoverResponse {
     url: string;
