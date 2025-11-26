@@ -6,10 +6,10 @@ import type { ExploreFiltersDto } from '../../../domain/dto/ExploreFiltrersDTO';
 
 const EPISODE_RANGES = [
   { label: 'Cualquiera', value: 'cualquiera' },
-  { label: '1-5 episodios', value: '1-5' },
-  { label: '6-10 episodios', value: '6-10' },
-  { label: '11-20 episodios', value: '11-20' },
-  { label: '21+ episodios', value: '21+' },
+  { label: '1-5 capítulos', value: '1-5' },
+  { label: '6-10 capítulos', value: '6-10' },
+  { label: '11-20 capítulos', value: '11-20' },
+  { label: '21+ capítulos', value: '21+' },
 ];
 
 const UPDATE_PERIODS = [

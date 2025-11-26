@@ -15,20 +15,20 @@ export default function Footer() {
               <ul className="space-y-2">
                 <li>
                   <button
+                    onClick={() => navigate("/home")}
+                    className="hover:text-white transition cursor-pointer bg-transparent p-0 border-none text-gray-300"
+                    aria-label="Ver Términos y Condiciones"
+                  >
+                    Inicio
+                  </button>
+                </li>
+                <li>
+                  <button
                     onClick={() => navigate("/explore")}
                     className="hover:text-white transition cursor-pointer bg-transparent p-0 border-none text-gray-300"
                     aria-label="Ir a Explorar Obras"
                   >
                     Explorar Obras
-                  </button>
-                </li>
-                <li>
-                  <button
-                    onClick={() => navigate("/terms")}
-                    className="hover:text-white transition cursor-pointer bg-transparent p-0 border-none text-gray-300"
-                    aria-label="Ver Términos y Condiciones"
-                  >
-                    Términos y Condiciones
                   </button>
                 </li>
               </ul>
@@ -54,7 +54,7 @@ export default function Footer() {
                     className="hover:text-white transition"
                     aria-label="Instagram Looma"
                   >
-                    Instagram @looma
+                    Instagram @looma.ar
                   </a>
                 </li>
               </ul>
@@ -63,7 +63,7 @@ export default function Footer() {
             <div className="flex flex-col items-center md:items-start">
               <h3 className="font-semibold mb-3 text-white">Legal</h3>
               <p className="text-sm text-gray-400 leading-relaxed max-w-xs">
-                Accede a nuestras políticas y condiciones de uso para entender cómo protegemos tus datos y tus obras dentro de la plataforma.
+                Accede a nuestras <a className="text-gray-300 hover:text-white transition" href="/terms">políticas y condiciones</a> de uso para entender cómo protegemos tus datos y tus obras dentro de la plataforma.
               </p>
             </div>
           </div>
