@@ -2,7 +2,6 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { subscribeToWork, subscribeToAuthor, subscribeToChapter } from '../../infrastructure/services/paymentService';
 import { useAuthStore } from '../../infrastructure/store/AuthStore';
 
-// Mocks
 vi.mock('../../infrastructure/store/AuthStore', () => ({
   useAuthStore: {
     getState: vi.fn()
@@ -17,11 +16,9 @@ vi.mock('../../infrastructure/errorHandler', () => ({
   handleError: vi.fn((error) => error.message || 'Unknown error')
 }));
 
-// Mock global fetch
 const mockFetch = vi.fn();
 globalThis.fetch = mockFetch;
 
-// Mock environment variables
 Object.defineProperty(import.meta, 'env', {
   value: {
     VITE_API_BASE_URL: '',
