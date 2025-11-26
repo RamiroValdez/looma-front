@@ -3,7 +3,7 @@ import './App.css'
 import ExplorePage from "./app/features/Explore/ExplorePage.tsx";
 import ManageWorkPage from "./app/features/ManageWork/ManageWorkPage.tsx";
 import CreatePiece from "./app/features/Work/MyWorks.tsx";
-import Create from "./app/features/Work/Create.tsx";
+import Create from "./app/features/Work/Create/Create.tsx";
 import Home from "./app/features/Home/Home.tsx";
 import { LoginPage } from "./app/features/Login/LoginPage.tsx";
 import { ProtectedRoute } from "./app/components/ProtectedRoute.tsx";
