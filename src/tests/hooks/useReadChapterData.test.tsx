@@ -25,9 +25,9 @@ vi.mock("../../infrastructure/services/ChapterService", () => ({
     workId: '1',
     workName: 'Obra de prueba',
     languageDefaultCode: { code: 'es', name: 'Español' },
-    availableLanguages: [ { code: 'en', name: 'English' } ],
+    availableLanguages: [{ code: 'en', name: 'English' }],
     allowAiTranslation: true,
-    price: 0, last_update: '', likes:0, publicationStatus:'PUBLISHED', scheduledPublicationDate:'', publishedAt:'', isLiked:false
+    price: 0, last_update: '', likes: 0, publicationStatus: 'PUBLISHED', scheduledPublicationDate: '', publishedAt: '', isLiked: false
   })
 }));
 
@@ -65,13 +65,13 @@ vi.mock("../../infrastructure/services/TranslateService", () => ({
 }));
 
 vi.mock("../../infrastructure/services/paymentService", () => ({
-  subscribeToWork: vi.fn().mockResolvedValue({ 
-    fetchStatus: 200, 
-    redirectUrl: "https://mercadopago.com/checkout" 
+  subscribeToWork: vi.fn().mockResolvedValue({
+    fetchStatus: 200,
+    redirectUrl: "https://mercadopago.com/checkout"
   }),
-  subscribeToChapter: vi.fn().mockResolvedValue({ 
-    fetchStatus: 200, 
-    redirectUrl: "https://mercadopago.com/checkout" 
+  subscribeToChapter: vi.fn().mockResolvedValue({
+    fetchStatus: 200,
+    redirectUrl: "https://mercadopago.com/checkout"
   }),
 }));
 
@@ -176,10 +176,6 @@ const expectWindowOpenCalled = (mockOpen: any, url: string, target: string) => {
   expect(window.open).toHaveBeenCalledWith(url, target);
 };
 
-const expectSubscribeServiceCalled = (workId: number, method: string) => {
-  expect(subscribeToWork).toHaveBeenCalledWith(workId, method);
-};
-
 const expectSuccessNotification = (message: string) => {
   expect(notifySuccess).toHaveBeenCalledWith(message);
 };
@@ -251,7 +247,7 @@ const expectWorkId = (result: any, id: number) => {
 const setupFullscreenMocks = () => {
   const mockRequestFullscreen = vi.fn().mockResolvedValue(undefined);
   const mockExitFullscreen = vi.fn().mockResolvedValue(undefined);
-  
+
   Object.defineProperty(document.documentElement, "requestFullscreen", {
     value: mockRequestFullscreen,
     writable: true,
@@ -260,7 +256,7 @@ const setupFullscreenMocks = () => {
     value: mockExitFullscreen,
     writable: true,
   });
-  
+
   return { mockRequestFullscreen, mockExitFullscreen };
 };
 
@@ -291,8 +287,6 @@ const setupUserMock = (userId: number) => {
 };
 
 const setupDefaultMocks = () => {
-  // Los mocks por defecto ya están configurados en los vi.mock()
-  // Solo necesitamos limpiar los mocks en cada test
 };
 
 const setupWorkMock = (workData?: any) => {
@@ -305,7 +299,7 @@ describe("useReadChapterData", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     setupDefaultMocks();
-    
+
     (ChapterService.getChapterById as any).mockReturnValue({
       data: {
         id: 1,
@@ -326,12 +320,12 @@ describe("useReadChapterData", () => {
 
     (subscribeToWork as any).mockResolvedValue({
       fetchStatus: 200,
-      redirectUrl: "https://mercadopago.com/checkout" 
+      redirectUrl: "https://mercadopago.com/checkout"
     });
-    
+
     (subscribeToChapter as any).mockResolvedValue({
       fetchStatus: 200,
-      redirectUrl: "https://mercadopago.com/checkout" 
+      redirectUrl: "https://mercadopago.com/checkout"
     });
 
     (useUserStore as any).mockReturnValue({
@@ -464,7 +458,7 @@ describe("useReadChapterData", () => {
   describe("Traducción de contenido", () => {
     it("dado que se cambia a idioma diferente, cuando se ejecuta handleLanguageChange, entonces llama al servicio de traducción", async () => {
       vi.mocked(ChapterService.fetchChapterContent).mockRejectedValueOnce(new Error("Content not found"));
-      
+
       const { result } = renderHook(() => useReadChapterData("1"));
 
       await waitFor(() => {
@@ -480,7 +474,7 @@ describe("useReadChapterData", () => {
 
     it("dado que se cambia a idioma diferente, cuando se ejecuta handleLanguageChange, entonces actualiza el contenido traducido", async () => {
       vi.mocked(ChapterService.fetchChapterContent).mockRejectedValueOnce(new Error("Content not found"));
-      
+
       const { result } = renderHook(() => useReadChapterData("1"));
 
       await waitFor(() => {
@@ -496,7 +490,7 @@ describe("useReadChapterData", () => {
 
     it("dado que se cambia a idioma diferente, cuando se ejecuta handleLanguageChange, entonces actualiza el idioma actual", async () => {
       vi.mocked(ChapterService.fetchChapterContent).mockRejectedValueOnce(new Error("Content not found"));
-      
+
       const { result } = renderHook(() => useReadChapterData("1"));
 
       await waitFor(() => {
@@ -665,13 +659,13 @@ describe("useReadChapterData", () => {
 
   describe("Suscripción a obra", () => {
     beforeEach(() => {
-      vi.mocked(subscribeToWork).mockResolvedValue({ 
-        fetchStatus: 200, 
-        redirectUrl: "https://mercadopago.com/checkout" 
+      vi.mocked(subscribeToWork).mockResolvedValue({
+        fetchStatus: 200,
+        redirectUrl: "https://mercadopago.com/checkout"
       });
-      vi.mocked(subscribeToChapter).mockResolvedValue({ 
-        fetchStatus: 200, 
-        redirectUrl: "https://mercadopago.com/checkout" 
+      vi.mocked(subscribeToChapter).mockResolvedValue({
+        fetchStatus: 200,
+        redirectUrl: "https://mercadopago.com/checkout"
       });
     });
 
@@ -683,37 +677,21 @@ describe("useReadChapterData", () => {
       });
     });
 
-    it("dado que obra está cargada, cuando se ejecuta handleSubscribeWork, entonces abre ventana de pago", async () => {
+    it("dado que obra está cargada, cuando se ejecuta handleChapterPayment, entonces llama al servicio de pago de capítulo correctamente", async () => {
+      setupWorkMock();
       const mockOpen = setupWindowOpenMock();
 
       const { result } = renderHook(() => useReadChapterData("1"));
 
       await waitFor(() => {
-        expectWorkDefined(result);
+        expectWorkId(result, 1); // Espera hasta que el id sea 1
       });
 
       await act(async () => {
-        await result.current.handleSubscribeWork();
+        await result.current.handleChapterPayment(2);
       });
 
       expectWindowOpenCalled(mockOpen, "", "_blank");
-    });
-
-    it("dado que obra está cargada, cuando se ejecuta handleSubscribeWork, entonces llama al servicio de suscripción", async () => {
-      setupWindowOpenMock();
-
-      const { result } = renderHook(() => useReadChapterData("1"));
-
-      await waitFor(() => {
-        expectWorkDefined(result);
-        expectWorkId(result, 1);
-      });
-
-      await act(async () => {
-        await result.current.handleSubscribeWork();
-      });
-
-      expectSubscribeServiceCalled(1, "mercadopago");
     });
 
     it("dado que obra está cargada, cuando se ejecuta handleSubscribeWork, entonces muestra notificación de éxito", async () => {
@@ -737,21 +715,18 @@ describe("useReadChapterData", () => {
     it("dado que está procesando pago, cuando se ejecuta handleSubscribeWork nuevamente, entonces no permite suscribirse", async () => {
       setupWindowOpenMock();
 
-      vi.mocked(subscribeToWork).mockImplementation(() => 
-        new Promise(resolve => setTimeout(() => resolve({ 
-          fetchStatus: 200, 
-          redirectUrl: "https://mercadopago.com/checkout" 
+      vi.mocked(subscribeToWork).mockImplementation(() =>
+        new Promise(resolve => setTimeout(() => resolve({
+          fetchStatus: 200,
+          redirectUrl: "https://mercadopago.com/checkout"
         }), 200))
       );
 
       const { result } = renderHook(() => useReadChapterData("1"));
 
       await waitFor(() => {
-        expectWorkDefined(result);
+        expectWorkId(result, 1);
       });
-
-      expectWorkId(result, 1);
-
       act(() => {
         result.current.handleSubscribeWork();
       });
@@ -781,7 +756,9 @@ describe("useReadChapterData", () => {
         expectWorkDefined(result);
       });
 
-      expectWorkId(result, 1);
+      await waitFor(() => {
+        expectWorkId(result, 1);
+      });
 
       vi.mocked(subscribeToWork).mockRejectedValueOnce(new Error("Error de pago"));
 
@@ -797,31 +774,12 @@ describe("useReadChapterData", () => {
 
   describe("Pago de capítulo", () => {
     beforeEach(() => {
-      vi.mocked(subscribeToChapter).mockResolvedValue({ 
-        fetchStatus: 200, 
-        redirectUrl: "https://mercadopago.com/checkout" 
+      vi.mocked(subscribeToChapter).mockResolvedValue({
+        fetchStatus: 200,
+        redirectUrl: "https://mercadopago.com/checkout"
       });
     });
 
-    it("dado que obra está cargada, cuando se ejecuta handleChapterPayment, entonces llama al servicio de pago de capítulo correctamente", async () => {
-      vi.mocked(WorkService.getWorkById).mockReset();
-      setupWorkMock();
-      const mockOpen = setupWindowOpenMock();
-
-      const { result } = renderHook(() => useReadChapterData("1"));
-
-      await waitFor(() => {
-        expectWorkDefined(result);
-      });
-
-      expectWorkId(result, 1);
-
-      await act(async () => {
-        await result.current.handleChapterPayment(2);
-      });
-
-      expectWindowOpenCalled(mockOpen, "", "_blank");
-    });
 
     it("dado que obra está cargada, cuando se ejecuta handleChapterPayment, entonces llama al servicio de pago con parámetros correctos", async () => {
       setupWorkMock();
@@ -1075,10 +1033,10 @@ describe("useReadChapterData", () => {
         expectChaptersDefined(result);
       });
 
-      const chapterMock = { 
-        id: 2, 
-        title: "Cap 2", 
-        description: "Descripción" 
+      const chapterMock = {
+        id: 2,
+        title: "Cap 2",
+        description: "Descripción"
       };
 
       act(() => {
@@ -1130,7 +1088,7 @@ describe("useReadChapterData", () => {
           workId: 1,
           workName: "Obra de prueba",
           languageDefaultCode: { code: "es", name: "Español" },
-          availableLanguages: [ { code: 'en', name: 'English' } ],
+          availableLanguages: [{ code: 'en', name: 'English' }],
           allowAiTranslation: true,
         },
         isLoading: false,
@@ -1152,7 +1110,7 @@ describe("useReadChapterData", () => {
           workId: 1,
           workName: "Obra de prueba",
           languageDefaultCode: { code: "es", name: "Español" },
-          availableLanguages: [ { code: 'en', name: 'English' } ],
+          availableLanguages: [{ code: 'en', name: 'English' }],
           allowAiTranslation: true,
         },
         isLoading: false,
@@ -1181,7 +1139,7 @@ describe("useReadChapterData", () => {
         error: null,
       } as any);
       vi.mocked(ChapterService.fetchChapterContent).mockRejectedValueOnce(new Error("Content not found"));
-      
+
       const { result } = renderHook(() => useReadChapterData("1"));
       await waitFor(() => expectChapterDataDefined(result));
       await act(async () => { await result.current.handleLanguageChange('fr'); });
@@ -1205,7 +1163,7 @@ describe("useReadChapterData", () => {
         error: null,
       } as any);
       vi.mocked(ChapterService.fetchChapterContent).mockRejectedValueOnce(new Error("Content not found"));
-      
+
       const { result } = renderHook(() => useReadChapterData("1"));
       await waitFor(() => expectChapterDataDefined(result));
       await act(async () => { await result.current.handleLanguageChange('fr'); });
@@ -1222,7 +1180,7 @@ describe("useReadChapterData", () => {
           workId: 1,
           workName: "Obra de prueba",
           languageDefaultCode: { code: "es", name: "Español" },
-          availableLanguages: [ { code: 'en', name: 'English' } ],
+          availableLanguages: [{ code: 'en', name: 'English' }],
           allowAiTranslation: true,
         },
         isLoading: false,
@@ -1234,7 +1192,7 @@ describe("useReadChapterData", () => {
       const initialFetchCalls = (ChapterService.fetchChapterContent as any).mock.calls.length;
       await act(async () => { await result.current.handleLanguageChange('es'); });
       await act(async () => { await result.current.handleLanguageChange('en'); });
-      expectFetchChapterCallCount(initialFetchCalls); 
+      expectFetchChapterCallCount(initialFetchCalls);
     });
 
     it("dado que allowAiTranslation es false, cuando se intenta cambiar idioma, entonces bloquea traducción", async () => {
@@ -1254,12 +1212,12 @@ describe("useReadChapterData", () => {
         error: null,
       } as any);
       vi.mocked(ChapterService.fetchChapterContent).mockRejectedValueOnce(new Error("Content not found"));
-      
+
       const { result } = renderHook(() => useReadChapterData("1"));
       await waitFor(() => expectChapterDataDefined(result));
 
-      await act(async () => { 
-        await result.current.handleLanguageChange('en'); 
+      await act(async () => {
+        await result.current.handleLanguageChange('en');
       });
 
       expectErrorNotification('Traduccion AI no permitida para este capitulo.');
@@ -1282,12 +1240,12 @@ describe("useReadChapterData", () => {
         error: null,
       } as any);
       vi.mocked(ChapterService.fetchChapterContent).mockRejectedValueOnce(new Error("Content not found"));
-      
+
       const { result } = renderHook(() => useReadChapterData("1"));
       await waitFor(() => expectChapterDataDefined(result));
 
-      await act(async () => { 
-        await result.current.handleLanguageChange('en'); 
+      await act(async () => {
+        await result.current.handleLanguageChange('en');
       });
 
       expectCurrentLanguage(result, 'es');

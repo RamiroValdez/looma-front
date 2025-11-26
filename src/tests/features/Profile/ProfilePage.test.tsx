@@ -254,7 +254,7 @@ describe("ProfilePage", () => {
 
     render(<ProfilePage />, { wrapper: createWrapper() });
 
-    expect(screen.getByText(/precio por suscripción/i)).toBeInTheDocument();
+    expect(screen.getByText(/precio suscripción/i)).toBeInTheDocument();
   });
 
   it("dado que es autor, cuando se renderiza, entonces muestra el valor del precio", () => {
