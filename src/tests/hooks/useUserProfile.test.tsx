@@ -519,7 +519,7 @@ describe("useUserProfile", () => {
       expectEditedDataFirstName(result, "Juan");
     });
 
-    it("dado que se cancela la edición, cuando se llama handleCancel, entonces limpia la imagen seleccionada", () => {
+    it("dado que se cancela la edición, cuando se llama handleCancel, entonces restaura la imagen original del perfil", () => {
       const { result } = renderHook(() => useUserProfile(), {
         wrapper: createWrapper(),
       });
@@ -533,7 +533,7 @@ describe("useUserProfile", () => {
         result.current.handleCancel();
       });
 
-      expectSelectedImage(result, undefined);
+      expectSelectedImage(result, "avatar.jpg");
     });
   });
 

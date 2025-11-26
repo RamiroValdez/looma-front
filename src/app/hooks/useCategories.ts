@@ -1,0 +1,1 @@
+export { useCategories } from '../../infrastructure/services/CategoryService';

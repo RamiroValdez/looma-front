@@ -33,13 +33,6 @@ const StarRating: React.FC<StarRatingProps> = ({ workId, initialValue = 0 }) => 
     }
   }, [success]);
 
-  const fetchRatings = async (averageRating: number | undefined) => {
-      if(averageRating !== undefined) {
-          setAverage(averageRating);
-      }
-      setAverage(initialValue);
-  };
-
   const fetchTotalRatings = async () => {
       const total = await getRatingsCount(workId);
       setTotal(total);
@@ -55,7 +48,7 @@ const StarRating: React.FC<StarRatingProps> = ({ workId, initialValue = 0 }) => 
   }
 
   useEffect(() => {
-    fetchRatings(undefined);
+    setAverage(initialValue);
     fetchTotalRatings();
     fetchMyRating();
   }, [workId, initialValue]);
@@ -74,8 +67,9 @@ const StarRating: React.FC<StarRatingProps> = ({ workId, initialValue = 0 }) => 
     setErrorMsg(null);
     try {
         const response = await sendRating(workId, rating);
+        console.log(response);
+        setAverage(response.average_rating);
         setSuccess(true);
-        fetchRatings(response.averageRating);
     } catch (e: any) {
       setErrorMsg("Error al enviar la valoración");
     }
@@ -142,8 +136,8 @@ const StarRating: React.FC<StarRatingProps> = ({ workId, initialValue = 0 }) => 
         {success && (
           <div className={`text-green-600 transition-opacity duration-500 ${isVisible ? 'opacity-100' : 'opacity-0'}`}>
             <svg 
-              xmlns="http://www.w3.org/2000-svg" 
-              className="h-5 w-5" 
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5"
               viewBox="0 0 20 20" 
               fill="currentColor"
             >
@@ -158,8 +152,8 @@ const StarRating: React.FC<StarRatingProps> = ({ workId, initialValue = 0 }) => 
         {errorMsg && (
           <div className="text-red-600">
             <svg 
-              xmlns="http://www.w3.org/2000-svg" 
-              className="h-5 w-5" 
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5"
               viewBox="0 0 20 20" 
               fill="currentColor"
             >

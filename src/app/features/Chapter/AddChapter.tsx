@@ -1,151 +1,75 @@
-import { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useState } from "react";
+import { useParams } from "react-router-dom";
 import AdvancedTools from "../../components/addChapter/AdvancedTools";
 import ChapterEditor from "../../components/addChapter/ChapterEditor";
 import ChapterActions from "../../components/addChapter/ChapterActions";
 import PublishOptions from "../../components/addChapter/PublishOptions";
 import { useChapterActions } from "../../hooks/useChapterActions.ts";
-import { getChapterById, updateChapterPrice } from "../../../infrastructure/services/ChapterService.ts";
 import Button from "../../components/Button.tsx";
-import { notifySuccess, notifyError } from "../../../infrastructure/services/ToastProviderService.ts";
 import type { ChapterWithContentDTO } from "../../../domain/dto/ChapterWithContentDTO.ts";
 import LoomiBubble from "../../components/Loomi-buble.tsx";
 import BackButton from "../../components/BackButton";
 import type { LanguageDTO } from "../../../domain/dto/LanguageDTO.ts";
+import { useChapterVersions } from "../../hooks/useChapterVersions";
 
 export default function AddChapter() {
-    const navigate = useNavigate();
     const { id, chapterId } = useParams<{ id: string; chapterId: string }>();
 
-    // Idioma que el usuario selecciona (target) y el idioma actualmente mostrado
-    const [selectedLanguage, setSelectedLanguage] = useState<string>("");
-    const [contentLanguage, setContentLanguage] = useState<string>("");
-    const [isLanguageChanging, setIsLanguageChanging] = useState(false);
+    // Nuevo hook para gestionar versiones
+    const {
+        chapter,
+        activeLanguage,
+        loadingLanguage,
+        versions,
+        pendingLanguages,
+        switchLanguage,
+        updateContent,
+        addLanguage,
+        saveActiveLanguage,
+        savePrice,
+        setTitle,
+        setPriceValue,
+        dirtyActive,
+        priceSaving,
+    } = useChapterVersions({ chapterId: Number(chapterId) || null });
 
-    const { data, isLoading: isLoadingFetch, error: errorFetch, isFetching } = getChapterById(Number(chapterId), selectedLanguage);
-    const [chapter, setChapter] = useState<ChapterWithContentDTO | null>(null);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [deleteInput, setDeleteInput] = useState("");
     const [showCancelScheduleModal, setShowCancelScheduleModal] = useState(false);
     const [cancelScheduleInput, setCancelScheduleInput] = useState("");
-    const [isSaving, setIsSaving] = useState(false);
-    const [pendingLanguages, setPendingLanguages] = useState<LanguageDTO[]>([]);
+    const [targetLanguageCandidate, setTargetLanguageCandidate] = useState<string | null>(null);
+    const [showConfirmLanguageModal, setShowConfirmLanguageModal] = useState(false);
 
     const {
         error,
         handleConfirmDelete,
         deleting,
         deleteError,
-        setDeleteError,
         handleCancelSchedule,
         cancelingSchedule,
         cancelScheduleError,
-        setCancelScheduleError
-    } = useChapterActions(id ?? "", chapter);
+        setCancelScheduleError,
+        setDeleteError
+    } = useChapterActions(id ?? "", chapter as ChapterWithContentDTO | null);
 
-    useEffect(() => {
-        if (errorFetch) {
-            const status = (errorFetch as any)?.response?.status;
-            if (status === 403 && id) navigate(`/work/${id}`);
-        }
-    }, [errorFetch, id, navigate]);
-
-    // Inicialización y actualización tras fetch exitoso
-    useEffect(() => {
-        if (!data) return;
-        // Si es la primera carga establecemos idioma de contenido
-        if (!contentLanguage) {
-            // El contenido inicial corresponde al idioma original (selectedLanguage vacío)
-            setContentLanguage(selectedLanguage || data.languageDefaultCode.code);
-        }
-
-        // Solo actualizamos el capítulo y el idioma mostrado cuando:
-        // - estamos cambiando de idioma y el fetch terminó
-        // - o es la carga inicial
-        if (isLanguageChanging || !chapter) {
-            setChapter(data);
-            // Si selectedLanguage está vacío, mostramos original; si no, mostramos el seleccionado
-            if (selectedLanguage) {
-                setContentLanguage(selectedLanguage);
-            } else if (!contentLanguage) {
-                setContentLanguage(data.languageDefaultCode.code);
-            }
-            setIsLanguageChanging(false);
-        }
-    }, [data, isLanguageChanging, selectedLanguage, contentLanguage, chapter]);
-
-    const handleFieldChange = (field: keyof ChapterWithContentDTO, value: any) => {
-        setChapter((prev) => (prev ? { ...prev, [field]: value } : prev));
-    };
-
-    const openDeleteModal = () => {
-        setDeleteError("");
-        setDeleteInput("");
-        setShowDeleteModal(true);
-    };
-
-    const closeDeleteModal = () => {
-        if (deleting) return;
-        setShowDeleteModal(false);
-    };
-
-    const handleSavePrice = async () => {
-        try {
-            if (!chapter) return;
-            setIsSaving(true);
-            const price = Number(chapter.price ?? 0);
-            await updateChapterPrice(chapter.id, price || 0);
-            notifySuccess("Precio guardado correctamente.");
-        } catch (error) {
-            console.error("Error al guardar el precio:", error);
-            notifyError("Error al guardar el precio.");
-        } finally {
-            setIsSaving(false);
-        }
-    };
-
-    const handleLanguageSelect = (languageCode: string) => {
-        const current = contentLanguage || chapter?.languageDefaultCode?.code || "";
-        if (languageCode === current) return;
-        setIsLanguageChanging(true);
-        setSelectedLanguage(languageCode);
-    };
-
-    const handleAddLanguage = (language: LanguageDTO) => {
-        setChapter(prev => {
-            if (!prev) return prev;
-            const exists = prev.availableLanguages.some(l => l.code === language.code);
-            if (exists) return prev;
-            return {
-                ...prev,
-                availableLanguages: [...prev.availableLanguages, language]
-            };
-        });
-        setPendingLanguages(prev => prev.some(l => l.code === language.code) ? prev : [...prev, language]);
-        handleLanguageSelect(language.code);
-    };
+    const closeDeleteModal = () => { if (deleting) return; setShowDeleteModal(false); };
 
     const handlePreview = () => {
         if (!chapter) return;
         const previewId = `${chapter.id}-${Date.now()}-${Math.random().toString(36).slice(2)}`;
         const previewData = {
             chapterId: chapter.id,
-            content: chapter.content, // contenido potencialmente sin guardar
+            content: versions[activeLanguage]?.content || chapter.content || '',
             numberChapter: chapter.chapterNumber,
             originalLanguage: chapter.languageDefaultCode.code,
         };
-        try {
-            localStorage.setItem(`preview:${previewId}`, JSON.stringify(previewData));
-        } catch (e) {
-            console.error('No se pudo guardar el contenido de la vista previa en localStorage:', e);
-        }
+        try { localStorage.setItem(`preview:${previewId}`, JSON.stringify(previewData)); } catch {}
         const previewUrl = `/preview?previewId=${encodeURIComponent(previewId)}`;
         window.open(previewUrl, '_blank');
     };
 
-    const activeLanguage = contentLanguage || chapter?.languageDefaultCode?.code || "";
     const editorKey = chapter ? `${chapter.id}-${activeLanguage || 'default'}` : 'loading';
-    const languageLoading = isLoadingFetch || isFetching || isLanguageChanging;
+    const languageLoading = loadingLanguage;
 
     const combinedLanguages: LanguageDTO[] = (() => {
         if (!chapter) return pendingLanguages;
@@ -155,28 +79,36 @@ export default function AddChapter() {
         return Array.from(map.values());
     })();
 
+    const openDeleteModal = () => {
+        if (deleting) return;
+        setDeleteError("");
+        setDeleteInput("");
+        setShowDeleteModal(true);
+    };
+
+    const requestLanguageChange = (code: string) => {
+        if (!dirtyActive) {
+            switchLanguage(code);
+            return;
+        }
+        // hay cambios sucios: mostrar modal
+        setTargetLanguageCandidate(code);
+        setShowConfirmLanguageModal(true);
+    };
+
     return (
         <div>
-            {isLoadingFetch && !chapter ? (
+            {!chapter ? (
                 <div className="min-h-screen flex items-center justify-center bg-[#F4F0F7]">
-                    <p className="text-gray-600 text-lg">Cargando obra...</p>
+                    <p className="text-gray-600 text-lg">Cargando capítulo...</p>
                 </div>
-            ) : errorFetch || error ? (
-                <div className="min-h-screen flex items-center justify-center bg-[#F4F0F7]">
-                    <p className="text-gray-600 text-lg">No se pudo cargar el capítulo.</p>
-                </div>
-            ) : data && chapter ? (
+            ) : (
                 <div className="min-h-screen bg-[#F4F0F7] px-4 sm:px-8 md:px-16 py-8 max-w-screen">
-                    <div className="pl-5">
-                        <BackButton to={`/manage-work/${id}`} />
-                    </div>
+                    <div className="pl-5"><BackButton to={`/manage-work/${id}`} /></div>
                     <div className="flex flex-col lg:flex-row gap-8">
                         <div className="flex-[3] rounded-2xl p-6">
-                            <h2 className="text-lg font-medium text-gray-700 mb-4">
-                                Título de la serie: <span className="font-semibold">{chapter.workName}</span>
-                            </h2>
-                            <p className="text-sm text-gray-500 mb-6">Idioma mostrado: <span className="font-medium">{activeLanguage.toUpperCase()}</span>{languageLoading && ' (cargando...)'}</p>
-                            {chapter.publicationStatus === 'SCHEDULED' && chapter.scheduledPublicationDate ? (
+                            <h2 className="text-lg font-medium text-gray-700 mb-4">Título de la serie: <span className="font-semibold">{chapter.workName}</span></h2>
+                            {chapter.publicationStatus === 'SCHEDULED' && chapter.scheduledPublicationDate && (
                                 <div className="mb-6">
                                     <div className="border border-blue-300 bg-blue-50 text-blue-800 rounded-lg p-4">
                                         <div className="flex items-center justify-between gap-4">
@@ -190,69 +122,55 @@ export default function AddChapter() {
                                             </div>
                                             <button
                                                 type="button"
-                                                onClick={() => {
-                                                    setCancelScheduleError("");
-                                                    setCancelScheduleInput("");
-                                                    setShowCancelScheduleModal(true);
-                                                }}
+                                                onClick={() => { setCancelScheduleError(""); setCancelScheduleInput(""); setShowCancelScheduleModal(true); }}
                                                 disabled={cancelingSchedule}
                                                 className="px-4 py-2 rounded-md bg-red-600 text-white text-sm hover:bg-red-700 disabled:opacity-60"
-                                            >
-                                                {cancelingSchedule ? "Deshaciendo..." : "Deshacer programación"}
-                                            </button>
+                                            >{cancelingSchedule ? 'Deshaciendo...' : 'Deshacer programación'}</button>
                                         </div>
                                     </div>
                                 </div>
-                            ) : null}
+                            )}
                             <div className="border-2 border-[#4C3B63] rounded-xl max-w-full overflow-hidden mb-6 relative">
                                 {languageLoading && (
-                                    <div className="absolute inset-0 bg-white/60 backdrop-blur-sm flex items-center justify-center z-10 text-[#4C3B63] font-medium">
-                                        Cargando versión...
-                                    </div>
+                                    <div className="absolute inset-0 bg-white/60 backdrop-blur-sm flex items-center justify-center z-10 text-[#4C3B63] font-medium">Cargando versión...</div>
                                 )}
                                 <ChapterEditor
                                     chapterTitle={chapter.title}
-                                    setChapterTitle={(value) => handleFieldChange("title", value)}
-                                    chapterContent={chapter.content}
-                                    setChapterContent={(value) => handleFieldChange("content", value)}
+                                    setChapterTitle={setTitle}
+                                    chapterContent={versions[activeLanguage]?.content || ''}
+                                    setChapterContent={updateContent}
                                     chapterNumber={chapter.chapterNumber}
                                     editorKey={editorKey}
                                 />
                             </div>
 
-                            <ChapterActions
-                                onPreview={handlePreview}
-                                formData={{ titulo: chapter.title, contenido: chapter.content }}
-                                chapterId={chapter.id}
-                                publicationStatus={chapter.publicationStatus}
-                                price={chapter.price}
-                                workId={chapter.workId}
-                                allowAiTranslation={chapter.allowAiTranslation}
-                                defaultLanguageCode={chapter.languageDefaultCode?.code}
-                                activeLanguageCode={activeLanguage}
-                            />
-                            {chapter.publicationStatus === 'DRAFT' && (
-                               <div className="border border-red-300 bg-red-50 text-red-700 rounded-lg p-4 mt-5">
-                                    <div className="flex flex-col sm:flex-row items-center sm:justify-between gap-4 w-full text-center sm:text-left">
-                                        <div>
-                                        <h4 className="font-semibold">Eliminar capítulo</h4>
-                                        <p className="text-sm">Esta acción no se puede deshacer.</p>
-                                        </div>
-                                        <button
-                                        onClick={openDeleteModal}
-                                        className="px-4 py-2 bg-red-600 cursor-pointer text-white rounded-full font-semibold hover:bg-red-700 whitespace-nowrap"
-                                        >
-                                        Eliminar capítulo
-                                        </button>
-                                    </div>
-                                    </div>
-                            )}
+                            <div className="flex flex-col justify-start sm:flex-row sm:items-center mb-6 gap-4">
+                                <ChapterActions
+                                    onPreview={handlePreview}
+                                    publicationStatus={chapter.publicationStatus}
+                                />
+                                <div className="flex gap-4 items-center">
+                                    <Button
+                                        text={dirtyActive ? 'Guardar (Pendiente)' : 'Guardar'}
+                                        onClick={() => saveActiveLanguage(chapter.allowAiTranslation)}
+                                        colorClass={`px-4 py-2 ${dirtyActive ? 'bg-[#172FA6]' : 'bg-[#4C3B63]'} font-semibold text-white rounded-full shadow hover:brightness-110 cursor-pointer whitespace-nowrap flex-shrink-0`}
+                                    />
+                                    {chapter.publicationStatus !== 'PUBLISHED' && (
+                                        <Button
+                                            text={deleting ? 'Eliminando...' : 'Eliminar capítulo'}
+                                            onClick={openDeleteModal}
+                                            colorClass={`px-4 py-2 bg-red-600 font-semibold text-white rounded-full shadow hover:bg-red-700 cursor-pointer disabled:opacity-60 whitespace-nowrap`}
+                                        />
+                                    )}
+                                </div>
+                            </div>
+
                             {chapter.publicationStatus === 'DRAFT' && (
                                 <PublishOptions
                                     workId={Number(id)}
                                     chapterId={Number(chapterId)}
-                                    onScheduleChange={(isoDate) => handleFieldChange("publishedAt", isoDate)}
-                                    formData={{ titulo: chapter.title, contenido: chapter.content }}
+                                    onScheduleChange={() => { /* noop */ }}
+                                    formData={{ titulo: chapter.title, contenido: versions[activeLanguage]?.content || '' }}
                                     price={chapter.price || 0}
                                     allowAiTranslation={chapter.allowAiTranslation}
                                     defaultLanguageCode={chapter.languageDefaultCode?.code}
@@ -266,14 +184,14 @@ export default function AddChapter() {
                             <AdvancedTools
                                 availableLanguages={combinedLanguages}
                                 defaultLanguageCode={chapter.languageDefaultCode}
-                                onLanguageSelect={handleLanguageSelect}
+                                onLanguageSelect={requestLanguageChange}
                                 activeLanguageCode={activeLanguage}
                                 disabled={languageLoading}
-                                onAddLanguage={handleAddLanguage}
+                                onAddLanguage={addLanguage}
                             />
                             <div>
-                                <div className="flex justify-between items-center w-full mt-8">
-                                    <div className="flex items-center gap-2">
+                                <div className="flex justify-between items-center w-full mt-8 gap-4">
+                                    <div className="flex items-center gap-2 flex-1">
                                         <label className="text-black font-medium text-base">Precio:</label>
                                         <div className="flex items-center border rounded">
                                             <span className="px-2 py-2 bg-gray-50 border-r border border-[#172fa6] text-base text-black">$</span>
@@ -281,25 +199,25 @@ export default function AddChapter() {
                                                 type="number"
                                                 placeholder="0.00"
                                                 value={chapter.price || ''}
-                                                onChange={(e) => handleFieldChange("price", e.target.value)}
+                                                onChange={(e) => setPriceValue(Number(e.target.value))}
                                                 className="px-2 py-2 border border-[#172fa6] text-base text-black rounded-r focus:outline-none focus:ring-2 focus:ring-[#5C17A6] w-25"
                                                 min="0"
                                                 step="0.01"
                                             />
                                         </div>
                                     </div>
-                                    <div className="flex gap-3">
+                                    <div>
                                         <Button
-                                            text={isSaving ? "Guardando..." : "Guardar"}
-                                            onClick={handleSavePrice}
-                                            colorClass={`px-4 py-2 bg-[#591b9b] font-semibold text-white rounded-full shadow hover:bg-purple-800 cursor-pointer`}
+                                            text={ priceSaving ? 'Guardando...' : 'Guardar precio'}
+                                            onClick={savePrice}
+                                            colorClass={`px-4 py-2 bg-[#591b9b] font-semibold text-white rounded-full shadow hover:bg-purple-800 cursor-pointer disabled:opacity-60`}
                                         />
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    {showDeleteModal && (
+                    {showDeleteModal && chapter.publicationStatus !== 'PUBLISHED' && (
                         <div className="fixed inset-0 z-50 flex items-center justify-center">
                             <div className="absolute inset-0 bg-black/40" onClick={closeDeleteModal} />
                             <div className="relative z-10 w-full max-w-md bg-white rounded-xl shadow-lg p-6">
@@ -314,16 +232,8 @@ export default function AddChapter() {
                                 />
                                 {deleteError && <p className="text-sm text-red-600 mb-2">{deleteError}</p>}
                                 <div className="flex justify-end gap-2">
-                                    <button
-                                        onClick={closeDeleteModal}
-                                        disabled={deleting}
-                                        className="px-4 py-2 rounded-md border border-gray-300 text-gray-700 hover:bg-gray-100 disabled:opacity-50"
-                                    >Cancelar</button>
-                                    <button
-                                        onClick={() => handleConfirmDelete(chapterId, deleteInput)}
-                                        disabled={deleteInput !== "Eliminar Capitulo" || deleting}
-                                        className="px-4 py-2 rounded-md bg-red-600 text-white hover:bg-red-700 disabled:opacity-50"
-                                    >{deleting ? "Eliminando..." : "Confirmar eliminación"}</button>
+                                    <button onClick={closeDeleteModal} disabled={deleting} className="px-4 py-2 rounded-full border border-gray-300 text-gray-700 hover:bg-gray-100 disabled:opacity-50">Cancelar</button>
+                                    <button onClick={() => handleConfirmDelete(chapterId, deleteInput)} disabled={deleteInput !== 'Eliminar Capitulo' || deleting} className="px-4 py-2 rounded-full bg-red-600 text-white hover:bg-red-700 disabled:opacity-50">{deleting ? 'Eliminando...' : 'Confirmar eliminación'}</button>
                                 </div>
                             </div>
                         </div>
@@ -343,28 +253,41 @@ export default function AddChapter() {
                                 />
                                 {cancelScheduleError && <p className="text-sm text-red-600 mb-2">{cancelScheduleError}</p>}
                                 <div className="flex justify-end gap-2">
+                                    <button onClick={() => !cancelingSchedule && setShowCancelScheduleModal(false)} disabled={cancelingSchedule} className="px-4 py-2 rounded-full border border-gray-300 text-gray-700 hover:bg-gray-100 disabled:opacity-50">Cancelar</button>
+                                    <button onClick={async () => { if (cancelScheduleInput !== 'Deshacer Programacion' || cancelingSchedule) return; await handleCancelSchedule(chapterId); setShowCancelScheduleModal(false); }} disabled={cancelScheduleInput !== 'Deshacer Programacion' || cancelingSchedule} className="px-4 py-2 rounded-full bg-red-600 text-white hover:bg-red-700 disabled:opacity-50">{cancelingSchedule ? 'Deshaciendo...' : 'Confirmar'}</button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                    {showConfirmLanguageModal && targetLanguageCandidate && (
+                        <div className="fixed inset-0 z-50 flex items-center justify-center px-2 sm:px-4 overflow-x-hidden">
+                            <div className="absolute inset-0 bg-black/40" onClick={() => setShowConfirmLanguageModal(false)} />
+                            <div className="relative z-10 w-full max-w-screen -ml-2 sm:ml-auto sm:max-w-xl lg:max-w-2xl bg-white rounded-xl shadow-lg p-4 sm:p-6 mx-auto max-h-[90vh] overflow-y-auto">
+                                <h3 className="text-lg font-semibold mb-2">Cambiar de idioma</h3>
+                                <p className="text-sm text-gray-600 mb-4">
+                                    Tienes cambios sin guardar en el idioma actual. Si cambias a <span className="font-semibold">{targetLanguageCandidate.toUpperCase()}</span> sin guardar, podrás volver luego pero los cambios siguen pendientes aquí. ¿Deseas continuar?
+                                </p>
+                                <div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 w-full">
                                     <button
-                                        onClick={() => !cancelingSchedule && setShowCancelScheduleModal(false)}
-                                        disabled={cancelingSchedule}
-                                        className="px-4 py-2 rounded-md border border-gray-300 text-gray-700 hover:bg-gray-100 disabled:opacity-50"
+                                        onClick={() => { setShowConfirmLanguageModal(false); setTargetLanguageCandidate(null); }}
+                                        className="px-4 py-2 rounded-full border border-gray-300 text-gray-700 hover:bg-gray-100 w-full sm:w-auto"
                                     >Cancelar</button>
                                     <button
-                                        onClick={async () => {
-                                            if (cancelScheduleInput !== "Deshacer Programacion" || cancelingSchedule) return;
-                                            await handleCancelSchedule(chapterId);
-                                            setShowCancelScheduleModal(false);
-                                        }}
-                                        disabled={cancelScheduleInput !== "Deshacer Programacion" || cancelingSchedule}
-                                        className="px-4 py-2 rounded-md bg-red-600 text-white hover:bg-red-700 disabled:opacity-50"
-                                    >{cancelingSchedule ? "Deshaciendo..." : "Confirmar"}</button>
+                                        onClick={() => { switchLanguage(targetLanguageCandidate); setShowConfirmLanguageModal(false); setTargetLanguageCandidate(null); }}
+                                        className="px-4 py-2 rounded-full bg-[#172FA6] text-white hover:bg-[#0e1c80] w-full sm:w-auto"
+                                    >Cambiar sin guardar</button>
+                                    <button
+                                        onClick={async () => { await saveActiveLanguage(chapter.allowAiTranslation); switchLanguage(targetLanguageCandidate); setShowConfirmLanguageModal(false); setTargetLanguageCandidate(null); }}
+                                        className="px-4 py-2 rounded-full bg-[#4C3B63] text-white hover:bg-[#3b2c4e] w-full sm:w-auto"
+                                    >Guardar y cambiar</button>
                                 </div>
                             </div>
                         </div>
                     )}
                 </div>
-            ) : null}
+            )}
             {chapter && (
-                <LoomiBubble chapterId={chapter.id} chapterContent={chapter.content} publicationStatus={chapter.publicationStatus} />
+                <LoomiBubble chapterId={chapter.id} chapterContent={versions[activeLanguage]?.content || ''} publicationStatus={chapter.publicationStatus} />
             )}
         </div>
     );

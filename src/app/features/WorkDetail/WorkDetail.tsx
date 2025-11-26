@@ -15,12 +15,15 @@ export const WorkDetail: React.FC = () => {
   if (!work) return <div className="text-center py-10">Obra no encontrada.</div>;
 
   const sortedChapters = [...work.chapters].sort((a, b) => a.id - b.id);
+  const firstChapter = sortedChapters[0];
   const allUnlocked = Boolean(work.subscribedToAuthor) || Boolean(work.subscribedToWork);
   const unlockedSet = new Set<number>(work.unlockedChapters || []);
 
-  const firstUnlocked = allUnlocked
-    ? sortedChapters[0]
-    : sortedChapters.find((_, idx) => unlockedSet.has(idx + 1));
+  const isFirstChapterUnlocked = firstChapter
+    ? allUnlocked || unlockedSet.has(firstChapter.id) || firstChapter.price === 0
+    : false;
+
+  const firstUnlocked = isFirstChapterUnlocked ? firstChapter : null;
 
   const handleFirstChapter = () => {
     if (firstUnlocked) {
@@ -60,7 +63,7 @@ export const WorkDetail: React.FC = () => {
             />
           </div>
           <div className="w-full md:w-1/3 border-b md:border-b-0 md:border-r border-gray-200 p-6">
-            <WorkInfo work={work} manageFirstChapter={handleFirstChapter} disableFirstChapter={!firstUnlocked} />
+            <WorkInfo work={work} manageFirstChapter={handleFirstChapter} disableFirstChapter={!isFirstChapterUnlocked} />
           </div>
         </div>
       </div>

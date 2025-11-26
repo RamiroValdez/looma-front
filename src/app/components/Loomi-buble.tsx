@@ -53,6 +53,7 @@ export default function LoomiBubble({ chapterId, chapterContent, publicationStat
     const responseArray = Array.isArray(response) ? response : [response];
     setMessages((prev) => [...prev, ...responseArray]);
   } catch (error) {
+    console.error('Error enviando mensaje', error);
   } finally {
     setIsSending(false);
   }
