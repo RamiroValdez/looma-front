@@ -7,6 +7,7 @@ import CoverImageModal from '../../components/CoverImageModal';
 import CoverAiModal from "../../components/create/CoverAiModal.tsx";
 import BackButton from '../../components/BackButton';
 import { useManageWorkData } from './hooks/useManageWorkData';
+import { Loader } from '../../components/Loader.tsx';
 
 export const ManageWorkPage: React.FC = () => {
   const { id: workId } = useParams<{ id: string }>();
@@ -78,9 +79,10 @@ export const ManageWorkPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="text-xl">Cargando obra...</div>
-      </div>
+      
+            <div className="min-h-screen flex items-center justify-center bg-[#f4f0f7]">
+              <Loader size="md" color="primary" />
+            </div>
     );
   }
 
@@ -228,7 +230,10 @@ export const ManageWorkPage: React.FC = () => {
                     <div ref={suggestionCategoryMenuRef} className="absolute z-20 top-10 mt-1 mr-[-10%] w-max max-w-sm lg:max-w-md">
                       <div className="bg-white p-4 border border-gray-300 rounded-md shadow-lg flex flex-wrap gap-2">
                         {isLoadingCategory ? (
-                          <p className="text-gray-500">Cargando categorías...</p>
+                          
+      <div className="min-h-screen flex items-center justify-center bg-[#f4f0f7]">
+        <Loader size="md" color="primary" />
+      </div>
                         ) : errorCategory ? (
                           <p className="text-red-500">Error al cargar categorías</p>
                         ) : (

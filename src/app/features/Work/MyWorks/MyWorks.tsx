@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { WorkItem } from '../../../components/WorkItem.tsx';
 import { useUserStore } from "../../../../infrastructure/store/UserStorage.ts";
 import { useMyWorksPage } from "./hooks/useMyWorks";
+import { Loader } from "../../../components/Loader.tsx";
 
 const PURPLE_BG_CLASS = "bg-[#5C17A6]";
 const CREATE_PATH = '/create';
@@ -14,21 +15,25 @@ export default function CreateWork() {
 
   const { isLoading, error, hasWorks, allGroups, firstGroup } = useMyWorksPage(USER_ID);
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-[#F0EEF6] flex items-center justify-center">
+        <Loader size="md" color="primary" />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#F0EEF6] p-4 sm:p-8">
       <header className={`mx-auto ${MAX_WIDTH_CLASS} flex justify-between items-start mb-10`}>
         <div>
-          <h1 className="text-[#2B2B2B] text-3xl font-bold text-[#172fa6]">
-            {isLoading ? 'Cargando...' : 'Mis Obras'}
-          </h1>
+          <h1 className="text-[#2B2B2B] text-3xl font-bold text-[#172fa6]">Mis Obras</h1>
           <p className="text-[#474747]">Gestiona y organiza tu contenido literario.</p>
         </div>
       </header>
 
       <main className={`mx-auto ${MAX_WIDTH_CLASS} flex flex-col items-center min-h-[70vh]`}>
-        {isLoading ? (
-          <div className="text-black text-center mt-20">Cargando obras...</div>
-        ) : error ? (
+        {error ? (
           <div className="text-red-600 text-center mt-20">
             Error al cargar las obras: {(error as Error).message || 'Error desconocido'}
           </div>

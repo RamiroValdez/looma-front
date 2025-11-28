@@ -1,13 +1,16 @@
 import { useSubscriptions } from "./hooks/useSubscriptions";
 import { WorkItemSearch } from "../../components/WorkItemSearch";
+import { Loader } from "../../components/Loader";
 
 export const Subscriptions = () => {
   const { subscriptions, isLoading } = useSubscriptions();
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center w-full">
-        <div className="text-center p-8">Cargando suscripciones...</div>
+      <div className="flex-1 container p-4 flex">
+        <div className="w-full min-h-[70vh] flex items-center justify-center">
+          <Loader size="md" color="primary" />
+        </div>
       </div>
     );
   }

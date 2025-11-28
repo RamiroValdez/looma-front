@@ -6,15 +6,17 @@ import Button from "../../components/Button.tsx";
 import LoomiBubble from "../../components/Loomi-buble.tsx";
 import BackButton from "../../components/BackButton";
 import { useChapterView } from "./hooks/useChapterView";
+import { Loader } from "../../components/Loader.tsx";
 
 export default function AddChapter() {
     const view = useChapterView();
 
     if (!view.chapter) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-[#F4F0F7]">
-                <p className="text-gray-600 text-lg">Cargando capítulo...</p>
-            </div>
+            
+                  <div className="min-h-screen flex items-center justify-center bg-[#f4f0f7]">
+                    <Loader size="md" color="primary" />
+                  </div>
         );
     }
 
@@ -65,9 +67,10 @@ export default function AddChapter() {
     return (
         <div>
             {!chapter ? (
-                <div className="min-h-screen flex items-center justify-center bg-[#F4F0F7]">
-                    <p className="text-gray-600 text-lg">Cargando capítulo...</p>
-                </div>
+                
+      <div className="min-h-screen flex items-center justify-center bg-[#f4f0f7]">
+        <Loader size="md" color="primary" />
+      </div>
             ) : (
                 <div className="min-h-screen bg-[#F4F0F7] px-4 sm:px-8 md:px-16 py-8 max-w-screen">
                     <div className="pl-5"><BackButton to={`/manage-work/${id}`} /></div>
@@ -98,7 +101,9 @@ export default function AddChapter() {
                             )}
                             <div className="border-2 border-[#4C3B63] rounded-xl max-w-full overflow-hidden mb-6 relative">
                                 {languageLoading && (
-                                    <div className="absolute inset-0 bg-white/60 backdrop-blur-sm flex items-center justify-center z-10 text-[#4C3B63] font-medium">Cargando versión...</div>
+                                    <div className="min-h-screen flex items-center justify-center bg-[#f4f0f7]">
+                                        <Loader size="md" color="primary" />
+                                    </div>
                                 )}
                                 <ChapterEditor
                                     chapterTitle={chapter.title}

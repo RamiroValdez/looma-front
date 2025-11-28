@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../../infrastructure/store/AuthStore.ts";
 import Button from "../../components/Button.tsx";
+import { Loader } from "../../components/Loader.tsx";
 
 export type PaymentSessionResponse = Record<string, any>;
 
@@ -159,10 +160,10 @@ export default function PaymentStatusPage() {
   return (
     <div className="mx-auto max-w-2xl px-4 py-10">
       {loading && (
-        <div className="flex flex-col items-center gap-4 text-slate-600">
-          <div className="h-10 w-10 animate-spin rounded-full border-4 border-slate-200 border-t-slate-500" />
-          <p className="text-sm">Cargando información del pago…</p>
-        </div>
+        
+              <div className="min-h-screen flex items-center justify-center bg-[#f4f0f7]">
+                <Loader size="md" color="primary" />
+              </div>
       )}
 
       {!loading && error && (

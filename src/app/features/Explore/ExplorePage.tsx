@@ -3,6 +3,7 @@ import { useCategories } from '../../hooks/useCategories';
 import { WorkItemSearch } from '../../components/WorkItemSearch';
 import { useExplore } from './hooks/useExplore';
 import type { ExploreFiltersDto } from '../../../domain/dto/ExploreFiltrersDTO';
+import { Loader } from '../../components/Loader';
 
 const EPISODE_RANGES = [
   { label: 'Cualquiera', value: 'cualquiera' },
@@ -100,7 +101,10 @@ export default function ExplorePage() {
     qParam,
   } = useExplore();
 
-  if (loadingFormats || loadingCategories) return <div>Cargando catálogos...</div>;
+  if (loadingFormats || loadingCategories) return 
+        <div className="min-h-screen flex items-center justify-center bg-[#f4f0f7]">
+          <Loader size="md" color="primary" />
+        </div>;
   if (error) return <div>Error al cargar obras: {typeof error === 'string' ? error : error.message}</div>;
 
   return (
@@ -198,7 +202,10 @@ export default function ExplorePage() {
               )}
             </div>
             {isLoading ? (
-              <div>Cargando obras...</div>
+              
+      <div className="min-h-screen flex items-center justify-center bg-[#f4f0f7]">
+        <Loader size="md" color="primary" />
+      </div>
             ) : (
               <>
                 {data?.content && data.content.length > 0 ? (

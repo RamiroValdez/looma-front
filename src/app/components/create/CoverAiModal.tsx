@@ -11,6 +11,7 @@ import { useCompositionStore } from "../../../infrastructure/store/CompositionSt
 import { useGenerateCover } from "../../../infrastructure/services/CreateWorkService.ts";
 import React, { useEffect, useState } from "react";
 import type { CoverIaFormDTO } from "../../../domain/dto/FormCoverIaDTO.ts";
+import { Loader } from "../Loader.tsx";
 
 interface CoverIaModalProps {
   isOpen: boolean;
@@ -132,7 +133,7 @@ const CoverAiModal: React.FC<CoverIaModalProps> = ({
                   <label className="text-left text-lg font-medium text-gray-700 mb-2">Estilo artístico</label>
                   {isLoadingStyles ? (
                     <div className="w-full p-2 bg-gray-400 text-white rounded-md flex justify-center items-center">
-                      <span className="text-sm">Cargando...</span>
+                      <Loader size="sm" color="white" />
                     </div>
                   ) : errorStyles ? (
                     <div className="w-full p-2 bg-red-500 text-white rounded-md flex justify-center items-center">
@@ -169,7 +170,7 @@ const CoverAiModal: React.FC<CoverIaModalProps> = ({
                   <label className="text-left text-lg font-medium text-gray-700 mb-2">Paleta de colores</label>
                   {isLoadingPalettes ? (
                     <div className="w-full p-2 bg-gray-400 text-white rounded-md flex justify-center items-center">
-                      <span className="text-sm">Cargando...</span>
+                      <Loader size="sm" color="white" />
                     </div>
                   ) : errorPalettes ? (
                     <div className="w-full p-2 bg-red-500 text-white rounded-md flex justify-center items-center">
@@ -206,7 +207,7 @@ const CoverAiModal: React.FC<CoverIaModalProps> = ({
                   <label className="text-left text-lg font-medium text-gray-700 mb-2">Composición</label>
                   {isLoadingCompositions ? (
                     <div className="w-full p-2 bg-gray-400 text-white rounded-md flex justify-center items-center">
-                      <span className="text-sm">Cargando...</span>
+                      <Loader size="sm" color="white" />
                     </div>
                   ) : errorCompositions ? (
                     <div className="w-full p-2 bg-red-500 text-white rounded-md flex justify-center items-center">

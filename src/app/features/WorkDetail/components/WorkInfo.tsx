@@ -5,6 +5,7 @@ import LikeButton from "../../../components/LikeButton";
 import StarRating from "../../../components/StarRating.tsx";
 import Tag from "../../../components/Tag.tsx";
 import { useWorkData } from "../hooks/userWorkData.ts";
+import { Loader } from "../../../components/Loader.tsx";
 import { getTotalSubscribersPerWork } from "../../../../infrastructure/services/WorkService.ts";
 import { downloadEpub } from "../../../../infrastructure/services/WorkService.ts";
 import { downloadPdf } from "../../../../infrastructure/services/WorkService.ts";
@@ -21,7 +22,7 @@ export const WorkInfo: React.FC<WorkInfoProps> = ({ work, manageFirstChapter, di
   const [isModalOpen, setIsModalOpen] = useState(false);
   const isAuthorSubscribed = Boolean(work.subscribedToAuthor);
   const isWorkSubscribed = Boolean(work.subscribedToWork); // nueva variable
-  const { isWorkSaved, handdleToggleSaveWork } = useWorkData(work.id);
+  const { isWorkSaved, isSaving, handdleToggleSaveWork } = useWorkData(work.id);
   const [subscriberCount, setSubscriberCount] = useState<number>(0);
   const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
   const [isPreparingDownload, setIsPreparingDownload] = useState(false);
@@ -102,13 +103,18 @@ export const WorkInfo: React.FC<WorkInfoProps> = ({ work, manageFirstChapter, di
 
     <button
       onClick={handdleToggleSaveWork}
+      disabled={isSaving}
       className={`flex-1 py-2 rounded-lg text-base font-semibold transition-colors h-10 ${
         isWorkSaved
           ? 'text-[#5C17A6] cursor-pointer border border-[#5C17A6]'
           : 'text-white cursor-pointer hover:bg-[#2a1c3a] bg-[#3b245a]/90 disabled:opacity-50 disabled:cursor-not-allowed'
       }`}
     >
-      {isWorkSaved ? "Guardado" : "Guardar"}
+      {isSaving ? (
+        <Loader size="xs" color="primary" />
+      ) : (
+        isWorkSaved ? "Guardado" : "Guardar"
+      )}
     </button>
   </div>
 </div>

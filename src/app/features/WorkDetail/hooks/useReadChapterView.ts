@@ -32,6 +32,7 @@ export const useReadChapterView = () => {
         isWorkSubscribed,
         isAuthorSubscribed,
         isWorkSaved,
+        isSaving,
         toggleFullScreen,
         handleChapterClick,
         handleLanguageChange,
@@ -85,11 +86,7 @@ export const useReadChapterView = () => {
     useEffect(() => {
         const saveProgress = async () => {
             if (!chapterData?.workId || !chapterId) return;
-            try {
-                await updateReadingProgress(Number(chapterData.workId), Number(chapterId));
-            } catch (error) {
-                // Manejo de error opcional
-            }
+            await updateReadingProgress(Number(chapterData.workId), Number(chapterId)).catch(() => {});
         };
         saveProgress();
     }, [chapterData?.workId, chapterId]);
@@ -130,6 +127,7 @@ export const useReadChapterView = () => {
         isWorkSubscribed,
         isAuthorSubscribed,
         isWorkSaved,
+        isSaving,
         toggleFullScreen,
         handleChapterClick,
         handleLanguageChange,

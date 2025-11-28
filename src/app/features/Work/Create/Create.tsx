@@ -3,6 +3,7 @@ import Tag from "../../../components/Tag";
 import CoverImageModal from "../../../components/CoverImageModal";
 import CoverAiModal from "../../../components/create/CoverAiModal";
 import { useCreateWorkForm } from "./hooks/useCreateWorkForm";
+import { Loader } from "../../../components/Loader";
 
 export default function Create() {
     const form = useCreateWorkForm();
@@ -146,7 +147,10 @@ export default function Create() {
                                         <div ref={form.suggestionCategoryMenuRef} className="absolute z-20 top-10 mt-1 mr-[-10%] w-max max-w-sm lg:max-w-md">
                                             <div className="bg-white p-4 border border-gray-300 rounded-md shadow-lg flex flex-wrap gap-2">
                                                 {form.isLoadingCategory ? (
-                                                    <p className="text-gray-500">Cargando categorías...</p>
+                                                   
+      <div className="min-h-screen flex items-center justify-center bg-[#f4f0f7]">
+        <Loader size="md" color="primary" />
+      </div>
                                                 ) : form.errorCategory ? (
                                                     <p className="text-red-500">Error al cargar categorías</p>
                                                 ) : (
@@ -178,7 +182,7 @@ export default function Create() {
                                 </label>
                                 {form.isLoadingFormat ? (
                                     <div className="w-[120px] p-2 bg-gray-400 text-white rounded-md flex justify-center items-center">
-                                        <span className="text-sm">Cargando...</span>
+                                        <Loader size="sm" color="white" />
                                     </div>
                                 ) : form.errorFormat ? (
                                     <div className="w-[120px] p-2 bg-red-500 text-white rounded-md flex justify-center items-center">
@@ -218,7 +222,7 @@ export default function Create() {
                                 </label>
                                 {form.isLoadingLanguage ? (
                                     <div className="w-[120px] p-2 bg-gray-400 text-white rounded-md flex justify-center items-center">
-                                        <span className="text-sm">Cargando...</span>
+                                        <Loader size="sm" color="white" />
                                     </div>
                                 ) : form.errorLanguage ? (
                                     <div className="w-[120px] p-2 bg-red-500 text-white rounded-md flex justify-center items-center">

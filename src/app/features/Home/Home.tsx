@@ -5,6 +5,7 @@ import ScrollArrow from "../../components/ScrollArrow";
 import { useNavigate } from "react-router-dom";
 import { useHomeWorks } from "./hooks/useHomeWorks";
 import { useScrollArrows } from "./hooks/useScrollArrows";
+import { Loader } from "../../components/Loader";
 
 const Home = () => {
   const { categories, isLoading, error } = useCategories();
@@ -23,7 +24,11 @@ const Home = () => {
   const { scrollRef, showLeft, showRight, onScroll, scroll } = useScrollArrows([categories, isLoading]);
 
   if (loading) {
-    return <div className="p-8 text-center text-lg">Cargando...</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#f4f0f7]">
+        <Loader size="md" color="primary" />
+      </div>
+    );
   }
 
   return (
@@ -44,7 +49,10 @@ const Home = () => {
             onScroll={onScroll}
           >
             {isLoading ? (
-              <p className="text-gray-500">Cargando categorías...</p>
+              
+      <div className="min-h-screen flex items-center justify-center bg-[#f4f0f7]">
+        <Loader size="md" color="primary" />
+      </div>
             ) : error ? (
               <p className="text-red-500">Error al cargar categorías</p>
             ) : (

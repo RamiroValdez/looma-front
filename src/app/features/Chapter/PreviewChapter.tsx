@@ -2,6 +2,7 @@ import FooterLector from "../../components/FooterLector.tsx";
 import TextViewer from "./TextViewer.tsx";
 import { MilkdownProvider } from "@milkdown/react";
 import { usePreviewChapter } from "./hooks/usePreviewChapter";
+import { Loader } from "../../components/Loader.tsx";
 
 const PreviewChapter = () => {
     const {
@@ -18,7 +19,12 @@ const PreviewChapter = () => {
         return <p>{loadError}</p>;
     }
     if (!initialData) {
-        return <p>Cargando vista previa...</p>;
+        return (
+            
+                  <div className="min-h-screen flex items-center justify-center bg-[#f4f0f7]">
+                    <Loader size="md" color="primary" />
+                  </div>
+        );
     }
 
     return (
