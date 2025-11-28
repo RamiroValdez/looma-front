@@ -332,7 +332,7 @@ describe('ManageWorkPage', () => {
 
       renderComponent();
 
-      expectTextToBeInDocument('Cargando obra...');
+      expect(screen.getByRole("status")).toBeInTheDocument();
     });
 
     it('debería ocultar contenido principal cuando está cargando', () => {

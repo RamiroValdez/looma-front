@@ -106,8 +106,8 @@ describe('ReadChapterNovel', () => {
   });
 
   const expectLoadingMessage = () => {
-    expect(screen.getByText('Cargando capítulo...')).toBeInTheDocument();
-  };
+    expect(screen.getByRole("status")).toBeInTheDocument();
+};
 
   const expectErrorMessage = () => {
     expect(screen.getByText('No se pudo cargar el capítulo.')).toBeInTheDocument();

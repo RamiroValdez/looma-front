@@ -48,7 +48,7 @@ describe("Componente PreferencesPage", () => {
     mockUseCategories({ isLoading: true });
     mockUsePreferences();
     renderWithRouter(<PreferencesPage />);
-    expect(screen.getByText("Cargando géneros...")).toBeInTheDocument();
+    expect(screen.getByRole("status")).toBeInTheDocument();
   });
 
   it("muestra los botones de géneros cuando las categorías están disponibles", () => {

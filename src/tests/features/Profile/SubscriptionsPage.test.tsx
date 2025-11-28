@@ -59,7 +59,7 @@ const mockSubscriptionsData = [
 ];
 
 function expectLoadingText() {
-  expect(screen.getByText("Cargando suscripciones...")).toBeInTheDocument();
+  expect(screen.getByRole("status")).toBeInTheDocument();
 }
 
 function expectWorksCount(count: number) {
