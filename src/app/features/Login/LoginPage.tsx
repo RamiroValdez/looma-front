@@ -1,62 +1,17 @@
-/* eslint-disable react-hooks/rules-of-hooks */
-import React, { useEffect, useState } from "react";
-import { useAuthStore } from "../../../infrastructure/store/AuthStore.ts";
-import { useUserStore } from "../../../infrastructure/store/UserStorage.ts";
-import { useNavigate } from "react-router-dom";
-import { useLogin } from "../../../infrastructure/services/AuthService";
 import Button from "../../components/Button.tsx";
-import { getCurrentUser } from "../../../infrastructure/services/DataUserService.ts";
-import { notifyError, notifySuccess } from "../../../infrastructure/services/ToastProviderService.ts";
+import { useLoginPage } from "../../hooks/useLoginPage.ts";
+import { Loader } from "../../components/Loader.tsx";
 
 export const LoginPage = () => {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
-    const { setToken, isAuthenticated } = useAuthStore();
-    const { setUser } = useUserStore();
-    const navigate = useNavigate();
-
-    useEffect(() => {
-        if (isAuthenticated) {
-            navigate('/home');
-        }
-    }, [isAuthenticated, navigate]);
-
-    const handleLogin = async () => {
-        if (!email || !password) {
-            setError('Por favor completa todos los campos');
-            return;
-        }
-
-        setLoading(true);
-        setError('');
-
-        try {
-            const response = await useLogin(email, password);
-            const user = await getCurrentUser(response.token);
-            setToken(response.token);
-            setUser({
-                userId: Number(user?.id),
-                email: String(user?.email),
-                name: String(user?.name),
-                surname: String(user?.surname),
-                username: String(user?.username)
-            });
-            navigate('/home');
-            notifySuccess("¡Inicio de sesión exitoso!");
-        } catch (err) {
-            console.error(err);
-            notifyError("¡Inicio de sesión fallido! Por favor verifica tus datos.");
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        handleLogin();
-    };
+    const {
+        email,
+        setEmail,
+        password,
+        setPassword,
+        loading,
+        error,
+        handleSubmit,
+    } = useLoginPage();
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-white to-gray-50 py-12 px-4 sm:px-6 lg:px-8">
@@ -131,10 +86,7 @@ export const LoginPage = () => {
                                   colorClass={`w-full flex items-center justify-center gap-2 py-3 px-4 rounded-lg text-sm font-semibold text-white bg-gradient-to-r from-[#5C17A6] to-[#761ED4] hover:from-[#521594] hover:to-[#6a2ad1] focus:outline-none focus:ring-4 focus:ring-[#5C17A6]/30 disabled:opacity-60 disabled:cursor-not-allowed transition-colors duration-150 cursor-pointer`}
                                 >
                                     {loading ? (
-                                        <>
-                                            <span className="inline-block h-4 w-4 rounded-full border-2 border-white border-t-transparent animate-spin" />
-                                            Cargando...
-                                        </>
+                                        <Loader size="sm" color="white" />
                                     ) : (
                                         'Iniciar sesión'
                                     )}

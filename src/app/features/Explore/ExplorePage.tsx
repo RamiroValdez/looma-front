@@ -1,101 +1,40 @@
-import { useState, useEffect} from 'react';
-import { useExploreWorks } from '../../../infrastructure/services/ExploreService';
-import { useFormats } from '../../../infrastructure/services/FormatService';
-import { useCategories } from '../../../infrastructure/services/CategoryService';
-import type { ExploreFiltersDto } from '../../../domain/dto/ExploreFiltrersDTO';
+import { useFormats } from '../../hooks/useFormats';
+import { useCategories } from '../../hooks/useCategories';
 import { WorkItemSearch } from '../../components/WorkItemSearch';
-import { useSearchParams, useLocation } from 'react-router-dom';
+import { useExplore } from './hooks/useExplore';
+import type { ExploreFiltersDto } from '../../../domain/dto/ExploreFiltrersDTO';
+import { Loader } from '../../components/Loader';
 
-export default function ExplorePage() {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const qParam = searchParams.get('q') || undefined;
-  const categoryIdsParam = searchParams.get('categoryIds');
-  const [filters, setFilters] = useState<ExploreFiltersDto>({ text: qParam });
-  const [page, setPage] = useState(0);
-  const { formats, isLoading: loadingFormats } = useFormats();
-  const { categories, isLoading: loadingCategories } = useCategories();
-  const [refreshKey, setRefreshKey] = useState(0); 
-  const location = useLocation();
-  const { data, isLoading, error } = useExploreWorks(filters, page, 20, refreshKey);
-  const [showMobileFilters, setShowMobileFilters] = useState(false);
+const EPISODE_RANGES = [
+  { label: 'Cualquiera', value: 'cualquiera' },
+  { label: '1-5 capítulos', value: '1-5' },
+  { label: '6-10 capítulos', value: '6-10' },
+  { label: '11-20 capítulos', value: '11-20' },
+  { label: '21+ capítulos', value: '21+' },
+];
 
-  const EPISODE_RANGES = [
-    { label: 'Cualquiera', value: 'cualquiera' },
-    { label: '1-5 episodios', value: '1-5' },
-    { label: '6-10 episodios', value: '6-10' },
-    { label: '11-20 episodios', value: '11-20' },
-    { label: '21+ episodios', value: '21+' },
-  ];
+const UPDATE_PERIODS = [
+  { label: 'Hoy', value: 'today' },
+  { label: 'Última semana', value: 'last_week' },
+  { label: 'Último mes', value: 'last_month' },
+  { label: 'Últimos 3 meses', value: 'last_3_months' },
+  { label: 'Último año', value: 'last_year' },
+];
 
-  const UPDATE_PERIODS = [
-    { label: 'Hoy', value: 'today' },
-    { label: 'Última semana', value: 'last_week' },
-    { label: 'Último mes', value: 'last_month' },
-    { label: 'Últimos 3 meses', value: 'last_3_months' },
-    { label: 'Último año', value: 'last_year' },
-  ];
+interface RenderFilterGroupsProps {
+  filters: ExploreFiltersDto;
+  handleEpisodeRangeChange: (rangeValue: string, isChecked: boolean) => void;
+  handleUpdateRangeChange: (updateValue: string, isChecked: boolean) => void;
+  handleFinishedChange: (isChecked: boolean) => void;
+}
 
-  useEffect(() => {
-    setFilters({ text: qParam });
-    setPage(0);
-    setRefreshKey((k) => k + 1);
-    setShowMobileFilters(false);
-  }, [location.pathname, qParam]);
-
-  useEffect(() => {
-    if (qParam) {
-      setFilters((prev) => ({ ...prev, text: qParam }));
-      setPage(0);
-    }
-    if (categoryIdsParam) {
-      setFilters((prev) => ({ ...prev, categoryIds: [Number(categoryIdsParam)] }));
-      setPage(0);
-    }
-  }, [qParam, categoryIdsParam]);
-
-  const handleFilterChange = (newFilters: Partial<ExploreFiltersDto>) => {
-    setFilters((prev) => ({ ...prev, ...newFilters }));
-    setPage(0);
-
-    if ('text' in newFilters) {
-      if (newFilters.text) {
-        searchParams.set('q', newFilters.text);
-      } else {
-        searchParams.delete('q');
-      }
-    }
-    if ('categoryIds' in newFilters) {
-      if (newFilters.categoryIds && newFilters.categoryIds.length > 0) {
-        searchParams.set('categoryIds', String(newFilters.categoryIds[0]));
-      } else {
-        searchParams.delete('categoryIds');
-      }
-    }
-    setSearchParams(searchParams, { replace: true });
-  };
-
-  const handleEpisodeRangeChange = (rangeValue: string, isChecked: boolean) => {
-    const currentRanges = (filters.rangeEpisodes as string[] || []); 
-    const updatedRanges: string[] = isChecked
-      ? [...currentRanges, rangeValue]
-      : currentRanges.filter(val => val !== rangeValue);
-    handleFilterChange({ rangeEpisodes: updatedRanges });
-  };
-
-  const handleUpdateRangeChange = (updateValue: string, isChecked: boolean) => {
-    const currentUpdates = (filters.lastUpdated as string[] || []);
-    const updatedUpdates: string[] = isChecked
-      ? [...currentUpdates, updateValue]
-      : currentUpdates.filter(val => val !== updateValue);
-    handleFilterChange({ lastUpdated: updatedUpdates });
-  };
-
-  const handleFinishedChange = (isChecked: boolean) => {
-    handleFilterChange({ state: isChecked ? 'finished' : undefined });
-  };
-
-  // Grupos de filtros reutilizables (1 columna)
-  const renderFilterGroups = () => (
+function RenderFilterGroups({
+  filters,
+  handleEpisodeRangeChange,
+  handleUpdateRangeChange,
+  handleFinishedChange,
+}: RenderFilterGroupsProps) {
+  return (
     <div className="flex flex-col gap-8">
       <fieldset className="flex flex-col gap-2">
         <legend className="font-semibold mb-2 text-lg">Longitud</legend>
@@ -141,19 +80,45 @@ export default function ExplorePage() {
       </fieldset>
     </div>
   );
+}
 
-  if (loadingFormats || loadingCategories) return <div>Cargando catálogos...</div>;
-  if (error) return <div>Error al cargar obras: {error.message}</div>;
+export default function ExplorePage() {
+  const { formats, isLoading: loadingFormats } = useFormats();
+  const { categories, isLoading: loadingCategories } = useCategories();
+  const {
+    filters,
+    page,
+    setPage,
+    data,
+    isLoading,
+    error,
+    showMobileFilters,
+    setShowMobileFilters,
+    handleFilterChange,
+    handleEpisodeRangeChange,
+    handleUpdateRangeChange,
+    handleFinishedChange,
+    qParam,
+  } = useExplore();
+
+  if (loadingFormats || loadingCategories) return 
+        <div className="min-h-screen flex items-center justify-center bg-[#f4f0f7]">
+          <Loader size="md" color="primary" />
+        </div>;
+  if (error) return <div>Error al cargar obras: {typeof error === 'string' ? error : error.message}</div>;
 
   return (
     <div className="min-h-screen">
       <div className="p-4 min-h-[calc(100vh-100px)]">
-
         <div className="flex gap-6">
-            <aside className="hidden md:block w-56 flex-shrink-0 mt-2 bg-white rounded-lg p-4 shadow-sm h-fit">
-              {renderFilterGroups()}
-            </aside>
-
+          <aside className="hidden md:block w-56 flex-shrink-0 mt-2 bg-white rounded-lg p-4 shadow-sm h-fit">
+            <RenderFilterGroups
+              filters={filters}
+              handleEpisodeRangeChange={handleEpisodeRangeChange}
+              handleUpdateRangeChange={handleUpdateRangeChange}
+              handleFinishedChange={handleFinishedChange}
+            />
+          </aside>
           <div className="flex-1">
             <div className="mb-6 flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
               <div className="flex flex-col gap-2 md:gap-3">
@@ -170,7 +135,6 @@ export default function ExplorePage() {
                     </button>
                   )}
                 </div>
-
                 <div className="flex flex-col sm:flex-row gap-4 flex-wrap">
                   <div className="flex flex-col">
                     <label className="block text-sm font-medium mb-1">Categoría</label>
@@ -191,7 +155,6 @@ export default function ExplorePage() {
                       ))}
                     </select>
                   </div>
-
                   <div className="flex flex-col">
                     <label className="block text-sm font-medium mb-1">Formato</label>
                     <select
@@ -214,44 +177,49 @@ export default function ExplorePage() {
                 </div>
               </div>
             </div>
-
-              <div className="mb-4 md:hidden flex justify-center items-center text-center">
-                  <button
-                      onClick={() => setShowMobileFilters(prev => !prev)}
-                      className="px-4 py-2 border rounded-full text-sm font-medium bg-white shadow-sm active:scale-[.97] transition"
-                      aria-expanded={showMobileFilters}
-                      aria-controls="mobile-filters"
-                  >
-                      {showMobileFilters ? 'Ocultar filtros' : 'Mostrar filtros'}
-                  </button>
-
-              </div>
-
-              <div
-                  id="mobile-filters"
-                  className={`md:hidden overflow-hidden transition-all duration-300 ${showMobileFilters ? 'max-h-[1200px] opacity-100' : 'max-h-0 opacity-0'} bg-white border rounded-lg shadow-sm px-4 ${showMobileFilters ? 'py-4 mt-0 mb-6' : 'py-0 mt-0 mb-2'}`}
-                  aria-hidden={!showMobileFilters}
+            <div className="mb-4 md:hidden flex justify-center items-center text-center">
+              <button
+                onClick={() => setShowMobileFilters(prev => !prev)}
+                className="px-4 py-2 border rounded-full text-sm font-medium bg-white shadow-sm active:scale-[.97] transition"
+                aria-expanded={showMobileFilters}
+                aria-controls="mobile-filters"
               >
-                  {showMobileFilters && renderFilterGroups()}
-              </div>
-
+                {showMobileFilters ? 'Ocultar filtros' : 'Mostrar filtros'}
+              </button>
+            </div>
+            <div
+              id="mobile-filters"
+              className={`md:hidden overflow-hidden transition-all duration-300 ${showMobileFilters ? 'max-h-[1200px] opacity-100' : 'max-h-0 opacity-0'} bg-white border rounded-lg shadow-sm px-4 ${showMobileFilters ? 'py-4 mt-0 mb-6' : 'py-0 mt-0 mb-2'}`}
+              aria-hidden={!showMobileFilters}
+            >
+              {showMobileFilters && (
+                <RenderFilterGroups
+                  filters={filters}
+                  handleEpisodeRangeChange={handleEpisodeRangeChange}
+                  handleUpdateRangeChange={handleUpdateRangeChange}
+                  handleFinishedChange={handleFinishedChange}
+                />
+              )}
+            </div>
             {isLoading ? (
-              <div>Cargando obras...</div>
+              
+      <div className="min-h-screen flex items-center justify-center bg-[#f4f0f7]">
+        <Loader size="md" color="primary" />
+      </div>
             ) : (
               <>
                 {data?.content && data.content.length > 0 ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-[repeat(auto-fill,minmax(240px,1fr))] justify-items-center gap-6">
-                        {data.content.map((work) => (
-                            <WorkItemSearch key={work.id} work={work} />
-                        ))}
-                    </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-[repeat(auto-fill,minmax(240px,1fr))] justify-items-center gap-6">
+                    {data.content.map((work) => (
+                      <WorkItemSearch key={work.id} work={work} />
+                    ))}
+                  </div>
                 ) : (
                   <div className="flex flex-col justify-center items-center py-16 text-gray-600 w-full text-center">
                     <img src="/img/triste_1.png" alt="Sin obras encontradas" className="w-70 h-70 mb-6" />
                     <p className="text-lg">No se encontraron obras</p>
                   </div>
                 )}
-
                 {data?.content && data.content.length > 0 && (data?.totalPages ?? 0) > 1 && (
                   <div className="flex justify-center gap-2 mt-8">
                     <button

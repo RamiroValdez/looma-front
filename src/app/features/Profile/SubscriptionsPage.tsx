@@ -1,31 +1,16 @@
-import { useEffect, useState } from "react";
-import type { WorkCardDto } from "../../../domain/dto/WorkCardDTO";
-import { GetSubscriptions } from "../../../infrastructure/services/SubscriptionsService";
+import { useSubscriptions } from "./hooks/useSubscriptions";
 import { WorkItemSearch } from "../../components/WorkItemSearch";
+import { Loader } from "../../components/Loader";
 
 export const Subscriptions = () => {
-  const [subscriptions, setSubscriptions] = useState<WorkCardDto[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchSubscriptions = async () => {
-      try {
-        const works = await GetSubscriptions();
-        setSubscriptions(works as WorkCardDto[]);
-      } catch (error) {
-        console.error('Error fetching subscriptions:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchSubscriptions();
-  }, []);
+  const { subscriptions, isLoading } = useSubscriptions();
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center w-full">
-        <div className="text-center p-8">Cargando suscripciones...</div>
+      <div className="flex-1 container p-4 flex">
+        <div className="w-full min-h-[70vh] flex items-center justify-center">
+          <Loader size="md" color="primary" />
+        </div>
       </div>
     );
   }

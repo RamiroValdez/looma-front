@@ -1,35 +1,16 @@
-import { useEffect, useState} from "react";
-import { GetSavedWorks } from "../../../infrastructure/services/MySavesService";
-import type { WorkCardDto } from "../../../domain/dto/WorkCardDTO";
+import { useSavedWorks } from "./hooks/useSavedWorks";
 import { WorkItemSaves } from "../../components/WorkItemSaves";
+import { Loader } from "../../components/Loader";
 
 export const MySaves = () => {
-  const [savedWorks, setSavedWorks] = useState<WorkCardDto[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchSavedWorks = async () => {
-      try {
-        const works = await GetSavedWorks();
-        setSavedWorks(works as WorkCardDto[]);
-      } catch (error) {
-        console.error('Error fetching saved works:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchSavedWorks();
-  }, []);
-
-  const handleRemoveWork = (workId: number) => {
-    setSavedWorks(prev => prev.filter(work => work.id !== workId));
-  };
+  const { savedWorks, isLoading, handleRemoveWork } = useSavedWorks();
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center w-full">
-          <div className="text-center p-8">Cargando obras guardadas...</div>
+      <div className="flex-1 container p-4 flex">
+        <div className="w-full min-h-[70vh] flex items-center justify-center">
+          <Loader size="md" color="primary" />
+        </div>
       </div>
     );
   }
@@ -43,10 +24,10 @@ export const MySaves = () => {
         ))}
       </div>
       {savedWorks.length === 0 && (
-          <div className="flex flex-col items-center justify-center p-16 text-gray-500 min-h-[20hv]">
-              <img src="/img/triste_1.png" alt="no works" className="w-70 h-70 mb-8" />
-              <div>No tienes obras guardadas.</div>
-          </div>
+        <div className="flex flex-col items-center justify-center p-16 text-gray-500 min-h-[20hv]">
+          <img src="/img/triste_1.png" alt="no works" className="w-70 h-70 mb-8" />
+          <div>No tienes obras guardadas.</div>
+        </div>
       )}
     </div>
   );

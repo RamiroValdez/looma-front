@@ -4,12 +4,17 @@ import { WorkInfo } from "./components/WorkInfo";
 import { ChapterList } from "./components/ChapterList";
 import { useNavigate } from "react-router-dom";
 import BackButton from "../../components/BackButton";
+import { Loader } from "../../components/Loader";
 
 export const WorkDetail: React.FC = () => {
   const { work, isLoading, error } = useWorkDetailData();
   const navigate = useNavigate();
   if (isLoading)
-    return <div className="text-center py-10">Cargando detalles de la obra...</div>;
+    return (
+
+      <div className="min-h-screen flex items-center justify-center bg-[#f4f0f7]">
+        <Loader size="md" color="primary" />
+      </div>);
   if (error)
     return <div className="text-center text-red-600 py-10">Error: {error}</div>;
   if (!work) return <div className="text-center py-10">Obra no encontrada.</div>;
@@ -39,7 +44,7 @@ export const WorkDetail: React.FC = () => {
       >
         <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/60"></div>
         <div className="absolute top-4 left-4 z-20">
-         <BackButton to={`/home`} />
+          <BackButton to={`/home`} />
         </div>
 
 

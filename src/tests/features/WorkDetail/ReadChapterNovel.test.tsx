@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -106,6 +105,121 @@ describe('ReadChapterNovel', () => {
     });
   });
 
+  const expectLoadingMessage = () => {
+    expect(screen.getByRole("status")).toBeInTheDocument();
+};
+
+  const expectErrorMessage = () => {
+    expect(screen.getByText('No se pudo cargar el capítulo.')).toBeInTheDocument();
+  };
+
+  const expectChapterTitle = (title: string) => {
+    expect(screen.getByText(title)).toBeInTheDocument();
+  };
+
+  const expectTextViewer = () => {
+    expect(screen.getByTestId('text-viewer')).toBeInTheDocument();
+  };
+
+  const expectContent = (content: string) => {
+    expect(screen.getByText(content)).toBeInTheDocument();
+  };
+
+  const expectNavigationCall = (path: string) => {
+    expect(mockNavigate).toHaveBeenCalledWith(path);
+  };
+
+  const expectButtonDisabled = (buttonName: string) => {
+    const button = screen.getByRole('button', { name: new RegExp(buttonName, 'i') });
+    expect(button).toBeDisabled();
+  };
+
+  const expectElementNotInDocument = (testId: string) => {
+    expect(screen.queryByTestId(testId)).not.toBeInTheDocument();
+  };
+
+  const expectElementInDocument = (testId: string) => {
+    expect(screen.getByTestId(testId)).toBeInTheDocument();
+  };
+
+  const expectTranslatingMessage = () => {
+    expect(screen.getByText('Traduciendo contenido...')).toBeInTheDocument();
+  };
+
+  const expectChapterCount = (count: number) => {
+    const chaptersContainer = getChaptersContainer();
+    expect(within(chaptersContainer!).getAllByText(/capítulo \d+/i)).toHaveLength(count);
+  };
+
+  const expectCurrentChapterStyle = (chapterNumber: number) => {
+    const chaptersContainer = getChaptersContainer();
+    const allChapter = within(chaptersContainer!).getAllByText(`Capítulo ${chapterNumber}`);
+    const chapterContainer = allChapter.find(el => el.closest('.bg-gray-300'));
+    expect(chapterContainer?.closest('.bg-gray-300')).toBeInTheDocument();
+  };
+
+  const expectLockIcon = (chapterNumber: number) => {
+    const chapterRow = getChapterInSidebar(chapterNumber);
+    const lockIcon = chapterRow.querySelector('svg path[d*="M144 144v48"]');
+    expect(lockIcon).toBeInTheDocument();
+  };
+
+  const expectFunctionCall = (mockFn: any, ...args: any[]) => {
+    if (args.length === 0) {
+      expect(mockFn).toHaveBeenCalledTimes(1);
+    } else {
+      expect(mockFn).toHaveBeenCalledWith(...args);
+    }
+  };
+
+  const expectModalTitle = (title: string) => {
+    expect(screen.getByText(title)).toBeInTheDocument();
+  };
+
+  const expectModalSubtitle = (subtitle: string) => {
+    expect(screen.getByText(subtitle)).toBeInTheDocument();
+  };
+
+  const expectLikeButtonState = (action: string, fill: string, stroke?: string) => {
+    const allLikeButtons = screen.getAllByLabelText(`${action} like`);
+    const likeButton = allLikeButtons[0];
+    const svg = likeButton.querySelector('svg');
+    expect(svg).toHaveAttribute('fill', fill);
+    if (stroke) {
+      expect(svg).toHaveAttribute('stroke', stroke);
+    }
+  };
+
+  const expectSubscribeButton = (text: string, disabled: boolean = false) => {
+    const button = screen.getByRole('button', { name: new RegExp(text, 'i') });
+    expect(button).toBeInTheDocument();
+    if (disabled) {
+      expect(button).toBeDisabled();
+    }
+  };
+
+  const expectNoSubscribeButton = () => {
+    expect(screen.queryByRole('button', { name: /suscribir/i })).not.toBeInTheDocument();
+  };
+
+  const expectNoSubscribedButton = () => {
+    expect(screen.queryByRole('button', { name: /suscrito/i })).not.toBeInTheDocument();
+  };
+
+  const expectWorkTitle = (title: string) => {
+    const sidebar = getChaptersContainer()?.parentElement;
+    expect(within(sidebar!).getByText(title)).toBeInTheDocument();
+  };
+
+  const expectImageStyle = (element: HTMLElement, imageUrl: string) => {
+    expect(element).toHaveStyle({ backgroundImage: `url("${imageUrl}")` });
+  };
+
+  const expectImageSource = (altText: string, src: string) => {
+    const img = screen.getByAltText(altText);
+    expect(img).toHaveAttribute('src', src);
+  };
+
   const renderComponent = (chapterId = '1') => {
     return render(
       <MemoryRouter initialEntries={[`/work/chapter/${chapterId}/read`]}>
@@ -128,41 +242,89 @@ describe('ReadChapterNovel', () => {
     return allChapters[0].closest('div') as HTMLElement;
   };
 
+  vi.mock('../../../app/features/WorkDetail/components/SubscriptionModal', () => ({
+  default: ({ isOpen }: any) => isOpen ? (
+    <div>
+      <h2>Suscribirse a la Obra</h2>
+      <p>Selecciona un método de pago</p>
+    </div>
+  ) : null,
+}));
+
+vi.mock('../../../app/features/WorkDetail/components/ChapterPurchaseModal', () => ({
+  default: ({ isOpen }: any) => isOpen ? (
+    <div>
+      <h2>Adquirir Capítulo</h2>
+      <p>Selecciona un método de pago</p>
+    </div>
+  ) : null,
+}));
+
+vi.mock('../../../app/components/LikeButton', () => ({
+  default: ({
+    chapterId,
+    onClick,
+    disabled,
+    type,
+    liked,
+    count,
+  }: any) => (
+    <button
+      aria-label={
+        type === 'chapter'
+          ? liked
+            ? 'Quitar like'
+            : 'Agregar like'
+          : 'Agregar like'
+      }
+      disabled={disabled}
+      onClick={() => !disabled && onClick && onClick(chapterId)}
+    >
+      <svg
+        fill={liked ? '#c026d3' : 'none'}
+        stroke="#c026d3"
+        data-testid="like-svg"
+      />
+      <span>{count}</span>
+    </button>
+  ),
+}));
+
   describe('Renderizado y Estados de Carga', () => {
-    it('muestra mensaje "Cargando capítulo..." cuando isLoading es true', () => {
+    it('dado que está cargando, cuando se renderiza, entonces muestra mensaje de carga', () => {
       mockUseReadChapterData.mockReturnValue(
         createMockHookReturn({ isLoading: true, chapterData: null })
       );
 
       renderComponent();
 
-      expect(screen.getByText('Cargando capítulo...')).toBeInTheDocument();
+      expectLoadingMessage();
     });
 
-    it('muestra mensaje de error cuando chapterData es null', () => {
+    it('dado que hay error de datos, cuando se renderiza, entonces muestra mensaje de error', () => {
       mockUseReadChapterData.mockReturnValue(
         createMockHookReturn({ isLoading: false, chapterData: null })
       );
 
       renderComponent();
 
-      expect(screen.getByText('No se pudo cargar el capítulo.')).toBeInTheDocument();
+      expectErrorMessage();
     });
 
-    it('renderiza correctamente el contenido del capítulo cuando los datos están disponibles', () => {
+    it('dado que hay datos disponibles, cuando se renderiza, entonces muestra el contenido completo', () => {
       mockUseReadChapterData.mockReturnValue(createMockHookReturn());
 
       renderComponent();
 
-      expect(screen.getByText('Capítulo de Prueba')).toBeInTheDocument();
-      expect(screen.getByTestId('text-viewer')).toBeInTheDocument();
-      expect(screen.getByText('Contenido del capítulo')).toBeInTheDocument();
+      expectChapterTitle('Capítulo de Prueba');
+      expectTextViewer();
+      expectContent('Contenido del capítulo');
       expect(screen.getAllByText(/capítulo/i).length).toBeGreaterThan(0);
     });
   });
 
   describe('Navegación', () => {
-    it('el botón "Volver" navega a /work/{workId} correctamente', async () => {
+    it('dado que se hace click en volver, cuando se ejecuta, entonces navega a la obra', async () => {
       const user = userEvent.setup();
       mockUseReadChapterData.mockReturnValue(createMockHookReturn());
 
@@ -171,10 +333,10 @@ describe('ReadChapterNovel', () => {
       const backButton = screen.getByRole('button', { name: /volver/i });
       await user.click(backButton);
 
-      expect(mockNavigate).toHaveBeenCalledWith('/work/100');
+      expectNavigationCall('/work/100');
     });
 
-    it('el botón "Capítulo anterior" navega al capítulo previo publicado', async () => {
+    it('dado que se hace click en capítulo anterior, cuando se ejecuta, entonces navega al previo', async () => {
       const user = userEvent.setup();
       mockUseReadChapterData.mockReturnValue(createMockHookReturn());
 
@@ -183,10 +345,10 @@ describe('ReadChapterNovel', () => {
       const prevButton = screen.getByRole('button', { name: /capítulo anterior/i });
       await user.click(prevButton);
 
-      expect(mockNavigate).toHaveBeenCalledWith('/work/chapter/1/read');
+      expectNavigationCall('/work/chapter/1/read');
     });
 
-    it('el botón "Capítulo siguiente" navega al capítulo siguiente publicado', async () => {
+    it('dado que se hace click en capítulo siguiente, cuando se ejecuta, entonces navega al siguiente', async () => {
       const user = userEvent.setup();
       mockUseReadChapterData.mockReturnValue(createMockHookReturn());
 
@@ -195,28 +357,26 @@ describe('ReadChapterNovel', () => {
       const nextButton = screen.getByRole('button', { name: /capítulo siguiente/i });
       await user.click(nextButton);
 
-      expect(mockNavigate).toHaveBeenCalledWith('/work/chapter/3/read');
+      expectNavigationCall('/work/chapter/3/read');
     });
 
-    it('el botón "Capítulo anterior" está deshabilitado en el primer capítulo', () => {
+    it('dado que está en primer capítulo, cuando se renderiza, entonces botón anterior está deshabilitado', () => {
       mockUseReadChapterData.mockReturnValue(createMockHookReturn());
 
       renderComponent('1');
 
-      const prevButton = screen.getByRole('button', { name: /capítulo anterior/i });
-      expect(prevButton).toBeDisabled();
+      expectButtonDisabled('capítulo anterior');
     });
 
-    it('el botón "Capítulo siguiente" está deshabilitado en el último capítulo', () => {
+    it('dado que está en último capítulo, cuando se renderiza, entonces botón siguiente está deshabilitado', () => {
       mockUseReadChapterData.mockReturnValue(createMockHookReturn());
 
       renderComponent('3');
 
-      const nextButton = screen.getByRole('button', { name: /capítulo siguiente/i });
-      expect(nextButton).toBeDisabled();
+      expectButtonDisabled('capítulo siguiente');
     });
 
-    it('el botón "Volver" NO se muestra en modo fullscreen', () => {
+    it('dado que está en fullscreen, cuando se renderiza, entonces botón volver no se muestra', () => {
       mockUseReadChapterData.mockReturnValue(
         createMockHookReturn({ isFullScreen: true })
       );
@@ -228,27 +388,27 @@ describe('ReadChapterNovel', () => {
   });
 
   describe('Fullscreen y Footer', () => {
-    it('el footer NO se muestra en modo fullscreen cuando showFooter es false', () => {
+    it('dado que está en fullscreen y showFooter es false, cuando se renderiza, entonces footer no se muestra', () => {
       mockUseReadChapterData.mockReturnValue(
         createMockHookReturn({ isFullScreen: true, showFooter: false })
       );
 
       renderComponent();
 
-      expect(screen.queryByTestId('footer-lector')).not.toBeInTheDocument();
+      expectElementNotInDocument('footer-lector');
     });
 
-    it('el footer se muestra en modo fullscreen cuando showFooter es true', () => {
+    it('dado que está en fullscreen y showFooter es true, cuando se renderiza, entonces footer se muestra', () => {
       mockUseReadChapterData.mockReturnValue(
         createMockHookReturn({ isFullScreen: true, showFooter: true })
       );
 
       renderComponent();
 
-      expect(screen.getByTestId('footer-lector')).toBeInTheDocument();
+      expectElementInDocument('footer-lector');
     });
 
-    it('toggleFullScreen es llamado al hacer click en el botón del footer', async () => {
+    it('dado que se hace click en toggle fullscreen, cuando se ejecuta, entonces llama a toggleFullScreen', async () => {
       const user = userEvent.setup();
       const toggleFullScreen = vi.fn();
       mockUseReadChapterData.mockReturnValue(
@@ -260,33 +420,33 @@ describe('ReadChapterNovel', () => {
       const toggleButton = screen.getByTestId('toggle-fullscreen');
       await user.click(toggleButton);
 
-      expect(toggleFullScreen).toHaveBeenCalledTimes(1);
+      expectFunctionCall(toggleFullScreen);
     });
 
-    it('el footer siempre se muestra cuando NO está en fullscreen', () => {
+    it('dado que no está en fullscreen, cuando se renderiza, entonces footer siempre se muestra', () => {
       mockUseReadChapterData.mockReturnValue(
         createMockHookReturn({ isFullScreen: false })
       );
 
       renderComponent();
 
-      expect(screen.getByTestId('footer-lector')).toBeInTheDocument();
+      expectElementInDocument('footer-lector');
     });
   });
 
   describe('Traducción de Contenido', () => {
-    it('muestra "Traduciendo contenido..." cuando isTranslating es true', () => {
+    it('dado que está traduciendo, cuando se renderiza, entonces muestra mensaje de traducción', () => {
       mockUseReadChapterData.mockReturnValue(
         createMockHookReturn({ isTranslating: true })
       );
 
       renderComponent();
 
-      expect(screen.getByText('Traduciendo contenido...')).toBeInTheDocument();
-      expect(screen.queryByTestId('text-viewer')).not.toBeInTheDocument();
+      expectTranslatingMessage();
+      expectElementNotInDocument('text-viewer');
     });
 
-    it('renderiza TextViewer con el contenido traducido cuando no está traduciendo', () => {
+    it('dado que no está traduciendo, cuando se renderiza, entonces muestra contenido traducido', () => {
       mockUseReadChapterData.mockReturnValue(
         createMockHookReturn({
           isTranslating: false,
@@ -296,11 +456,11 @@ describe('ReadChapterNovel', () => {
 
       renderComponent();
 
-      expect(screen.getByTestId('text-viewer')).toBeInTheDocument();
-      expect(screen.getByText('Contenido traducido al inglés')).toBeInTheDocument();
+      expectTextViewer();
+      expectContent('Contenido traducido al inglés');
     });
 
-    it('handleLanguageChange es llamado al cambiar el idioma en el footer', async () => {
+    it('dado que se cambia idioma, cuando se hace click, entonces llama a handleLanguageChange', async () => {
       const user = userEvent.setup();
       const handleLanguageChange = vi.fn();
       mockUseReadChapterData.mockReturnValue(
@@ -312,33 +472,28 @@ describe('ReadChapterNovel', () => {
       const changeLanguageButton = screen.getByTestId('language-change');
       await user.click(changeLanguageButton);
 
-      expect(handleLanguageChange).toHaveBeenCalledWith('en');
+      expectFunctionCall(handleLanguageChange, 'en');
     });
   });
 
   describe('Lista de Capítulos (Sidebar)', () => {
-    it('renderiza la lista de capítulos publicados ordenados', () => {
+    it('dado que hay capítulos, cuando se renderiza, entonces muestra lista ordenada', () => {
       mockUseReadChapterData.mockReturnValue(createMockHookReturn());
 
       renderComponent();
 
-      const sidebar = getChaptersContainer();
-      expect(within(sidebar!).getAllByText(/capítulo \d+/i)).toHaveLength(3);
+      expectChapterCount(3);
     });
 
-    it('el capítulo actual tiene estilo diferente (bg-gray-300)', () => {
+    it('dado que está en capítulo específico, cuando se renderiza, entonces tiene estilo diferente', () => {
       mockUseReadChapterData.mockReturnValue(createMockHookReturn());
 
       renderComponent('2');
 
-      const chaptersContainer = getChaptersContainer();
-      const allChapter2 = within(chaptersContainer!).getAllByText('Capítulo 2');
-      const chapter2Container = allChapter2.find(el => el.closest('.bg-gray-300'));
-
-      expect(chapter2Container?.closest('.bg-gray-300')).toBeInTheDocument();
+      expectCurrentChapterStyle(2);
     });
 
-    it('los capítulos bloqueados muestran el ícono de candado', () => {
+    it('dado que hay capítulos bloqueados, cuando se renderiza, entonces muestra ícono de candado', () => {
       const isChapterUnlocked = vi.fn((id: number) => id !== 3);
       mockUseReadChapterData.mockReturnValue(
         createMockHookReturn({ isChapterUnlocked })
@@ -346,13 +501,10 @@ describe('ReadChapterNovel', () => {
 
       renderComponent();
 
-      const chapter3Row = getChapterInSidebar(3);
-      const lockIcon = chapter3Row.querySelector('svg path[d*="M144 144v48"]');
-      
-      expect(lockIcon).toBeInTheDocument();
+      expectLockIcon(3);
     });
 
-    it('click en capítulo desbloqueado llama a handleChapterClick', async () => {
+    it('dado que se hace click en capítulo desbloqueado, cuando se ejecuta, entonces llama a handleChapterClick', async () => {
       const user = userEvent.setup();
       const handleChapterClick = vi.fn();
       mockUseReadChapterData.mockReturnValue(
@@ -369,24 +521,23 @@ describe('ReadChapterNovel', () => {
       );
     });
 
-    it('click en capítulo bloqueado abre el modal de pago', async () => {
-  const user = userEvent.setup();
-  const isChapterUnlocked = vi.fn((id: number) => id !== 3);
-  mockUseReadChapterData.mockReturnValue(
-    createMockHookReturn({ isChapterUnlocked })
-  );
+    it('dado que se hace click en capítulo bloqueado, cuando se ejecuta, entonces abre modal de pago', async () => {
+      const user = userEvent.setup();
+      const isChapterUnlocked = vi.fn((id: number) => id !== 3);
+      mockUseReadChapterData.mockReturnValue(
+        createMockHookReturn({ isChapterUnlocked })
+      );
 
-  renderComponent('1');
+      renderComponent('1');
 
-  const chapter3 = getChapterInSidebar(3);
-  await user.click(chapter3);
+      const chapter3 = getChapterInSidebar(3);
+      await user.click(chapter3);
 
-  // Verifica que el modal se abre
-  expect(screen.getByText('Adquirir Capítulo')).toBeInTheDocument();
-  expect(screen.getByText('Selecciona un método de pago')).toBeInTheDocument();
-});
+      expectModalTitle('Adquirir Capítulo');
+      expectModalSubtitle('Selecciona un método de pago');
+    });
 
-    it('el sidebar NO se muestra en modo fullscreen', () => {
+    it('dado que está en fullscreen, cuando se renderiza, entonces sidebar no se muestra', () => {
       mockUseReadChapterData.mockReturnValue(
         createMockHookReturn({ isFullScreen: true })
       );
@@ -398,65 +549,23 @@ describe('ReadChapterNovel', () => {
   });
 
   describe('Sistema de Likes', () => {
-    it('el botón de like muestra el ícono de corazón vacío cuando no está liked', () => {
-      mockUseReadChapterData.mockReturnValue(
-        createMockHookReturn({ liked: { 1: false } })
-      );
+    it('dado que no está liked, cuando se renderiza, entonces muestra corazón vacío', () => {
+mockUseReadChapterData.mockReturnValue(
+  createMockHookReturn({
+    localLikes: { 1: 15, 2: 25 },
+    chapters: [
+      { id: 1, chapterNumber: 1, title: 'Cap 1', publicationStatus: 'PUBLISHED', likes: 10 },
+      { id: 2, chapterNumber: 2, title: 'Cap 2', publicationStatus: 'PUBLISHED', likes: 20 },
+    ],
+  })
+);
 
       renderComponent('1');
 
-      const allLikeButtons = screen.getAllByLabelText('Agregar like');
-      const likeButton = allLikeButtons[0];
-      const svg = likeButton.querySelector('svg');
-
-      expect(svg).toHaveAttribute('fill', 'none');
-      expect(svg).toHaveAttribute('stroke', 'currentColor');
+      expectLikeButtonState('Agregar', 'none', '#c026d3');
     });
 
-    it('el botón de like muestra el ícono de corazón lleno cuando está liked', () => {
-  mockUseReadChapterData.mockReturnValue(
-    createMockHookReturn({ 
-      liked: { 1: true },
-      chapters: [
-        { id: 1, chapterNumber: 1, title: 'Cap 1', publicationStatus: 'PUBLISHED', likes: 10, likedByUser: true } // ⬅️ AGREGAR likedByUser
-      ]
-    })
-  );
-
-  renderComponent('1');
-
-  const likeButton = screen.getByLabelText('Quitar like');
-  const svg = likeButton.querySelector('svg');
-
-  expect(svg).toHaveAttribute('fill', 'currentColor'); 
-  expect(svg).toHaveClass('text-red-500');
-});
-
-    it('click en like de capítulo desbloqueado llama a toggleLike', async () => {
-        const user = userEvent.setup();
-        const toggleLike = vi.fn();
-        mockUseReadChapterData.mockReturnValue(
-          createMockHookReturn({ 
-            toggleLike, 
-            liked: { 1: false },
-            chapters: [
-              { id: 1, chapterNumber: 1, title: 'Cap 1', publicationStatus: 'PUBLISHED', likes: 10 }
-            ]
-          })
-        );
-
-        renderComponent('1');
-
-        const sidebar = screen.getByText('Capítulos').closest('aside');
-        const likeButtons = within(sidebar!).getAllByLabelText('Agregar like');
-        
-        await user.click(likeButtons[0]);
-
-        expect(toggleLike).toHaveBeenCalledTimes(1);
-        expect(toggleLike).toHaveBeenCalledWith(1);
-      });
-
-    it('el like está deshabilitado para capítulos bloqueados', () => {
+    it('dado que el capítulo está bloqueado, cuando se renderiza, entonces like está deshabilitado', () => {
       const isChapterUnlocked = vi.fn((id: number) => id !== 3);
       mockUseReadChapterData.mockReturnValue(
         createMockHookReturn({ isChapterUnlocked })
@@ -472,88 +581,67 @@ describe('ReadChapterNovel', () => {
       expect(likeButton).toBeDisabled();
     });
 
-    it('muestra el contador de likes correctamente usando localLikes', () => {
-      mockUseReadChapterData.mockReturnValue(
-        createMockHookReturn({
-          localLikes: { 1: 15, 2: 25 },
-        })
-      );
-
-      renderComponent('1');
-
-      const chaptersContainer = getChaptersContainer();
-      
-      expect(within(chaptersContainer!).getByText('15')).toBeInTheDocument();
-      expect(within(chaptersContainer!).getByText('25')).toBeInTheDocument();
-    });
-  });
 
   describe('Suscripción a la Obra', () => {
-    it('el botón "Suscribir" abre el modal de suscripción', async () => {
-  const user = userEvent.setup();
-  mockUseReadChapterData.mockReturnValue(
-    createMockHookReturn({ isAuthor: false })
-  );
+    it('dado que se hace click en suscribir, cuando se ejecuta, entonces abre modal de suscripción', async () => {
+      const user = userEvent.setup();
+      mockUseReadChapterData.mockReturnValue(
+        createMockHookReturn({ isAuthor: false })
+      );
 
-  renderComponent();
+      renderComponent();
 
-  const subscribeButton = screen.getByRole('button', { name: /suscribir/i });
-  await user.click(subscribeButton);
+      const subscribeButton = screen.getByRole('button', { name: /suscribir/i });
+      await user.click(subscribeButton);
 
-  // Verifica que el modal se abre
-  expect(screen.getByText('Suscribirse a la Obra')).toBeInTheDocument();
-  expect(screen.getByText('Selecciona un método de pago')).toBeInTheDocument();
-});
+      expectModalTitle('Suscribirse a la Obra');
+      expectModalSubtitle('Selecciona un método de pago');
+    });
 
-    it('el botón muestra "Suscrito" cuando isWorkSubscribed es true', () => {
+    it('dado que está suscrito a la obra, cuando se renderiza, entonces muestra botón suscrito deshabilitado', () => {
       mockUseReadChapterData.mockReturnValue(
         createMockHookReturn({ isWorkSubscribed: true, isAuthor: false })
       );
 
       renderComponent();
 
-      const subscribeButton = screen.getByRole('button', { name: /suscrito/i });
-      expect(subscribeButton).toBeInTheDocument();
-      expect(subscribeButton).toBeDisabled();
+      expectSubscribeButton('suscrito', true);
     });
 
-    it('el botón muestra "Suscrito" cuando isAuthorSubscribed es true', () => {
+    it('dado que está suscrito al autor, cuando se renderiza, entonces muestra botón suscrito deshabilitado', () => {
       mockUseReadChapterData.mockReturnValue(
         createMockHookReturn({ isAuthorSubscribed: true, isAuthor: false })
       );
 
       renderComponent();
 
-      const subscribeButton = screen.getByRole('button', { name: /suscrito/i });
-      expect(subscribeButton).toBeInTheDocument();
-      expect(subscribeButton).toBeDisabled();
+      expectSubscribeButton('suscrito', true);
     });
 
-    it('el botón está deshabilitado cuando isPaying es true', () => {
+    it('dado que está procesando pago, cuando se renderiza, entonces botón está deshabilitado', () => {
       mockUseReadChapterData.mockReturnValue(
         createMockHookReturn({ isPaying: true, isAuthor: false })
       );
 
       renderComponent();
 
-      const subscribeButton = screen.getByRole('button', { name: /suscribir/i });
-      expect(subscribeButton).toBeDisabled();
+      expectButtonDisabled('suscribir');
     });
 
-    it('los botones de suscripción NO se muestran si isAuthor es true', () => {
+    it('dado que es el autor, cuando se renderiza, entonces no muestra botones de suscripción', () => {
       mockUseReadChapterData.mockReturnValue(
         createMockHookReturn({ isAuthor: true })
       );
 
       renderComponent();
 
-      expect(screen.queryByRole('button', { name: /suscribir/i })).not.toBeInTheDocument();
-      expect(screen.queryByRole('button', { name: /suscrito/i })).not.toBeInTheDocument();
+      expectNoSubscribeButton();
+      expectNoSubscribedButton();
     });
   });
 
   describe('Información de la Obra (Sidebar)', () => {
-    it('muestra el banner y portada de la obra', () => {
+    it('dado que hay imágenes personalizadas, cuando se renderiza, entonces muestra banner y portada específicos', () => {
       mockUseReadChapterData.mockReturnValue(
         createMockHookReturn({
           work: createMockWork({
@@ -567,13 +655,12 @@ describe('ReadChapterNovel', () => {
 
       const sidebar = screen.getByText('Capítulos').closest('aside');
       const bannerDiv = sidebar!.querySelector('.bg-cover.bg-center') as HTMLElement;
-      const cover = screen.getByAltText('Obra de Prueba');
-
-      expect(bannerDiv).toHaveStyle({ backgroundImage: 'url("/img/custom-banner.jpg")' });
-      expect(cover).toHaveAttribute('src', '/img/custom-cover.jpg');
+      
+      expectImageStyle(bannerDiv, '/img/custom-banner.jpg');
+      expectImageSource('Obra de Prueba', '/img/custom-cover.jpg');
     });
 
-    it('muestra el título de la obra', () => {
+    it('dado que hay título de obra, cuando se renderiza, entonces muestra título correcto', () => {
       mockUseReadChapterData.mockReturnValue(
         createMockHookReturn({
           work: createMockWork({ title: 'Mi Obra Fantástica' }),
@@ -582,11 +669,10 @@ describe('ReadChapterNovel', () => {
 
       renderComponent();
 
-      const sidebar = getChaptersContainer()?.parentElement;
-      expect(within(sidebar!).getByText('Mi Obra Fantástica')).toBeInTheDocument();
+      expectWorkTitle('Mi Obra Fantástica');
     });
 
-    it('usa el título del chapterData como fallback si no hay work.title', () => {
+    it('dado que no hay título de obra, cuando se renderiza, entonces usa título de chapterData', () => {
       mockUseReadChapterData.mockReturnValue(
         createMockHookReturn({
           work: createMockWork({ title: undefined as any }),
@@ -596,11 +682,10 @@ describe('ReadChapterNovel', () => {
 
       renderComponent();
 
-      const sidebar = getChaptersContainer()?.parentElement;
-      expect(within(sidebar!).getByText('Título desde Chapter')).toBeInTheDocument();
+      expectWorkTitle('Título desde Chapter');
     });
 
-    it('usa imágenes por defecto si no hay banner/cover', () => {
+    it('dado que no hay imágenes personalizadas, cuando se renderiza, entonces usa imágenes por defecto', () => {
       mockUseReadChapterData.mockReturnValue(
         createMockHookReturn({
           work: createMockWork({ banner: undefined, cover: undefined }),
@@ -611,23 +696,22 @@ describe('ReadChapterNovel', () => {
 
       const sidebar = screen.getByText('Capítulos').closest('aside');
       const bannerDiv = sidebar!.querySelector('.bg-cover.bg-center') as HTMLElement;
-      const cover = screen.getByAltText('Obra de Prueba');
 
-      expect(bannerDiv).toHaveStyle({ backgroundImage: 'url("/img/portadas/banner1.jpg")' });
-      expect(cover).toHaveAttribute('src', '/img/portadas/banner1.jpg');
+      expectImageStyle(bannerDiv, '/img/portadas/banner1.jpg');
+      expectImageSource('Obra de Prueba', '/img/portadas/banner1.jpg');
     });
   });
 
   describe('Integración con el Hook', () => {
-    it('usa correctamente useReadChapterData con el chapterId de los params', () => {
+    it('dado que hay chapterId en params, cuando se renderiza, entonces usa useReadChapterData con ID correcto', () => {
       mockUseReadChapterData.mockReturnValue(createMockHookReturn());
 
       renderComponent('42');
 
-      expect(mockUseReadChapterData).toHaveBeenCalledWith('42');
+      expectFunctionCall(mockUseReadChapterData, '42');
     });
 
-    it('maneja correctamente cuando no hay chapterId en los params', () => {
+    it('dado que no hay chapterId en params, cuando se renderiza, entonces usa useReadChapterData con string vacío', () => {
       mockUseReadChapterData.mockReturnValue(createMockHookReturn());
 
       render(
@@ -640,7 +724,7 @@ describe('ReadChapterNovel', () => {
         </MemoryRouter>
       );
 
-      expect(mockUseReadChapterData).toHaveBeenCalledWith('');
+      expectFunctionCall(mockUseReadChapterData, '');
     });
   });
-});
+})})

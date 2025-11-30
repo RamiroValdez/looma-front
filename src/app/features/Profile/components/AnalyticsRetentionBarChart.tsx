@@ -27,7 +27,7 @@ export function AnalyticsRetentionBarChart({ retentionData, metric, title }: Pro
     return (
         <div className="space-y-2">
             {title && <h3 className="text-sm font-medium text-gray-700">{title}</h3>}
-            <ResponsiveContainer width="100%" height={280}>
+            <ResponsiveContainer width="100%" height={345}>
                 <BarChart data={data}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="position" tickFormatter={(v) => `Cap ${v}`} />

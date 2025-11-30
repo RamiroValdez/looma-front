@@ -13,12 +13,32 @@ function expectAverageValue(value: string) {
 function expectTotalValue(value: string) {
   expect(screen.getByText((content) => content.trim() === value)).toBeInTheDocument();
 }
-function expectButtonText(text: string) {
-  expect(screen.getByRole("button", { name: new RegExp(text, "i") })).toBeInTheDocument();
+function getStarElements() {
+  return document.querySelectorAll("div.cursor-pointer");
 }
-function expectSuccessIcon() {
-  const successIcon = document.querySelector('.text-green-600 svg');
-  expect(successIcon).toBeInTheDocument();
+function clickOnStar(starIndex: number, isHalf: boolean = false) {
+  const stars = getStarElements();
+  const star = stars[starIndex - 1] as HTMLElement;
+
+  // Mock getBoundingClientRect para simular dimensiones reales
+  const mockRect = {
+    left: 0,
+    width: 32, // w-8 = 32px
+    top: 0,
+    bottom: 32,
+    right: 32,
+    height: 32,
+    x: 0,
+    y: 0,
+    toJSON: () => {}
+  };
+
+  vi.spyOn(star, 'getBoundingClientRect').mockReturnValue(mockRect as DOMRect);
+
+  // Calcular clientX basado en si queremos media estrella o estrella completa
+  const clientX = isHalf ? mockRect.left + mockRect.width * 0.25 : mockRect.left + mockRect.width * 0.75;
+
+  fireEvent.click(star, { clientX });
 }
 
 describe("Componente StarRating", () => {
@@ -51,30 +71,31 @@ describe("Componente StarRating", () => {
 
   it("permite seleccionar media estrella", async () => {
     render(<StarRating workId={1} />);
-    const starDiv = document.querySelectorAll("div[style*='inline-block']")[0];
-    fireEvent.click(starDiv, { clientX: 0 });
+    await waitFor(() => getStarElements());
+    clickOnStar(1, true);
+    await waitFor(() => expect(mockSendRating).toHaveBeenCalledWith(1, 0.5));
   });
 
-  it("deshabilita el botón de enviar si el rating es 0", async () => {
+  it("actualiza el rating al hacer clic en una estrella", async () => {
     render(<StarRating workId={1} />);
-    const button = screen.getByRole("button", { name: /enviar valoración/i });
-    expect(button).toBeDisabled();
+    await waitFor(() => getStarElements());
+    clickOnStar(5, false);
+    await waitFor(() => expect(mockSendRating).toHaveBeenCalledWith(1, 5));
   });
 
-  it("muestra 'Enviando...' cuando loading es true", async () => {
-    mockGetMyRatings.mockResolvedValue(5);
-    render(<StarRating workId={1} initialValue={5} />);
-    const button = await screen.findByRole("button", { name: /enviar valoración/i });
-    fireEvent.click(button);
-    await waitFor(() => expectButtonText("Enviando..."));
+  it("actualiza el promedio después de enviar rating", async () => {
+    mockSendRating.mockResolvedValue({ workId: 1, userId: 1, rating: 5, average_rating: 4.5 });
+    render(<StarRating workId={1} initialValue={4.0} />);
+    await waitFor(() => getStarElements());
+    clickOnStar(5, false);
+    await waitFor(() => expectAverageValue("4.5"));
   });
 
-  it("llama a sendRating al enviar", async () => {
-    mockGetMyRatings.mockResolvedValue(5);
-    render(<StarRating workId={1} initialValue={5} />);
-    const button = await screen.findByRole("button", { name: /enviar valoración/i });
-    fireEvent.click(button);
-    await waitFor(() => expect(mockSendRating).toHaveBeenCalled());
+  it("llama a sendRating al hacer clic en una estrella", async () => {
+    render(<StarRating workId={1} />);
+    await waitFor(() => getStarElements());
+    clickOnStar(4, false);
+    await waitFor(() => expect(mockSendRating).toHaveBeenCalledWith(1, 4));
   });
 
   it("muestra 0.0 si no hay valor inicial ni average", async () => {
@@ -89,16 +110,15 @@ describe("Componente StarRating", () => {
     await waitFor(() => expectTotalValue("(42)"));
   });
 
-  it("muestra el icono de éxito tras enviar", async () => {
-    mockGetMyRatings.mockResolvedValue(5);
-    render(<StarRating workId={1} initialValue={5} />);
-    const button = await screen.findByRole("button", { name: /enviar valoración/i });
-    fireEvent.click(button);
-    await waitFor(() => expectSuccessIcon());
+  it("no muestra mensaje de error inicialmente", async () => {
+    render(<StarRating workId={1} />);
+    await waitFor(() => getStarElements());
+    expect(screen.queryByText(/error/i)).not.toBeInTheDocument();
   });
 
   it("no muestra mensaje de éxito si no se ha enviado", async () => {
     render(<StarRating workId={1} />);
-    expect(screen.queryByText((content) => /enviando/i.test(content))).not.toBeInTheDocument();
+    await waitFor(() => getStarElements());
+    expect(screen.queryByText(/enviando/i)).not.toBeInTheDocument();
   });
 });

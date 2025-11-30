@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useChatConversation, sendChatMessage, type ChatMessageDto } from '../../infrastructure/services/ChatService';
+import { Loader } from './Loader';
 
 interface LoomiBubbleProps {
   chapterId: number;
@@ -108,8 +109,8 @@ export default function LoomiBubble({ chapterId, chapterContent, publicationStat
 
            <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50">
               {isLoadingHistory ? (
-                <div className="flex items-center justify-center h-full">
-                  <p className="text-gray-500 text-sm">Cargando historial...</p>
+                <div className="min-h-screen flex items-center justify-center bg-[#f4f0f7]">
+                  <Loader size="md" color="primary" />
                 </div>
               ) : messages.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-full text-center px-4">

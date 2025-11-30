@@ -1,7 +1,5 @@
 import { useNavigate } from "react-router-dom";
 import type { WorkCardDto } from "../../domain/dto/WorkCardDTO";
-import { SaveWork } from "../../infrastructure/services/MySavesService";
-import { notifySuccess } from "../../infrastructure/services/ToastProviderService";
 
 const FORMAT_BG_BY_NAME: Record<string, string> = {
   novela: "bg-emerald-600/80",
@@ -30,15 +28,9 @@ export const WorkItemSaves = ({ work, onRemove }: WorkItemSavesProps) => {
     navigate(`/work/${work.id}`);
   };
 
-  const handleRemoveSave = async (e: React.MouseEvent) => {
+  const handleRemoveSave = (e: React.MouseEvent) => {
     e.stopPropagation(); 
-    try {
-      await SaveWork(work.id);
-      onRemove(work.id);
-      notifySuccess("Obra eliminada de tus guardados.");
-    } catch (error) {
-      console.error('Error removing saved work:', error);
-    }
+    onRemove(work.id);
   };
 
   return (
@@ -47,12 +39,12 @@ export const WorkItemSaves = ({ work, onRemove }: WorkItemSavesProps) => {
       onClick={handleClick}
     >
       <img
-      src={work.cover}
-      alt={work.title}
-      className="absolute inset-0 w-full h-full object-cover"
-    />
+        src={work.cover}
+        alt={work.title}
+        className="absolute inset-0 w-full h-full object-cover"
+      />
 
-    <div className="absolute inset-0 bg-black/30"></div>
+      <div className="absolute inset-0 bg-black/30"></div>
       
       <button 
         onClick={handleRemoveSave}
@@ -80,28 +72,28 @@ export const WorkItemSaves = ({ work, onRemove }: WorkItemSavesProps) => {
         </h3>
 
         <div className="min-h-[28px]">
-            <div className="flex items-center justify-between text-sm">
-              <div className="flex items-center">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="#c026d3"
-                  stroke="#c026d3"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="mr-1"
-                >
-                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-                </svg>
-                <span className="font-semibold drop-shadow-md text-base text-white">{work.likes}</span>
-              </div>
-              <span className={`px-2 py-1 rounded-full font-semibold ${getFormatBgByName(work.format?.name)}`}>
-                {work.format.name}
-              </span>
+          <div className="flex items-center justify-between text-sm">
+            <div className="flex items-center">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="#c026d3"
+                stroke="#c026d3"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="mr-1"
+              >
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+              </svg>
+              <span className="font-semibold drop-shadow-md text-base text-white">{work.likes}</span>
             </div>
+            <span className={`px-2 py-1 rounded-full font-semibold ${getFormatBgByName(work.format?.name)}`}>
+              {work.format.name}
+            </span>
+          </div>
         </div>
       </div>
     </div>

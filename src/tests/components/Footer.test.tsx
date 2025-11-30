@@ -14,32 +14,60 @@ vi.mock('react-router-dom', async () => {
 });
 
 function renderFooter() {
-  return render(
+  render(
     <MemoryRouter>
       <Footer />
     </MemoryRouter>
   );
 }
 
+function expectBotonExplorarObrasVisible() {
+  expect(screen.getByText('Explorar Obras')).toBeInTheDocument();
+}
+
+function expectBotonTerminosCondicionesVisible() {
+  expect(screen.getByText('políticas y condiciones')).toBeInTheDocument();
+}
+
+function expectEmailVisible() {
+  expect(screen.getByText('looma.tpi@gmail.com')).toBeInTheDocument();
+}
+
+function expectInstagramVisible() {
+  expect(screen.getByText('Instagram @looma.ar')).toBeInTheDocument();
+}
+
 describe('Footer', () => {
-  it('muestra botones de navegación y secci��n de contacto', () => {
+  it('cuando se renderiza, muestra el botón "Explorar Obras"', () => {
     renderFooter();
-    expect(screen.getByText('Explorar Obras')).toBeInTheDocument();
-    expect(screen.getByText('Términos y Condiciones')).toBeInTheDocument();
-    expect(screen.getByText('contacto@looma.com')).toBeInTheDocument();
-    expect(screen.getByText(/Instagram @looma/i)).toBeInTheDocument();
+    expectBotonExplorarObrasVisible();
   });
 
-  it('navega a /explore al hacer click en Explorar Obras', () => {
+  it('cuando se renderiza, muestra el enlace de "políticas y condiciones"', () => {
+    renderFooter();
+    expectBotonTerminosCondicionesVisible();
+  });
+
+  it('cuando se renderiza, muestra el email de contacto', () => {
+    renderFooter();
+    expectEmailVisible();
+  });
+
+  it('cuando se renderiza, muestra el enlace de Instagram', () => {
+    renderFooter();
+    expectInstagramVisible();
+  });
+
+  it('cuando se hace click en "Explorar Obras", navega a /explore', () => {
     renderFooter();
     fireEvent.click(screen.getByText('Explorar Obras'));
     expect(mockNavigate).toHaveBeenCalledWith('/explore');
   });
 
-  it('navega a /terms al hacer click en Términos y Condiciones', () => {
+  it('cuando se hace click en "políticas y condiciones", navega a /terms', () => {
     renderFooter();
-    fireEvent.click(screen.getByText('Términos y Condiciones'));
-    expect(mockNavigate).toHaveBeenCalledWith('/terms');
+    fireEvent.click(screen.getByText('políticas y condiciones'));
+    // Este es un enlace <a>, no usa navigate, va directamente a /terms
+    expect(screen.getByText('políticas y condiciones')).toHaveAttribute('href', '/terms');
   });
 });
-

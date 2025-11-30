@@ -41,7 +41,7 @@ export const ChapterListItem: React.FC<ChapterListItemProps> = ({
         </svg>
           )}        
 
-        <span className={`font-medium text-gray-800 ${!disabled ? 'ml-6' : ''}`}>{`Episodio ${index}`}</span>
+        <span className={`font-medium text-gray-800 ${!disabled ? 'ml-6' : ''}`}>{`Capítulo ${index}`}</span>
                                                   
       </div>
 

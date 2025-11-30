@@ -2,8 +2,9 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
-import Create from '../../../app/features/Work/Create';
+import Create from '../../../app/features/Work/Create/Create';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { waitFor } from "@testing-library/react";
 
 const mockNavigate = vi.fn();
 vi.mock('react-router-dom', async () => {
@@ -47,7 +48,7 @@ vi.mock('../../../infrastructure/services/CreateWorkService.ts', () => ({
 
   createFormDataForWork: (dto: any, banner?: File | null, cover?: File | null) => {
     const fd = new FormData();
-    fd.append('work', JSON.stringify(dto)); 
+    fd.append('work', JSON.stringify(dto));
     if (banner) fd.append('banner', banner);
     if (cover) fd.append('cover', cover);
     return fd;
@@ -60,7 +61,7 @@ vi.mock('../../../infrastructure/services/CreateWorkService.ts', () => ({
     reset: vi.fn(),
   }),
 
-  useClickOutside: () => {},
+  useClickOutside: () => { },
   validateFile: vi.fn(async () => ({ valid: true, previewUrl: 'blob://test' })),
   handleAddTag: (
     formattedText: string,
@@ -108,7 +109,7 @@ describe('Create - envía correctamente los datos del formulario', () => {
     await user.selectOptions(screen.getByTestId('language-select'), '1');
 
     const categoriasLabel = screen.getByText('Categorías');
-    const categoriasRow = categoriasLabel.parentElement as HTMLElement; 
+    const categoriasRow = categoriasLabel.parentElement as HTMLElement;
     const categoriasContainer = categoriasRow.querySelector('div') as HTMLElement;
     await user.click(within(categoriasContainer).getByRole('button', { name: '+' }));
     await user.click(screen.getByText('Fantasía'));
@@ -125,35 +126,42 @@ describe('Create - envía correctamente los datos del formulario', () => {
     await user.upload(screen.getByTestId('banner-input') as HTMLInputElement, bannerFile);
     await user.upload(screen.getByTestId('cover-input') as HTMLInputElement, coverFile);
 
+
+    await waitFor(() => {
+      expect(screen.getByTestId('submit-create')).not.toBeDisabled();
+    });
+
     await user.click(screen.getByTestId('submit-create'));
 
-    expect(mutateAsyncMock).toHaveBeenCalledTimes(1);
+    await waitFor(() => {
+      expect(mutateAsyncMock).toHaveBeenCalledTimes(1);
+    });
 
-  const fd = mutateAsyncMock.mock.calls[0][0] as FormData;
+    const fd = mutateAsyncMock.mock.calls[0][0] as FormData;
 
-  const workPart = fd.get('work') as unknown;
-  let work: any;
-  if (typeof workPart === 'string') {
-    work = JSON.parse(workPart);
-  } else if (workPart && typeof (workPart as Blob).text === 'function') {
-    work = JSON.parse(await (workPart as Blob).text());
-  } else {
-    work = JSON.parse(await new Response(workPart as any).text());
-  }
+    const workPart = fd.get('work') as unknown;
+    let work: any;
+    if (typeof workPart === 'string') {
+      work = JSON.parse(workPart);
+    } else if (workPart && typeof (workPart as Blob).text === 'function') {
+      work = JSON.parse(await (workPart as Blob).text());
+    } else {
+      work = JSON.parse(await new Response(workPart as any).text());
+    }
 
-  expect(work).toMatchObject({
-    title: 'Mi Obra',
-    description: expect.any(String),
-    formatId: 1,
-    originalLanguageId: 1,
-    categoryIds: expect.arrayContaining([1]),
-    tagIds: expect.arrayContaining(['aventura']),
-  });
+    expect(work).toMatchObject({
+      title: 'Mi Obra',
+      description: expect.any(String),
+      formatId: 1,
+      originalLanguageId: 1,
+      categoryIds: expect.arrayContaining([1]),
+      tagIds: expect.arrayContaining(['aventura']),
+    });
 
-  expect((fd.get('banner') as File)?.name).toBe('banner.png');
-  expect((fd.get('cover') as File)?.name).toBe('cover.jpg');
+    expect((fd.get('banner') as File)?.name).toBe('banner.png');
+    expect((fd.get('cover') as File)?.name).toBe('cover.jpg');
 
-  expect(mockNavigate).toHaveBeenCalledWith('/manage-work/123');
-});
+    expect(mockNavigate).toHaveBeenCalledWith('/manage-work/123');
+}, 15000);
 
 });

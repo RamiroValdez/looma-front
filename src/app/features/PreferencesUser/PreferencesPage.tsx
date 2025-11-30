@@ -1,6 +1,7 @@
 import React from "react";
-import { useCategories } from "../../../infrastructure/services/CategoryService";
 import { usePreferences } from "../../hooks/usePreferences";
+import { useCategories } from "../../hooks/useCategories";
+import { Loader } from "../../components/Loader";
 
 const PreferencesPage: React.FC = () => {
   const { categories, isLoading: loadingCategories } = useCategories();
@@ -27,7 +28,10 @@ const PreferencesPage: React.FC = () => {
 
         <div className="flex flex-wrap gap-2 mb-6">
           {loadingCategories ? (
-            <span className="text-gray-400">Cargando géneros...</span>
+            
+                  <div className="min-h-screen flex items-center justify-center bg-[#f4f0f7]">
+                    <Loader size="md" color="primary" />
+                  </div>
           ) : (
             categories.map((genre: any) => (
               <button
