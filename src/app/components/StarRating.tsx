@@ -9,7 +9,6 @@ type StarRatingProps = {
 const StarRating: React.FC<StarRatingProps> = ({ workId, initialValue = 0 }) => {
   const [rating, setRating] = useState<number>(initialValue);
   const [hoverRating, setHoverRating] = useState<number | null>(null);
-  const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [average, setAverage] = useState<number | null>(null);
   const [total, setTotal] = useState<number>(0);
@@ -40,11 +39,8 @@ const StarRating: React.FC<StarRatingProps> = ({ workId, initialValue = 0 }) => 
     const isHalf = clickX < width / 2;
     const newRating = isHalf ? starValue - 0.5 : starValue;
     
-    const isNewVote = rating === 0 && initialValue === 0 && newRating > 0;
-    
     setRating(newRating);
-    
-    setLoading(true);
+
     setErrorMsg(null);
     
     try {
@@ -57,8 +53,6 @@ const StarRating: React.FC<StarRatingProps> = ({ workId, initialValue = 0 }) => 
     } catch (e: any) {
       setErrorMsg("Error al enviar la valoración");
       setRating(initialValue);
-    } finally {
-      setLoading(false);
     }
   };
 

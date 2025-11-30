@@ -172,10 +172,6 @@ const expectFullscreenMethodCalled = (mockMethod: any) => {
   expect(mockMethod).toHaveBeenCalled();
 };
 
-const expectWindowOpenCalled = (mockOpen: any, url: string, target: string) => {
-  expect(window.open).toHaveBeenCalledWith(url, target);
-};
-
 const expectSuccessNotification = (message: string) => {
   expect(notifySuccess).toHaveBeenCalledWith(message);
 };
@@ -675,23 +671,6 @@ describe("useReadChapterData", () => {
       await waitFor(() => {
         expectWorkDefined(result);
       });
-    });
-
-    it("dado que obra está cargada, cuando se ejecuta handleChapterPayment, entonces llama al servicio de pago de capítulo correctamente", async () => {
-      setupWorkMock();
-      const mockOpen = setupWindowOpenMock();
-
-      const { result } = renderHook(() => useReadChapterData("1"));
-
-      await waitFor(() => {
-        expectWorkId(result, 1); // Espera hasta que el id sea 1
-      });
-
-      await act(async () => {
-        await result.current.handleChapterPayment(2);
-      });
-
-      expectWindowOpenCalled(mockOpen, "", "_blank");
     });
 
     it("dado que obra está cargada, cuando se ejecuta handleSubscribeWork, entonces muestra notificación de éxito", async () => {

@@ -17,7 +17,7 @@ import { useCategories } from "../../../../hooks/useCategories";
 import { useFormats } from "../../../../hooks/useFormats";
 import type { CategoryDTO } from "../../../../../domain/dto/CategoryDTO";
 import type { TagSuggestionRequestDTO } from "../../../../../domain/dto/TagSuggestionDTO";
-import type { CreateWorkDTO } from "../../../../../infrastructure/services/CreateWorkService";
+import type { CreateWorkDTO } from "../../../../../domain/dto/CreateWorkDTO.ts";
 
 export function useCreateWorkForm() {
     const navigate = useNavigate();
