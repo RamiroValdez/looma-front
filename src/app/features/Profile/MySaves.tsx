@@ -1,13 +1,16 @@
 import { useSavedWorks } from "./hooks/useSavedWorks";
 import { WorkItemSaves } from "../../components/WorkItemSaves";
+import { Loader } from "../../components/Loader";
 
 export const MySaves = () => {
   const { savedWorks, isLoading, handleRemoveWork } = useSavedWorks();
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center w-full">
-        <div className="text-center p-8">Cargando obras guardadas...</div>
+      <div className="flex-1 container p-4 flex">
+        <div className="w-full min-h-[70vh] flex items-center justify-center">
+          <Loader size="md" color="primary" />
+        </div>
       </div>
     );
   }

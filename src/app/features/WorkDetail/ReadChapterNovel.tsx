@@ -6,6 +6,7 @@ import SubscriptionModal from "./components/SubscriptionModal";
 import ChapterPurchaseModal from "./components/ChapterPurchaseModal";
 import LikeButton from "../../components/LikeButton";
 import { useReadChapterView } from "./hooks/useReadChapterView";
+import { Loader } from "../../components/Loader.tsx";
 
 const ReadChapter = () => {
     const {
@@ -39,6 +40,7 @@ const ReadChapter = () => {
         isWorkSubscribed,
         isAuthorSubscribed,
         isWorkSaved,
+        isSaving,
         toggleFullScreen,
         handleChapterClick,
         handleLanguageChange,
@@ -55,7 +57,12 @@ const ReadChapter = () => {
     } = useReadChapterView();
 
     if (isLoading) {
-        return <p className="text-center text-gray-500 mt-10">Cargando capítulo...</p>;
+        return (
+            
+                  <div className="min-h-screen flex items-center justify-center bg-[#f4f0f7]">
+                    <Loader size="md" color="primary" />
+                  </div>
+        );
     }
 
     if (!chapterData) {
@@ -284,12 +291,17 @@ const ReadChapter = () => {
                                             </button>
                                             <button
                                                 onClick={handdleToggleSaveWork}
+                                                disabled={isSaving}
                                                 className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${isWorkSaved
                                                         ? 'text-[#5C17A6] cursor-pointer border border-[#5C17A6]'
                                                         : 'text-white cursor-pointer bg-[#3b245a]/90 disabled:opacity-50 disabled:cursor-not-allowed'
                                                     }`}
                                             >
-                                                {isWorkSaved ? "Guardado" : "Guardar"}
+                                                {isSaving ? (
+                                                    <Loader size="xs" color="white" />
+                                                ) : (
+                                                    isWorkSaved ? "Guardado" : "Guardar"
+                                                )}
                                             </button>
                                         </div>
                                     )}

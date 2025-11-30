@@ -1,6 +1,7 @@
 import type {LanguageDTO} from "../../../domain/dto/LanguageDTO.ts";
 import { useState, useMemo } from "react";
 import { useLanguages } from "../../../infrastructure/services/LanguageService.ts"; // cambio: usar hook que hace fetch
+import { Loader } from "../Loader.tsx";
 
 interface Props {
     availableLanguages: LanguageDTO[];
@@ -67,7 +68,10 @@ export default function AdvancedTools({ availableLanguages, defaultLanguageCode,
             disabled={disabled || isLoadingLanguages}
             onClick={() => setShowAddModal(true)}
           >Agregar versión</button>
-          {isLoadingLanguages && <p className="text-xs text-gray-500">Cargando idiomas...</p>}
+          {isLoadingLanguages && 
+                <div className="min-h-screen flex items-center justify-center bg-[#f4f0f7]">
+                  <Loader size="md" color="primary" />
+                </div>}
           {languagesError && !isLoadingLanguages && <p className="text-xs text-red-600">Error al cargar idiomas.</p>}
         </div>
       </div>
@@ -78,7 +82,10 @@ export default function AdvancedTools({ availableLanguages, defaultLanguageCode,
           <div className="relative z-10 w-full max-w-md bg-white rounded-xl shadow-lg p-6">
             <h3 className="text-lg font-semibold mb-3">Agregar versión</h3>
             {isLoadingLanguages ? (
-              <p className="text-sm text-gray-600">Cargando idiomas...</p>
+              
+      <div className="min-h-screen flex items-center justify-center bg-[#f4f0f7]">
+        <Loader size="md" color="primary" />
+      </div>
             ) : languagesError ? (
               <p className="text-sm text-red-600">No se pudieron cargar los idiomas.</p>
             ) : canAddMore ? (

@@ -9,6 +9,7 @@ import type {UserDTO} from "../../../../domain/dto/UserDTO.ts";
 import type { WorkDTO } from "../../../../domain/dto/WorkDTO.ts";
 import { AnalyticsSubscribersPieChart } from "./AnalyticsSubscribersPieChart.tsx";
 import { useSubscribersTotals } from "../../../../infrastructure/services/SubscribersTotalsService.ts";
+import { Loader } from "../../../components/Loader.tsx";
 
 export default function Analytics() {
 
@@ -64,7 +65,13 @@ export default function Analytics() {
     const globalError = userError || (worksError as any) || error || subsTotalsError;
 
     if (globalLoading) {
-        return <div className="p-6">Cargando estadísticas...</div>;
+        return (
+            <div className="flex-1 container p-4 flex">
+                <div className="w-full min-h-[70vh] flex items-center justify-center">
+                    <Loader size="md" color="primary" />
+                </div>
+            </div>
+        );
     }
 
     if (globalError) {
@@ -72,7 +79,14 @@ export default function Analytics() {
     }
 
     if (!selectedWork) {
-        return <div className="p-6">No hay obras disponibles para mostrar estadísticas.</div>;
+        return (
+            <div className="flex-1 container p-4 flex">
+                <div className="w-full min-h-[70vh] flex flex-col items-center justify-center text-gray-500">
+                    <img src="/img/triste_1.png" alt="no data" className="w-70 h-70 mb-8" />
+                    <div>No hay obras disponibles para mostrar estadísticas.</div>
+                </div>
+            </div>
+        );
     }
 
     return (

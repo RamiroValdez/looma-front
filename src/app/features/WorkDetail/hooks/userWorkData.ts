@@ -4,6 +4,7 @@ import { notifyError, notifySuccess } from '../../../../infrastructure/services/
 
 export const useWorkData = (workId: number) => {
   const [isWorkSaved, setIsWorkSaved] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     const checkIfWorkSaved = async () => {
@@ -16,18 +17,22 @@ export const useWorkData = (workId: number) => {
   }, [workId]);
 
   const handdleToggleSaveWork = async () => {
-    if (!workId) return;
+    if (!workId || isSaving) return;
     try {
+      setIsSaving(true);
       await SaveWork(workId);
       setIsWorkSaved((prev) => !prev);
       notifySuccess(isWorkSaved ? "Obra eliminada de tus guardados." : "Obra guardada exitosamente.");
     } catch (error) {
       notifyError("No se pudo actualizar el estado de guardado de la obra.");
+    } finally {
+      setIsSaving(false);
     }
   };
 
   return {
     isWorkSaved,
+    isSaving,
     handdleToggleSaveWork,
   };
 };

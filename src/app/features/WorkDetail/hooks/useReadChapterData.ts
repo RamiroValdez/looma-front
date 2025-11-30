@@ -30,6 +30,7 @@ export const useReadChapterData = (chapterId: string) => {
   const [showFooter, setShowFooter] = useState(false);
   const [isPaying, setIsPaying] = useState(false);
   const [isWorkSaved, setIsWorkSaved] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   const languageCache = useState<Map<string, string>>(() => new Map())[0];
 
@@ -317,14 +318,16 @@ export const useReadChapterData = (chapterId: string) => {
 
 
   const handdleToggleSaveWork = async () => {
-    if (!work?.id) return;
+    if (!work?.id || isSaving) return;
     try {
+      setIsSaving(true);
       await SaveWork(work.id);
       setIsWorkSaved((prev) => !prev);
       notifySuccess(isWorkSaved ? "Obra eliminada de tus guardados." : "Obra guardada exitosamente.");
-
-    } catch (error) {
+    } catch {
       notifyError("No se pudo actualizar el estado de guardado de la obra.");
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -380,5 +383,6 @@ export const useReadChapterData = (chapterId: string) => {
     handleChapterPayment,
     isChapterUnlocked,
     handdleToggleSaveWork,
+    isSaving,
   };
 };

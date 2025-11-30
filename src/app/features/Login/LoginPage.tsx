@@ -1,5 +1,6 @@
 import Button from "../../components/Button.tsx";
 import { useLoginPage } from "../../hooks/useLoginPage.ts";
+import { Loader } from "../../components/Loader.tsx";
 
 export const LoginPage = () => {
     const {
@@ -85,10 +86,7 @@ export const LoginPage = () => {
                                   colorClass={`w-full flex items-center justify-center gap-2 py-3 px-4 rounded-lg text-sm font-semibold text-white bg-gradient-to-r from-[#5C17A6] to-[#761ED4] hover:from-[#521594] hover:to-[#6a2ad1] focus:outline-none focus:ring-4 focus:ring-[#5C17A6]/30 disabled:opacity-60 disabled:cursor-not-allowed transition-colors duration-150 cursor-pointer`}
                                 >
                                     {loading ? (
-                                        <>
-                                            <span className="inline-block h-4 w-4 rounded-full border-2 border-white border-t-transparent animate-spin" />
-                                            Cargando...
-                                        </>
+                                        <Loader size="sm" color="white" />
                                     ) : (
                                         'Iniciar sesión'
                                     )}
