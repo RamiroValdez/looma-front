@@ -1,4 +1,3 @@
-import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../../../infrastructure/store/AuthStore';
 import { useState, useEffect } from 'react';
 import { getCurrentUser } from '../../../../infrastructure/services/DataUserService';
@@ -10,7 +9,6 @@ interface Props {
 }
 
 const ProfileMenu = ({ onBlockSelected, selectedBlock }: Props) => {
-  const navigate = useNavigate();
   const { logout } = useAuthStore();
   const [user, setUser] = useState<UserDTO | null>(null);
   const [ blockSelected,  setBlockSelected] = useState<string>('profile');
@@ -70,13 +68,6 @@ const ProfileMenu = ({ onBlockSelected, selectedBlock }: Props) => {
           onClick={() => handleBlockClick('mySaves')}
         >
           Guardados
-        </li>
-        
-        <li
-          className="hover:bg-gray-200 hover:shadow-md cursor-pointer p-4 rounded text-lg border-b border-gray-300"
-          onClick={() => navigate('/my-works')}
-        >
-          Mis Obras
         </li>
 
         <li
